@@ -1,16 +1,62 @@
-# health_notes
+# Health Notes App
 
-A chronological health note filing system.
+A Flutter app for tracking health notes with a chronological filing system, built with Cupertino design and Supabase backend.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- **Cupertino Design**: Native iOS-style interface with dark theme
+- **Date/Time Picker**: Integrated scroll wheel picker directly in the form
+- **Health Note Tracking**: Record symptoms, medications, and notes with timestamps
+- **Supabase Integration**: Real-time data persistence and synchronization
+- **Freezed Models**: Type-safe data models with JSON serialization
 
-A few resources to get you started if this is your first Flutter project:
+## Setup
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### 1. Install Dependencies
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter pub get
+```
+
+### 2. Generate Freezed Models
+
+```bash
+flutter packages pub run build_runner build
+```
+
+### 3. Configure Supabase
+
+1. Follow the instructions in `SUPABASE_SETUP.md`
+2. Create a `.env` file with your Supabase credentials:
+   ```
+   URL=your_supabase_url
+   ANON_KEY=your_supabase_anon_key
+   ```
+
+### 4. Run the App
+
+```bash
+flutter run
+```
+
+## Architecture
+
+- **Models**: Uses Freezed for immutable data classes with JSON serialization
+- **UI**: Cupertino widgets for native iOS feel
+- **Backend**: Supabase for real-time database and authentication
+- **State Management**: Flutter's built-in StatefulWidget for local state
+
+## Key Components
+
+- `MainScreen`: Root app widget with CupertinoApp configuration
+- `HealthNotesHomePage`: Main screen displaying health notes list
+- `AddNoteModal`: Form for adding new health notes with integrated date picker
+- `HealthNote`: Freezed model for health note data
+
+## Development
+
+To regenerate models after changes:
+
+```bash
+flutter packages pub run build_runner build --delete-conflicting-outputs
+```
