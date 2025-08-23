@@ -102,13 +102,22 @@ class AuthWrapper extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isAuthenticated = ref.watch(isAuthenticatedProvider);
+    final isAuthenticatedAsync = ref.watch(isAuthenticatedProvider);
 
-    if (isAuthenticated) {
-      return const HealthNotesHomePage();
-    } else {
-      return const AuthScreen();
-    }
+    return isAuthenticatedAsync.when(
+      data: (isAuthenticated) {
+        if (isAuthenticated) {
+          return const HealthNotesHomePage();
+        } else {
+          return const AuthScreen();
+        }
+      },
+      loading: () => const CupertinoPageScaffold(
+        child: Center(child: CupertinoActivityIndicator()),
+      ),
+      error: (error, stack) =>
+          CupertinoPageScaffold(child: Center(child: Text('Error: $error'))),
+    );
   }
 }
 

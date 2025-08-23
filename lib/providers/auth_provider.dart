@@ -14,11 +14,15 @@ Stream<AuthState> authStateChanges(Ref ref) {
 @riverpod
 Stream<User?> currentUser(Ref ref) {
   final authService = AuthService();
-  return authService.authStateChanges.map((authState) => authState.session?.user);
+  return authService.authStateChanges.map(
+    (authState) => authState.session?.user,
+  );
 }
 
 @riverpod
 Stream<bool> isAuthenticated(Ref ref) {
   final authService = AuthService();
-  return authService.authStateChanges.map((authState) => authState.session?.user != null);
+  return authService.authStateChanges.map(
+    (authState) => authState.session?.user != null,
+  );
 }

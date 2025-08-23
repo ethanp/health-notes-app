@@ -69,7 +69,7 @@ Create a `.env` file in your project root:
 ```
 URL=https://xqkxzlsyqsnebxzfyvrt.supabase.co
 ANON_KEY=your-anon-key
-GOOGLE_CLIENT_ID=514002384587-6kc0ksj5lmc3d92okoovqkflnv50v80j.apps.googleusercontent.com
+GOOGLE_WEB_CLIENT_ID=514002384587-6kc0ksj5lmc3d92okoovqkflnv50v80j.apps.googleusercontent.com
 ```
 
 **Important**: Replace the values with your actual credentials. The `.env` file is already in `.gitignore` to keep your secrets secure.

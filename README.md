@@ -35,7 +35,7 @@ flutter packages pub run build_runner build
    ```
    URL=your_supabase_url
    ANON_KEY=your_supabase_anon_key
-   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_WEB_CLIENT_ID=your_google_client_id
    ```
 
 ### 4. Run the App
