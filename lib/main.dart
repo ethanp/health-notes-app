@@ -10,6 +10,7 @@ import 'package:health_notes/providers/auth_provider.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/screens/auth_screen.dart';
 import 'package:health_notes/services/auth_service.dart';
+import 'package:health_notes/theme/app_theme.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -22,7 +23,6 @@ void main() async {
   );
   final GoogleSignIn googleSignIn = GoogleSignIn.instance;
   unawaited(
-    // TODO cleanup: Why is there a duplicate call to this elsewhere as well?
     googleSignIn
         .initialize(
           clientId: dotenv.env['GOOGLE_IOS_CLIENT_ID'],
@@ -49,7 +49,7 @@ void _handleGlobalAuthenticationEvent(
     if (authEvent is GoogleSignInAuthenticationEventSignIn) {
       try {
         final authService = AuthService();
-        await authService.completeSignInWithGoogle(authEvent);
+        await authService.signIntoSupabase(authEvent.user);
       } catch (e) {
         print('Error completing Supabase authentication: $e');
       }
@@ -71,16 +71,7 @@ class MainScreen extends StatelessWidget {
     return ProviderScope(
       child: CupertinoApp(
         title: 'Health Notes',
-        theme: const CupertinoThemeData(
-          brightness: Brightness.dark,
-          primaryColor: CupertinoColors.systemBlue,
-          scaffoldBackgroundColor: CupertinoColors.systemBackground,
-          barBackgroundColor: CupertinoColors.systemGrey6,
-          textTheme: CupertinoTextThemeData(
-            primaryColor: CupertinoColors.systemBlue,
-            textStyle: TextStyle(color: CupertinoColors.label),
-          ),
-        ),
+        theme: AppTheme.darkTheme,
         home: const AuthWrapper(),
       ),
     );
@@ -105,8 +96,9 @@ class AuthWrapper extends ConsumerWidget {
       loading: () => const CupertinoPageScaffold(
         child: Center(child: CupertinoActivityIndicator()),
       ),
-      error: (error, stack) =>
-          CupertinoPageScaffold(child: Center(child: Text('Error: $error'))),
+      error: (error, stack) => CupertinoPageScaffold(
+        child: Center(child: Text('Error: $error', style: AppTheme.error)),
+      ),
     );
   }
 }
@@ -156,11 +148,11 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
   }
 
   Widget emptyTable() {
-    return const Center(
+    return Center(
       child: Text(
         'No health notes yet.\nTap + to add your first note.',
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 16, color: CupertinoColors.systemGrey),
+        style: AppTheme.subtitle,
       ),
     );
   }
@@ -213,11 +205,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
                           note.symptoms.isNotEmpty
                               ? note.symptoms
                               : 'No symptoms recorded',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                            color: CupertinoColors.label,
-                          ),
+                          style: AppTheme.headlineMedium,
                         ),
                       ),
                       const Icon(CupertinoIcons.chevron_right),
@@ -225,38 +213,26 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
                   ),
                   const SizedBox(height: 8),
                   if (note.drugDoses.isNotEmpty) ...[
-                    Text(
-                      'Drugs:',
-                      style: const TextStyle(
-                        color: CupertinoColors.label,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    Text('Drugs:', style: AppTheme.headlineSmall),
                     const SizedBox(height: 4),
                     ...note.drugDoses.map(
                       (dose) => Padding(
                         padding: const EdgeInsets.only(left: 16),
                         child: Text(
                           '• ${dose.name} - ${dose.dosage} ${dose.unit}',
-                          style: const TextStyle(color: CupertinoColors.label),
+                          style: AppTheme.bodyMedium,
                         ),
                       ),
                     ),
                     const SizedBox(height: 4),
                   ],
                   if (note.notes.isNotEmpty) ...[
-                    Text(
-                      'Notes: ${note.notes}',
-                      style: const TextStyle(color: CupertinoColors.label),
-                    ),
+                    Text('Notes: ${note.notes}', style: AppTheme.bodyMedium),
                     const SizedBox(height: 4),
                   ],
                   Text(
                     'Date: ${_formatDateTime(note.dateTime)}',
-                    style: const TextStyle(
-                      color: CupertinoColors.systemGrey,
-                      fontSize: 12,
-                    ),
+                    style: AppTheme.caption,
                   ),
                 ],
               ),
@@ -275,18 +251,19 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     return await showCupertinoDialog<bool>(
           context: context,
           builder: (context) => CupertinoAlertDialog(
-            title: const Text('Delete Health Note'),
+            title: Text('Delete Health Note', style: AppTheme.headlineMedium),
             content: Text(
               'Are you sure you want to delete this health note from ${_formatDateTime(note.dateTime)}?',
+              style: AppTheme.bodyMedium,
             ),
             actions: [
               CupertinoDialogAction(
-                child: const Text('Cancel'),
+                child: Text('Cancel', style: AppTheme.buttonSecondary),
                 onPressed: () => Navigator.of(context).pop(false),
               ),
               CupertinoDialogAction(
                 isDestructiveAction: true,
-                child: const Text('Delete'),
+                child: Text('Delete', style: AppTheme.error),
                 onPressed: () => Navigator.of(context).pop(true),
               ),
             ],
@@ -303,16 +280,19 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     final shouldSignOut = await showCupertinoDialog<bool>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: const Text('Sign Out'),
-        content: const Text('Are you sure you want to sign out?'),
+        title: Text('Sign Out', style: AppTheme.headlineMedium),
+        content: Text(
+          'Are you sure you want to sign out?',
+          style: AppTheme.bodyMedium,
+        ),
         actions: [
           CupertinoDialogAction(
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: AppTheme.buttonSecondary),
             onPressed: () => Navigator.of(context).pop(false),
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,
-            child: const Text('Sign Out'),
+            child: Text('Sign Out', style: AppTheme.error),
             onPressed: () => Navigator.of(context).pop(true),
           ),
         ],
@@ -328,11 +308,11 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
           showCupertinoDialog(
             context: context,
             builder: (context) => CupertinoAlertDialog(
-              title: const Text('Error'),
-              content: Text('Failed to sign out: $e'),
+              title: Text('Error', style: AppTheme.headlineMedium),
+              content: Text('Failed to sign out: $e', style: AppTheme.error),
               actions: [
                 CupertinoDialogAction(
-                  child: const Text('OK'),
+                  child: Text('OK', style: AppTheme.buttonSecondary),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
@@ -389,11 +369,11 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
         showCupertinoDialog(
           context: context,
           builder: (context) => CupertinoAlertDialog(
-            title: const Text('Error'),
-            content: Text('Failed to save note: $e'),
+            title: Text('Error', style: AppTheme.headlineMedium),
+            content: Text('Failed to save note: $e', style: AppTheme.error),
             actions: [
               CupertinoDialogAction(
-                child: const Text('OK'),
+                child: Text('OK', style: AppTheme.buttonSecondary),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ],
@@ -411,7 +391,7 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: const Text('Add Health Note'),
+        middle: Text('Add Health Note', style: AppTheme.headlineMedium),
         leading: CupertinoNavigationBarBackButton(
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -420,7 +400,7 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
             : CupertinoButton(
                 padding: EdgeInsets.zero,
                 onPressed: _saveNote,
-                child: const Text('Save'),
+                child: Text('Save', style: AppTheme.buttonSecondary),
               ),
       ),
       child: SafeArea(
@@ -440,14 +420,7 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Date & Time',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        color: CupertinoColors.label,
-                      ),
-                    ),
+                    Text('Date & Time', style: AppTheme.headlineMedium),
                     const SizedBox(height: 16),
                     Container(
                       height: 200,
@@ -474,16 +447,14 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
               CupertinoTextField(
                 controller: _symptomsController,
                 placeholder: 'Symptoms (optional)',
-                placeholderStyle: const TextStyle(
-                  color: CupertinoColors.systemGrey,
-                ),
+                placeholderStyle: AppTheme.inputPlaceholder,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: CupertinoColors.systemGrey6,
                   border: Border.all(color: CupertinoColors.systemGrey4),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                style: const TextStyle(color: CupertinoColors.label),
+                style: AppTheme.input,
                 maxLines: 3,
               ),
 
@@ -502,13 +473,9 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'Drugs/Medications',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                            color: CupertinoColors.label,
-                          ),
+                          style: AppTheme.headlineMedium,
                         ),
                         CupertinoButton(
                           padding: EdgeInsets.zero,
@@ -534,16 +501,14 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
               CupertinoTextField(
                 controller: _notesController,
                 placeholder: 'Additional Notes (optional)',
-                placeholderStyle: const TextStyle(
-                  color: CupertinoColors.systemGrey,
-                ),
+                placeholderStyle: AppTheme.inputPlaceholder,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: CupertinoColors.systemGrey6,
                   border: Border.all(color: CupertinoColors.systemGrey4),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                style: const TextStyle(color: CupertinoColors.label),
+                style: AppTheme.input,
                 maxLines: 4,
               ),
 
@@ -589,10 +554,8 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
               Expanded(
                 child: CupertinoTextField(
                   placeholder: 'Drug name',
-                  placeholderStyle: const TextStyle(
-                    color: CupertinoColors.systemGrey,
-                  ),
-                  style: const TextStyle(color: CupertinoColors.label),
+                  placeholderStyle: AppTheme.inputPlaceholder,
+                  style: AppTheme.input,
                   onChanged: (value) {
                     _updateDrugDose(index, dose.copyWith(name: value));
                   },
@@ -615,10 +578,8 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
               Expanded(
                 child: CupertinoTextField(
                   placeholder: 'Dosage',
-                  placeholderStyle: const TextStyle(
-                    color: CupertinoColors.systemGrey,
-                  ),
-                  style: const TextStyle(color: CupertinoColors.label),
+                  placeholderStyle: AppTheme.inputPlaceholder,
+                  style: AppTheme.input,
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final dosage = double.tryParse(value) ?? 0.0;
@@ -637,13 +598,7 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
                   border: Border.all(color: CupertinoColors.separator),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: const Text(
-                  'mg',
-                  style: TextStyle(
-                    color: CupertinoColors.label,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                child: Text('mg', style: AppTheme.labelMedium),
               ),
             ],
           ),

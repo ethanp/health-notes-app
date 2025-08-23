@@ -1,4 +1,3 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -19,29 +18,16 @@ class AuthService {
 
   bool get isAuthenticated => currentUser != null;
 
-  Future<void> signInViaButton() async {
-    try {
-      final GoogleSignIn googleSignIn = GoogleSignIn.instance;
-      await googleSignIn.initialize(
-        clientId: dotenv.env['GOOGLE_IOS_CLIENT_ID'],
-        serverClientId: dotenv.env['GOOGLE_WEB_CLIENT_ID'],
-      );
-      googleSignIn.authenticationEvents.listen(loginStatusDidChange);
-      await googleSignIn.attemptLightweightAuthentication();
-      GoogleSignInAccount? googleUser = await googleSignIn.authenticate();
-      await googleLogInUser(googleUser);
-    } catch (e) {
-      throw Exception('Google sign in failed: $e');
-    }
+  Future<void> signInViaGoogle() async {
+    final GoogleSignInAccount user = await GoogleSignIn.instance.authenticate();
+    await signIntoSupabase(user);
   }
 
-  Future<void> googleLogInUser(GoogleSignInAccount googleUser) async {
+  Future<void> signIntoSupabase(GoogleSignInAccount googleUser) async {
     print('Logging in: ${googleUser.displayName} (${googleUser.email})');
-    final idToken = googleUser.authentication.idToken;
-    if (idToken == null) throw Exception('No ID Token found.');
     await _supabase.auth.signInWithIdToken(
       provider: OAuthProvider.google,
-      idToken: idToken,
+      idToken: googleUser.authentication.idToken!,
     );
     await upsertUserProfile(
       fullName: googleUser.displayName ?? 'User',
@@ -52,77 +38,23 @@ class AuthService {
   void loginStatusDidChange(GoogleSignInAuthenticationEvent? authEvent) =>
       print('User signed ${authEvent == null ? 'out' : 'in'}');
 
-  Future<void> completeSignInWithGoogle(
-    GoogleSignInAuthenticationEventSignIn authEvent,
-  ) async {
-    try {
-      googleLogInUser(authEvent.user);
-    } catch (e) {
-      throw Exception('Failed to complete Google sign in: $e');
-    }
-  }
-
   Future<void> signOut() async {
-    try {
-      await GoogleSignIn.instance.signOut();
-      await _supabase.auth.signOut();
-    } catch (e) {
-      throw Exception('Sign out failed: $e');
-    }
-  }
-
-  Future<Map<String, dynamic>?> getUserProfile() async {
-    try {
-      if (currentUser == null) return null;
-
-      final response = await _supabase
-          .from('profiles')
-          .select()
-          .eq('id', currentUser!.id)
-          .single();
-
-      return response;
-    } catch (e) {
-      return null;
-    }
+    await GoogleSignIn.instance.signOut();
+    await _supabase.auth.signOut();
   }
 
   Future<void> upsertUserProfile({
     required String fullName,
     String? avatarUrl,
   }) async {
-    try {
-      if (currentUser == null) throw Exception('No authenticated user');
+    if (currentUser == null) throw Exception('No authenticated user');
 
-      await _supabase.from('profiles').upsert({
-        'id': currentUser!.id,
-        'email': currentUser!.email,
-        'full_name': fullName,
-        'avatar_url': avatarUrl,
-        'updated_at': DateTime.now().toIso8601String(),
-      });
-    } catch (e) {
-      throw Exception('Failed to update profile: $e');
-    }
-  }
-
-  // TODO call this somewhere.
-  Future<void> deleteAccount() async {
-    try {
-      if (currentUser == null) throw Exception('No authenticated user');
-      await _supabase.from('profiles').delete().eq('id', currentUser!.id);
-      await _supabase.auth.admin.deleteUser(currentUser!.id);
-    } catch (e) {
-      throw Exception('Failed to delete account: $e');
-    }
-  }
-
-  // TODO call this.
-  Future<void> resetPassword(String email) async {
-    try {
-      await _supabase.auth.resetPasswordForEmail(email);
-    } catch (e) {
-      throw Exception('Failed to send password reset email: $e');
-    }
+    await _supabase.from('profiles').upsert({
+      'id': currentUser!.id,
+      'email': currentUser!.email,
+      'full_name': fullName,
+      'avatar_url': avatarUrl,
+      'updated_at': DateTime.now().toIso8601String(),
+    });
   }
 }
