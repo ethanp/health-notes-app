@@ -12,12 +12,12 @@ class AuthScreen extends ConsumerStatefulWidget {
 class _AuthScreenState extends ConsumerState<AuthScreen> {
   bool _isLoading = false;
 
-  Future<void> _signInWithGoogle() async {
+  Future<void> signInButtonPressed() async {
     setState(() => _isLoading = true);
 
     try {
       final authService = AuthService();
-      await authService.signInWithGoogle();
+      await authService.signInViaButton();
     } catch (e) {
       if (mounted) {
         showCupertinoDialog(
@@ -87,7 +87,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 color: CupertinoColors.systemBlue,
                 borderRadius: BorderRadius.circular(12),
-                onPressed: _isLoading ? null : _signInWithGoogle,
+                onPressed: _isLoading ? null : signInButtonPressed,
                 child: _isLoading
                     ? const CupertinoActivityIndicator(
                         color: CupertinoColors.white,

@@ -19,7 +19,7 @@ class AuthService {
 
   bool get isAuthenticated => currentUser != null;
 
-  Future<void> signInWithGoogle() async {
+  Future<void> signInViaButton() async {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn.instance;
       await googleSignIn.initialize(
@@ -29,20 +29,24 @@ class AuthService {
       googleSignIn.authenticationEvents.listen(loginStatusDidChange);
       await googleSignIn.attemptLightweightAuthentication();
       GoogleSignInAccount? googleUser = await googleSignIn.authenticate();
-      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-      final idToken = googleAuth.idToken;
-      if (idToken == null) throw Exception('No ID Token found.');
-      await _supabase.auth.signInWithIdToken(
-        provider: OAuthProvider.google,
-        idToken: idToken,
-      );
-      await upsertUserProfile(
-        fullName: googleUser.displayName ?? 'User',
-        avatarUrl: googleUser.photoUrl,
-      );
+      await googleLogInUser(googleUser);
     } catch (e) {
       throw Exception('Google sign in failed: $e');
     }
+  }
+
+  Future<void> googleLogInUser(GoogleSignInAccount googleUser) async {
+    print('Logging in: ${googleUser.displayName} (${googleUser.email})');
+    final idToken = googleUser.authentication.idToken;
+    if (idToken == null) throw Exception('No ID Token found.');
+    await _supabase.auth.signInWithIdToken(
+      provider: OAuthProvider.google,
+      idToken: idToken,
+    );
+    await upsertUserProfile(
+      fullName: googleUser.displayName ?? 'User',
+      avatarUrl: googleUser.photoUrl,
+    );
   }
 
   void loginStatusDidChange(GoogleSignInAuthenticationEvent? authEvent) =>
@@ -52,19 +56,7 @@ class AuthService {
     GoogleSignInAuthenticationEventSignIn authEvent,
   ) async {
     try {
-      final GoogleSignInAccount googleUser = authEvent.user;
-      print('Logging in: ${googleUser.displayName} (${googleUser.email})');
-      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-      final idToken = googleAuth.idToken;
-      if (idToken == null) throw Exception('No ID Token found.');
-      await _supabase.auth.signInWithIdToken(
-        provider: OAuthProvider.google,
-        idToken: idToken,
-      );
-      await upsertUserProfile(
-        fullName: googleUser.displayName ?? 'User',
-        avatarUrl: googleUser.photoUrl,
-      );
+      googleLogInUser(authEvent.user);
     } catch (e) {
       throw Exception('Failed to complete Google sign in: $e');
     }

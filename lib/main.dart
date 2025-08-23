@@ -16,25 +16,17 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
-
-  // Debug: Print environment variables (remove in production)
-  print('Supabase URL: ${dotenv.env['URL']}');
-  print('Supabase Anon Key: ${dotenv.env['ANON_KEY']?.substring(0, 20)}...');
-
   await Supabase.initialize(
     url: dotenv.env['URL']!,
     anonKey: dotenv.env['ANON_KEY']!,
   );
-
-  // Initialize Google Sign-In following the official documentation
   final GoogleSignIn googleSignIn = GoogleSignIn.instance;
   unawaited(
+    // TODO cleanup: Why is there a duplicate call to this elsewhere as well?
     googleSignIn
         .initialize(
-          clientId:
-              '514002384587-cerg0oevd7cv698ockkmoesvqkcq42q4.apps.googleusercontent.com',
-          serverClientId:
-              '514002384587-tg39uqob0ue1g191duhjbg7e6urdb5vh.apps.googleusercontent.com',
+          clientId: dotenv.env['GOOGLE_IOS_CLIENT_ID'],
+          serverClientId: dotenv.env['GOOGLE_WEB_CLIENT_ID'],
         )
         .then((_) {
           googleSignIn.authenticationEvents
@@ -54,8 +46,6 @@ void _handleGlobalAuthenticationEvent(
 ) async {
   if (authEvent != null) {
     print('Global: User signed in (def): $authEvent');
-
-    // If this is a sign-in event, complete the Supabase authentication
     if (authEvent is GoogleSignInAuthenticationEventSignIn) {
       try {
         final authService = AuthService();
