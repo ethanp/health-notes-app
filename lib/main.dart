@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -112,11 +113,68 @@ class HealthNotesHomePage extends ConsumerStatefulWidget {
 }
 
 class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  DateTime? _selectedDate;
+  String? _selectedDrug;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   void _showAddNoteModal() {
     showCupertinoModalPopup(
       context: context,
       builder: (context) => const AddNoteModal(),
     );
+  }
+
+  void _clearFilters() {
+    setState(() {
+      _searchQuery = '';
+      _selectedDate = null;
+      _selectedDrug = null;
+      _searchController.clear();
+    });
+  }
+
+  List<HealthNote> _filterNotes(List<HealthNote> notes) {
+    return notes.where((note) {
+      bool matchesSearch =
+          _searchQuery.isEmpty ||
+          note.symptoms.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          note.notes.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          note.drugDoses.any(
+            (dose) =>
+                dose.name.toLowerCase().contains(_searchQuery.toLowerCase()),
+          );
+
+      bool matchesDate =
+          _selectedDate == null ||
+          (note.dateTime.year == _selectedDate!.year &&
+              note.dateTime.month == _selectedDate!.month &&
+              note.dateTime.day == _selectedDate!.day);
+
+      bool matchesDrug =
+          _selectedDrug == null ||
+          note.drugDoses.any((dose) => dose.name == _selectedDrug);
+
+      return matchesSearch && matchesDate && matchesDrug;
+    }).toList();
+  }
+
+  List<String> _getUniqueDrugs(List<HealthNote> notes) {
+    final drugs = <String>{};
+    for (final note in notes) {
+      for (final dose in note.drugDoses) {
+        if (dose.name.isNotEmpty) {
+          drugs.add(dose.name);
+        }
+      }
+    }
+    return drugs.toList()..sort();
   }
 
   @override
@@ -125,7 +183,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: const Text('Health Notes'),
+        middle: Text('Health Notes', style: AppTheme.titleMedium),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: _showSignOutDialog,
@@ -139,10 +197,194 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
       ),
       child: SafeArea(
         child: notesAsync.when(
-          data: (notes) => notes.isEmpty ? emptyTable() : table(notes),
+          data: (notes) =>
+              notes.isEmpty ? emptyTable() : _buildFilteredContent(notes),
           loading: () => const Center(child: CupertinoActivityIndicator()),
-          error: (error, stack) => Center(child: Text('Error: $error')),
+          error: (error, stack) =>
+              Center(child: Text('Error: $error', style: AppTheme.error)),
         ),
+      ),
+    );
+  }
+
+  Widget _buildFilteredContent(List<HealthNote> notes) {
+    final filteredNotes = _filterNotes(notes);
+    final hasActiveFilters =
+        _searchQuery.isNotEmpty ||
+        _selectedDate != null ||
+        _selectedDrug != null;
+
+    return Column(
+      children: [
+        _buildSearchBar(),
+        if (hasActiveFilters) _buildFilterChips(notes),
+        Expanded(
+          child: filteredNotes.isEmpty
+              ? _buildNoResultsMessage(hasActiveFilters)
+              : table(filteredNotes),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Expanded(
+            child: CupertinoSearchTextField(
+              controller: _searchController,
+              placeholder: 'Search symptoms, notes, or drugs...',
+              placeholderStyle: AppTheme.inputPlaceholder,
+              style: AppTheme.input,
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+              onSuffixTap: _searchQuery.isNotEmpty
+                  ? () {
+                      setState(() {
+                        _searchQuery = '';
+                        _searchController.clear();
+                      });
+                    }
+                  : null,
+            ),
+          ),
+          const SizedBox(width: 8),
+          CupertinoButton(
+            padding: const EdgeInsets.all(12),
+            color: CupertinoColors.systemGrey6,
+            borderRadius: BorderRadius.circular(8),
+            onPressed: () => _showFilterModal(),
+            child: Icon(
+              CupertinoIcons.slider_horizontal_3,
+              color: (_selectedDate != null || _selectedDrug != null)
+                  ? CupertinoColors.systemBlue
+                  : CupertinoColors.systemGrey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showFilterModal() {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => FilterModal(
+        selectedDate: _selectedDate,
+        selectedDrug: _selectedDrug,
+        availableDrugs: _getUniqueDrugs(
+          ref.read(healthNotesNotifierProvider).value ?? [],
+        ),
+        onDateChanged: (date) {
+          setState(() {
+            _selectedDate = date;
+          });
+        },
+        onDrugChanged: (drug) {
+          setState(() {
+            _selectedDrug = drug;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildFilterChips(List<HealthNote> notes) {
+    return Container(
+      height: 50,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          if (_selectedDate != null)
+            _buildFilterChip(
+              'Date: ${DateFormat('M/d/yyyy').format(_selectedDate!)}',
+              () {
+                setState(() {
+                  _selectedDate = null;
+                });
+              },
+            ),
+          if (_selectedDrug != null)
+            _buildFilterChip('Drug: $_selectedDrug', () {
+              setState(() {
+                _selectedDrug = null;
+              });
+            }),
+          if (_searchQuery.isNotEmpty ||
+              _selectedDate != null ||
+              _selectedDrug != null)
+            _buildFilterChip('Clear All', _clearFilters, isClearAll: true),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(
+    String label,
+    VoidCallback onTap, {
+    bool isClearAll = false,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      child: CupertinoButton(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        color: isClearAll
+            ? CupertinoColors.systemGrey
+            : CupertinoColors.systemBlue,
+        borderRadius: BorderRadius.circular(16),
+        onPressed: onTap,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: AppTheme.labelSmall.copyWith(color: CupertinoColors.white),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              CupertinoIcons.xmark_circle_fill,
+              size: 14,
+              color: CupertinoColors.white,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoResultsMessage(bool hasActiveFilters) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            CupertinoIcons.search,
+            size: 48,
+            color: CupertinoColors.systemGrey,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            hasActiveFilters
+                ? 'No notes match your filters'
+                : 'No health notes yet',
+            style: AppTheme.titleMedium,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            hasActiveFilters
+                ? 'Try adjusting your search or filters'
+                : 'Tap + to add your first note',
+            style: AppTheme.subtitle,
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
@@ -167,10 +409,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
           direction: DismissDirection.endToStart,
           background: Container(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            decoration: BoxDecoration(
-              color: CupertinoColors.destructiveRed,
-              borderRadius: BorderRadius.circular(8),
-            ),
+            decoration: AppTheme.deleteContainer,
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.only(right: 20),
             child: const Icon(
@@ -187,11 +426,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
           },
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            decoration: BoxDecoration(
-              color: CupertinoColors.systemBackground,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: CupertinoColors.separator, width: 0.5),
-            ),
+            decoration: AppTheme.cardContainer,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -205,7 +440,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
                           note.symptoms.isNotEmpty
                               ? note.symptoms
                               : 'No symptoms recorded',
-                          style: AppTheme.headlineMedium,
+                          style: AppTheme.titleMedium,
                         ),
                       ),
                       const Icon(CupertinoIcons.chevron_right),
@@ -213,7 +448,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
                   ),
                   const SizedBox(height: 8),
                   if (note.drugDoses.isNotEmpty) ...[
-                    Text('Drugs:', style: AppTheme.headlineSmall),
+                    Text('Drugs:', style: AppTheme.titleSmall),
                     const SizedBox(height: 4),
                     ...note.drugDoses.map(
                       (dose) => Padding(
@@ -251,7 +486,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     return await showCupertinoDialog<bool>(
           context: context,
           builder: (context) => CupertinoAlertDialog(
-            title: Text('Delete Health Note', style: AppTheme.headlineMedium),
+            title: Text('Delete Health Note', style: AppTheme.titleMedium),
             content: Text(
               'Are you sure you want to delete this health note from ${_formatDateTime(note.dateTime)}?',
               style: AppTheme.bodyMedium,
@@ -280,7 +515,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     final shouldSignOut = await showCupertinoDialog<bool>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: Text('Sign Out', style: AppTheme.headlineMedium),
+        title: Text('Sign Out', style: AppTheme.titleMedium),
         content: Text(
           'Are you sure you want to sign out?',
           style: AppTheme.bodyMedium,
@@ -308,7 +543,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
           showCupertinoDialog(
             context: context,
             builder: (context) => CupertinoAlertDialog(
-              title: Text('Error', style: AppTheme.headlineMedium),
+              title: Text('Error', style: AppTheme.titleMedium),
               content: Text('Failed to sign out: $e', style: AppTheme.error),
               actions: [
                 CupertinoDialogAction(
@@ -321,6 +556,306 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
         }
       }
     }
+  }
+}
+
+class FilterModal extends StatefulWidget {
+  final DateTime? selectedDate;
+  final String? selectedDrug;
+  final List<String> availableDrugs;
+  final Function(DateTime?) onDateChanged;
+  final Function(String?) onDrugChanged;
+
+  const FilterModal({
+    super.key,
+    required this.selectedDate,
+    required this.selectedDrug,
+    required this.availableDrugs,
+    required this.onDateChanged,
+    required this.onDrugChanged,
+  });
+
+  @override
+  State<FilterModal> createState() => _FilterModalState();
+}
+
+class _FilterModalState extends State<FilterModal> {
+  DateTime? _tempSelectedDate;
+  String? _tempSelectedDrug;
+  bool _isDatePickerVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _tempSelectedDate = widget.selectedDate;
+    _tempSelectedDrug = widget.selectedDrug;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text('Filters', style: AppTheme.titleMedium),
+        leading: CupertinoNavigationBarBackButton(
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        trailing: CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: _applyFilters,
+          child: Text('Apply', style: AppTheme.buttonSecondary),
+        ),
+      ),
+      child: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            const SizedBox(height: 20),
+
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: AppTheme.filterContainerWithBorder(
+                CupertinoColors.systemGreen,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Filter by Date', style: AppTheme.titleMedium),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CupertinoButton(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          color: _tempSelectedDate != null
+                              ? CupertinoColors.systemBlue
+                              : CupertinoColors.systemGrey6,
+                          borderRadius: BorderRadius.circular(8),
+                          onPressed: () {
+                            setState(() {
+                              _isDatePickerVisible = !_isDatePickerVisible;
+                            });
+                          },
+                          child: Text(
+                            _tempSelectedDate != null
+                                ? DateFormat(
+                                    'M/d/yyyy',
+                                  ).format(_tempSelectedDate!)
+                                : 'Select Date',
+                            style: _tempSelectedDate != null
+                                ? AppTheme.button
+                                : AppTheme.bodyMedium,
+                          ),
+                        ),
+                      ),
+                      if (_tempSelectedDate != null) ...[
+                        const SizedBox(width: 8),
+                        CupertinoButton(
+                          padding: const EdgeInsets.all(8),
+                          color: CupertinoColors.destructiveRed,
+                          borderRadius: BorderRadius.circular(8),
+                          onPressed: () {
+                            setState(() {
+                              _tempSelectedDate = null;
+                            });
+                          },
+                          child: const Icon(
+                            CupertinoIcons.xmark,
+                            color: CupertinoColors.white,
+                            size: 16,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: AppTheme.filterContainerWithBorder(
+                CupertinoColors.systemOrange,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Filter by Drug', style: AppTheme.titleMedium),
+                  const SizedBox(height: 16),
+                  if (widget.availableDrugs.isEmpty)
+                    Text('No drugs recorded yet', style: AppTheme.subtitle)
+                  else
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        ...widget.availableDrugs.map(
+                          (drug) => CupertinoButton(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            color: _tempSelectedDrug == drug
+                                ? CupertinoColors.systemBlue
+                                : CupertinoColors.systemBackground,
+                            borderRadius: BorderRadius.circular(16),
+                            onPressed: () {
+                              setState(() {
+                                _tempSelectedDrug = _tempSelectedDrug == drug
+                                    ? null
+                                    : drug;
+                              });
+                            },
+                            child: Text(
+                              drug,
+                              style: _tempSelectedDrug == drug
+                                  ? AppTheme.button
+                                  : AppTheme.bodyMedium,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+
+            if (_isDatePickerVisible) ...[
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: AppTheme.datePickerContainer,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Select Date', style: AppTheme.titleMedium),
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          onPressed: () {
+                            setState(() {
+                              _isDatePickerVisible = false;
+                            });
+                          },
+                          child: const Icon(CupertinoIcons.xmark),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      height: 300,
+                      decoration: AppTheme.datePickerContainer,
+                      child: _buildCustomDatePicker(),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCustomDatePicker() {
+    final currentDate = _tempSelectedDate ?? DateTime.now();
+    final months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    final days = List.generate(31, (index) => (index + 1).toString());
+    final years = List.generate(
+      11,
+      (index) => (currentDate.year - 5 + index).toString(),
+    );
+
+    return Row(
+      children: [
+        Expanded(
+          child: CupertinoPicker(
+            itemExtent: 40,
+            backgroundColor: CupertinoColors.systemGrey5,
+            onSelectedItemChanged: (index) {
+              setState(() {
+                _tempSelectedDate = DateTime(
+                  currentDate.year,
+                  index + 1,
+                  currentDate.day,
+                );
+              });
+            },
+            children: months
+                .map(
+                  (month) =>
+                      Center(child: Text(month, style: AppTheme.bodyMedium)),
+                )
+                .toList(),
+          ),
+        ),
+        Expanded(
+          child: CupertinoPicker(
+            itemExtent: 40,
+            backgroundColor: CupertinoColors.systemGrey5,
+            onSelectedItemChanged: (index) {
+              setState(() {
+                _tempSelectedDate = DateTime(
+                  currentDate.year,
+                  currentDate.month,
+                  index + 1,
+                );
+              });
+            },
+            children: days
+                .map(
+                  (day) => Center(child: Text(day, style: AppTheme.bodyMedium)),
+                )
+                .toList(),
+          ),
+        ),
+        Expanded(
+          child: CupertinoPicker(
+            itemExtent: 40,
+            backgroundColor: CupertinoColors.systemGrey5,
+            onSelectedItemChanged: (index) {
+              setState(() {
+                _tempSelectedDate = DateTime(
+                  int.parse(years[index]),
+                  currentDate.month,
+                  currentDate.day,
+                );
+              });
+            },
+            children: years
+                .map(
+                  (year) =>
+                      Center(child: Text(year, style: AppTheme.bodyMedium)),
+                )
+                .toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _applyFilters() {
+    widget.onDateChanged(_tempSelectedDate);
+    widget.onDrugChanged(_tempSelectedDrug);
+    Navigator.of(context).pop();
   }
 }
 
@@ -369,7 +904,7 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
         showCupertinoDialog(
           context: context,
           builder: (context) => CupertinoAlertDialog(
-            title: Text('Error', style: AppTheme.headlineMedium),
+            title: Text('Error', style: AppTheme.titleMedium),
             content: Text('Failed to save note: $e', style: AppTheme.error),
             actions: [
               CupertinoDialogAction(
@@ -391,7 +926,7 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('Add Health Note', style: AppTheme.headlineMedium),
+        middle: Text('Add Health Note', style: AppTheme.titleMedium),
         leading: CupertinoNavigationBarBackButton(
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -420,15 +955,11 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Date & Time', style: AppTheme.headlineMedium),
+                    Text('Date & Time', style: AppTheme.titleMedium),
                     const SizedBox(height: 16),
                     Container(
                       height: 200,
-                      decoration: BoxDecoration(
-                        color: CupertinoColors.systemGrey6,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: CupertinoColors.systemGrey4),
-                      ),
+                      decoration: AppTheme.inputContainer,
                       child: CupertinoDatePicker(
                         mode: CupertinoDatePickerMode.dateAndTime,
                         initialDateTime: _selectedDateTime,
@@ -449,11 +980,7 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
                 placeholder: 'Symptoms (optional)',
                 placeholderStyle: AppTheme.inputPlaceholder,
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: CupertinoColors.systemGrey6,
-                  border: Border.all(color: CupertinoColors.systemGrey4),
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                decoration: AppTheme.inputContainer,
                 style: AppTheme.input,
                 maxLines: 3,
               ),
@@ -462,21 +989,14 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
 
               Container(
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: CupertinoColors.systemGrey6,
-                  border: Border.all(color: CupertinoColors.systemGrey4),
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                decoration: AppTheme.inputContainer,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Drugs/Medications',
-                          style: AppTheme.headlineMedium,
-                        ),
+                        Text('Drugs/Medications', style: AppTheme.titleMedium),
                         CupertinoButton(
                           padding: EdgeInsets.zero,
                           onPressed: _addDrugDose,
@@ -503,11 +1023,7 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
                 placeholder: 'Additional Notes (optional)',
                 placeholderStyle: AppTheme.inputPlaceholder,
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: CupertinoColors.systemGrey6,
-                  border: Border.all(color: CupertinoColors.systemGrey4),
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                decoration: AppTheme.inputContainer,
                 style: AppTheme.input,
                 maxLines: 4,
               ),
@@ -542,11 +1058,7 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: CupertinoColors.systemBackground,
-        border: Border.all(color: CupertinoColors.separator),
-        borderRadius: BorderRadius.circular(8),
-      ),
+      decoration: AppTheme.cardContainer,
       child: Column(
         children: [
           Row(
@@ -593,11 +1105,7 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
                   horizontal: 12,
                   vertical: 8,
                 ),
-                decoration: BoxDecoration(
-                  color: CupertinoColors.systemGrey6,
-                  border: Border.all(color: CupertinoColors.separator),
-                  borderRadius: BorderRadius.circular(6),
-                ),
+                decoration: AppTheme.labelContainer,
                 child: Text('mg', style: AppTheme.labelMedium),
               ),
             ],

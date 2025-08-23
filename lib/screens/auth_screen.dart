@@ -35,7 +35,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               Text(
                 'Health Notes',
                 textAlign: TextAlign.center,
-                style: AppTheme.displayLarge,
+                style: AppTheme.titleLarge,
               ),
 
               const SizedBox(height: 8),
@@ -89,7 +89,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   Future<void> signInButtonPressed() async {
     setState(() => _isLoading = true);
-
     try {
       final authService = AuthService();
       await authService.signInViaGoogle();
@@ -98,7 +97,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         showCupertinoDialog(
           context: context,
           builder: (context) => CupertinoAlertDialog(
-            title: Text('Sign In Failed', style: AppTheme.headlineMedium),
+            title: Text('Sign In Failed', style: AppTheme.titleMedium),
             content: Text(
               'Failed to sign in with Google: $e',
               style: AppTheme.error,
@@ -113,9 +112,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         );
       }
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 }
