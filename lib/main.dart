@@ -1,21 +1,76 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:health_notes/models/health_note.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:health_notes/models/drug_dose.dart';
+import 'package:health_notes/models/health_note.dart';
+import 'package:health_notes/providers/auth_provider.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
+import 'package:health_notes/screens/auth_screen.dart';
+import 'package:health_notes/services/auth_service.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
+
+  // Debug: Print environment variables (remove in production)
+  print('Supabase URL: ${dotenv.env['URL']}');
+  print('Supabase Anon Key: ${dotenv.env['ANON_KEY']?.substring(0, 20)}...');
+
   await Supabase.initialize(
     url: dotenv.env['URL']!,
     anonKey: dotenv.env['ANON_KEY']!,
   );
 
+  // Initialize Google Sign-In following the official documentation
+  final GoogleSignIn googleSignIn = GoogleSignIn.instance;
+  unawaited(
+    googleSignIn
+        .initialize(
+          clientId:
+              '514002384587-cerg0oevd7cv698ockkmoesvqkcq42q4.apps.googleusercontent.com',
+          serverClientId:
+              '514002384587-tg39uqob0ue1g191duhjbg7e6urdb5vh.apps.googleusercontent.com',
+        )
+        .then((_) {
+          googleSignIn.authenticationEvents
+              .listen(_handleGlobalAuthenticationEvent)
+              .onError(_handleGlobalAuthenticationError);
+
+          // Attempt lightweight authentication
+          googleSignIn.attemptLightweightAuthentication();
+        }),
+  );
+
   runApp(const MainScreen());
+}
+
+void _handleGlobalAuthenticationEvent(
+  GoogleSignInAuthenticationEvent? authEvent,
+) async {
+  if (authEvent != null) {
+    print('Global: User signed in (def): $authEvent');
+
+    // If this is a sign-in event, complete the Supabase authentication
+    if (authEvent is GoogleSignInAuthenticationEventSignIn) {
+      try {
+        final authService = AuthService();
+        await authService.completeSignInWithGoogle(authEvent);
+      } catch (e) {
+        print('Error completing Supabase authentication: $e');
+      }
+    }
+  } else {
+    print('Global: User signed out');
+  }
+}
+
+void _handleGlobalAuthenticationError(dynamic error) {
+  print('Global authentication error: $error');
 }
 
 class MainScreen extends StatelessWidget {
@@ -36,9 +91,24 @@ class MainScreen extends StatelessWidget {
             textStyle: TextStyle(color: CupertinoColors.label),
           ),
         ),
-        home: const HealthNotesHomePage(),
+        home: const AuthWrapper(),
       ),
     );
+  }
+}
+
+class AuthWrapper extends ConsumerWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isAuthenticated = ref.watch(isAuthenticatedProvider);
+
+    if (isAuthenticated) {
+      return const HealthNotesHomePage();
+    } else {
+      return const AuthScreen();
+    }
   }
 }
 
@@ -65,6 +135,11 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: const Text('Health Notes'),
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: _showSignOutDialog,
+          child: const Icon(CupertinoIcons.person_circle),
+        ),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: _showAddNoteModal,
@@ -224,6 +299,50 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
   void _deleteNote(String noteId) {
     ref.read(healthNotesNotifierProvider.notifier).deleteNote(noteId);
   }
+
+  Future<void> _showSignOutDialog() async {
+    final shouldSignOut = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you want to sign out?'),
+        actions: [
+          CupertinoDialogAction(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(false),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            child: const Text('Sign Out'),
+            onPressed: () => Navigator.of(context).pop(true),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldSignOut == true) {
+      try {
+        final authService = AuthService();
+        await authService.signOut();
+      } catch (e) {
+        if (mounted) {
+          showCupertinoDialog(
+            context: context,
+            builder: (context) => CupertinoAlertDialog(
+              title: const Text('Error'),
+              content: Text('Failed to sign out: $e'),
+              actions: [
+                CupertinoDialogAction(
+                  child: const Text('OK'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+          );
+        }
+      }
+    }
+  }
 }
 
 class AddNoteModal extends ConsumerStatefulWidget {
@@ -239,7 +358,7 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
   final _notesController = TextEditingController();
   DateTime _selectedDateTime = DateTime.now();
   bool _isLoading = false;
-  List<DrugDose> _drugDoses = [];
+  final List<DrugDose> _drugDoses = <DrugDose>[];
 
   @override
   void dispose() {
@@ -313,7 +432,6 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
             children: [
               const SizedBox(height: 20),
 
-              // Date/Time Picker Section
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -332,7 +450,6 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // Date picker wheel directly in the form
                     Container(
                       height: 200,
                       decoration: BoxDecoration(
@@ -355,7 +472,6 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
 
               const SizedBox(height: 20),
 
-              // Symptoms Field
               CupertinoTextField(
                 controller: _symptomsController,
                 placeholder: 'Symptoms (optional)',
@@ -374,7 +490,6 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
 
               const SizedBox(height: 16),
 
-              // Drug Doses Section
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -417,7 +532,6 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
 
               const SizedBox(height: 16),
 
-              // Notes Field
               CupertinoTextField(
                 controller: _notesController,
                 placeholder: 'Additional Notes (optional)',

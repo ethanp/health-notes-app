@@ -14,9 +14,15 @@ class HealthNotesNotifier extends _$HealthNotesNotifier {
 
   Future<List<HealthNote>> _loadNotes() async {
     try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+
       final response = await Supabase.instance.client
           .from('health_notes')
           .select()
+          .eq('user_id', user.id)
           .order('created_at', ascending: false);
 
       return response.map((json) => HealthNote.fromJson(json)).toList();
@@ -32,7 +38,13 @@ class HealthNotesNotifier extends _$HealthNotesNotifier {
     required String notes,
   }) async {
     try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+
       await Supabase.instance.client.from('health_notes').insert({
+        'user_id': user.id,
         'date_time': dateTime.toIso8601String(),
         'symptoms': symptoms.trim(),
         'drug_doses': drugDoses.map((dose) => dose.toJson()).toList(),
@@ -40,7 +52,6 @@ class HealthNotesNotifier extends _$HealthNotesNotifier {
         'created_at': DateTime.now().toIso8601String(),
       });
 
-      // Refresh the notes list
       ref.invalidateSelf();
     } catch (e) {
       throw Exception('Failed to add note: $e');
@@ -49,9 +60,17 @@ class HealthNotesNotifier extends _$HealthNotesNotifier {
 
   Future<void> deleteNote(String id) async {
     try {
-      await Supabase.instance.client.from('health_notes').delete().eq('id', id);
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
 
-      // Refresh the notes list
+      await Supabase.instance.client
+          .from('health_notes')
+          .delete()
+          .eq('id', id)
+          .eq('user_id', user.id);
+
       ref.invalidateSelf();
     } catch (e) {
       throw Exception('Failed to delete note: $e');
