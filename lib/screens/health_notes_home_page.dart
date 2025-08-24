@@ -149,18 +149,12 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
               placeholder: 'Search...',
               placeholderStyle: AppTheme.inputPlaceholder,
               style: AppTheme.input,
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value;
-                });
-              },
+              onChanged: (value) => setState(() => _searchQuery = value),
               onSuffixTap: _searchQuery.isNotEmpty
-                  ? () {
-                      setState(() {
-                        _searchQuery = '';
-                        _searchController.clear();
-                      });
-                    }
+                  ? () => setState(() {
+                      _searchQuery = '';
+                      _searchController.clear();
+                    })
                   : null,
             ),
           ),
@@ -191,16 +185,8 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
         availableDrugs: getUniqueDrugs(
           ref.read(healthNotesNotifierProvider).value ?? [],
         ),
-        onDateChanged: (date) {
-          setState(() {
-            _selectedDate = date;
-          });
-        },
-        onDrugChanged: (drug) {
-          setState(() {
-            _selectedDrug = drug;
-          });
-        },
+        onDateChanged: (date) => setState(() => _selectedDate = date),
+        onDrugChanged: (drug) => setState(() => _selectedDrug = drug),
       ),
     );
   }
@@ -215,18 +201,13 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
           if (_selectedDate != null)
             buildFilterChip(
               'Date: ${DateFormat('M/d/yyyy').format(_selectedDate!)}',
-              () {
-                setState(() {
-                  _selectedDate = null;
-                });
-              },
+              () => setState(() => _selectedDate = null),
             ),
           if (_selectedDrug != null)
-            buildFilterChip('Drug: $_selectedDrug', () {
-              setState(() {
-                _selectedDrug = null;
-              });
-            }),
+            buildFilterChip(
+              'Drug: $_selectedDrug',
+              () => setState(() => _selectedDrug = null),
+            ),
           if (_searchQuery.isNotEmpty ||
               _selectedDate != null ||
               _selectedDrug != null)

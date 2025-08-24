@@ -18,11 +18,7 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen> {
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
         currentIndex: selectedIndex,
-        onTap: (index) {
-          setState(() {
-            selectedIndex = index;
-          });
-        },
+        onTap: (index) => setState(() => selectedIndex = index),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.home),
@@ -34,20 +30,13 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen> {
           ),
         ],
       ),
-      tabBuilder: (context, index) {
-        return CupertinoTabView(
-          builder: (context) {
-            switch (index) {
-              case 0:
-                return const HealthNotesHomePage();
-              case 1:
-                return const TrendsScreen();
-              default:
-                return const HealthNotesHomePage();
-            }
-          },
-        );
-      },
+      tabBuilder: (context, index) => CupertinoTabView(
+        builder: (context) => switch (index) {
+          0 => const HealthNotesHomePage(),
+          1 => const TrendsScreen(),
+          _ => const HealthNotesHomePage(),
+        },
+      ),
     );
   }
 }

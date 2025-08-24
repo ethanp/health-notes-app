@@ -72,11 +72,9 @@ class _FilterModalState extends State<FilterModal> {
                               ? CupertinoColors.systemBlue
                               : CupertinoColors.systemGrey6,
                           borderRadius: BorderRadius.circular(8),
-                          onPressed: () {
-                            setState(() {
-                              _isDatePickerVisible = !_isDatePickerVisible;
-                            });
-                          },
+                          onPressed: () => setState(
+                            () => _isDatePickerVisible = !_isDatePickerVisible,
+                          ),
                           child: Text(
                             _tempSelectedDate != null
                                 ? DateFormat(
@@ -95,11 +93,8 @@ class _FilterModalState extends State<FilterModal> {
                           padding: const EdgeInsets.all(8),
                           color: CupertinoColors.destructiveRed,
                           borderRadius: BorderRadius.circular(8),
-                          onPressed: () {
-                            setState(() {
-                              _tempSelectedDate = null;
-                            });
-                          },
+                          onPressed: () =>
+                              setState(() => _tempSelectedDate = null),
                           child: const Icon(
                             CupertinoIcons.xmark,
                             color: CupertinoColors.white,
@@ -142,13 +137,10 @@ class _FilterModalState extends State<FilterModal> {
                                 ? CupertinoColors.systemBlue
                                 : CupertinoColors.systemBackground,
                             borderRadius: BorderRadius.circular(16),
-                            onPressed: () {
-                              setState(() {
-                                _tempSelectedDrug = _tempSelectedDrug == drug
-                                    ? null
-                                    : drug;
-                              });
-                            },
+                            onPressed: () => setState(
+                              () => _tempSelectedDrug =
+                                  _tempSelectedDrug == drug ? null : drug,
+                            ),
                             child: Text(
                               drug,
                               style: _tempSelectedDrug == drug
@@ -177,11 +169,8 @@ class _FilterModalState extends State<FilterModal> {
                         Text('Select Date', style: AppTheme.titleMedium),
                         CupertinoButton(
                           padding: EdgeInsets.zero,
-                          onPressed: () {
-                            setState(() {
-                              _isDatePickerVisible = false;
-                            });
-                          },
+                          onPressed: () =>
+                              setState(() => _isDatePickerVisible = false),
                           child: const Icon(CupertinoIcons.xmark),
                         ),
                       ],
@@ -232,15 +221,13 @@ class _FilterModalState extends State<FilterModal> {
           child: CupertinoPicker(
             itemExtent: 40,
             backgroundColor: CupertinoColors.systemGrey5,
-            onSelectedItemChanged: (index) {
-              setState(() {
-                _tempSelectedDate = DateTime(
-                  currentDate.year,
-                  index + 1,
-                  currentDate.day,
-                );
-              });
-            },
+            onSelectedItemChanged: (index) => setState(
+              () => _tempSelectedDate = DateTime(
+                currentDate.year,
+                index + 1,
+                currentDate.day,
+              ),
+            ),
             children: months
                 .map(
                   (month) =>
@@ -253,15 +240,13 @@ class _FilterModalState extends State<FilterModal> {
           child: CupertinoPicker(
             itemExtent: 40,
             backgroundColor: CupertinoColors.systemGrey5,
-            onSelectedItemChanged: (index) {
-              setState(() {
-                _tempSelectedDate = DateTime(
-                  currentDate.year,
-                  currentDate.month,
-                  index + 1,
-                );
-              });
-            },
+            onSelectedItemChanged: (index) => setState(
+              () => _tempSelectedDate = DateTime(
+                currentDate.year,
+                currentDate.month,
+                index + 1,
+              ),
+            ),
             children: days
                 .map(
                   (day) => Center(child: Text(day, style: AppTheme.bodyMedium)),
@@ -273,15 +258,13 @@ class _FilterModalState extends State<FilterModal> {
           child: CupertinoPicker(
             itemExtent: 40,
             backgroundColor: CupertinoColors.systemGrey5,
-            onSelectedItemChanged: (index) {
-              setState(() {
-                _tempSelectedDate = DateTime(
-                  int.parse(years[index]),
-                  currentDate.month,
-                  currentDate.day,
-                );
-              });
-            },
+            onSelectedItemChanged: (index) => setState(
+              () => _tempSelectedDate = DateTime(
+                int.parse(years[index]),
+                currentDate.month,
+                currentDate.day,
+              ),
+            ),
             children: years
                 .map(
                   (year) =>
