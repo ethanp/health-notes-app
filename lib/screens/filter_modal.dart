@@ -44,7 +44,7 @@ class _FilterModalState extends State<FilterModal> {
         ),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
-          onPressed: _applyFilters,
+          onPressed: applyFilters,
           child: Text('Apply', style: AppTheme.buttonSecondary),
         ),
       ),
@@ -191,7 +191,7 @@ class _FilterModalState extends State<FilterModal> {
                     Container(
                       height: 300,
                       decoration: AppTheme.datePickerContainer,
-                      child: _buildCustomDatePicker(),
+                      child: buildCustomDatePicker(),
                     ),
                   ],
                 ),
@@ -205,7 +205,7 @@ class _FilterModalState extends State<FilterModal> {
     );
   }
 
-  Widget _buildCustomDatePicker() {
+  Widget buildCustomDatePicker() {
     final currentDate = _tempSelectedDate ?? DateTime.now();
     final months = [
       'January',
@@ -295,7 +295,7 @@ class _FilterModalState extends State<FilterModal> {
     );
   }
 
-  void _applyFilters() {
+  void applyFilters() {
     widget.onDateChanged(_tempSelectedDate);
     widget.onDrugChanged(_tempSelectedDrug);
     Navigator.of(context).pop();

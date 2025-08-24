@@ -5,6 +5,7 @@ import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/screens/add_note_modal.dart';
 import 'package:health_notes/screens/filter_modal.dart';
 import 'package:health_notes/services/auth_service.dart';
+import 'package:health_notes/services/search_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:intl/intl.dart';
 
@@ -28,14 +29,14 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     super.dispose();
   }
 
-  void _showAddNoteModal() {
+  void showAddNoteModal() {
     showCupertinoModalPopup(
       context: context,
       builder: (context) => const AddNoteModal(),
     );
   }
 
-  void _clearFilters() {
+  void clearFilters() {
     setState(() {
       _searchQuery = '';
       _selectedDate = null;
@@ -44,16 +45,9 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     });
   }
 
-  List<HealthNote> _filterNotes(List<HealthNote> notes) {
+  List<HealthNote> filterNotes(List<HealthNote> notes) {
     return notes.where((note) {
-      bool matchesSearch =
-          _searchQuery.isEmpty ||
-          note.symptoms.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          note.notes.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          note.drugDoses.any(
-            (dose) =>
-                dose.name.toLowerCase().contains(_searchQuery.toLowerCase()),
-          );
+      bool matchesSearch = SearchService.matchesSearch(note, _searchQuery);
 
       bool matchesDate =
           _selectedDate == null ||
@@ -69,7 +63,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     }).toList();
   }
 
-  List<String> _getUniqueDrugs(List<HealthNote> notes) {
+  List<String> getUniqueDrugs(List<HealthNote> notes) {
     final drugs = <String>{};
     for (final note in notes) {
       for (final dose in note.drugDoses) {
@@ -90,19 +84,19 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
         middle: Text('Health Notes', style: AppTheme.titleMedium),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
-          onPressed: _showSignOutDialog,
+          onPressed: showSignOutDialog,
           child: const Icon(CupertinoIcons.person_circle),
         ),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
-          onPressed: _showAddNoteModal,
+          onPressed: showAddNoteModal,
           child: const Icon(CupertinoIcons.add),
         ),
       ),
       child: SafeArea(
         child: notesAsync.when(
           data: (notes) =>
-              notes.isEmpty ? emptyTable() : _buildFilteredContent(notes),
+              notes.isEmpty ? emptyTable() : buildFilteredContent(notes),
           loading: () => const Center(child: CupertinoActivityIndicator()),
           error: (error, stack) =>
               Center(child: Text('Error: $error', style: AppTheme.error)),
@@ -111,8 +105,8 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     );
   }
 
-  Widget _buildFilteredContent(List<HealthNote> notes) {
-    final filteredNotes = _filterNotes(notes);
+  Widget buildFilteredContent(List<HealthNote> notes) {
+    final filteredNotes = filterNotes(notes);
     final hasActiveFilters =
         _searchQuery.isNotEmpty ||
         _selectedDate != null ||
@@ -120,18 +114,18 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
 
     return Column(
       children: [
-        _buildSearchBar(),
-        if (hasActiveFilters) _buildFilterChips(notes),
+        buildSearchBar(),
+        if (hasActiveFilters) buildFilterChips(notes),
         Expanded(
           child: filteredNotes.isEmpty
-              ? _buildNoResultsMessage(hasActiveFilters)
+              ? buildNoResultsMessage(hasActiveFilters)
               : table(filteredNotes),
         ),
       ],
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget buildSearchBar() {
     return Container(
       margin: const EdgeInsets.all(16),
       child: Row(
@@ -139,7 +133,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
           Expanded(
             child: CupertinoSearchTextField(
               controller: _searchController,
-              placeholder: 'Search symptoms, notes, or drugs...',
+              placeholder: 'Search with advanced matching...',
               placeholderStyle: AppTheme.inputPlaceholder,
               style: AppTheme.input,
               onChanged: (value) {
@@ -162,7 +156,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
             padding: const EdgeInsets.all(12),
             color: CupertinoColors.systemGrey6,
             borderRadius: BorderRadius.circular(8),
-            onPressed: () => _showFilterModal(),
+            onPressed: () => showFilterModal(),
             child: Icon(
               CupertinoIcons.slider_horizontal_3,
               color: (_selectedDate != null || _selectedDrug != null)
@@ -175,13 +169,13 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     );
   }
 
-  void _showFilterModal() {
+  void showFilterModal() {
     showCupertinoModalPopup(
       context: context,
       builder: (context) => FilterModal(
         selectedDate: _selectedDate,
         selectedDrug: _selectedDrug,
-        availableDrugs: _getUniqueDrugs(
+        availableDrugs: getUniqueDrugs(
           ref.read(healthNotesNotifierProvider).value ?? [],
         ),
         onDateChanged: (date) {
@@ -198,7 +192,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     );
   }
 
-  Widget _buildFilterChips(List<HealthNote> notes) {
+  Widget buildFilterChips(List<HealthNote> notes) {
     return Container(
       height: 50,
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -206,7 +200,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
         scrollDirection: Axis.horizontal,
         children: [
           if (_selectedDate != null)
-            _buildFilterChip(
+            buildFilterChip(
               'Date: ${DateFormat('M/d/yyyy').format(_selectedDate!)}',
               () {
                 setState(() {
@@ -215,7 +209,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
               },
             ),
           if (_selectedDrug != null)
-            _buildFilterChip('Drug: $_selectedDrug', () {
+            buildFilterChip('Drug: $_selectedDrug', () {
               setState(() {
                 _selectedDrug = null;
               });
@@ -223,13 +217,13 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
           if (_searchQuery.isNotEmpty ||
               _selectedDate != null ||
               _selectedDrug != null)
-            _buildFilterChip('Clear All', _clearFilters, isClearAll: true),
+            buildFilterChip('Clear All', clearFilters, isClearAll: true),
         ],
       ),
     );
   }
 
-  Widget _buildFilterChip(
+  Widget buildFilterChip(
     String label,
     VoidCallback onTap, {
     bool isClearAll = false,
@@ -262,7 +256,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     );
   }
 
-  Widget _buildNoResultsMessage(bool hasActiveFilters) {
+  Widget buildNoResultsMessage(bool hasActiveFilters) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -323,10 +317,10 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
             ),
           ),
           confirmDismiss: (direction) async {
-            return await _showDeleteConfirmation(note);
+            return await showDeleteConfirmation(note);
           },
           onDismissed: (direction) {
-            _deleteNote(note.id);
+            deleteNote(note.id);
           },
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -370,7 +364,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
                     const SizedBox(height: 4),
                   ],
                   Text(
-                    'Date: ${_formatDateTime(note.dateTime)}',
+                    'Date: ${formatDateTime(note.dateTime)}',
                     style: AppTheme.caption,
                   ),
                 ],
@@ -382,17 +376,17 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     );
   }
 
-  String _formatDateTime(DateTime dateTime) {
+  String formatDateTime(DateTime dateTime) {
     return DateFormat('M/d/yyyy \'at\' h:mm a').format(dateTime);
   }
 
-  Future<bool> _showDeleteConfirmation(HealthNote note) async {
+  Future<bool> showDeleteConfirmation(HealthNote note) async {
     return await showCupertinoDialog<bool>(
           context: context,
           builder: (context) => CupertinoAlertDialog(
             title: Text('Delete Health Note', style: AppTheme.titleMedium),
             content: Text(
-              'Are you sure you want to delete this health note from ${_formatDateTime(note.dateTime)}?',
+              'Are you sure you want to delete this health note from ${formatDateTime(note.dateTime)}?',
               style: AppTheme.bodyMedium,
             ),
             actions: [
@@ -411,11 +405,11 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
         false;
   }
 
-  void _deleteNote(String noteId) {
+  void deleteNote(String noteId) {
     ref.read(healthNotesNotifierProvider.notifier).deleteNote(noteId);
   }
 
-  Future<void> _showSignOutDialog() async {
+  Future<void> showSignOutDialog() async {
     final shouldSignOut = await showCupertinoDialog<bool>(
       context: context,
       builder: (context) => CupertinoAlertDialog(

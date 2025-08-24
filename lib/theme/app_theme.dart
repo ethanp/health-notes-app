@@ -32,7 +32,7 @@ class AppTheme {
       BoxDecoration(
         color: backgroundDepth4,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: borderColor.withOpacity(0.3), width: 1),
+        border: Border.all(color: borderColor.withValues(alpha: 0.3), width: 1),
       );
 
   static BoxDecoration containerWithBorder({
@@ -47,7 +47,7 @@ class AppTheme {
 
   static BoxDecoration get datePickerContainer => containerWithBorder(
     backgroundColor: backgroundDepth4,
-    borderColor: CupertinoColors.systemBlue.withOpacity(0.4),
+    borderColor: CupertinoColors.systemBlue.withValues(alpha: 0.4),
     borderRadius: 12,
   );
 

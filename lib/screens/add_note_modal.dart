@@ -26,7 +26,7 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
     super.dispose();
   }
 
-  Future<void> _saveNote() async {
+  Future<void> saveNote() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
@@ -79,7 +79,7 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
             ? const CupertinoActivityIndicator()
             : CupertinoButton(
                 padding: EdgeInsets.zero,
-                onPressed: _saveNote,
+                onPressed: saveNote,
                 child: Text('Save', style: AppTheme.buttonSecondary),
               ),
       ),
@@ -144,7 +144,7 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
                         Text('Drugs/Medications', style: AppTheme.titleMedium),
                         CupertinoButton(
                           padding: EdgeInsets.zero,
-                          onPressed: _addDrugDose,
+                          onPressed: addDrugDose,
                           child: const Icon(CupertinoIcons.add),
                         ),
                       ],
@@ -154,7 +154,7 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
                       ..._drugDoses.asMap().entries.map((entry) {
                         final index = entry.key;
                         final dose = entry.value;
-                        return _buildDrugDoseItem(index, dose);
+                        return buildDrugDoseItem(index, dose);
                       }),
                     ],
                   ],
@@ -181,25 +181,25 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
     );
   }
 
-  void _addDrugDose() {
+  void addDrugDose() {
     setState(() {
       _drugDoses.add(const DrugDose(name: '', dosage: 0.0));
     });
   }
 
-  void _removeDrugDose(int index) {
+  void removeDrugDose(int index) {
     setState(() {
       _drugDoses.removeAt(index);
     });
   }
 
-  void _updateDrugDose(int index, DrugDose dose) {
+  void updateDrugDose(int index, DrugDose dose) {
     setState(() {
       _drugDoses[index] = dose;
     });
   }
 
-  Widget _buildDrugDoseItem(int index, DrugDose dose) {
+  Widget buildDrugDoseItem(int index, DrugDose dose) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
@@ -214,14 +214,14 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
                   placeholderStyle: AppTheme.inputPlaceholder,
                   style: AppTheme.input,
                   onChanged: (value) {
-                    _updateDrugDose(index, dose.copyWith(name: value));
+                    updateDrugDose(index, dose.copyWith(name: value));
                   },
                 ),
               ),
               const SizedBox(width: 8),
               CupertinoButton(
                 padding: EdgeInsets.zero,
-                onPressed: () => _removeDrugDose(index),
+                onPressed: () => removeDrugDose(index),
                 child: const Icon(
                   CupertinoIcons.delete,
                   color: CupertinoColors.destructiveRed,
@@ -240,7 +240,7 @@ class _AddNoteModalState extends ConsumerState<AddNoteModal> {
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final dosage = double.tryParse(value) ?? 0.0;
-                    _updateDrugDose(index, dose.copyWith(dosage: dosage));
+                    updateDrugDose(index, dose.copyWith(dosage: dosage));
                   },
                 ),
               ),
