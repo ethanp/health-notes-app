@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/screens/health_notes_home_page.dart';
 import 'package:health_notes/screens/trends_screen.dart';
+import 'package:health_notes/screens/check_ins_screen.dart';
 
 class MainTabScreen extends ConsumerStatefulWidget {
   const MainTabScreen();
@@ -25,6 +26,10 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.chart_bar_alt_fill),
+            label: 'Check-ins',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.chart_bar),
             label: 'Trends',
           ),
@@ -33,7 +38,8 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen> {
       tabBuilder: (context, index) => CupertinoTabView(
         builder: (context) => switch (index) {
           0 => const HealthNotesHomePage(),
-          1 => const TrendsScreen(),
+          1 => const CheckInsScreen(),
+          2 => const TrendsScreen(),
           _ => const HealthNotesHomePage(),
         },
       ),

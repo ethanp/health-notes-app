@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
+import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
+import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
+import 'package:health_notes/widgets/check_in_trends_chart.dart';
 import 'package:intl/intl.dart';
 
 class TrendsScreen extends ConsumerStatefulWidget {
@@ -72,21 +75,39 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     final monthlyStats = _analyzeMonthlyTrends(notes);
     final recentSymptomTrends = _analyzeRecentSymptomTrends(notes);
 
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        buildSectionHeader('Recent Symptom Trends'),
-        buildRecentSymptomTrendsCard(recentSymptomTrends),
-        const SizedBox(height: 20),
-        buildSectionHeader('Most Common Symptoms'),
-        buildSymptomFrequencyCard(symptomStats),
-        const SizedBox(height: 20),
-        buildSectionHeader('Drug Usage'),
-        buildDrugUsageCard(drugStats),
-        const SizedBox(height: 20),
-        buildSectionHeader('Monthly Trends'),
-        buildMonthlyTrendsCard(monthlyStats),
-      ],
+    return Consumer(
+      builder: (context, ref, child) {
+        final checkInsAsync = ref.watch(checkInsNotifierProvider);
+
+        return checkInsAsync.when(
+          data: (checkIns) => ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              buildSectionHeader('Check-in Trends'),
+              buildCheckInTrendsSection(checkIns),
+              const SizedBox(height: 20),
+              buildSectionHeader('Recent Symptom Trends'),
+              buildRecentSymptomTrendsCard(recentSymptomTrends),
+              const SizedBox(height: 20),
+              buildSectionHeader('Most Common Symptoms'),
+              buildSymptomFrequencyCard(symptomStats),
+              const SizedBox(height: 20),
+              buildSectionHeader('Drug Usage'),
+              buildDrugUsageCard(drugStats),
+              const SizedBox(height: 20),
+              buildSectionHeader('Monthly Trends'),
+              buildMonthlyTrendsCard(monthlyStats),
+            ],
+          ),
+          loading: () => const Center(child: CupertinoActivityIndicator()),
+          error: (error, stack) => Center(
+            child: Text(
+              'Error loading check-ins: $error',
+              style: AppTheme.error,
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -320,5 +341,26 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
           (map, symptom) =>
               map..update(symptom, (count) => count + 1, ifAbsent: () => 1),
         );
+  }
+
+  Widget buildCheckInTrendsSection(List<CheckIn> checkIns) {
+    if (checkIns.isEmpty) {
+      return buildEmptyCard('No check-in data available');
+    }
+
+    // Get unique metrics
+    final metrics = checkIns.map((c) => c.metricName).toSet().toList();
+
+    // Show charts for the most recent metrics (up to 3)
+    final recentMetrics = metrics.take(3).toList();
+
+    return Column(
+      children: recentMetrics.map((metric) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: CheckInTrendsChart(checkIns: checkIns, metricName: metric),
+        );
+      }).toList(),
+    );
   }
 }
