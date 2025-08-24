@@ -3,7 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/providers/auth_provider.dart';
 import 'package:health_notes/screens/auth_screen.dart';
-import 'package:health_notes/screens/health_notes_home_page.dart';
+import 'package:health_notes/screens/main_tab_screen.dart';
 import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -36,9 +36,8 @@ class MainScreen extends ConsumerWidget {
       home: ref
           .watch(isAuthenticatedProvider)
           .when(
-            data: (isAuthenticated) => isAuthenticated
-                ? const HealthNotesHomePage()
-                : const AuthScreen(),
+            data: (isAuthenticated) =>
+                isAuthenticated ? const MainTabScreen() : const AuthScreen(),
             loading: () => const CupertinoPageScaffold(
               child: Center(child: CupertinoActivityIndicator()),
             ),

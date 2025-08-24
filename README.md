@@ -7,6 +7,8 @@ A Flutter app for tracking health notes with a chronological filing system, buil
 - **Google OAuth Authentication**: Secure sign-in with Google accounts
 - **Multi-User Support**: Each user has their own private health notes
 - **Cupertino Design**: Native iOS-style interface with dark theme
+- **Bottom Tab Navigation**: Standard iOS tab bar with Home and Trends views
+- **Health Analytics**: Track symptom frequency, drug usage, and monthly trends
 - **Date/Time Picker**: Integrated scroll wheel picker directly in the form
 - **Health Note Tracking**: Record symptoms, medications, and notes with timestamps
 - **Supabase Integration**: Real-time data persistence and synchronization
@@ -56,9 +58,10 @@ flutter run
 ## Key Components
 
 - `MainScreen`: Root app widget with CupertinoApp configuration
-- `AuthWrapper`: Handles authentication state and routing
+- `MainTabScreen`: Bottom tab navigation with Home and Trends views
 - `AuthScreen`: Google OAuth sign-in screen
 - `HealthNotesHomePage`: Main screen displaying health notes list
+- `TrendsScreen`: Analytics view showing symptom frequency and health trends
 - `AddNoteModal`: Form for adding new health notes with integrated date picker
 - `AuthService`: Handles Google OAuth authentication with Supabase
 - `HealthNote`: Freezed model for health note data

@@ -15,7 +15,7 @@ abstract class DrugDose with _$DrugDose {
       _$DrugDoseFromJson(json);
 }
 
-// Extension for DrugDose to add utility methods without interfering with freezed code generation
+/// Extension for DrugDose to add utility methods without interfering with freezed code generation
 extension DrugDoseExtensions on DrugDose {
   bool get isValid => name.isNotEmpty && dosage > 0;
   bool get isEmpty => name.isEmpty;

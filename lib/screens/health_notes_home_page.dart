@@ -93,11 +93,6 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text('Health Notes', style: AppTheme.titleMedium),
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: showSignOutDialog,
-          child: const Icon(CupertinoIcons.person_circle),
-        ),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: showAddNoteModal,

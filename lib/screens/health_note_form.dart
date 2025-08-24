@@ -13,7 +13,6 @@ class HealthNoteForm extends ConsumerStatefulWidget {
   final Function()? onSuccess;
 
   const HealthNoteForm({
-    super.key,
     this.note,
     required this.title,
     required this.saveButtonText,
