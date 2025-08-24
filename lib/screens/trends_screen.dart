@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
-import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/utils/auth_utils.dart';
 import 'package:intl/intl.dart';
 
 class TrendsScreen extends ConsumerStatefulWidget {
@@ -23,7 +23,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
         middle: Text('Trends', style: AppTheme.titleMedium),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
-          onPressed: showSignOutDialog,
+          onPressed: () => AuthUtils.showSignOutDialog(context),
           child: const Icon(CupertinoIcons.person_circle),
         ),
       ),
@@ -270,111 +270,56 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   }
 
   Map<String, int> _analyzeSymptomFrequency(List<HealthNote> notes) {
-    final Map<String, int> symptomCount = {};
-
-    for (final note in notes) {
-      if (note.symptoms.isNotEmpty) {
-        final symptoms = note.symptoms.split(',').map((s) => s.trim()).toList();
-        for (final symptom in symptoms) {
-          if (symptom.isNotEmpty) {
-            symptomCount[symptom] = (symptomCount[symptom] ?? 0) + 1;
-          }
-        }
-      }
-    }
-
-    return symptomCount;
+    return notes
+        .where((note) => note.symptoms.isNotEmpty)
+        .expand((note) => note.symptoms.split(',').map((s) => s.trim()))
+        .where((symptom) => symptom.isNotEmpty)
+        .fold<Map<String, int>>(
+          {},
+          (map, symptom) =>
+              map..update(symptom, (count) => count + 1, ifAbsent: () => 1),
+        );
   }
 
   Map<String, int> _analyzeDrugUsage(List<HealthNote> notes) {
-    final Map<String, int> drugCount = {};
-
-    for (final note in notes) {
-      for (final drug in note.drugDoses) {
-        if (drug.name.isNotEmpty) {
-          drugCount[drug.name] = (drugCount[drug.name] ?? 0) + 1;
-        }
-      }
-    }
-
-    return drugCount;
+    return notes
+        .expand((note) => note.drugDoses)
+        .map((drug) => drug.name)
+        .where((name) => name.isNotEmpty)
+        .fold<Map<String, int>>(
+          {},
+          (map, drugName) =>
+              map..update(drugName, (count) => count + 1, ifAbsent: () => 1),
+        );
   }
 
   Map<String, int> _analyzeMonthlyTrends(List<HealthNote> notes) {
-    final Map<String, int> monthlyCount = {};
-
-    for (final note in notes) {
-      final monthKey =
-          '${note.dateTime.year}-${note.dateTime.month.toString().padLeft(2, '0')}';
-      monthlyCount[monthKey] = (monthlyCount[monthKey] ?? 0) + 1;
-    }
-
-    return monthlyCount;
+    return notes
+        .map(
+          (note) =>
+              '${note.dateTime.year}-${note.dateTime.month.toString().padLeft(2, '0')}',
+        )
+        .fold<Map<String, int>>(
+          {},
+          (map, monthKey) =>
+              map..update(monthKey, (count) => count + 1, ifAbsent: () => 1),
+        );
   }
 
   Map<String, int> _analyzeRecentSymptomTrends(List<HealthNote> notes) {
-    final Map<String, int> recentSymptomCount = {};
     final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
 
-    for (final note in notes) {
-      if (note.dateTime.isAfter(thirtyDaysAgo) && note.symptoms.isNotEmpty) {
-        final symptoms = note.symptoms.split(',').map((s) => s.trim()).toList();
-        for (final symptom in symptoms) {
-          if (symptom.isNotEmpty) {
-            recentSymptomCount[symptom] =
-                (recentSymptomCount[symptom] ?? 0) + 1;
-          }
-        }
-      }
-    }
-
-    return recentSymptomCount;
-  }
-
-  Future<void> showSignOutDialog() async {
-    final shouldSignOut = await showCupertinoDialog<bool>(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: Text('Sign Out', style: AppTheme.titleMedium),
-        content: Text(
-          'Are you sure you want to sign out?',
-          style: AppTheme.bodyMedium,
-        ),
-        actions: [
-          CupertinoDialogAction(
-            child: Text('Cancel', style: AppTheme.buttonSecondary),
-            onPressed: () => Navigator.of(context).pop(false),
-          ),
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            child: Text('Sign Out', style: AppTheme.error),
-            onPressed: () => Navigator.of(context).pop(true),
-          ),
-        ],
-      ),
-    );
-
-    if (shouldSignOut == true) {
-      try {
-        final authService = AuthService();
-        await authService.signOut();
-      } catch (e) {
-        if (mounted) {
-          showCupertinoDialog(
-            context: context,
-            builder: (context) => CupertinoAlertDialog(
-              title: Text('Error', style: AppTheme.titleMedium),
-              content: Text('Failed to sign out: $e', style: AppTheme.error),
-              actions: [
-                CupertinoDialogAction(
-                  child: Text('OK', style: AppTheme.buttonSecondary),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          );
-        }
-      }
-    }
+    return notes
+        .where(
+          (note) =>
+              note.dateTime.isAfter(thirtyDaysAgo) && note.symptoms.isNotEmpty,
+        )
+        .expand((note) => note.symptoms.split(',').map((s) => s.trim()))
+        .where((symptom) => symptom.isNotEmpty)
+        .fold<Map<String, int>>(
+          {},
+          (map, symptom) =>
+              map..update(symptom, (count) => count + 1, ifAbsent: () => 1),
+        );
   }
 }

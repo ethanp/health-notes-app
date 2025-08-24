@@ -6,9 +6,9 @@ import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/screens/filter_modal.dart';
 import 'package:health_notes/screens/health_note_form.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
-import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/services/search_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/utils/auth_utils.dart';
 import 'package:intl/intl.dart';
 
 class HealthNotesHomePage extends ConsumerStatefulWidget {
@@ -93,6 +93,11 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text('Health Notes', style: AppTheme.titleMedium),
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => AuthUtils.showSignOutDialog(context),
+          child: const Icon(CupertinoIcons.person_circle),
+        ),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: showAddNoteModal,
@@ -474,52 +479,5 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
 
   void deleteNote(String noteId) {
     ref.read(healthNotesNotifierProvider.notifier).deleteNote(noteId);
-  }
-
-  Future<void> showSignOutDialog() async {
-    final shouldSignOut = await showCupertinoDialog<bool>(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: Text('Sign Out', style: AppTheme.titleMedium),
-        content: Text(
-          'Are you sure you want to sign out?',
-          style: AppTheme.bodyMedium,
-        ),
-        actions: [
-          CupertinoDialogAction(
-            child: Text('Cancel', style: AppTheme.buttonSecondary),
-            onPressed: () => Navigator.of(context).pop(false),
-          ),
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            child: Text('Sign Out', style: AppTheme.error),
-            onPressed: () => Navigator.of(context).pop(true),
-          ),
-        ],
-      ),
-    );
-
-    if (shouldSignOut == true) {
-      try {
-        final authService = AuthService();
-        await authService.signOut();
-      } catch (e) {
-        if (mounted) {
-          showCupertinoDialog(
-            context: context,
-            builder: (context) => CupertinoAlertDialog(
-              title: Text('Error', style: AppTheme.titleMedium),
-              content: Text('Failed to sign out: $e', style: AppTheme.error),
-              actions: [
-                CupertinoDialogAction(
-                  child: Text('OK', style: AppTheme.buttonSecondary),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          );
-        }
-      }
-    }
   }
 }
