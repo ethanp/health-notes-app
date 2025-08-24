@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
+import 'package:health_notes/models/grouped_health_notes.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/screens/filter_modal.dart';
 import 'package:health_notes/screens/health_note_form.dart';
@@ -87,7 +88,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final notesAsync = ref.watch(healthNotesNotifierProvider);
+    final groupedNotesAsync = ref.watch(groupedHealthNotesProvider);
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
@@ -104,9 +105,10 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
         ),
       ),
       child: SafeArea(
-        child: notesAsync.when(
-          data: (notes) =>
-              notes.isEmpty ? emptyTable() : buildFilteredContent(notes),
+        child: groupedNotesAsync.when(
+          data: (groupedNotes) => groupedNotes.isEmpty
+              ? emptyTable()
+              : buildFilteredContent(groupedNotes),
           loading: () => const Center(child: CupertinoActivityIndicator()),
           error: (error, stack) =>
               Center(child: Text('Error: $error', style: AppTheme.error)),
@@ -115,8 +117,9 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     );
   }
 
-  Widget buildFilteredContent(List<HealthNote> notes) {
-    final filteredNotes = filterNotes(notes);
+  Widget buildFilteredContent(List<GroupedHealthNotes> groupedNotes) {
+    final allNotes = groupedNotes.expand((group) => group.notes).toList();
+    final filteredNotes = filterNotes(allNotes);
     final hasActiveFilters =
         _searchQuery.isNotEmpty ||
         _selectedDate != null ||
@@ -125,11 +128,11 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     return Column(
       children: [
         buildSearchBar(),
-        if (hasActiveFilters) buildFilterChips(notes),
+        if (hasActiveFilters) buildFilterChips(allNotes),
         Expanded(
           child: filteredNotes.isEmpty
               ? buildNoResultsMessage(hasActiveFilters)
-              : table(filteredNotes),
+              : buildGroupedTable(groupedNotes, filteredNotes),
         ),
       ],
     );
@@ -304,84 +307,143 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     );
   }
 
+  Widget buildGroupedTable(
+    List<GroupedHealthNotes> groupedNotes,
+    List<HealthNote> filteredNotes,
+  ) {
+    final filteredNoteIds = filteredNotes.map((note) => note.id).toSet();
+
+    return ListView.builder(
+      itemCount: groupedNotes.length,
+      itemBuilder: (context, groupIndex) {
+        final group = groupedNotes[groupIndex];
+        final visibleNotes = group.notes
+            .where((note) => filteredNoteIds.contains(note.id))
+            .toList();
+
+        if (visibleNotes.isEmpty) return const SizedBox.shrink();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Text(
+                _formatGroupDate(group.date),
+                style: AppTheme.titleSmall.copyWith(
+                  color: CupertinoColors.systemGrey,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            ...visibleNotes.map((note) => _buildNoteCard(note)),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildNoteCard(HealthNote note) {
+    return Dismissible(
+      key: Key(note.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        decoration: AppTheme.deleteContainer,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        child: const Icon(
+          CupertinoIcons.delete,
+          color: CupertinoColors.white,
+          size: 30,
+        ),
+      ),
+      confirmDismiss: (direction) async {
+        return await showDeleteConfirmation(note);
+      },
+      onDismissed: (direction) {
+        deleteNote(note.id);
+      },
+      child: GestureDetector(
+        onTap: () => navigateToView(note),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          decoration: AppTheme.cardContainer,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        note.symptoms.isNotEmpty
+                            ? note.symptoms
+                            : 'No symptoms recorded',
+                        style: AppTheme.titleMedium,
+                      ),
+                    ),
+                    const Icon(CupertinoIcons.chevron_right),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                if (note.drugDoses.isNotEmpty) ...[
+                  Text('Drugs:', style: AppTheme.titleSmall),
+                  const SizedBox(height: 4),
+                  ...note.drugDoses.map(
+                    (dose) => Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Text(
+                        '• ${dose.name} - ${dose.dosage} ${dose.unit}',
+                        style: AppTheme.bodyMedium,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                ],
+                if (note.notes.isNotEmpty) ...[
+                  Text('Notes: ${note.notes}', style: AppTheme.bodyMedium),
+                  const SizedBox(height: 4),
+                ],
+                Text(
+                  'Time: ${formatTime(note.dateTime)}',
+                  style: AppTheme.caption,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatGroupDate(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final groupDate = DateTime(date.year, date.month, date.day);
+
+    if (groupDate == today) {
+      return 'Today';
+    } else if (groupDate == yesterday) {
+      return 'Yesterday';
+    } else {
+      return DateFormat('EEEE, MMMM d, yyyy').format(date);
+    }
+  }
+
+  String formatTime(DateTime dateTime) {
+    return DateFormat('h:mm a').format(dateTime);
+  }
+
   Widget table(List<HealthNote> notes) {
     return ListView.builder(
       itemCount: notes.length,
       itemBuilder: (context, index) {
         final note = notes[index];
-        return Dismissible(
-          key: Key(note.id),
-          direction: DismissDirection.endToStart,
-          background: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            decoration: AppTheme.deleteContainer,
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.only(right: 20),
-            child: const Icon(
-              CupertinoIcons.delete,
-              color: CupertinoColors.white,
-              size: 30,
-            ),
-          ),
-          confirmDismiss: (direction) async {
-            return await showDeleteConfirmation(note);
-          },
-          onDismissed: (direction) {
-            deleteNote(note.id);
-          },
-          child: GestureDetector(
-            onTap: () => navigateToView(note),
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              decoration: AppTheme.cardContainer,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            note.symptoms.isNotEmpty
-                                ? note.symptoms
-                                : 'No symptoms recorded',
-                            style: AppTheme.titleMedium,
-                          ),
-                        ),
-                        const Icon(CupertinoIcons.chevron_right),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    if (note.drugDoses.isNotEmpty) ...[
-                      Text('Drugs:', style: AppTheme.titleSmall),
-                      const SizedBox(height: 4),
-                      ...note.drugDoses.map(
-                        (dose) => Padding(
-                          padding: const EdgeInsets.only(left: 16),
-                          child: Text(
-                            '• ${dose.name} - ${dose.dosage} ${dose.unit}',
-                            style: AppTheme.bodyMedium,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                    ],
-                    if (note.notes.isNotEmpty) ...[
-                      Text('Notes: ${note.notes}', style: AppTheme.bodyMedium),
-                      const SizedBox(height: 4),
-                    ],
-                    Text(
-                      'Date: ${formatDateTime(note.dateTime)}',
-                      style: AppTheme.caption,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
+        return _buildNoteCard(note);
       },
     );
   }
