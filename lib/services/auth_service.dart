@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -37,6 +39,45 @@ class AuthService {
 
   void loginStatusDidChange(GoogleSignInAuthenticationEvent? authEvent) =>
       print('User signed ${authEvent == null ? 'out' : 'in'}');
+
+  static void onGoogleAuthEvent(
+    GoogleSignInAuthenticationEvent? authEvent,
+  ) async {
+    if (authEvent == null) {
+      print('Global: User signed out');
+      return;
+    }
+    print('Global: User signed in (def): $authEvent');
+    if (authEvent is! GoogleSignInAuthenticationEventSignIn) {
+      print('unexpected authEvent ${authEvent.runtimeType}');
+      return;
+    }
+
+    try {
+      await AuthService().signIntoSupabase(authEvent.user);
+    } catch (e) {
+      print('Error completing Supabase authentication: $e');
+    }
+  }
+
+  static void initializeGoogleSignIn({
+    required String clientId,
+    required String serverClientId,
+  }) {
+    unawaited(
+      GoogleSignIn.instance
+          .initialize(clientId: clientId, serverClientId: serverClientId)
+          .then((_) {
+            GoogleSignIn.instance.authenticationEvents
+                .listen(onGoogleAuthEvent)
+                .onError((dynamic error) {
+                  print('Global authentication error: $error');
+                });
+
+            GoogleSignIn.instance.attemptLightweightAuthentication();
+          }),
+    );
+  }
 
   Future<void> signOut() async {
     await GoogleSignIn.instance.signOut();
