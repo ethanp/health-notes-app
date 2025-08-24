@@ -250,10 +250,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              label,
-              style: AppTheme.labelSmall.copyWith(color: CupertinoColors.white),
-            ),
+            Text(label, style: AppTheme.labelSmallWhite),
             const SizedBox(width: 4),
             Icon(
               CupertinoIcons.xmark_circle_fill,

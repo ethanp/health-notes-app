@@ -1,172 +1,145 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
-import 'package:health_notes/screens/health_note_form.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:intl/intl.dart';
+import 'package:health_notes/widgets/health_note_form_fields.dart';
 
-class HealthNoteViewScreen extends ConsumerWidget {
+class HealthNoteViewScreen extends ConsumerStatefulWidget {
   final HealthNote note;
 
   const HealthNoteViewScreen({required this.note});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HealthNoteViewScreen> createState() =>
+      _HealthNoteViewScreenState();
+}
+
+class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
+  bool _isEditing = false;
+  bool _isLoading = false;
+  final _formFieldsKey = GlobalKey<HealthNoteFormFieldsState>();
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isEditing) {
+      return CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          middle: Text('Edit Note', style: AppTheme.titleMedium),
+          leading: CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: _cancelEdit,
+            child: const Text('Cancel'),
+          ),
+          trailing: CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: _isLoading ? null : _saveChanges,
+            child: _isLoading
+                ? const CupertinoActivityIndicator()
+                : const Text('Save'),
+          ),
+        ),
+        child: SafeArea(
+          child: HealthNoteFormFields(
+            key: _formFieldsKey,
+            note: widget.note,
+            isEditable: true,
+          ),
+        ),
+      );
+    }
+
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text('Health Note', style: AppTheme.titleMedium),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
-          onPressed: () => navigateToEdit(context, ref),
+          onPressed: _toggleEditMode,
           child: const Icon(CupertinoIcons.pencil),
         ),
       ),
-      child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildDateTimeSection(),
-              const SizedBox(height: 24),
-              buildSymptomsSection(),
-              const SizedBox(height: 24),
-              buildDrugDosesSection(),
-              const SizedBox(height: 24),
-              buildNotesSection(),
+      child: SafeArea(child: _buildViewMode()),
+    );
+  }
+
+  Widget _buildViewMode() {
+    // Get the latest note data from the provider
+    final notesAsync = ref.watch(healthNotesNotifierProvider);
+
+    return notesAsync.when(
+      data: (notes) {
+        final updatedNote = notes.firstWhere(
+          (note) => note.id == widget.note.id,
+          orElse: () => widget.note,
+        );
+
+        return HealthNoteFormFields(note: updatedNote, isEditable: false);
+      },
+      loading: () => const Center(child: CupertinoActivityIndicator()),
+      error: (error, stack) => Center(
+        child: Text('Error loading note: $error', style: AppTheme.error),
+      ),
+    );
+  }
+
+  void _toggleEditMode() {
+    setState(() {
+      _isEditing = true;
+    });
+  }
+
+  void _cancelEdit() {
+    setState(() {
+      _isEditing = false;
+    });
+  }
+
+  Future<void> _saveChanges() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final formFieldsState = _formFieldsKey.currentState;
+      if (formFieldsState == null) return;
+
+      await ref
+          .read(healthNotesNotifierProvider.notifier)
+          .updateNote(
+            id: widget.note.id,
+            dateTime: formFieldsState.currentDateTime,
+            symptoms: formFieldsState.currentSymptoms.trim(),
+            drugDoses: formFieldsState.currentDrugDoses,
+            notes: formFieldsState.currentNotes.trim(),
+          );
+
+      if (mounted) {
+        setState(() {
+          _isEditing = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        showCupertinoDialog(
+          context: context,
+          builder: (context) => CupertinoAlertDialog(
+            title: Text('Error', style: AppTheme.titleMedium),
+            content: Text('Failed to update note: $e', style: AppTheme.error),
+            actions: [
+              CupertinoDialogAction(
+                child: Text('OK', style: AppTheme.buttonSecondary),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildDateTimeSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: AppTheme.cardContainer,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Date & Time', style: AppTheme.titleSmall),
-          const SizedBox(height: 8),
-          Text(
-            DateFormat('EEEE, MMMM d, yyyy').format(note.dateTime),
-            style: AppTheme.titleMedium,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            DateFormat('h:mm a').format(note.dateTime),
-            style: AppTheme.bodyMedium.copyWith(
-              color: CupertinoColors.systemGrey,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildSymptomsSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: AppTheme.cardContainer,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Symptoms', style: AppTheme.titleSmall),
-          const SizedBox(height: 8),
-          Text(
-            note.symptoms.isNotEmpty ? note.symptoms : 'No symptoms recorded',
-            style: AppTheme.bodyMedium,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildDrugDosesSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: AppTheme.cardContainer,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Medications', style: AppTheme.titleSmall),
-          const SizedBox(height: 8),
-          if (note.drugDoses.isEmpty)
-            Text('No medications recorded', style: AppTheme.bodyMedium)
-          else
-            ...note.drugDoses.map(
-              (dose) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: CupertinoColors.systemBlue,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        dose.name,
-                        style: AppTheme.bodyMedium.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      '${dose.dosage} ${dose.unit}',
-                      style: AppTheme.bodyMedium.copyWith(
-                        color: CupertinoColors.systemGrey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildNotesSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: AppTheme.cardContainer,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Notes', style: AppTheme.titleSmall),
-          const SizedBox(height: 8),
-          Text(
-            note.notes.isNotEmpty ? note.notes : 'No additional notes',
-            style: AppTheme.bodyMedium,
-          ),
-        ],
-      ),
-    );
-  }
-
-  void navigateToEdit(BuildContext context, WidgetRef ref) async {
-    await Navigator.of(context).push(
-      CupertinoPageRoute(
-        builder: (context) => HealthNoteForm(
-          note: note,
-          title: 'Edit Note',
-          saveButtonText: 'Save',
-        ),
-      ),
-    );
-    // Refresh the data when returning from edit
-    ref.read(healthNotesNotifierProvider.notifier).refreshNotes();
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 }

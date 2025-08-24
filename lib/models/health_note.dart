@@ -2,30 +2,59 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:health_notes/models/drug_dose.dart';
 
 part 'health_note.freezed.dart';
+part 'health_note.g.dart';
 
 @freezed
 abstract class HealthNote with _$HealthNote {
   const factory HealthNote({
     required String id,
-    required DateTime dateTime,
+    @JsonKey(name: 'date_time') required DateTime dateTime,
     @Default('') String symptoms,
-    @Default([]) List<DrugDose> drugDoses,
+    @JsonKey(name: 'drug_doses') @Default([]) List<DrugDose> drugDoses,
     @Default('') String notes,
-    required DateTime createdAt,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
   }) = _HealthNote;
 
-  factory HealthNote.fromJson(Map<String, dynamic> json) {
+  factory HealthNote.fromJson(Map<String, dynamic> json) =>
+      _$HealthNoteFromJson(json);
+}
+
+extension HealthNoteExtensions on HealthNote {
+  bool get hasSymptoms => symptoms.isNotEmpty;
+
+  bool get hasNotes => notes.isNotEmpty;
+
+  bool get hasDrugDoses => drugDoses.isNotEmpty;
+
+  bool get isEmpty => !hasSymptoms && !hasNotes && !hasDrugDoses;
+
+  List<DrugDose> get validDrugDoses =>
+      drugDoses.where((dose) => dose.name.isNotEmpty).toList();
+
+  HealthNote copyWith({
+    String? id,
+    DateTime? dateTime,
+    String? symptoms,
+    List<DrugDose>? drugDoses,
+    String? notes,
+    DateTime? createdAt,
+  }) {
     return HealthNote(
-      id: json['id'] as String,
-      dateTime: DateTime.parse(json['date_time'] as String),
-      symptoms: json['symptoms'] as String? ?? '',
-      drugDoses:
-          (json['drug_doses'] as List<dynamic>?)
-              ?.map((e) => DrugDose.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      notes: json['notes'] as String? ?? '',
-      createdAt: DateTime.parse(json['created_at'] as String),
+      id: id ?? this.id,
+      dateTime: dateTime ?? this.dateTime,
+      symptoms: symptoms ?? this.symptoms,
+      drugDoses: drugDoses ?? this.drugDoses,
+      notes: notes ?? this.notes,
+      createdAt: createdAt ?? this.createdAt,
     );
+  }
+
+  Map<String, dynamic> toJsonForUpdate() {
+    return {
+      'date_time': dateTime.toIso8601String(),
+      'symptoms': symptoms,
+      'drug_doses': validDrugDoses.map((dose) => dose.toJson()).toList(),
+      'notes': notes,
+    };
   }
 }
