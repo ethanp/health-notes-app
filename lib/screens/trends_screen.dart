@@ -271,8 +271,8 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
 
   Map<String, int> _analyzeSymptomFrequency(List<HealthNote> notes) {
     return notes
-        .where((note) => note.symptoms.isNotEmpty)
-        .expand((note) => note.symptoms.split(',').map((s) => s.trim()))
+        .where((note) => note.hasSymptoms)
+        .expand((note) => note.validSymptoms.map((s) => s.name))
         .where((symptom) => symptom.isNotEmpty)
         .fold<Map<String, int>>(
           {},
@@ -311,10 +311,9 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
 
     return notes
         .where(
-          (note) =>
-              note.dateTime.isAfter(thirtyDaysAgo) && note.symptoms.isNotEmpty,
+          (note) => note.dateTime.isAfter(thirtyDaysAgo) && note.hasSymptoms,
         )
-        .expand((note) => note.symptoms.split(',').map((s) => s.trim()))
+        .expand((note) => note.validSymptoms.map((s) => s.name))
         .where((symptom) => symptom.isNotEmpty)
         .fold<Map<String, int>>(
           {},

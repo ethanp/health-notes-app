@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:health_notes/models/drug_dose.dart';
+import 'package:health_notes/models/symptom.dart';
 
 part 'health_note.freezed.dart';
 part 'health_note.g.dart';
@@ -9,7 +10,7 @@ abstract class HealthNote with _$HealthNote {
   const factory HealthNote({
     required String id,
     @JsonKey(name: 'date_time') required DateTime dateTime,
-    @Default('') String symptoms,
+    @JsonKey(name: 'symptoms_list') @Default([]) List<Symptom> symptomsList,
     @JsonKey(name: 'drug_doses') @Default([]) List<DrugDose> drugDoses,
     @Default('') String notes,
     @JsonKey(name: 'created_at') required DateTime createdAt,
@@ -20,7 +21,7 @@ abstract class HealthNote with _$HealthNote {
 }
 
 extension HealthNoteExtensions on HealthNote {
-  bool get hasSymptoms => symptoms.isNotEmpty;
+  bool get hasSymptoms => symptomsList.isNotEmpty;
 
   bool get hasNotes => notes.isNotEmpty;
 
@@ -31,10 +32,13 @@ extension HealthNoteExtensions on HealthNote {
   List<DrugDose> get validDrugDoses =>
       drugDoses.where((dose) => dose.name.isNotEmpty).toList();
 
+  List<Symptom> get validSymptoms =>
+      symptomsList.where((symptom) => symptom.name.isNotEmpty).toList();
+
   HealthNote copyWith({
     String? id,
     DateTime? dateTime,
-    String? symptoms,
+    List<Symptom>? symptomsList,
     List<DrugDose>? drugDoses,
     String? notes,
     DateTime? createdAt,
@@ -42,7 +46,7 @@ extension HealthNoteExtensions on HealthNote {
     return HealthNote(
       id: id ?? this.id,
       dateTime: dateTime ?? this.dateTime,
-      symptoms: symptoms ?? this.symptoms,
+      symptomsList: symptomsList ?? this.symptomsList,
       drugDoses: drugDoses ?? this.drugDoses,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
@@ -52,7 +56,9 @@ extension HealthNoteExtensions on HealthNote {
   Map<String, dynamic> toJsonForUpdate() {
     return {
       'date_time': dateTime.toIso8601String(),
-      'symptoms': symptoms,
+      'symptoms_list': validSymptoms
+          .map((symptom) => symptom.toJson())
+          .toList(),
       'drug_doses': validDrugDoses.map((dose) => dose.toJson()).toList(),
       'notes': notes,
     };

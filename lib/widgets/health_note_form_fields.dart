@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/health_note.dart';
+import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:intl/intl.dart';
 
@@ -36,42 +37,105 @@ class HealthNoteFormFields extends ConsumerStatefulWidget {
 }
 
 class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
-  late TextEditingController _symptomsController;
-  late TextEditingController _notesController;
+  TextEditingController? _notesController;
   late DateTime _selectedDateTime;
   late List<DrugDose> _drugDoses;
-  late Map<int, DrugDoseControllers> _drugDoseControllers;
+  late List<Symptom> _symptoms;
+  Map<int, DrugDoseControllers> _drugDoseControllers = {};
+  Map<int, SymptomControllers> _symptomControllers = {};
 
   @override
   void initState() {
     super.initState();
-    _initializeControllers();
+    initializeControllers();
   }
 
-  void _initializeControllers() {
+  @override
+  void didUpdateWidget(HealthNoteFormFields oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If the note changed, reinitialize controllers
+    if (oldWidget.note?.id != widget.note?.id ||
+        oldWidget.note?.dateTime != widget.note?.dateTime ||
+        oldWidget.note?.notes != widget.note?.notes ||
+        !_areListsEqual(
+          oldWidget.note?.drugDoses ?? [],
+          widget.note?.drugDoses ?? [],
+        ) ||
+        !_areSymptomListsEqual(
+          oldWidget.note?.symptomsList ?? [],
+          widget.note?.symptomsList ?? [],
+        )) {
+      initializeControllers();
+    }
+  }
+
+  bool _areListsEqual(List<DrugDose> list1, List<DrugDose> list2) {
+    if (list1.length != list2.length) return false;
+    return list1.asMap().entries.every((entry) {
+      final i = entry.key;
+      final dose1 = entry.value;
+      final dose2 = list2[i];
+      return dose1.name == dose2.name &&
+          dose1.dosage == dose2.dosage &&
+          dose1.unit == dose2.unit;
+    });
+  }
+
+  bool _areSymptomListsEqual(List<Symptom> list1, List<Symptom> list2) {
+    if (list1.length != list2.length) return false;
+    return list1.asMap().entries.every((entry) {
+      final i = entry.key;
+      final symptom1 = entry.value;
+      final symptom2 = list2[i];
+      return symptom1.name == symptom2.name &&
+          symptom1.severityLevel == symptom2.severityLevel;
+    });
+  }
+
+  void initializeControllers() {
+    // Dispose old controllers first
+    _notesController?.dispose();
+    if (_drugDoseControllers.isNotEmpty) {
+      _drugDoseControllers.values.forEach(
+        (controllers) => controllers.dispose(),
+      );
+    }
+    if (_symptomControllers.isNotEmpty) {
+      _symptomControllers.values.forEach(
+        (controllers) => controllers.dispose(),
+      );
+    }
+
+    // Clear the maps
+    _drugDoseControllers.clear();
+    _symptomControllers.clear();
+
     if (widget.note != null) {
       final note = widget.note!;
-      _symptomsController = TextEditingController(text: note.symptoms);
       _notesController = TextEditingController(text: note.notes);
       _selectedDateTime = note.dateTime;
       _drugDoses = List.from(note.drugDoses);
+      _symptoms = List.from(note.symptomsList);
     } else {
-      _symptomsController = TextEditingController();
       _notesController = TextEditingController();
       _selectedDateTime = DateTime.now();
       _drugDoses = <DrugDose>[];
+      _symptoms = <Symptom>[];
     }
 
     _drugDoseControllers = _drugDoses.asMap().map(
       (key, value) => MapEntry(key, DrugDoseControllers(value)),
     );
+    _symptomControllers = _symptoms.asMap().map(
+      (key, value) => MapEntry(key, SymptomControllers(value)),
+    );
   }
 
   @override
   void dispose() {
-    _symptomsController.dispose();
-    _notesController.dispose();
+    _notesController?.dispose();
     _drugDoseControllers.values.forEach((controllers) => controllers.dispose());
+    _symptomControllers.values.forEach((controllers) => controllers.dispose());
     super.dispose();
   }
 
@@ -146,24 +210,57 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Symptoms', style: AppTheme.titleSmall),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Symptoms', style: AppTheme.titleSmall),
+              if (widget.isEditable)
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: addSymptom,
+                  child: const Icon(CupertinoIcons.add),
+                ),
+            ],
+          ),
           const SizedBox(height: 8),
-          if (widget.isEditable)
-            CupertinoTextField(
-              controller: _symptomsController,
-              placeholder: 'Symptoms (optional)',
-              placeholderStyle: AppTheme.inputPlaceholder,
-              style: AppTheme.input,
-              maxLines: 3,
-              onChanged: widget.onSymptomsChanged,
+          if (_symptoms.isEmpty)
+            Text('No symptoms recorded', style: AppTheme.bodyMedium)
+          else if (!widget.isEditable)
+            ..._symptoms.map(
+              (symptom) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: AppTheme.primary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(symptom.name, style: AppTheme.bodyMediumBold),
+                    ),
+                    Text(
+                      'Severity: ${symptom.severityLevel}/10',
+                      style: AppTheme.bodyMediumSecondary,
+                    ),
+                  ],
+                ),
+              ),
             )
-          else
-            Text(
-              _symptomsController.text.isNotEmpty
-                  ? _symptomsController.text
-                  : 'No symptoms recorded',
-              style: AppTheme.bodyMedium,
-            ),
+          else if (widget.isEditable)
+            ..._symptoms.asMap().entries.map((entry) {
+              final index = entry.key;
+              final symptom = entry.value;
+              return buildEditableSymptomItem(
+                index: index,
+                symptom: symptom,
+                controllers: _symptomControllers[index]!,
+              );
+            }),
         ],
       ),
     );
@@ -317,7 +414,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
           const SizedBox(height: 8),
           if (widget.isEditable)
             CupertinoTextField(
-              controller: _notesController,
+              controller: _notesController!,
               placeholder: 'Additional Notes (optional)',
               placeholderStyle: AppTheme.inputPlaceholder,
               style: AppTheme.input,
@@ -326,8 +423,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
             )
           else
             Text(
-              _notesController.text.isNotEmpty
-                  ? _notesController.text
+              _notesController?.text.isNotEmpty == true
+                  ? _notesController!.text
                   : 'No additional notes',
               style: AppTheme.bodyMedium,
             ),
@@ -338,8 +435,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
 
   // Getters for accessing current values
   DateTime get currentDateTime => _selectedDateTime;
-  String get currentSymptoms => _symptomsController.text;
-  String get currentNotes => _notesController.text;
+  List<Symptom> get currentSymptoms => _symptoms;
+  String get currentNotes => _notesController?.text ?? '';
   List<DrugDose> get currentDrugDoses => _drugDoses;
 
   // Methods for managing drug doses
@@ -376,6 +473,91 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     });
     widget.onDrugDosesChanged?.call(_drugDoses);
   }
+
+  // Methods for managing symptoms
+  void addSymptom() {
+    setState(() {
+      final newIndex = _symptoms.length;
+      _symptoms.add(SymptomExtensions.empty);
+      _symptomControllers[newIndex] = SymptomControllers(_symptoms[newIndex]);
+    });
+  }
+
+  void removeSymptom(int index) {
+    setState(() {
+      if (_symptomControllers.containsKey(index)) {
+        _symptomControllers[index]!.dispose();
+        _symptomControllers.remove(index);
+      }
+      _symptoms.removeAt(index);
+    });
+  }
+
+  void updateSymptom(int index, {String? name, int? severityLevel}) {
+    setState(() {
+      final currentSymptom = _symptoms[index];
+      _symptoms[index] = Symptom(
+        name: name ?? currentSymptom.name,
+        severityLevel: severityLevel ?? currentSymptom.severityLevel,
+      );
+    });
+  }
+
+  Widget buildEditableSymptomItem({
+    required int index,
+    required Symptom symptom,
+    required SymptomControllers controllers,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: AppTheme.cardContainer,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: CupertinoTextField(
+                  controller: controllers.name,
+                  placeholder: 'Symptom name',
+                  placeholderStyle: AppTheme.inputPlaceholder,
+                  style: AppTheme.input,
+                  onChanged: (value) => updateSymptom(index, name: value),
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                width: 80,
+                child: CupertinoTextField(
+                  controller: controllers.severity,
+                  placeholder: '1-10',
+                  placeholderStyle: AppTheme.inputPlaceholder,
+                  style: AppTheme.input,
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    final severity = int.tryParse(value);
+                    if (severity != null && severity >= 1 && severity <= 10) {
+                      updateSymptom(index, severityLevel: severity);
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: () => removeSymptom(index),
+                child: const Icon(
+                  CupertinoIcons.delete,
+                  color: CupertinoColors.destructiveRed,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class DrugDoseControllers {
@@ -392,5 +574,19 @@ class DrugDoseControllers {
     name.dispose();
     dosage.dispose();
     unit.dispose();
+  }
+}
+
+class SymptomControllers {
+  final TextEditingController name;
+  final TextEditingController severity;
+
+  SymptomControllers(Symptom symptom)
+    : name = TextEditingController(text: symptom.name),
+      severity = TextEditingController(text: symptom.severityLevel.toString());
+
+  void dispose() {
+    name.dispose();
+    severity.dispose();
   }
 }

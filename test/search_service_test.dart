@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/health_note.dart';
+import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/services/search_service.dart';
 
 void main() {
@@ -11,7 +12,10 @@ void main() {
       testNote = HealthNote(
         id: '1',
         dateTime: DateTime.now(),
-        symptoms: 'headache pain',
+        symptomsList: [
+          Symptom(name: 'headache', severityLevel: 5),
+          Symptom(name: 'pain', severityLevel: 7),
+        ],
         drugDoses: [
           DrugDose(name: 'aspirin', dosage: 500, unit: 'mg'),
           DrugDose(name: 'ibuprofen', dosage: 400, unit: 'mg'),

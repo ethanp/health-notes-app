@@ -208,7 +208,10 @@ return notes
     .toList()
   ..sort();
 
-// Converting forEach to functional style
+// ✅ Preferred - Use forEach for side effects (disposal, etc.)
+_drugDoseControllers.values.forEach((controllers) => controllers.dispose());
+
+// ❌ Avoid - map().toList() when return value is unused
 _drugDoseControllers.values.map((controllers) => controllers.dispose()).toList();
 
 // ❌ Avoid - Imperative loops and mutable fields

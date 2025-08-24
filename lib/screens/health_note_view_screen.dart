@@ -28,12 +28,12 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
           middle: Text('Edit Note', style: AppTheme.titleMedium),
           leading: CupertinoButton(
             padding: EdgeInsets.zero,
-            onPressed: _cancelEdit,
+            onPressed: cancelEdit,
             child: const Text('Cancel'),
           ),
           trailing: CupertinoButton(
             padding: EdgeInsets.zero,
-            onPressed: _isLoading ? null : _saveChanges,
+            onPressed: _isLoading ? null : saveChanges,
             child: _isLoading
                 ? const CupertinoActivityIndicator()
                 : const Text('Save'),
@@ -54,15 +54,15 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
         middle: Text('Health Note', style: AppTheme.titleMedium),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
-          onPressed: _toggleEditMode,
+          onPressed: toggleEditMode,
           child: const Icon(CupertinoIcons.pencil),
         ),
       ),
-      child: SafeArea(child: _buildViewMode()),
+      child: SafeArea(child: buildViewMode()),
     );
   }
 
-  Widget _buildViewMode() {
+  Widget buildViewMode() {
     // Get the latest note data from the provider
     final notesAsync = ref.watch(healthNotesNotifierProvider);
 
@@ -82,19 +82,19 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
     );
   }
 
-  void _toggleEditMode() {
+  void toggleEditMode() {
     setState(() {
       _isEditing = true;
     });
   }
 
-  void _cancelEdit() {
+  void cancelEdit() {
     setState(() {
       _isEditing = false;
     });
   }
 
-  Future<void> _saveChanges() async {
+  Future<void> saveChanges() async {
     setState(() {
       _isLoading = true;
     });
@@ -108,7 +108,7 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
           .updateNote(
             id: widget.note.id,
             dateTime: formFieldsState.currentDateTime,
-            symptoms: formFieldsState.currentSymptoms.trim(),
+            symptomsList: formFieldsState.currentSymptoms,
             drugDoses: formFieldsState.currentDrugDoses,
             notes: formFieldsState.currentNotes.trim(),
           );

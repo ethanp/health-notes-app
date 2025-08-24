@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/grouped_health_notes.dart';
 import 'package:health_notes/models/drug_dose.dart';
+import 'package:health_notes/models/symptom.dart';
 import 'package:intl/intl.dart';
 
 part 'health_notes_provider.g.dart';
@@ -36,7 +37,7 @@ class HealthNotesNotifier extends _$HealthNotesNotifier {
 
   Future<void> addNote({
     required DateTime dateTime,
-    required String symptoms,
+    required List<Symptom> symptomsList,
     required List<DrugDose> drugDoses,
     required String notes,
   }) async {
@@ -49,7 +50,9 @@ class HealthNotesNotifier extends _$HealthNotesNotifier {
       await Supabase.instance.client.from('health_notes').insert({
         'user_id': user.id,
         'date_time': dateTime.toIso8601String(),
-        'symptoms': symptoms.trim(),
+        'symptoms_list': symptomsList
+            .map((symptom) => symptom.toJson())
+            .toList(),
         'drug_doses': drugDoses.map((dose) => dose.toJson()).toList(),
         'notes': notes.trim(),
         'created_at': DateTime.now().toIso8601String(),
@@ -83,7 +86,7 @@ class HealthNotesNotifier extends _$HealthNotesNotifier {
   Future<void> updateNote({
     required String id,
     required DateTime dateTime,
-    required String symptoms,
+    required List<Symptom> symptomsList,
     required List<DrugDose> drugDoses,
     required String notes,
   }) async {
@@ -97,7 +100,9 @@ class HealthNotesNotifier extends _$HealthNotesNotifier {
           .from('health_notes')
           .update({
             'date_time': dateTime.toIso8601String(),
-            'symptoms': symptoms.trim(),
+            'symptoms_list': symptomsList
+                .map((symptom) => symptom.toJson())
+                .toList(),
             'drug_doses': drugDoses.map((dose) => dose.toJson()).toList(),
             'notes': notes.trim(),
           })
@@ -115,12 +120,14 @@ class HealthNotesNotifier extends _$HealthNotesNotifier {
   }
 
   List<GroupedHealthNotes> _groupNotesByDate(List<HealthNote> notes) {
-    final groupedMap = <String, List<HealthNote>>{};
-
-    for (final note in notes) {
+    final groupedMap = notes.fold<Map<String, List<HealthNote>>>({}, (
+      map,
+      note,
+    ) {
       final dateKey = DateFormat('yyyy-MM-dd').format(note.dateTime);
-      groupedMap.putIfAbsent(dateKey, () => []).add(note);
-    }
+      map.putIfAbsent(dateKey, () => []).add(note);
+      return map;
+    });
 
     return groupedMap.entries.map((entry) {
       final date = DateTime.parse(entry.key);

@@ -317,14 +317,14 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
                 ),
               ),
             ),
-            ...visibleNotes.map((note) => _buildNoteCard(note)),
+            ...visibleNotes.map((note) => buildNoteCard(note)),
           ],
         );
       },
     );
   }
 
-  Widget _buildNoteCard(HealthNote note) {
+  Widget buildNoteCard(HealthNote note) {
     return Dismissible(
       key: Key(note.id),
       direction: DismissDirection.endToStart,
@@ -359,11 +359,56 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: Text(
-                        note.symptoms.isNotEmpty
-                            ? note.symptoms
-                            : 'No symptoms recorded',
-                        style: AppTheme.titleMedium,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (note.hasSymptoms) ...[
+                            ...note.validSymptoms.map(
+                              (symptom) => Padding(
+                                padding: const EdgeInsets.only(bottom: 4),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 8,
+                                      height: 8,
+                                      decoration: const BoxDecoration(
+                                        color: AppTheme.primary,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        symptom.name,
+                                        style: AppTheme.titleMedium,
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.backgroundDepth3,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        '${symptom.severityLevel}/10',
+                                        style: AppTheme.caption.copyWith(
+                                          color: AppTheme.text2,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ] else
+                            Text(
+                              'No symptoms recorded',
+                              style: AppTheme.titleMedium,
+                            ),
+                        ],
                       ),
                     ),
                     const Icon(CupertinoIcons.chevron_right),
@@ -424,7 +469,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
       itemCount: notes.length,
       itemBuilder: (context, index) {
         final note = notes[index];
-        return _buildNoteCard(note);
+        return buildNoteCard(note);
       },
     );
   }

@@ -31,6 +31,20 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
 
   @override
   Widget build(BuildContext context) {
+    // If we're editing an existing note, watch the provider for updates
+    final currentNote = widget.note != null
+        ? ref
+              .watch(healthNotesNotifierProvider)
+              .when(
+                data: (notes) => notes.firstWhere(
+                  (note) => note.id == widget.note!.id,
+                  orElse: () => widget.note!,
+                ),
+                loading: () => widget.note!,
+                error: (error, stack) => widget.note!,
+              )
+        : widget.note;
+
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text(widget.title, style: AppTheme.titleMedium),
@@ -52,7 +66,7 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
           key: _formKey,
           child: HealthNoteFormFields(
             key: _formFieldsKey,
-            note: widget.note,
+            note: currentNote,
             isEditable: true,
           ),
         ),
@@ -74,14 +88,14 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
       final updatedNote =
           widget.note?.copyWith(
             dateTime: formFieldsState.currentDateTime,
-            symptoms: formFieldsState.currentSymptoms.trim(),
+            symptomsList: formFieldsState.currentSymptoms,
             drugDoses: formFieldsState.currentDrugDoses,
             notes: formFieldsState.currentNotes.trim(),
           ) ??
           HealthNote(
             id: '', // Will be set by the provider
             dateTime: formFieldsState.currentDateTime,
-            symptoms: formFieldsState.currentSymptoms.trim(),
+            symptomsList: formFieldsState.currentSymptoms,
             drugDoses: formFieldsState.currentDrugDoses,
             notes: formFieldsState.currentNotes.trim(),
             createdAt: DateTime.now(),
@@ -93,7 +107,7 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
             .updateNote(
               id: widget.note!.id,
               dateTime: updatedNote.dateTime,
-              symptoms: updatedNote.symptoms,
+              symptomsList: updatedNote.validSymptoms,
               drugDoses: updatedNote.validDrugDoses,
               notes: updatedNote.notes,
             );
@@ -102,7 +116,7 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
             .read(healthNotesNotifierProvider.notifier)
             .addNote(
               dateTime: updatedNote.dateTime,
-              symptoms: updatedNote.symptoms,
+              symptomsList: updatedNote.validSymptoms,
               drugDoses: updatedNote.validDrugDoses,
               notes: updatedNote.notes,
             );

@@ -17,7 +17,7 @@ migrate_working_dir/
 *.freezed.dart
 
 # IntelliJ related
-*.iml
+#*.iml
 *.ipr
 *.iws
 .idea/
