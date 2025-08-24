@@ -154,10 +154,12 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
   }
 
   Color _getRatingColor(int rating) {
-    if (rating <= 3) return CupertinoColors.systemRed;
-    if (rating <= 5) return CupertinoColors.systemOrange;
-    if (rating <= 7) return CupertinoColors.systemYellow;
-    return CupertinoColors.systemGreen;
+    return switch (rating) {
+      <= 3 => CupertinoColors.systemRed,
+      <= 5 => CupertinoColors.systemOrange,
+      <= 7 => CupertinoColors.systemYellow,
+      _ => CupertinoColors.systemGreen,
+    };
   }
 
   void _showAddCheckInForm() {

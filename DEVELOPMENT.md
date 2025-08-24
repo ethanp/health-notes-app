@@ -76,6 +76,80 @@ class MyWidget extends StatelessWidget {
 ### Generated Files
 - `.gitignore` should exclude `*.g.dart` and `*.freezed.dart` files
 
+### Switch Expressions (IMPORTANT)
+- **Use switch expressions**: Prefer the new Dart switch expression syntax over traditional switch/case statements when returning values
+- **Syntax**: Use `return switch (value) { ... }` instead of `switch (value) { case ... return ... }`
+- **Default case**: Use `_ =>` for the default case instead of `default:`
+- **Exceptions**: Only use traditional switch/case when multiple statements need to be executed in each case
+- **Rationale**: Switch expressions are more concise, functional, and eliminate the need for explicit return statements
+
+### Examples
+```dart
+// ✅ Preferred - Switch expression for simple value returns
+IconData _getIconData(String iconName) {
+  return switch (iconName) {
+    'allergies' => CupertinoIcons.circle,
+    'anxiety' => CupertinoIcons.heart,
+    'nausea' => CupertinoIcons.drop,
+    'cold' => CupertinoIcons.snow,
+    'flu' => CupertinoIcons.thermometer,
+    'travel' => CupertinoIcons.airplane,
+    'car_travel' => CupertinoIcons.car_detailed,
+    'plane_travel' => CupertinoIcons.airplane,
+    _ => CupertinoIcons.wrench,
+  };
+}
+
+Color _getRatingColor(int rating) {
+  return switch (rating) {
+    <= 3 => CupertinoColors.systemRed,
+    <= 5 => CupertinoColors.systemOrange,
+    <= 7 => CupertinoColors.systemYellow,
+    _ => CupertinoColors.systemGreen,
+  };
+}
+
+// ✅ Preferred - Switch expression for widget building
+builder: (context) => switch (index) {
+  0 => const HealthNotesHomePage(),
+  1 => const CheckInsScreen(),
+  2 => const MyToolsScreen(),
+  3 => const TrendsScreen(),
+  _ => const HealthNotesHomePage(),
+},
+
+// ❌ Avoid - Traditional switch/case for simple returns
+IconData _getIconData(String iconName) {
+  switch (iconName) {
+    case 'allergies':
+      return CupertinoIcons.circle;
+    case 'anxiety':
+      return CupertinoIcons.heart;
+    case 'nausea':
+      return CupertinoIcons.drop;
+    default:
+      return CupertinoIcons.wrench;
+  }
+}
+
+// ✅ Use traditional switch/case when multiple statements are needed
+void handleUserAction(String action) {
+  switch (action) {
+    case 'save':
+      _saveData();
+      _showSuccessMessage();
+      _navigateBack();
+      break;
+    case 'delete':
+      _showConfirmationDialog();
+      _deleteData();
+      break;
+    default:
+      _showError('Unknown action');
+  }
+}
+```
+
 ### Deprecated Methods
 - **Avoid deprecated methods**: Use `flutter analyze` regularly to catch deprecated method usage
 - **Color opacity**: Use `color.withValues(alpha: 0.5)` instead of `color.withOpacity(0.5)`

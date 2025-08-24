@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/screens/health_notes_home_page.dart';
 import 'package:health_notes/screens/trends_screen.dart';
 import 'package:health_notes/screens/check_ins_screen.dart';
+import 'package:health_notes/screens/my_tools_screen.dart';
 
 class MainTabScreen extends ConsumerStatefulWidget {
   const MainTabScreen();
@@ -22,12 +23,16 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen> {
         onTap: (index) => setState(() => selectedIndex = index),
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.home),
-            label: 'Home',
+            icon: Icon(CupertinoIcons.doc_text),
+            label: 'Notes',
           ),
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.chart_bar_alt_fill),
             label: 'Check-ins',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.wrench),
+            label: 'My Tools',
           ),
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.chart_bar),
@@ -39,7 +44,8 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen> {
         builder: (context) => switch (index) {
           0 => const HealthNotesHomePage(),
           1 => const CheckInsScreen(),
-          2 => const TrendsScreen(),
+          2 => const MyToolsScreen(),
+          3 => const TrendsScreen(),
           _ => const HealthNotesHomePage(),
         },
       ),
