@@ -380,7 +380,9 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
                                 const SizedBox(width: AppTheme.spacingS),
                                 Expanded(
                                   child: Text(
-                                    symptom.name,
+                                    symptom.minorComponent.isNotEmpty
+                                        ? '${symptom.majorComponent} - ${symptom.minorComponent}'
+                                        : symptom.majorComponent,
                                     style: AppTheme.labelLarge,
                                   ),
                                 ),

@@ -31,7 +31,7 @@ class SearchService {
 
   /// Gets all searchable text from a health note
   static String _getSearchableText(HealthNote note) => [
-    ...note.validSymptoms.map((s) => s.name),
+    ...note.validSymptoms.map((s) => s.majorComponent),
     note.notes,
     ...note.drugDoses.map((d) => d.name),
   ].where((text) => text.isNotEmpty).join(' ');

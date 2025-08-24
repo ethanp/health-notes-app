@@ -114,10 +114,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   Widget buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        title,
-        style: AppTheme.headlineSmall,
-      ),
+      child: Text(title, style: AppTheme.headlineSmall),
     );
   }
 
@@ -135,10 +132,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Last 30 Days',
-            style: AppTheme.labelLarge,
-          ),
+          Text('Last 30 Days', style: AppTheme.labelLarge),
           const SizedBox(height: 12),
           ...sortedTrends
               .take(3)
@@ -162,10 +156,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'All Time',
-            style: AppTheme.labelLarge,
-          ),
+          Text('All Time', style: AppTheme.labelLarge),
           const SizedBox(height: 12),
           ...sortedSymptoms
               .take(5)
@@ -189,10 +180,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Most Used Drugs',
-            style: AppTheme.labelLarge,
-          ),
+          Text('Most Used Drugs', style: AppTheme.labelLarge),
           const SizedBox(height: 12),
           ...sortedDrugs
               .take(5)
@@ -216,10 +204,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Notes per Month',
-            style: AppTheme.labelLarge,
-          ),
+          Text('Notes per Month', style: AppTheme.labelLarge),
           const SizedBox(height: 12),
           ...sortedMonths
               .take(6)
@@ -293,7 +278,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   Map<String, int> _analyzeSymptomFrequency(List<HealthNote> notes) {
     return notes
         .where((note) => note.hasSymptoms)
-        .expand((note) => note.validSymptoms.map((s) => s.name))
+        .expand((note) => note.validSymptoms.map((s) => s.majorComponent))
         .where((symptom) => symptom.isNotEmpty)
         .fold<Map<String, int>>(
           {},
@@ -334,7 +319,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
         .where(
           (note) => note.dateTime.isAfter(thirtyDaysAgo) && note.hasSymptoms,
         )
-        .expand((note) => note.validSymptoms.map((s) => s.name))
+        .expand((note) => note.validSymptoms.map((s) => s.majorComponent))
         .where((symptom) => symptom.isNotEmpty)
         .fold<Map<String, int>>(
           {},

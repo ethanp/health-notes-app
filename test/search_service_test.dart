@@ -13,8 +13,8 @@ void main() {
         id: '1',
         dateTime: DateTime.now(),
         symptomsList: [
-          Symptom(name: 'headache', severityLevel: 5),
-          Symptom(name: 'pain', severityLevel: 7),
+          Symptom(majorComponent: 'headache', severityLevel: 5),
+          Symptom(majorComponent: 'pain', severityLevel: 7),
         ],
         drugDoses: [
           DrugDose(name: 'aspirin', dosage: 500, unit: 'mg'),

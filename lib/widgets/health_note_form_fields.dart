@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
+import 'package:health_notes/providers/symptom_suggestions_provider.dart';
+import 'package:health_notes/services/symptom_suggestions_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:intl/intl.dart';
 
@@ -87,7 +89,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       final i = entry.key;
       final symptom1 = entry.value;
       final symptom2 = list2[i];
-      return symptom1.name == symptom2.name &&
+      return symptom1.majorComponent == symptom2.majorComponent &&
+          symptom1.minorComponent == symptom2.minorComponent &&
           symptom1.severityLevel == symptom2.severityLevel;
     });
   }
@@ -191,7 +194,9 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                 const SizedBox(height: 4),
                 Text(
                   DateFormat('h:mm a').format(_selectedDateTime),
-                  style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+                  style: AppTheme.bodyMedium.copyWith(
+                    color: AppTheme.textTertiary,
+                  ),
                 ),
               ],
             ),
@@ -229,23 +234,33 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
             ..._symptoms.map(
               (symptom) => Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: AppTheme.primary,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(symptom.name, style: AppTheme.labelLarge),
-                    ),
-                    Text(
-                      'Severity: ${symptom.severityLevel}/10',
-                      style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+                    Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: AppTheme.primary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            symptom.fullDescription,
+                            style: AppTheme.labelLarge,
+                          ),
+                        ),
+                        Text(
+                          'Severity: ${symptom.severityLevel}/10',
+                          style: AppTheme.bodyMedium.copyWith(
+                            color: AppTheme.textTertiary,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -311,7 +326,9 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                     ),
                     Text(
                       dose.displayDosage,
-                      style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+                      style: AppTheme.bodyMedium.copyWith(
+                        color: AppTheme.textTertiary,
+                      ),
                     ),
                   ],
                 ),
@@ -493,14 +510,83 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     });
   }
 
-  void updateSymptom(int index, {String? name, int? severityLevel}) {
+  void updateSymptom(
+    int index, {
+    int? severityLevel,
+    String? majorComponent,
+    String? minorComponent,
+    String? additionalNotes,
+  }) {
     setState(() {
       final currentSymptom = _symptoms[index];
       _symptoms[index] = Symptom(
-        name: name ?? currentSymptom.name,
         severityLevel: severityLevel ?? currentSymptom.severityLevel,
+        majorComponent: majorComponent ?? currentSymptom.majorComponent,
+        minorComponent: minorComponent ?? currentSymptom.minorComponent,
+        additionalNotes: additionalNotes ?? currentSymptom.additionalNotes,
       );
     });
+  }
+
+  Widget buildSymptomSuggestions() {
+    return Consumer(
+      builder: (context, ref, child) {
+        final suggestionsAsync = ref.watch(symptomSuggestionsProvider);
+
+        return suggestionsAsync.when(
+          data: (suggestions) {
+            if (suggestions.isEmpty) return const SizedBox.shrink();
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Recent symptoms:',
+                  style: AppTheme.labelMedium.copyWith(
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: suggestions.map((suggestion) {
+                    return CupertinoButton(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      color: AppTheme.backgroundSecondary,
+                      borderRadius: BorderRadius.circular(16),
+                      onPressed: () {
+                        final newSymptom =
+                            SymptomSuggestionsService.createSymptomFromSuggestion(
+                              suggestion,
+                            );
+                        setState(() {
+                          _symptoms[0] = newSymptom;
+                          _symptomControllers[0] = SymptomControllers(
+                            newSymptom,
+                          );
+                        });
+                      },
+                      child: Text(
+                        suggestion.toString(),
+                        style: AppTheme.bodySmall.copyWith(
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+            );
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (error, stack) => const SizedBox.shrink(),
+        );
+      },
+    );
   }
 
   Widget buildEditableSymptomItem({
@@ -515,15 +601,30 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Show suggestions if this is the first symptom and we're adding a new note
+          if (index == 0 && widget.note == null) buildSymptomSuggestions(),
+          const SizedBox(height: 8),
           Row(
             children: [
               Expanded(
                 child: CupertinoTextField(
-                  controller: controllers.name,
-                  placeholder: 'Symptom name',
+                  controller: controllers.majorComponent,
+                  placeholder: 'Major component (e.g., headache)',
                   placeholderStyle: AppTheme.inputPlaceholder,
                   style: AppTheme.input,
-                  onChanged: (value) => updateSymptom(index, name: value),
+                  onChanged: (value) =>
+                      updateSymptom(index, majorComponent: value),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: CupertinoTextField(
+                  controller: controllers.minorComponent,
+                  placeholder: 'Minor component (e.g., right temple)',
+                  placeholderStyle: AppTheme.inputPlaceholder,
+                  style: AppTheme.input,
+                  onChanged: (value) =>
+                      updateSymptom(index, minorComponent: value),
                 ),
               ),
               const SizedBox(width: 8),
@@ -554,6 +655,15 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
               ),
             ],
           ),
+          const SizedBox(height: 8),
+          CupertinoTextField(
+            controller: controllers.additionalNotes,
+            placeholder: 'Additional notes (optional)',
+            placeholderStyle: AppTheme.inputPlaceholder,
+            style: AppTheme.input,
+            maxLines: 2,
+            onChanged: (value) => updateSymptom(index, additionalNotes: value),
+          ),
         ],
       ),
     );
@@ -578,15 +688,21 @@ class DrugDoseControllers {
 }
 
 class SymptomControllers {
-  final TextEditingController name;
+  final TextEditingController majorComponent;
+  final TextEditingController minorComponent;
   final TextEditingController severity;
+  final TextEditingController additionalNotes;
 
   SymptomControllers(Symptom symptom)
-    : name = TextEditingController(text: symptom.name),
-      severity = TextEditingController(text: symptom.severityLevel.toString());
+    : majorComponent = TextEditingController(text: symptom.majorComponent),
+      minorComponent = TextEditingController(text: symptom.minorComponent),
+      severity = TextEditingController(text: symptom.severityLevel.toString()),
+      additionalNotes = TextEditingController(text: symptom.additionalNotes);
 
   void dispose() {
-    name.dispose();
+    majorComponent.dispose();
+    minorComponent.dispose();
     severity.dispose();
+    additionalNotes.dispose();
   }
 }

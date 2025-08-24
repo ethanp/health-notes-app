@@ -32,8 +32,9 @@ extension HealthNoteExtensions on HealthNote {
   List<DrugDose> get validDrugDoses =>
       drugDoses.where((dose) => dose.name.isNotEmpty).toList();
 
-  List<Symptom> get validSymptoms =>
-      symptomsList.where((symptom) => symptom.name.isNotEmpty).toList();
+  List<Symptom> get validSymptoms => symptomsList
+      .where((symptom) => symptom.majorComponent.isNotEmpty)
+      .toList();
 
   HealthNote copyWith({
     String? id,

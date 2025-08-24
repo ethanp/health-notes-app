@@ -117,7 +117,12 @@ class _FilterModalState extends State<FilterModal> {
                   Text('Filter by Drug', style: AppTheme.headlineSmall),
                   const SizedBox(height: 16),
                   if (widget.availableDrugs.isEmpty)
-                    Text('No drugs recorded yet', style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary))
+                    Text(
+                      'No drugs recorded yet',
+                      style: AppTheme.bodyMedium.copyWith(
+                        color: AppTheme.textTertiary,
+                      ),
+                    )
                   else
                     Wrap(
                       spacing: 8,
