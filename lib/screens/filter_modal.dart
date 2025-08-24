@@ -10,7 +10,6 @@ class FilterModal extends StatefulWidget {
   final Function(String?) onDrugChanged;
 
   const FilterModal({
-    super.key,
     required this.selectedDate,
     required this.selectedDrug,
     required this.availableDrugs,

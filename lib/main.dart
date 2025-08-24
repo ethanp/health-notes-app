@@ -26,7 +26,7 @@ void main() async {
 /// Top-level widget in the whole app.
 /// Shows the appropriate UI based on whether the user is logged-in or not.
 class MainScreen extends ConsumerWidget {
-  const MainScreen({super.key});
+  const MainScreen();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

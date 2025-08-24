@@ -4,7 +4,7 @@ import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
-  const AuthScreen({super.key});
+  const AuthScreen();
 
   @override
   ConsumerState<AuthScreen> createState() => _AuthScreenState();

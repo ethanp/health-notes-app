@@ -2,26 +2,57 @@
 
 ## Code Style Preferences
 
-### Method Naming
-- **Widget Helper Methods**: Do NOT use underscore prefixes for helper methods within widgets
+### Widget Method Naming (IMPORTANT)
+- **Widget Helper Methods**: Do NOT use underscore prefixes for helper methods within widget classes
 - **Private Methods**: Only use underscore prefixes for methods in helper classes that should not be seen through the interface
 - **Rationale**: Widgets are typically self-contained and don't have external interfaces to protect
+- **Enforcement**: This rule applies to ALL widget classes (StatelessWidget, StatefulWidget, ConsumerWidget, etc.)
+
+### Widget Constructor Keys (IMPORTANT)
+- **Omit `key` parameter**: Do NOT include `super.key` in widget constructors unless the key is actually used in the file
+- **Rationale**: Most widgets don't need keys, and omitting them makes code cleaner
+- **Exception**: Only include `key` when it's passed to child widgets or used for widget identification
 
 ### Examples
 ```dart
-// ✅ Preferred in widgets
-void saveNote() { ... }
-Widget buildDrugDoseItem() { ... }
-void showAddNoteModal() { ... }
+// ✅ Preferred in widget classes
+class MyWidget extends StatelessWidget {
+  const MyWidget(); // No key needed
+  
+  void saveNote() { ... }
+  Widget buildDrugDoseItem() { ... }
+  void showAddNoteModal() { ... }
+  void navigateToEdit() { ... }
+  Widget buildDateTimeSection() { ... }
+}
 
-// ❌ Avoid in widgets
-void _saveNote() { ... }
-Widget _buildDrugDoseItem() { ... }
-void _showAddNoteModal() { ... }
+// ❌ Avoid in widget classes
+class MyWidget extends StatelessWidget {
+  const MyWidget({super.key}); // Unnecessary key
+  
+  void _saveNote() { ... }
+  Widget _buildDrugDoseItem() { ... }
+  void _showAddNoteModal() { ... }
+  void _navigateToEdit() { ... }
+  Widget _buildDateTimeSection() { ... }
+}
 
 // ✅ Use underscores for truly private methods in helper classes
 class _HelperClass {
   void _internalMethod() { ... } // Should not be exposed
+}
+
+// ✅ Include key only when actually used
+class MyWidget extends StatelessWidget {
+  const MyWidget({super.key});
+  
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: key, // Key is actually used
+      child: Text('Hello'),
+    );
+  }
 }
 ```
 

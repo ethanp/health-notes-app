@@ -2,15 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
-import 'package:health_notes/screens/add_note_modal.dart';
+import 'package:health_notes/screens/health_note_form.dart';
 import 'package:health_notes/screens/filter_modal.dart';
+import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/services/search_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:intl/intl.dart';
 
 class HealthNotesHomePage extends ConsumerStatefulWidget {
-  const HealthNotesHomePage({super.key});
+  const HealthNotesHomePage();
 
   @override
   ConsumerState<HealthNotesHomePage> createState() =>
@@ -32,7 +33,18 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
   void showAddNoteModal() {
     showCupertinoModalPopup(
       context: context,
-      builder: (context) => const AddNoteModal(),
+      builder: (context) => const HealthNoteForm(
+        title: 'Add Health Note',
+        saveButtonText: 'Save',
+      ),
+    );
+  }
+
+  void navigateToView(HealthNote note) {
+    Navigator.of(context).push(
+      CupertinoPageRoute(
+        builder: (context) => HealthNoteViewScreen(note: note),
+      ),
     );
   }
 
@@ -322,52 +334,55 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
           onDismissed: (direction) {
             deleteNote(note.id);
           },
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            decoration: AppTheme.cardContainer,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          note.symptoms.isNotEmpty
-                              ? note.symptoms
-                              : 'No symptoms recorded',
-                          style: AppTheme.titleMedium,
+          child: GestureDetector(
+            onTap: () => navigateToView(note),
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              decoration: AppTheme.cardContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            note.symptoms.isNotEmpty
+                                ? note.symptoms
+                                : 'No symptoms recorded',
+                            style: AppTheme.titleMedium,
+                          ),
                         ),
-                      ),
-                      const Icon(CupertinoIcons.chevron_right),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  if (note.drugDoses.isNotEmpty) ...[
-                    Text('Drugs:', style: AppTheme.titleSmall),
-                    const SizedBox(height: 4),
-                    ...note.drugDoses.map(
-                      (dose) => Padding(
-                        padding: const EdgeInsets.only(left: 16),
-                        child: Text(
-                          '• ${dose.name} - ${dose.dosage} ${dose.unit}',
-                          style: AppTheme.bodyMedium,
-                        ),
-                      ),
+                        const Icon(CupertinoIcons.chevron_right),
+                      ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8),
+                    if (note.drugDoses.isNotEmpty) ...[
+                      Text('Drugs:', style: AppTheme.titleSmall),
+                      const SizedBox(height: 4),
+                      ...note.drugDoses.map(
+                        (dose) => Padding(
+                          padding: const EdgeInsets.only(left: 16),
+                          child: Text(
+                            '• ${dose.name} - ${dose.dosage} ${dose.unit}',
+                            style: AppTheme.bodyMedium,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+                    if (note.notes.isNotEmpty) ...[
+                      Text('Notes: ${note.notes}', style: AppTheme.bodyMedium),
+                      const SizedBox(height: 4),
+                    ],
+                    Text(
+                      'Date: ${formatDateTime(note.dateTime)}',
+                      style: AppTheme.caption,
+                    ),
                   ],
-                  if (note.notes.isNotEmpty) ...[
-                    Text('Notes: ${note.notes}', style: AppTheme.bodyMedium),
-                    const SizedBox(height: 4),
-                  ],
-                  Text(
-                    'Date: ${formatDateTime(note.dateTime)}',
-                    style: AppTheme.caption,
-                  ),
-                ],
+                ),
               ),
             ),
           ),

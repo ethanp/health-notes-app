@@ -77,6 +77,36 @@ class HealthNotesNotifier extends _$HealthNotesNotifier {
     }
   }
 
+  Future<void> updateNote({
+    required String id,
+    required DateTime dateTime,
+    required String symptoms,
+    required List<DrugDose> drugDoses,
+    required String notes,
+  }) async {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+
+      await Supabase.instance.client
+          .from('health_notes')
+          .update({
+            'date_time': dateTime.toIso8601String(),
+            'symptoms': symptoms.trim(),
+            'drug_doses': drugDoses.map((dose) => dose.toJson()).toList(),
+            'notes': notes.trim(),
+          })
+          .eq('id', id)
+          .eq('user_id', user.id);
+
+      ref.invalidateSelf();
+    } catch (e) {
+      throw Exception('Failed to update note: $e');
+    }
+  }
+
   Future<void> refreshNotes() async {
     ref.invalidateSelf();
   }
