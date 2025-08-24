@@ -56,7 +56,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.title, style: AppTheme.titleMedium),
+        middle: Text(widget.title, style: AppTheme.headlineSmall),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: widget.onCancel ?? () => Navigator.of(context).pop(),
@@ -91,14 +91,14 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   Widget buildMetricSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Metric', style: AppTheme.titleMedium),
+          Text('Metric', style: AppTheme.headlineSmall),
           const SizedBox(height: 16),
           Container(
-            decoration: AppTheme.inputContainer,
+            decoration: AppTheme.inputField,
             child: CupertinoSlidingSegmentedControl<String>(
               groupValue: _selectedMetric,
               children: {
@@ -123,21 +123,21 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   Widget buildRatingSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Rating', style: AppTheme.titleMedium),
+          Text('Rating', style: AppTheme.headlineSmall),
           const SizedBox(height: 8),
           Text(
             'Rate your $_selectedMetric on a scale of 1-10',
-            style: AppTheme.bodyMediumSecondary,
+            style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
           ),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('1', style: AppTheme.bodyMediumSecondary),
+              Text('1', style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary)),
               Expanded(
                 child: CupertinoSlider(
                   value: _rating.toDouble(),
@@ -149,7 +149,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                   },
                 ),
               ),
-              Text('10', style: AppTheme.bodyMediumSecondary),
+              Text('10', style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary)),
             ],
           ),
           const SizedBox(height: 8),
@@ -162,7 +162,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
               ),
               child: Text(
                 '$_rating',
-                style: AppTheme.titleLarge.copyWith(
+                style: AppTheme.headlineLarge.copyWith(
                   color: AppTheme.primary,
                   fontWeight: FontWeight.bold,
                 ),
@@ -177,19 +177,19 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   Widget buildDateTimeSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Date & Time', style: AppTheme.titleMedium),
+          Text('Date & Time', style: AppTheme.headlineSmall),
           const SizedBox(height: 16),
           Container(
             height: 200,
-            decoration: AppTheme.datePickerContainer,
+            decoration: AppTheme.inputField,
             child: CupertinoDatePicker(
               mode: CupertinoDatePickerMode.dateAndTime,
               initialDateTime: _selectedDateTime,
-              backgroundColor: AppTheme.backgroundDepth4,
+              backgroundColor: AppTheme.backgroundTertiary,
               onDateTimeChanged: (DateTime newDateTime) {
                 setState(() => _selectedDateTime = newDateTime);
               },

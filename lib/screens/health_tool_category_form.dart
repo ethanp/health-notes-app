@@ -78,7 +78,7 @@ class _HealthToolCategoryFormState
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.title, style: AppTheme.titleMedium),
+        middle: Text(widget.title, style: AppTheme.headlineSmall),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: widget.onCancel ?? () => Navigator.of(context).pop(),
@@ -115,17 +115,17 @@ class _HealthToolCategoryFormState
   Widget buildNameSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Category Name', style: AppTheme.titleMedium),
+          Text('Category Name', style: AppTheme.headlineSmall),
           const SizedBox(height: 16),
           CupertinoTextField(
             controller: _nameController,
             placeholder: 'Enter category name',
             style: AppTheme.input,
-            decoration: AppTheme.inputContainer,
+            decoration: AppTheme.inputField,
             padding: const EdgeInsets.all(12),
           ),
         ],
@@ -136,22 +136,22 @@ class _HealthToolCategoryFormState
   Widget buildDescriptionSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Description', style: AppTheme.titleMedium),
+          Text('Description', style: AppTheme.headlineSmall),
           const SizedBox(height: 8),
           Text(
             'Describe what this category is for',
-            style: AppTheme.bodyMediumSecondary,
+            style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
           ),
           const SizedBox(height: 16),
           CupertinoTextField(
             controller: _descriptionController,
             placeholder: 'Enter description...',
             style: AppTheme.input,
-            decoration: AppTheme.inputContainer,
+            decoration: AppTheme.inputField,
             padding: const EdgeInsets.all(12),
             maxLines: 3,
             minLines: 2,
@@ -164,11 +164,11 @@ class _HealthToolCategoryFormState
   Widget buildIconSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Icon', style: AppTheme.titleMedium),
+          Text('Icon', style: AppTheme.headlineSmall),
           const SizedBox(height: 16),
           Wrap(
             spacing: 8,
@@ -185,12 +185,12 @@ class _HealthToolCategoryFormState
                   decoration: BoxDecoration(
                     color: isSelected
                         ? AppTheme.primary
-                        : AppTheme.backgroundDepth3,
+                        : AppTheme.backgroundTertiary,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: isSelected
                           ? AppTheme.primary
-                          : AppTheme.backgroundDepth2,
+                          : AppTheme.backgroundTertiary,
                     ),
                   ),
                   child: Text(
@@ -198,7 +198,7 @@ class _HealthToolCategoryFormState
                     style: AppTheme.bodySmall.copyWith(
                       color: isSelected
                           ? CupertinoColors.white
-                          : AppTheme.text1,
+                          : AppTheme.textPrimary,
                     ),
                   ),
                 ),
@@ -213,11 +213,11 @@ class _HealthToolCategoryFormState
   Widget buildColorSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Color', style: AppTheme.titleMedium),
+          Text('Color', style: AppTheme.headlineSmall),
           const SizedBox(height: 16),
           Wrap(
             spacing: 8,

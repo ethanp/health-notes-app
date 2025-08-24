@@ -24,7 +24,7 @@ class _HealthToolCategoryScreenState
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.category.name, style: AppTheme.titleMedium),
+        middle: Text(widget.category.name, style: AppTheme.headlineSmall),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () => _showAddToolForm(),
@@ -37,7 +37,7 @@ class _HealthToolCategoryScreenState
             // Category header
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: AppTheme.cardContainer,
+              decoration: AppTheme.primaryCard,
               margin: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,13 +76,13 @@ class _HealthToolCategoryScreenState
           const SizedBox(height: 16),
           Text(
             'No tools for ${widget.category.name}',
-            style: AppTheme.titleMedium,
+            style: AppTheme.headlineSmall,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
             'Add your first tool to get started',
-            style: AppTheme.subtitle,
+            style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -109,7 +109,7 @@ class _HealthToolCategoryScreenState
   Widget buildToolCard(HealthTool tool) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: () => _showToolDetails(tool),
@@ -120,7 +120,7 @@ class _HealthToolCategoryScreenState
             children: [
               Row(
                 children: [
-                  Expanded(child: Text(tool.name, style: AppTheme.titleSmall)),
+                  Expanded(child: Text(tool.name, style: AppTheme.labelLarge)),
                   const Icon(
                     CupertinoIcons.chevron_right,
                     color: CupertinoColors.systemGrey,
@@ -131,7 +131,7 @@ class _HealthToolCategoryScreenState
               const SizedBox(height: 8),
               Text(
                 tool.description,
-                style: AppTheme.bodyMediumSecondary,
+                style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),

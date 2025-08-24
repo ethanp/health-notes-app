@@ -54,7 +54,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.title, style: AppTheme.titleMedium),
+        middle: Text(widget.title, style: AppTheme.headlineSmall),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: widget.onCancel ?? () => Navigator.of(context).pop(),
@@ -89,17 +89,17 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
   Widget buildNameSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Tool Name', style: AppTheme.titleMedium),
+          Text('Tool Name', style: AppTheme.headlineSmall),
           const SizedBox(height: 16),
           CupertinoTextField(
             controller: _nameController,
             placeholder: 'Enter tool name',
             style: AppTheme.input,
-            decoration: AppTheme.inputContainer,
+            decoration: AppTheme.inputField,
             padding: const EdgeInsets.all(12),
           ),
         ],
@@ -110,22 +110,22 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
   Widget buildDescriptionSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Description', style: AppTheme.titleMedium),
+          Text('Description', style: AppTheme.headlineSmall),
           const SizedBox(height: 8),
           Text(
             'Describe what this tool is and how to use it',
-            style: AppTheme.bodyMediumSecondary,
+            style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
           ),
           const SizedBox(height: 16),
           CupertinoTextField(
             controller: _descriptionController,
             placeholder: 'Enter detailed description...',
             style: AppTheme.input,
-            decoration: AppTheme.inputContainer,
+            decoration: AppTheme.inputField,
             padding: const EdgeInsets.all(12),
             maxLines: 5,
             minLines: 3,
@@ -140,18 +140,18 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
   ) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Category', style: AppTheme.titleMedium),
+          Text('Category', style: AppTheme.headlineSmall),
           const SizedBox(height: 16),
           categoriesAsync.when(
             data: (categories) {
               if (categories.isEmpty) {
                 return Text(
                   'No categories available. Please create a category first.',
-                  style: AppTheme.bodyMediumSecondary,
+                  style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
                 );
               }
 
@@ -161,7 +161,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
                 _selectedCategoryId = category.id;
                 return Container(
                   padding: const EdgeInsets.all(12),
-                  decoration: AppTheme.inputContainer,
+                  decoration: AppTheme.inputField,
                   child: Row(
                     children: [
                       Icon(

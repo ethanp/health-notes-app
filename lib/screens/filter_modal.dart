@@ -37,7 +37,7 @@ class _FilterModalState extends State<FilterModal> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('Filters', style: AppTheme.titleMedium),
+        middle: Text('Filters', style: AppTheme.headlineSmall),
         leading: CupertinoNavigationBarBackButton(
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -55,13 +55,11 @@ class _FilterModalState extends State<FilterModal> {
 
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: AppTheme.filterContainerWithBorder(
-                CupertinoColors.systemGreen,
-              ),
+              decoration: AppTheme.filterChip,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Filter by Date', style: AppTheme.titleMedium),
+                  Text('Filter by Date', style: AppTheme.headlineSmall),
                   const SizedBox(height: 16),
                   Row(
                     children: [
@@ -82,7 +80,7 @@ class _FilterModalState extends State<FilterModal> {
                                   ).format(_tempSelectedDate!)
                                 : 'Select Date',
                             style: _tempSelectedDate != null
-                                ? AppTheme.button
+                                ? AppTheme.buttonPrimary
                                 : AppTheme.bodyMedium,
                           ),
                         ),
@@ -112,16 +110,14 @@ class _FilterModalState extends State<FilterModal> {
 
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: AppTheme.filterContainerWithBorder(
-                CupertinoColors.systemOrange,
-              ),
+              decoration: AppTheme.filterChip,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Filter by Drug', style: AppTheme.titleMedium),
+                  Text('Filter by Drug', style: AppTheme.headlineSmall),
                   const SizedBox(height: 16),
                   if (widget.availableDrugs.isEmpty)
-                    Text('No drugs recorded yet', style: AppTheme.subtitle)
+                    Text('No drugs recorded yet', style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary))
                   else
                     Wrap(
                       spacing: 8,
@@ -144,7 +140,7 @@ class _FilterModalState extends State<FilterModal> {
                             child: Text(
                               drug,
                               style: _tempSelectedDrug == drug
-                                  ? AppTheme.button
+                                  ? AppTheme.buttonPrimary
                                   : AppTheme.bodyMedium,
                             ),
                           ),
@@ -159,14 +155,14 @@ class _FilterModalState extends State<FilterModal> {
               const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.all(16),
-                decoration: AppTheme.datePickerContainer,
+                decoration: AppTheme.inputField,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Select Date', style: AppTheme.titleMedium),
+                        Text('Select Date', style: AppTheme.headlineSmall),
                         CupertinoButton(
                           padding: EdgeInsets.zero,
                           onPressed: () =>
@@ -178,7 +174,7 @@ class _FilterModalState extends State<FilterModal> {
                     const SizedBox(height: 16),
                     Container(
                       height: 300,
-                      decoration: AppTheme.datePickerContainer,
+                      decoration: AppTheme.inputField,
                       child: buildCustomDatePicker(),
                     ),
                   ],

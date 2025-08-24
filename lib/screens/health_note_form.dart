@@ -47,7 +47,7 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.title, style: AppTheme.titleMedium),
+        middle: Text(widget.title, style: AppTheme.headlineSmall),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: widget.onCancel ?? () => Navigator.of(context).pop(),
@@ -131,7 +131,7 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
         showCupertinoDialog(
           context: context,
           builder: (context) => CupertinoAlertDialog(
-            title: Text('Error', style: AppTheme.titleMedium),
+            title: Text('Error', style: AppTheme.headlineSmall),
             content: Text(
               'Failed to ${widget.note != null ? 'update' : 'save'} note: $e',
               style: AppTheme.error,

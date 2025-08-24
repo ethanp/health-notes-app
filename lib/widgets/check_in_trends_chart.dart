@@ -25,11 +25,11 @@ class CheckInTrendsChart extends StatelessWidget {
     if (filteredCheckIns.isEmpty) {
       return Container(
         height: 200,
-        decoration: AppTheme.cardContainer,
+        decoration: AppTheme.primaryCard,
         child: Center(
           child: Text(
             'No data for $metricName',
-            style: AppTheme.bodyMediumSecondary,
+            style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
           ),
         ),
       );
@@ -49,11 +49,11 @@ class CheckInTrendsChart extends StatelessWidget {
     return Container(
       height: 200,
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(metricName, style: AppTheme.titleSmall),
+          Text(metricName, style: AppTheme.labelLarge),
           const SizedBox(height: 8),
           Expanded(
             child: LineChart(
@@ -64,7 +64,7 @@ class CheckInTrendsChart extends StatelessWidget {
                   horizontalInterval: 2,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: AppTheme.backgroundDepth3,
+                      color: AppTheme.backgroundTertiary,
                       strokeWidth: 1,
                     );
                   },
@@ -92,7 +92,7 @@ class CheckInTrendsChart extends StatelessWidget {
                           child: Text(
                             DateFormat('MMM d').format(checkIn.dateTime),
                             style: AppTheme.bodySmall.copyWith(
-                              color: AppTheme.text3,
+                              color: AppTheme.textPrimary,
                             ),
                           ),
                         );
@@ -108,7 +108,7 @@ class CheckInTrendsChart extends StatelessWidget {
                         return Text(
                           value.toInt().toString(),
                           style: AppTheme.bodySmall.copyWith(
-                            color: AppTheme.text3,
+                            color: AppTheme.textPrimary,
                           ),
                         );
                       },
@@ -118,7 +118,7 @@ class CheckInTrendsChart extends StatelessWidget {
                 borderData: FlBorderData(
                   show: true,
                   border: Border.all(
-                    color: AppTheme.backgroundDepth3,
+                    color: AppTheme.backgroundTertiary,
                     width: 1,
                   ),
                 ),

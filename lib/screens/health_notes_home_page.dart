@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/grouped_health_notes.dart';
@@ -9,6 +10,8 @@ import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/services/search_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/animated_welcome_card.dart';
 import 'package:intl/intl.dart';
 
 class HealthNotesHomePage extends ConsumerStatefulWidget {
@@ -19,15 +22,32 @@ class HealthNotesHomePage extends ConsumerStatefulWidget {
       _HealthNotesHomePageState();
 }
 
-class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
+class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
+    with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   DateTime? _selectedDate;
   String? _selectedDrug;
+  late AnimationController _animationController;
+  late Animation<double> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: AppTheme.animationMedium,
+      vsync: this,
+    );
+    _slideAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: AppTheme.slideCurve),
+    );
+    _animationController.forward();
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -92,7 +112,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('Health Notes', style: AppTheme.titleMedium),
+        middle: Text('Health Notes', style: AppTheme.headlineSmall),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () => AuthUtils.showSignOutDialog(context),
@@ -109,7 +129,9 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
           data: (groupedNotes) => groupedNotes.isEmpty
               ? emptyTable()
               : buildFilteredContent(groupedNotes),
-          loading: () => const Center(child: CupertinoActivityIndicator()),
+          loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+            message: 'Loading your health notes...',
+          ),
           error: (error, stack) =>
               Center(child: Text('Error: $error', style: AppTheme.error)),
         ),
@@ -125,30 +147,34 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
         _selectedDate != null ||
         _selectedDrug != null;
 
-    return Column(
-      children: [
-        buildSearchBar(),
-        if (hasActiveFilters) buildFilterChips(allNotes),
-        Expanded(
-          child: filteredNotes.isEmpty
-              ? buildNoResultsMessage(hasActiveFilters)
-              : buildGroupedTable(groupedNotes, filteredNotes),
-        ),
-      ],
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(0, 0.1),
+        end: Offset.zero,
+      ).animate(_slideAnimation),
+      child: Column(
+        children: [
+          buildSearchBar(),
+          if (hasActiveFilters) buildFilterChips(allNotes),
+          Expanded(
+            child: filteredNotes.isEmpty
+                ? buildNoResultsMessage(hasActiveFilters)
+                : buildGroupedTable(groupedNotes, filteredNotes),
+          ),
+        ],
+      ),
     );
   }
 
   Widget buildSearchBar() {
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(AppTheme.spacingM),
       child: Row(
         children: [
           Expanded(
-            child: CupertinoSearchTextField(
+            child: EnhancedUIComponents.enhancedSearchField(
               controller: _searchController,
-              placeholder: 'Search...',
-              placeholderStyle: AppTheme.inputPlaceholder,
-              style: AppTheme.input,
+              placeholder: 'Search your health notes...',
               onChanged: (value) => setState(() => _searchQuery = value),
               onSuffixTap: _searchQuery.isNotEmpty
                   ? () => setState(() {
@@ -156,20 +182,16 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
                       _searchController.clear();
                     })
                   : null,
+              showSuffix: _searchQuery.isNotEmpty,
             ),
           ),
-          const SizedBox(width: 8),
-          CupertinoButton(
-            padding: const EdgeInsets.all(12),
-            color: CupertinoColors.systemGrey6,
-            borderRadius: BorderRadius.circular(8),
+          const SizedBox(width: AppTheme.spacingS),
+          EnhancedUIComponents.enhancedButton(
+            text: '',
             onPressed: () => showFilterModal(),
-            child: Icon(
-              CupertinoIcons.slider_horizontal_3,
-              color: (_selectedDate != null || _selectedDrug != null)
-                  ? CupertinoColors.systemBlue
-                  : CupertinoColors.systemGrey,
-            ),
+            isPrimary: false,
+            icon: CupertinoIcons.slider_horizontal_3,
+            width: 48,
           ),
         ],
       ),
@@ -194,7 +216,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
   Widget buildFilterChips(List<HealthNote> notes) {
     return Container(
       height: 50,
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: AppTheme.spacingM),
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
@@ -223,67 +245,48 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     bool isClearAll = false,
   }) {
     return Container(
-      margin: const EdgeInsets.only(right: 8),
-      child: CupertinoButton(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        color: isClearAll
-            ? CupertinoColors.systemGrey
-            : CupertinoColors.systemBlue,
-        borderRadius: BorderRadius.circular(16),
-        onPressed: onTap,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(label, style: AppTheme.labelSmallWhite),
-            const SizedBox(width: 4),
-            Icon(
-              CupertinoIcons.xmark_circle_fill,
-              size: 14,
-              color: CupertinoColors.white,
-            ),
-          ],
-        ),
+      margin: const EdgeInsets.only(right: AppTheme.spacingS),
+      child: EnhancedUIComponents.enhancedFilterChip(
+        label: label,
+        isActive: isClearAll,
+        onTap: onTap,
       ),
     );
   }
 
   Widget buildNoResultsMessage(bool hasActiveFilters) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            CupertinoIcons.search,
-            size: 48,
-            color: CupertinoColors.systemGrey,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            hasActiveFilters
-                ? 'No notes match your filters'
-                : 'No health notes yet',
-            style: AppTheme.titleMedium,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            hasActiveFilters
-                ? 'Try adjusting your search or filters'
-                : 'Tap + to add your first note',
-            style: AppTheme.subtitle,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
+    if (hasActiveFilters) {
+      return EnhancedUIComponents.enhancedEmptyState(
+        title: 'No matches found',
+        message:
+            'Try adjusting your search or filters to find what you\'re looking for',
+        icon: CupertinoIcons.search,
+      );
+    } else {
+      return AnimatedWelcomeCard(
+        title: 'Welcome to Health Notes',
+        message: 'Start tracking your health journey by adding your first note',
+        icon: CupertinoIcons.heart_fill,
+        iconColor: AppTheme.primary,
+        action: EnhancedUIComponents.enhancedButton(
+          text: 'Add First Note',
+          onPressed: showAddNoteModal,
+          icon: CupertinoIcons.add,
+        ),
+      );
+    }
   }
 
   Widget emptyTable() {
-    return Center(
-      child: Text(
-        'No health notes yet.\nTap + to add your first note.',
-        textAlign: TextAlign.center,
-        style: AppTheme.subtitle,
+    return AnimatedWelcomeCard(
+      title: 'Welcome to Health Notes',
+      message: 'Start tracking your health journey by adding your first note',
+      icon: CupertinoIcons.heart_fill,
+      iconColor: AppTheme.primary,
+      action: EnhancedUIComponents.enhancedButton(
+        text: 'Add First Note',
+        onPressed: showAddNoteModal,
+        icon: CupertinoIcons.add,
       ),
     );
   }
@@ -307,15 +310,10 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Text(
-                _formatGroupDate(group.date),
-                style: AppTheme.titleSmall.copyWith(
-                  color: CupertinoColors.systemGrey,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+            EnhancedUIComponents.enhancedSectionHeader(
+              title: _formatGroupDate(group.date),
+              subtitle:
+                  '${visibleNotes.length} note${visibleNotes.length == 1 ? '' : 's'}',
             ),
             ...visibleNotes.map((note) => buildNoteCard(note)),
           ],
@@ -329,10 +327,16 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
       key: Key(note.id),
       direction: DismissDirection.endToStart,
       background: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        decoration: AppTheme.deleteContainer,
+        margin: const EdgeInsets.symmetric(
+          horizontal: AppTheme.spacingM,
+          vertical: AppTheme.spacingXS,
+        ),
+        decoration: BoxDecoration(
+          color: AppTheme.destructive,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        ),
         alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
+        padding: const EdgeInsets.only(right: AppTheme.spacingL),
         child: const Icon(
           CupertinoIcons.delete,
           color: CupertinoColors.white,
@@ -345,101 +349,108 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
       onDismissed: (direction) {
         deleteNote(note.id);
       },
-      child: GestureDetector(
+      child: EnhancedUIComponents.enhancedCard(
         onTap: () => navigateToView(note),
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          decoration: AppTheme.cardContainer,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (note.hasSymptoms) ...[
-                            ...note.validSymptoms.map(
-                              (symptom) => Padding(
-                                padding: const EdgeInsets.only(bottom: 4),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 8,
-                                      height: 8,
-                                      decoration: const BoxDecoration(
-                                        color: AppTheme.primary,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        symptom.name,
-                                        style: AppTheme.titleMedium,
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppTheme.backgroundDepth3,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        '${symptom.severityLevel}/10',
-                                        style: AppTheme.caption.copyWith(
-                                          color: AppTheme.text2,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (note.hasSymptoms) ...[
+                        ...note.validSymptoms.map(
+                          (symptom) => Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: AppTheme.spacingXS,
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: AppTheme.primary,
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(width: AppTheme.spacingS),
+                                Expanded(
+                                  child: Text(
+                                    symptom.name,
+                                    style: AppTheme.labelLarge,
+                                  ),
+                                ),
+                                EnhancedUIComponents.enhancedStatusIndicator(
+                                  text: '${symptom.severityLevel}/10',
+                                  color: AppTheme.primary,
+                                ),
+                              ],
                             ),
-                          ] else
-                            Text(
-                              'No symptoms recorded',
-                              style: AppTheme.titleMedium,
+                          ),
+                        ),
+                      ],
+                      if (note.drugDoses.isNotEmpty) ...[
+                        const SizedBox(height: AppTheme.spacingS),
+                        ...note.drugDoses.map(
+                          (dose) => Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: AppTheme.spacingXS,
                             ),
-                        ],
-                      ),
-                    ),
-                    const Icon(CupertinoIcons.chevron_right),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                if (note.drugDoses.isNotEmpty) ...[
-                  Text('Drugs:', style: AppTheme.titleSmall),
-                  const SizedBox(height: 4),
-                  ...note.drugDoses.map(
-                    (dose) => Padding(
-                      padding: const EdgeInsets.only(left: 16),
-                      child: Text(
-                        '• ${dose.name} - ${dose.dosage} ${dose.unit}',
-                        style: AppTheme.bodyMedium,
-                      ),
-                    ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: AppTheme.accent,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: AppTheme.spacingS),
+                                Expanded(
+                                  child: Text(
+                                    '${dose.name} ${dose.dosage}',
+                                    style: AppTheme.labelMedium,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                ],
-                if (note.notes.isNotEmpty) ...[
-                  Text('Notes: ${note.notes}', style: AppTheme.bodyMedium),
-                  const SizedBox(height: 4),
-                ],
-                Text(
-                  'Time: ${formatTime(note.dateTime)}',
-                  style: AppTheme.caption,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      DateFormat('h:mm a').format(note.dateTime),
+                      style: AppTheme.caption,
+                    ),
+                    const SizedBox(height: AppTheme.spacingXS),
+                    Text(
+                      DateFormat('M/d/yyyy').format(note.dateTime),
+                      style: AppTheme.captionSecondary,
+                    ),
+                  ],
                 ),
               ],
             ),
-          ),
+            if (note.notes.isNotEmpty) ...[
+              const SizedBox(height: AppTheme.spacingM),
+              Text(
+                note.notes,
+                style: AppTheme.bodySmall,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ],
         ),
       ),
     );
@@ -456,45 +467,26 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
     } else if (groupDate == yesterday) {
       return 'Yesterday';
     } else {
-      return DateFormat('EEEE, MMMM d, yyyy').format(date);
+      return DateFormat('EEEE, MMMM d').format(date);
     }
-  }
-
-  String formatTime(DateTime dateTime) {
-    return DateFormat('h:mm a').format(dateTime);
-  }
-
-  Widget table(List<HealthNote> notes) {
-    return ListView.builder(
-      itemCount: notes.length,
-      itemBuilder: (context, index) {
-        final note = notes[index];
-        return buildNoteCard(note);
-      },
-    );
-  }
-
-  String formatDateTime(DateTime dateTime) {
-    return DateFormat('M/d/yyyy \'at\' h:mm a').format(dateTime);
   }
 
   Future<bool> showDeleteConfirmation(HealthNote note) async {
     return await showCupertinoDialog<bool>(
           context: context,
           builder: (context) => CupertinoAlertDialog(
-            title: Text('Delete Health Note', style: AppTheme.titleMedium),
+            title: const Text('Delete Note'),
             content: Text(
-              'Are you sure you want to delete this health note from ${formatDateTime(note.dateTime)}?',
-              style: AppTheme.bodyMedium,
+              'Are you sure you want to delete this note from ${DateFormat('M/d/yyyy').format(note.dateTime)}?',
             ),
             actions: [
               CupertinoDialogAction(
-                child: Text('Cancel', style: AppTheme.buttonSecondary),
+                child: const Text('Cancel'),
                 onPressed: () => Navigator.of(context).pop(false),
               ),
               CupertinoDialogAction(
                 isDestructiveAction: true,
-                child: Text('Delete', style: AppTheme.error),
+                child: const Text('Delete'),
                 onPressed: () => Navigator.of(context).pop(true),
               ),
             ],

@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen();
@@ -10,52 +12,139 @@ class AuthScreen extends ConsumerStatefulWidget {
   ConsumerState<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends ConsumerState<AuthScreen> {
+class _AuthScreenState extends ConsumerState<AuthScreen>
+    with TickerProviderStateMixin {
   bool _isLoading = false;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: AppTheme.animationSlow,
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.6, curve: AppTheme.animationCurve),
+      ),
+    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: const Interval(0.3, 1.0, curve: AppTheme.slideCurve),
+          ),
+        );
+
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      backgroundColor: CupertinoColors.systemBackground,
+    return EnhancedUIComponents.animatedGradientBackground(
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(AppTheme.spacingXL),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Icon(
-                CupertinoIcons.heart_fill,
-                size: 80,
-                color: CupertinoColors.systemBlue,
+              FadeTransition(
+                opacity: _fadeAnimation,
+                child: Container(
+                  padding: const EdgeInsets.all(AppTheme.spacingL),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppTheme.primary.withValues(alpha: 0.1),
+                        AppTheme.primary.withValues(alpha: 0.05),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(
+                      AppTheme.radiusExtraLarge,
+                    ),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.heart_fill,
+                    size: 80,
+                    color: AppTheme.primary,
+                  ),
+                ),
               ),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: AppTheme.spacingXL),
 
-              Text(
-                'Health Notes',
-                textAlign: TextAlign.center,
-                style: AppTheme.titleLarge,
+              SlideTransition(
+                position: _slideAnimation,
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Column(
+                    children: [
+                      Text(
+                        'Health Notes',
+                        textAlign: TextAlign.center,
+                        style: AppTheme.headlineLarge,
+                      ),
+
+                      const SizedBox(height: AppTheme.spacingS),
+
+                      Text(
+                        'Your personal health companion',
+                        textAlign: TextAlign.center,
+                        style: AppTheme.bodyLarge.copyWith(
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+
+                      const SizedBox(height: AppTheme.spacingL),
+
+                      Text(
+                        'Track symptoms, medications, and insights to better understand your health patterns',
+                        textAlign: TextAlign.center,
+                        style: AppTheme.bodyMedium.copyWith(
+                          color: AppTheme.textTertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: AppTheme.spacingXXL),
 
-              Text(
-                'Track your health journey with ease',
-                textAlign: TextAlign.center,
-                style: AppTheme.subtitle,
+              SlideTransition(
+                position: _slideAnimation,
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: signInButton(),
+                ),
               ),
 
-              const SizedBox(height: 64),
+              const SizedBox(height: AppTheme.spacingM),
 
-              signInButton(),
-
-              const SizedBox(height: 16),
-
-              Text(
-                'Look at your health from a more "macro" perspective.',
-                textAlign: TextAlign.center,
-                style: AppTheme.captionSecondary,
+              FadeTransition(
+                opacity: _fadeAnimation,
+                child: Text(
+                  'Your health data stays private and secure',
+                  textAlign: TextAlign.center,
+                  style: AppTheme.caption.copyWith(
+                    color: AppTheme.textQuaternary,
+                  ),
+                ),
               ),
             ],
           ),
@@ -65,25 +154,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }
 
   Widget signInButton() {
-    return CupertinoButton(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      color: CupertinoColors.systemBlue,
-      borderRadius: BorderRadius.circular(12),
-      onPressed: _isLoading ? null : signInButtonPressed,
-      child: _isLoading
-          ? const CupertinoActivityIndicator(color: CupertinoColors.white)
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  CupertinoIcons.globe,
-                  color: CupertinoColors.white,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text('Sign in with Google', style: AppTheme.button),
-              ],
-            ),
+    return EnhancedUIComponents.enhancedButton(
+      text: 'Continue with Google',
+      onPressed: _isLoading ? () {} : () => signInButtonPressed(),
+      isLoading: _isLoading,
+      icon: CupertinoIcons.globe,
     );
   }
 
@@ -97,14 +172,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         showCupertinoDialog(
           context: context,
           builder: (context) => CupertinoAlertDialog(
-            title: Text('Sign In Failed', style: AppTheme.titleMedium),
-            content: Text(
-              'Failed to sign in with Google: $e',
-              style: AppTheme.error,
-            ),
+            title: const Text('Sign In Failed'),
+            content: Text('Please try again. Error: $e'),
             actions: [
               CupertinoDialogAction(
-                child: Text('OK', style: AppTheme.buttonSecondary),
+                child: const Text('OK'),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ],
@@ -112,7 +184,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         );
       }
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 }

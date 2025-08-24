@@ -21,7 +21,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('Check-ins', style: AppTheme.titleMedium),
+        middle: Text('Check-ins', style: AppTheme.headlineSmall),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () => AuthUtils.showSignOutDialog(context),
@@ -59,13 +59,13 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
           const SizedBox(height: 16),
           Text(
             'No check-ins yet',
-            style: AppTheme.titleMedium,
+            style: AppTheme.headlineSmall,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
             'Tap the + button to add your first check-in',
-            style: AppTheme.subtitle,
+            style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -92,7 +92,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
   Widget buildCheckInCard(CheckIn checkIn) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: () => _showEditCheckInForm(checkIn),
@@ -109,7 +109,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
                         Expanded(
                           child: Text(
                             checkIn.metricName,
-                            style: AppTheme.titleSmall,
+                            style: AppTheme.labelLarge,
                           ),
                         ),
                         Container(
@@ -136,7 +136,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
                       DateFormat(
                         'MMM d, yyyy • h:mm a',
                       ).format(checkIn.dateTime),
-                      style: AppTheme.bodyMediumSecondary,
+                      style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
                     ),
                   ],
                 ),

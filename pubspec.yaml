@@ -24,6 +24,8 @@ dependencies:
   google_sign_in: ^7.1.1
   stemmer: ^2.2.0
   fl_chart: ^0.69.0
+  flutter_staggered_animations: ^1.1.1
+  haptic_feedback: ^0.2.0
 
 dev_dependencies:
   flutter_test:

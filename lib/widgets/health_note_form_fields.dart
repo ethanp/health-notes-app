@@ -160,20 +160,20 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
   Widget buildDateTimeSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Date & Time', style: AppTheme.titleMedium),
+          Text('Date & Time', style: AppTheme.headlineSmall),
           const SizedBox(height: 16),
           if (widget.isEditable)
             Container(
               height: 200,
-              decoration: AppTheme.datePickerContainer,
+              decoration: AppTheme.inputField,
               child: CupertinoDatePicker(
                 mode: CupertinoDatePickerMode.dateAndTime,
                 initialDateTime: _selectedDateTime,
-                backgroundColor: AppTheme.backgroundDepth4,
+                backgroundColor: AppTheme.backgroundTertiary,
                 onDateTimeChanged: (DateTime newDateTime) {
                   setState(() => _selectedDateTime = newDateTime);
                   widget.onDateTimeChanged?.call(newDateTime);
@@ -186,12 +186,12 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
               children: [
                 Text(
                   DateFormat('EEEE, MMMM d, yyyy').format(_selectedDateTime),
-                  style: AppTheme.titleMedium,
+                  style: AppTheme.headlineSmall,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   DateFormat('h:mm a').format(_selectedDateTime),
-                  style: AppTheme.bodyMediumSecondary,
+                  style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
                 ),
               ],
             ),
@@ -205,15 +205,15 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: widget.isEditable
-          ? AppTheme.inputContainer
-          : AppTheme.cardContainer,
+          ? AppTheme.inputField
+          : AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Symptoms', style: AppTheme.titleSmall),
+              Text('Symptoms', style: AppTheme.labelLarge),
               if (widget.isEditable)
                 CupertinoButton(
                   padding: EdgeInsets.zero,
@@ -241,11 +241,11 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text(symptom.name, style: AppTheme.bodyMediumBold),
+                      child: Text(symptom.name, style: AppTheme.labelLarge),
                     ),
                     Text(
                       'Severity: ${symptom.severityLevel}/10',
-                      style: AppTheme.bodyMediumSecondary,
+                      style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
                     ),
                   ],
                 ),
@@ -271,15 +271,15 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: widget.isEditable
-          ? AppTheme.inputContainer
-          : AppTheme.cardContainer,
+          ? AppTheme.inputField
+          : AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Medications', style: AppTheme.titleSmall),
+              Text('Medications', style: AppTheme.labelLarge),
               if (widget.isEditable)
                 CupertinoButton(
                   padding: EdgeInsets.zero,
@@ -307,11 +307,11 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text(dose.name, style: AppTheme.bodyMediumBold),
+                      child: Text(dose.name, style: AppTheme.labelLarge),
                     ),
                     Text(
                       dose.displayDosage,
-                      style: AppTheme.bodyMediumSecondary,
+                      style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
                     ),
                   ],
                 ),
@@ -340,7 +340,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -405,12 +405,12 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: widget.isEditable
-          ? AppTheme.inputContainer
-          : AppTheme.cardContainer,
+          ? AppTheme.inputField
+          : AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Notes', style: AppTheme.titleSmall),
+          Text('Notes', style: AppTheme.labelLarge),
           const SizedBox(height: 8),
           if (widget.isEditable)
             CupertinoTextField(
@@ -511,7 +511,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -23,7 +23,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('Trends', style: AppTheme.titleMedium),
+        middle: Text('Trends', style: AppTheme.headlineSmall),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () => AuthUtils.showSignOutDialog(context),
@@ -55,13 +55,13 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
           const SizedBox(height: 16),
           Text(
             'No data for trends yet',
-            style: AppTheme.titleMedium,
+            style: AppTheme.headlineSmall,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
             'Add some health notes to see analytics',
-            style: AppTheme.subtitle,
+            style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
             textAlign: TextAlign.center,
           ),
         ],
@@ -116,7 +116,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       padding: const EdgeInsets.only(bottom: 12),
       child: Text(
         title,
-        style: AppTheme.titleMedium.copyWith(fontWeight: FontWeight.w600),
+        style: AppTheme.headlineSmall,
       ),
     );
   }
@@ -130,14 +130,14 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       ..sort((a, b) => b.value.compareTo(a.value));
 
     return Container(
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Last 30 Days',
-            style: AppTheme.titleSmall.copyWith(fontWeight: FontWeight.w600),
+            style: AppTheme.labelLarge,
           ),
           const SizedBox(height: 12),
           ...sortedTrends
@@ -157,14 +157,14 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       ..sort((a, b) => b.value.compareTo(a.value));
 
     return Container(
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'All Time',
-            style: AppTheme.titleSmall.copyWith(fontWeight: FontWeight.w600),
+            style: AppTheme.labelLarge,
           ),
           const SizedBox(height: 12),
           ...sortedSymptoms
@@ -184,14 +184,14 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       ..sort((a, b) => b.value.compareTo(a.value));
 
     return Container(
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Most Used Drugs',
-            style: AppTheme.titleSmall.copyWith(fontWeight: FontWeight.w600),
+            style: AppTheme.labelLarge,
           ),
           const SizedBox(height: 12),
           ...sortedDrugs
@@ -211,14 +211,14 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       ..sort((a, b) => b.key.compareTo(a.key));
 
     return Container(
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Notes per Month',
-            style: AppTheme.titleSmall.copyWith(fontWeight: FontWeight.w600),
+            style: AppTheme.labelLarge,
           ),
           const SizedBox(height: 12),
           ...sortedMonths
@@ -253,7 +253,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
 
   Widget buildEmptyCard(String message) {
     return Container(
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [

@@ -14,7 +14,7 @@ class AuthUtils {
 
           return userProfileAsync.when(
             data: (userProfile) => CupertinoAlertDialog(
-              title: Text('Sign Out', style: AppTheme.titleMedium),
+              title: Text('Sign Out', style: AppTheme.headlineSmall),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -69,7 +69,7 @@ class AuthUtils {
               ],
             ),
             loading: () => CupertinoAlertDialog(
-              title: Text('Sign Out', style: AppTheme.titleMedium),
+              title: Text('Sign Out', style: AppTheme.headlineSmall),
               content: const Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -86,7 +86,7 @@ class AuthUtils {
               ],
             ),
             error: (error, stack) => CupertinoAlertDialog(
-              title: Text('Sign Out', style: AppTheme.titleMedium),
+              title: Text('Sign Out', style: AppTheme.headlineSmall),
               content: Text(
                 'Are you sure you want to sign out?',
                 style: AppTheme.bodyMedium,
@@ -117,7 +117,7 @@ class AuthUtils {
           showCupertinoDialog(
             context: context,
             builder: (context) => CupertinoAlertDialog(
-              title: Text('Error', style: AppTheme.titleMedium),
+              title: Text('Error', style: AppTheme.headlineSmall),
               content: Text('Failed to sign out: $e', style: AppTheme.error),
               actions: [
                 CupertinoDialogAction(

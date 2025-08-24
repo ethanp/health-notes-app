@@ -21,7 +21,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('My Tools', style: AppTheme.titleMedium),
+        middle: Text('My Tools', style: AppTheme.headlineSmall),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () => AuthUtils.showSignOutDialog(context),
@@ -59,13 +59,13 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
           const SizedBox(height: 16),
           Text(
             'No health tools yet',
-            style: AppTheme.titleMedium,
+            style: AppTheme.headlineSmall,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
             'Create your first health tool category to get started',
-            style: AppTheme.subtitle,
+            style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -92,7 +92,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
   Widget buildCategoryCard(HealthToolCategory category) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: AppTheme.cardContainer,
+      decoration: AppTheme.primaryCard,
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: () => _navigateToCategory(category),
@@ -118,11 +118,11 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(category.name, style: AppTheme.titleSmall),
+                    Text(category.name, style: AppTheme.labelLarge),
                     const SizedBox(height: 4),
                     Text(
                       category.description,
-                      style: AppTheme.bodyMediumSecondary,
+                      style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),

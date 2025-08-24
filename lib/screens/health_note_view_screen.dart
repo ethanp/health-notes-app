@@ -25,7 +25,7 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
     if (_isEditing) {
       return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-          middle: Text('Edit Note', style: AppTheme.titleMedium),
+          middle: Text('Edit Note', style: AppTheme.headlineSmall),
           leading: CupertinoButton(
             padding: EdgeInsets.zero,
             onPressed: cancelEdit,
@@ -51,7 +51,7 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('Health Note', style: AppTheme.titleMedium),
+        middle: Text('Health Note', style: AppTheme.headlineSmall),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: toggleEditMode,
@@ -123,7 +123,7 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
         showCupertinoDialog(
           context: context,
           builder: (context) => CupertinoAlertDialog(
-            title: Text('Error', style: AppTheme.titleMedium),
+            title: Text('Error', style: AppTheme.headlineSmall),
             content: Text('Failed to update note: $e', style: AppTheme.error),
             actions: [
               CupertinoDialogAction(
