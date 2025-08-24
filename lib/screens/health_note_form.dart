@@ -1,9 +1,26 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/drug_dose.dart';
+import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
+class DrugDoseControllers {
+  final TextEditingController name;
+  final TextEditingController dosage;
+  final TextEditingController unit;
+
+  DrugDoseControllers(DrugDose dose)
+    : name = TextEditingController(text: dose.name),
+      dosage = TextEditingController(text: dose.dosage.toString()),
+      unit = TextEditingController(text: dose.unit);
+
+  void dispose() {
+    name.dispose();
+    dosage.dispose();
+    unit.dispose();
+  }
+}
 
 class HealthNoteForm extends ConsumerStatefulWidget {
   final HealthNote? note;
@@ -33,23 +50,40 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
   late List<DrugDose> _drugDoses;
   bool _isLoading = false;
 
+  late final Map<int, DrugDoseControllers> _drugDoseControllers;
+
   @override
   void initState() {
     super.initState();
-    _symptomsController = TextEditingController(
-      text: widget.note?.symptoms ?? '',
+
+    if (widget.note != null) {
+      // Editing existing note
+      final note = widget.note!;
+      _symptomsController = TextEditingController(text: note.symptoms);
+      _notesController = TextEditingController(text: note.notes);
+      _selectedDateTime = note.dateTime;
+      _drugDoses = List.from(note.drugDoses);
+    } else {
+      // Creating new note
+      _symptomsController = TextEditingController();
+      _notesController = TextEditingController();
+      _selectedDateTime = DateTime.now();
+      _drugDoses = <DrugDose>[];
+    }
+
+    _drugDoseControllers = _drugDoses.asMap().map(
+      (key, value) => MapEntry(key, DrugDoseControllers(value)),
     );
-    _notesController = TextEditingController(text: widget.note?.notes ?? '');
-    _selectedDateTime = widget.note?.dateTime ?? DateTime.now();
-    _drugDoses = widget.note != null
-        ? List.from(widget.note!.drugDoses)
-        : <DrugDose>[];
   }
 
   @override
   void dispose() {
     _symptomsController.dispose();
     _notesController.dispose();
+
+    _drugDoseControllers.values.forEach((controllers) => controllers.dispose());
+    _drugDoseControllers.clear();
+
     super.dispose();
   }
 
@@ -163,11 +197,7 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
   }
 
   Widget buildDrugDoseItem(int index, DrugDose dose) {
-    final nameController = TextEditingController(text: dose.name);
-    final dosageController = TextEditingController(
-      text: dose.dosage.toString(),
-    );
-    final unitController = TextEditingController(text: dose.unit);
+    final controllers = _drugDoseControllers[index]!;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -180,7 +210,7 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
             children: [
               Expanded(
                 child: CupertinoTextField(
-                  controller: nameController,
+                  controller: controllers.name,
                   placeholder: 'Medication name',
                   placeholderStyle: AppTheme.inputPlaceholder,
                   style: AppTheme.input,
@@ -205,7 +235,7 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
             children: [
               Expanded(
                 child: CupertinoTextField(
-                  controller: dosageController,
+                  controller: controllers.dosage,
                   placeholder: 'Dosage',
                   placeholderStyle: AppTheme.inputPlaceholder,
                   style: AppTheme.input,
@@ -220,7 +250,7 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
               SizedBox(
                 width: 80,
                 child: CupertinoTextField(
-                  controller: unitController,
+                  controller: controllers.unit,
                   placeholder: 'Unit',
                   placeholderStyle: AppTheme.inputPlaceholder,
                   style: AppTheme.input,
@@ -250,12 +280,22 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
 
   void addDrugDose() {
     setState(() {
+      final newIndex = _drugDoses.length;
       _drugDoses.add(const DrugDose(name: '', dosage: 0.0, unit: 'mg'));
+      _drugDoseControllers[newIndex] = DrugDoseControllers(
+        _drugDoses[newIndex],
+      );
     });
   }
 
   void removeDrugDose(int index) {
     setState(() {
+      // Dispose controllers for the removed drug dose
+      if (_drugDoseControllers.containsKey(index)) {
+        _drugDoseControllers[index]!.dispose();
+        _drugDoseControllers.remove(index);
+      }
+
       _drugDoses.removeAt(index);
     });
   }

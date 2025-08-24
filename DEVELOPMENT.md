@@ -94,6 +94,82 @@ class MyWidget extends StatelessWidget {
 - **Idiomatic Dart**: Use Dart's built-in functional features (map, where, join, etc.)
 - **Clean chains**: Prefer method chaining over multiple statements
 - **Concise code**: Aim for readable, minimal code that expresses intent clearly
+- **Late final fields**: Use `late final` for fields initialized in `initState()` with functional transformations
+- **Clear branching**: Use explicit if/else branches instead of multiple ternary expressions for better readability
+
+#### Late Final Pattern
+Use `late final` for fields that need to be initialized in `initState()` with functional data transformations:
+
+```dart
+// ✅ Preferred - late final with functional initialization
+class _MyWidgetState extends ConsumerState<MyWidget> {
+  late final Map<int, Controller> _controllers;
+  late final List<String> _processedItems;
+  
+  @override
+  void initState() {
+    super.initState();
+    
+    // Functional initialization - immutable reference after creation
+    _controllers = items.asMap().map(
+      (key, value) => MapEntry(key, Controller(value)),
+    );
+    
+    _processedItems = rawItems
+        .where((item) => item.isValid)
+        .map((item) => item.process())
+        .toList();
+  }
+}
+
+// ❌ Avoid - mutable fields or early initialization
+class _MyWidgetState extends ConsumerState<MyWidget> {
+  final Map<int, Controller> _controllers = {}; // Empty initialization
+  Map<int, Controller> _controllers2 = {}; // Mutable reference
+}
+```
+
+**Benefits:**
+- **Immutable reference**: Cannot be reassigned after initialization
+- **Lazy initialization**: Only initialized when needed in `initState()`
+- **Type safety**: Dart ensures field is initialized before use
+- **Functional style**: Enables clean functional transformations
+
+#### Clear Branching Pattern
+Use explicit if/else branches instead of multiple ternary expressions for better readability:
+
+```dart
+// ✅ Preferred - Clear branching logic
+@override
+void initState() {
+  super.initState();
+  
+  if (widget.item != null) {
+    // Editing existing item
+    final item = widget.item!;
+    _nameController = TextEditingController(text: item.name);
+    _descriptionController = TextEditingController(text: item.description);
+    _selectedDate = item.date;
+    _tags = List.from(item.tags);
+  } else {
+    // Creating new item
+    _nameController = TextEditingController();
+    _descriptionController = TextEditingController();
+    _selectedDate = DateTime.now();
+    _tags = <String>[];
+  }
+}
+
+// ❌ Avoid - Multiple ternary expressions
+@override
+void initState() {
+  super.initState();
+  _nameController = TextEditingController(text: widget.item?.name ?? '');
+  _descriptionController = TextEditingController(text: widget.item?.description ?? '');
+  _selectedDate = widget.item?.date ?? DateTime.now();
+  _tags = widget.item != null ? List.from(widget.item!.tags) : <String>[];
+}
+```
 
 #### Examples
 ```dart
@@ -110,4 +186,46 @@ for (final item in items) {
   if (item.name.isNotEmpty) parts.add(item.name);
 }
 return parts.join(' ');
+```
+
+#### Loop Conversion Patterns
+```dart
+// ✅ Preferred - Functional one-liners for loops
+// Converting indexed loops to functional style with late final
+late final Map<int, DrugDoseControllers> _drugDoseControllers;
+
+// In initState():
+_drugDoseControllers = _drugDoses.asMap().map(
+  (key, value) => MapEntry(key, DrugDoseControllers(value)),
+);
+
+// Converting nested loops to functional style
+return notes
+    .expand((note) => note.drugDoses)
+    .map((dose) => dose.name)
+    .where((name) => name.isNotEmpty)
+    .toSet()
+    .toList()
+  ..sort();
+
+// Converting forEach to functional style
+_drugDoseControllers.values.map((controllers) => controllers.dispose()).toList();
+
+// ❌ Avoid - Imperative loops and mutable fields
+final Map<int, DrugDoseControllers> _drugDoseControllers = {};
+for (int i = 0; i < _drugDoses.length; i++) {
+  _drugDoseControllers[i] = DrugDoseControllers(_drugDoses[i]);
+}
+
+for (final note in notes) {
+  for (final dose in note.drugDoses) {
+    if (dose.name.isNotEmpty) {
+      drugs.add(dose.name);
+    }
+  }
+}
+
+for (final controllers in _drugDoseControllers.values) {
+  controllers.dispose();
+}
 ```

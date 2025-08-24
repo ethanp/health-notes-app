@@ -11,6 +11,7 @@ analyzer:
   errors:
     use_key_in_widget_constructors: ignore
     avoid_print: ignore
+    avoid_function_literals_in_foreach_calls: ignore
   exclude:
     - "DEVELOPMENT.md"
 include: package:flutter_lints/flutter.yaml

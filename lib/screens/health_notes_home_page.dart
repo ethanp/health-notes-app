@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
-import 'package:health_notes/screens/health_note_form.dart';
 import 'package:health_notes/screens/filter_modal.dart';
+import 'package:health_notes/screens/health_note_form.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/services/search_service.dart';
@@ -76,15 +76,13 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
   }
 
   List<String> getUniqueDrugs(List<HealthNote> notes) {
-    final drugs = <String>{};
-    for (final note in notes) {
-      for (final dose in note.drugDoses) {
-        if (dose.name.isNotEmpty) {
-          drugs.add(dose.name);
-        }
-      }
-    }
-    return drugs.toList()..sort();
+    return notes
+        .expand((note) => note.drugDoses)
+        .map((dose) => dose.name)
+        .where((name) => name.isNotEmpty)
+        .toSet()
+        .toList()
+      ..sort();
   }
 
   @override
@@ -145,7 +143,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage> {
           Expanded(
             child: CupertinoSearchTextField(
               controller: _searchController,
-              placeholder: 'Search with advanced matching...',
+              placeholder: 'Search...',
               placeholderStyle: AppTheme.inputPlaceholder,
               style: AppTheme.input,
               onChanged: (value) {
