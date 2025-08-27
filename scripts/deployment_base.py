@@ -1,0 +1,333 @@
+#!/usr/bin/env python3
+"""
+Health Notes - Deployment Base Class
+Common functionality shared between iPhone and Simulator deployment scripts
+"""
+
+import subprocess
+import sys
+import os
+import hashlib
+import json
+import time
+from typing import Optional, List, Dict, Tuple
+from pathlib import Path
+from abc import ABC, abstractmethod
+
+
+class Colors:
+    """ANSI color codes for terminal output"""
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
+class DeploymentBase(ABC):
+    """Base class for deployment scripts"""
+    
+    def __init__(self, script_name: str, build_type: str = "release"):
+        self.script_name = script_name
+        self.build_type = build_type
+        self.hash_file = f'.build_hash_{script_name.lower()}'
+    
+    def print_header(self, text: str):
+        """Print a formatted header"""
+        print(f"{Colors.HEADER}{Colors.BOLD}{text}{Colors.ENDC}")
+        print("=" * len(text))
+    
+    def print_success(self, text: str):
+        """Print success message"""
+        print(f"{Colors.OKGREEN}✅ {text}{Colors.ENDC}")
+    
+    def print_warning(self, text: str):
+        """Print warning message"""
+        print(f"{Colors.WARNING}⚠️  {text}{Colors.ENDC}")
+    
+    def print_error(self, text: str):
+        """Print error message"""
+        print(f"{Colors.FAIL}❌ {text}{Colors.ENDC}")
+    
+    def print_info(self, text: str):
+        """Print info message"""
+        print(f"{Colors.OKBLUE}📱 {text}{Colors.ENDC}")
+    
+    def run_command(self, command: List[str], capture_output: bool = True, check: bool = False) -> Tuple[int, str, str]:
+        """Run a command and return exit code, stdout, and stderr"""
+        try:
+            result = subprocess.run(
+                command,
+                capture_output=capture_output,
+                text=True,
+                check=check
+            )
+            return result.returncode, result.stdout, result.stderr
+        except subprocess.CalledProcessError as e:
+            return e.returncode, e.stdout, e.stderr
+    
+    def check_flutter_available(self) -> bool:
+        """Check if Flutter is available"""
+        returncode, _, _ = self.run_command(["flutter", "--version"], check=False)
+        return returncode == 0
+    
+    def check_project_directory(self) -> bool:
+        """Check if we're in the right directory"""
+        return os.path.exists("pubspec.yaml")
+    
+    def get_file_hash(self, file_path: str) -> str:
+        """Get MD5 hash of a file"""
+        try:
+            with open(file_path, 'rb') as f:
+                return hashlib.md5(f.read()).hexdigest()
+        except (IOError, OSError):
+            return ""
+    
+    def get_directory_hash(self, directory: str, extensions: List[str] = None) -> str:
+        """Get a hash representing the state of files in a directory"""
+        if extensions is None:
+            extensions = ['.dart', '.yaml', '.yml', '.json', '.png', '.jpg', '.jpeg', '.svg', '.ttf', '.otf']
+        
+        hashes = []
+        try:
+            for root, dirs, files in os.walk(directory):
+                # Skip build and cache directories
+                dirs[:] = [d for d in dirs if d not in ['build', '.dart_tool', 'ios/build', 'ios/Pods']]
+                
+                for file in files:
+                    if any(file.endswith(ext) for ext in extensions):
+                        file_path = os.path.join(root, file)
+                        file_hash = self.get_file_hash(file_path)
+                        if file_hash:
+                            hashes.append(f"{file_path}:{file_hash}")
+        except (IOError, OSError):
+            pass
+        
+        # Sort for consistent hash
+        hashes.sort()
+        return hashlib.md5('\n'.join(hashes).encode()).hexdigest()
+    
+    def check_if_rebuild_needed(self) -> bool:
+        """Check if a rebuild is needed based on file changes"""
+        self.print_info("Checking for file changes...")
+        
+        # Define directories and files to monitor
+        directories_to_check = [
+            'lib',
+            'assets',
+            'ios/Runner',
+            'ios/Runner/Assets.xcassets'
+        ]
+        
+        files_to_check = [
+            'pubspec.yaml',
+            'pubspec.lock',
+            'ios/Runner/Info.plist'
+        ]
+        
+        # Get current hashes
+        current_hashes = {}
+        
+        # Check directories
+        for directory in directories_to_check:
+            if os.path.exists(directory):
+                current_hashes[directory] = self.get_directory_hash(directory)
+        
+        # Check individual files
+        for file_path in files_to_check:
+            if os.path.exists(file_path):
+                current_hashes[file_path] = self.get_file_hash(file_path)
+        
+        # Check if hash file exists and compare
+        if os.path.exists(self.hash_file):
+            try:
+                with open(self.hash_file, 'r') as f:
+                    stored_data = json.load(f)
+                
+                stored_hashes = stored_data.get('hashes', {})
+                
+                # Compare hashes
+                if current_hashes == stored_hashes:
+                    self.print_success("No changes detected - skipping clean and rebuild")
+                    return False
+                else:
+                    self.print_info("Changes detected - rebuild needed")
+            except (IOError, json.JSONDecodeError):
+                self.print_info("Could not read previous build hash - rebuilding")
+        else:
+            self.print_info("No previous build hash found - rebuilding")
+        
+        # Store current hashes
+        try:
+            with open(self.hash_file, 'w') as f:
+                json.dump(current_hashes, f, indent=2)
+        except IOError:
+            self.print_warning("Could not save build hash")
+        
+        return True
+    
+    def record_deployment_timestamp(self):
+        """Record the current deployment timestamp"""
+        try:
+            # Read existing data
+            if os.path.exists(self.hash_file):
+                with open(self.hash_file, 'r') as f:
+                    stored_data = json.load(f)
+                
+                hashes = stored_data.get('hashes', {})
+            else:
+                hashes = {}
+            
+            # Add timestamp
+            deployment_data = {
+                'hashes': hashes,
+                'last_deploy_time': time.strftime('%Y-%m-%d %H:%M:%S')
+            }
+            
+            with open(self.hash_file, 'w') as f:
+                json.dump(deployment_data, f, indent=2)
+                
+        except IOError:
+            self.print_warning("Could not save deployment timestamp")
+    
+    def check_if_deployment_needed(self) -> bool:
+        """Check if deployment is needed based on file changes since last deployment"""
+        self.print_info("Checking if deployment is needed...")
+        
+        # Define directories and files to monitor
+        directories_to_check = [
+            'lib',
+            'assets',
+            'ios/Runner',
+            'ios/Runner/Assets.xcassets'
+        ]
+        
+        files_to_check = [
+            'pubspec.yaml',
+            'pubspec.lock',
+            'ios/Runner/Info.plist'
+        ]
+        
+        # Get current hashes
+        current_hashes = {}
+        
+        # Check directories
+        for directory in directories_to_check:
+            if os.path.exists(directory):
+                current_hashes[directory] = self.get_directory_hash(directory)
+        
+        # Check individual files
+        for file_path in files_to_check:
+            if os.path.exists(file_path):
+                current_hashes[file_path] = self.get_file_hash(file_path)
+        
+        # Check if hash file exists and compare
+        if os.path.exists(self.hash_file):
+            try:
+                with open(self.hash_file, 'r') as f:
+                    stored_data = json.load(f)
+                
+                stored_hashes = stored_data.get('hashes', {})
+                last_deploy_time = stored_data.get('last_deploy_time')
+                
+                # Compare hashes
+                if current_hashes == stored_hashes:
+                    if last_deploy_time:
+                        self.print_success("No changes detected since last deployment - skipping deployment")
+                        print(f"Last deployment: {last_deploy_time}")
+                        return False
+                    else:
+                        self.print_info("No changes detected, but no deployment timestamp found - proceeding with deployment")
+                else:
+                    self.print_info("Changes detected since last deployment - deployment needed")
+            except (IOError, json.JSONDecodeError):
+                self.print_info("Could not read previous deployment data - proceeding with deployment")
+        else:
+            self.print_info("No previous deployment data found - proceeding with deployment")
+        
+        return True
+    
+    def build_app(self) -> bool:
+        """Build the Flutter app"""
+        # Check if rebuild is needed
+        rebuild_needed = self.check_if_rebuild_needed()
+        
+        if rebuild_needed:
+            self.print_info("🧹 Cleaning previous build...")
+            returncode, _, stderr = self.run_command(["flutter", "clean"], check=False)
+            if returncode != 0:
+                self.print_error(f"Failed to clean: {stderr}")
+                return False
+            
+            self.print_info("📦 Getting dependencies...")
+            returncode, _, stderr = self.run_command(["flutter", "pub", "get"], check=False)
+            if returncode != 0:
+                self.print_error(f"Failed to get dependencies: {stderr}")
+                return False
+            
+            self.print_info("🔨 Generating code...")
+            returncode, _, stderr = self.run_command([
+                "flutter", "packages", "pub", "run", "build_runner", "build", "--delete-conflicting-outputs"
+            ], check=False)
+            if returncode != 0:
+                self.print_error(f"Failed to generate code: {stderr}")
+                return False
+            
+            self.print_info(f"🏗️  Building iOS {self.build_type} version...")
+            returncode, _, stderr = self.run_command(["flutter", "build", "ios", f"--{self.build_type}"], check=False)
+            if returncode != 0:
+                self.print_error(f"Failed to build iOS: {stderr}")
+                return False
+        else:
+            self.print_info("📦 Getting dependencies (no rebuild needed)...")
+            returncode, _, stderr = self.run_command(["flutter", "pub", "get"], check=False)
+            if returncode != 0:
+                self.print_error(f"Failed to get dependencies: {stderr}")
+                return False
+        
+        return True
+    
+    def check_prerequisites(self) -> bool:
+        """Check if all prerequisites are met"""
+        if not self.check_flutter_available():
+            self.print_error("Flutter is not installed or not in PATH")
+            return False
+        
+        if not self.check_project_directory():
+            self.print_error("pubspec.yaml not found. Please run this script from the project root directory.")
+            return False
+        
+        return True
+    
+    @abstractmethod
+    def deploy(self) -> bool:
+        """Deploy the app - must be implemented by subclasses"""
+        pass
+    
+    def main(self):
+        """Main deployment function"""
+        self.print_header(f"Health Notes - {self.script_name} Deployment Script")
+        
+        # Check prerequisites
+        if not self.check_prerequisites():
+            sys.exit(1)
+        
+        # Check if deployment is needed
+        if not self.check_if_deployment_needed():
+            self.print_success("Deployment skipped - no changes detected since last deployment")
+            return
+        
+        # Build the app
+        if not self.build_app():
+            sys.exit(1)
+        
+        # Deploy (implemented by subclasses)
+        if not self.deploy():
+            sys.exit(1)
+        
+        # Record successful deployment timestamp
+        self.record_deployment_timestamp()

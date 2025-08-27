@@ -13,6 +13,11 @@
 migrate_working_dir/
 .env
 
+# Build cache files
+.build_hash
+.build_hash_iphone
+.build_hash_simulator
+
 *.g.dart
 *.freezed.dart
 

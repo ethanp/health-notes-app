@@ -97,21 +97,42 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
         children: [
           Text('Metric', style: AppTheme.headlineSmall),
           const SizedBox(height: 16),
-          Container(
-            decoration: AppTheme.inputField,
-            child: CupertinoSlidingSegmentedControl<String>(
-              groupValue: _selectedMetric,
-              children: {
-                for (final metric in availableMetrics)
-                  metric: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(metric, style: AppTheme.bodyMedium),
+          SizedBox(
+            height: 48,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: availableMetrics.length,
+              itemBuilder: (context, index) {
+                final metric = availableMetrics[index];
+                final isSelected = _selectedMetric == metric;
+
+                return Padding(
+                  padding: EdgeInsets.only(
+                    right: index < availableMetrics.length - 1 ? 12 : 0,
                   ),
-              },
-              onValueChanged: (value) {
-                if (value != null) {
-                  setState(() => _selectedMetric = value);
-                }
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() => _selectedMetric = metric);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: isSelected
+                          ? AppTheme.activeFilterChip
+                          : AppTheme.filterChip,
+                      child: Text(
+                        metric,
+                        style: AppTheme.labelMedium.copyWith(
+                          color: isSelected
+                              ? CupertinoColors.white
+                              : AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
               },
             ),
           ),
@@ -137,7 +158,12 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('1', style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary)),
+              Text(
+                '1',
+                style: AppTheme.bodyMedium.copyWith(
+                  color: AppTheme.textTertiary,
+                ),
+              ),
               Expanded(
                 child: CupertinoSlider(
                   value: _rating.toDouble(),
@@ -149,7 +175,12 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                   },
                 ),
               ),
-              Text('10', style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary)),
+              Text(
+                '10',
+                style: AppTheme.bodyMedium.copyWith(
+                  color: AppTheme.textTertiary,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 8),

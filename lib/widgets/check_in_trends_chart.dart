@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/utils/check_in_utils.dart';
 import 'package:intl/intl.dart';
 
 class CheckInTrendsChart extends StatelessWidget {
@@ -141,9 +142,14 @@ class CheckInTrendsChart extends StatelessWidget {
                     dotData: FlDotData(
                       show: true,
                       getDotPainter: (spot, percent, barData, index) {
+                        final checkIn = limitedCheckIns[spot.x.toInt()];
+                        final dotColor = CheckInUtils.getRatingColor(
+                          checkIn.rating,
+                          metricName,
+                        );
                         return FlDotCirclePainter(
                           radius: 4,
-                          color: AppTheme.primary,
+                          color: dotColor,
                           strokeWidth: 2,
                           strokeColor: CupertinoColors.white,
                         );

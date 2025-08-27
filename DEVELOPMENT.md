@@ -76,6 +76,11 @@ class MyWidget extends StatelessWidget {
 ### Generated Files
 - `.gitignore` should exclude `*.g.dart` and `*.freezed.dart` files
 
+### Project Organization
+- **Reference Files**: All reference materials (documentation, SQL scripts, schemas, configuration examples) should be placed in the `references/` subdirectory
+- **Examples**: `SYMPTOM_SUGGESTIONS.md`, database migration scripts, API documentation, etc.
+- **Rationale**: Keeps the main project directory clean and organizes reference materials in a dedicated location
+
 ### Switch Expressions (IMPORTANT)
 - **Use switch expressions**: Prefer the new Dart switch expression syntax over traditional switch/case statements when returning values
 - **Syntax**: Use `return switch (value) { ... }` instead of `switch (value) { case ... return ... }`

@@ -1,0 +1,38 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6B73FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B93FF;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="240" fill="url(#bgGradient)"/>
+  
+  <!-- Large, bold medical cross - much more prominent -->
+  <g transform="translate(512, 512)">
+    <!-- Vertical line of cross - very thick and prominent -->
+    <rect x="-35" y="-180" width="70" height="360" rx="35" fill="white" opacity="0.95"/>
+    <!-- Horizontal line of cross - very thick and prominent -->
+    <rect x="-180" y="-35" width="360" height="70" rx="35" fill="white" opacity="0.95"/>
+  </g>
+  
+  <!-- Large, simple note paper - much bigger and cleaner -->
+  <g transform="translate(512, 512)">
+    <!-- Paper background - very large and prominent -->
+    <rect x="-280" y="-200" width="560" height="400" rx="60" fill="white" opacity="0.9"/>
+    
+    <!-- Simple, bold lines on paper - fewer, much thicker lines -->
+    <rect x="-220" y="-120" width="320" height="16" rx="8" fill="#6B73FF" opacity="0.8"/>
+    <rect x="-220" y="-60" width="280" height="16" rx="8" fill="#6B73FF" opacity="0.6"/>
+    <rect x="-220" y="0" width="360" height="16" rx="8" fill="#6B73FF" opacity="0.7"/>
+    <rect x="-220" y="60" width="240" height="16" rx="8" fill="#6B73FF" opacity="0.5"/>
+    <rect x="-220" y="120" width="300" height="16" rx="8" fill="#6B73FF" opacity="0.6"/>
+    
+    <!-- Large, bold heart icon on paper -->
+    <g transform="translate(-180, 180)">
+      <path d="M0 30C0 30 -15 15 -30 15C-45 15 -60 30 -60 45C-60 75 0 105 0 105C0 105 60 75 60 45C60 30 45 15 30 15C15 15 0 30 0 30Z" fill="#6B73FF" opacity="0.8"/>
+    </g>
+  </g>
+</svg>

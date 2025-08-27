@@ -5,6 +5,7 @@ import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/screens/check_in_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
+import 'package:health_notes/utils/check_in_utils.dart';
 import 'package:intl/intl.dart';
 
 class CheckInsScreen extends ConsumerStatefulWidget {
@@ -90,76 +91,124 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
   }
 
   Widget buildCheckInCard(CheckIn checkIn) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: AppTheme.primaryCard,
-      child: CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: () => _showEditCheckInForm(checkIn),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            checkIn.metricName,
-                            style: AppTheme.labelLarge,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _getRatingColor(checkIn.rating),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            '${checkIn.rating}/10',
-                            style: AppTheme.bodySmall.copyWith(
-                              color: CupertinoColors.white,
-                              fontWeight: FontWeight.bold,
+    return Dismissible(
+      key: Key(checkIn.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: AppTheme.destructive,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        ),
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: AppTheme.spacingL),
+        child: const Icon(
+          CupertinoIcons.delete,
+          color: CupertinoColors.white,
+          size: 30,
+        ),
+      ),
+      confirmDismiss: (direction) async {
+        return await showDeleteConfirmation(checkIn);
+      },
+      onDismissed: (direction) {
+        deleteCheckIn(checkIn.id);
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: AppTheme.primaryCard,
+        child: CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => _showEditCheckInForm(checkIn),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              checkIn.metricName,
+                              style: AppTheme.labelLarge,
                             ),
                           ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: CheckInUtils.getRatingColor(
+                                checkIn.rating,
+                                checkIn.metricName,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              '${checkIn.rating}/10',
+                              style: AppTheme.bodySmall.copyWith(
+                                color: CupertinoColors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        DateFormat(
+                          'MMM d, yyyy • h:mm a',
+                        ).format(checkIn.dateTime),
+                        style: AppTheme.bodyMedium.copyWith(
+                          color: AppTheme.textTertiary,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      DateFormat(
-                        'MMM d, yyyy • h:mm a',
-                      ).format(checkIn.dateTime),
-                      style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const Icon(
-                CupertinoIcons.chevron_right,
-                color: CupertinoColors.systemGrey,
-                size: 16,
-              ),
-            ],
+                const Icon(
+                  CupertinoIcons.chevron_right,
+                  color: CupertinoColors.systemGrey,
+                  size: 16,
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Color _getRatingColor(int rating) {
-    return switch (rating) {
-      <= 3 => CupertinoColors.systemRed,
-      <= 5 => CupertinoColors.systemOrange,
-      <= 7 => CupertinoColors.systemYellow,
-      _ => CupertinoColors.systemGreen,
-    };
+  Future<bool> showDeleteConfirmation(CheckIn checkIn) async {
+    return await showCupertinoDialog<bool>(
+          context: context,
+          builder: (context) => CupertinoAlertDialog(
+            title: const Text('Delete Check-in'),
+            content: Text(
+              'Are you sure you want to delete this check-in from ${DateFormat('M/d/yyyy').format(checkIn.dateTime)}?',
+            ),
+            actions: [
+              CupertinoDialogAction(
+                child: const Text('Cancel'),
+                onPressed: () => Navigator.of(context).pop(false),
+              ),
+              CupertinoDialogAction(
+                isDestructiveAction: true,
+                child: const Text('Delete'),
+                onPressed: () => Navigator.of(context).pop(true),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
+  void deleteCheckIn(String checkInId) {
+    ref.read(checkInsNotifierProvider.notifier).deleteCheckIn(checkInId);
   }
 
   void _showAddCheckInForm() {
