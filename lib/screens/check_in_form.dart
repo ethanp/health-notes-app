@@ -26,10 +26,11 @@ class CheckInForm extends ConsumerStatefulWidget {
 
 class _CheckInFormState extends ConsumerState<CheckInForm> {
   final _formKey = GlobalKey<FormState>();
-  late String _selectedMetric;
-  late int _rating;
   late DateTime _selectedDateTime;
   bool _isLoading = false;
+
+  // Map to store metric -> rating pairs
+  final Map<String, int> _selectedMetrics = {};
 
   static const List<String> availableMetrics = [
     'Anxiety',
@@ -47,9 +48,12 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   @override
   void initState() {
     super.initState();
-    _selectedMetric = widget.checkIn?.metricName ?? availableMetrics.first;
-    _rating = widget.checkIn?.rating ?? 5;
     _selectedDateTime = widget.checkIn?.dateTime ?? DateTime.now();
+
+    // Initialize with existing check-in data if editing
+    if (widget.checkIn != null) {
+      _selectedMetrics[widget.checkIn!.metricName] = widget.checkIn!.rating;
+    }
   }
 
   @override
@@ -64,7 +68,9 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
         ),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
-          onPressed: _isLoading ? null : saveCheckIn,
+          onPressed: _isLoading || _selectedMetrics.isEmpty
+              ? null
+              : saveCheckIn,
           child: _isLoading
               ? const CupertinoActivityIndicator()
               : Text(widget.saveButtonText),
@@ -76,9 +82,11 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              buildMetricSection(),
-              const SizedBox(height: 16),
-              buildRatingSection(),
+              buildMetricsGridSection(),
+              if (_selectedMetrics.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                buildSelectedMetricsSection(),
+              ],
               const SizedBox(height: 16),
               buildDateTimeSection(),
             ],
@@ -88,131 +96,204 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     );
   }
 
-  Widget buildMetricSection() {
+  Widget buildMetricsGridSection() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Metric', style: AppTheme.headlineSmall),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Add Metrics', style: AppTheme.headlineSmall),
+              Text(
+                '${_selectedMetrics.length} selected',
+                style: AppTheme.bodySmall.copyWith(
+                  color: AppTheme.textTertiary,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
-          SizedBox(
-            height: 48,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: availableMetrics.length,
-              itemBuilder: (context, index) {
-                final metric = availableMetrics[index];
-                final isSelected = _selectedMetric == metric;
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.2,
+            ),
+            itemCount: availableMetrics.length,
+            itemBuilder: (context, index) {
+              final metric = availableMetrics[index];
+              final isSelected = _selectedMetrics.containsKey(metric);
+              final rating = _selectedMetrics[metric] ?? 5;
 
-                return Padding(
-                  padding: EdgeInsets.only(
-                    right: index < availableMetrics.length - 1 ? 12 : 0,
-                  ),
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() => _selectedMetric = metric);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    if (isSelected) {
+                      _selectedMetrics.remove(metric);
+                    } else {
+                      _selectedMetrics[metric] = rating;
+                    }
+                  });
+                },
+                child: Container(
+                  decoration: isSelected
+                      ? AppTheme.activeFilterChip
+                      : AppTheme.filterChip,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        MetricIcons.getIcon(metric),
+                        size: 24,
+                        color: isSelected
+                            ? CupertinoColors.white
+                            : AppTheme.textPrimary,
                       ),
-                      decoration: isSelected
-                          ? AppTheme.activeFilterChip
-                          : AppTheme.filterChip,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            MetricIcons.getIcon(metric),
-                            size: 16,
-                            color: isSelected
-                                ? CupertinoColors.white
-                                : AppTheme.textPrimary,
+                      const SizedBox(height: 8),
+                      Text(
+                        metric,
+                        style: AppTheme.bodySmall.copyWith(
+                          color: isSelected
+                              ? CupertinoColors.white
+                              : AppTheme.textPrimary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (isSelected) ...[
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            metric,
-                            style: AppTheme.labelMedium.copyWith(
-                              color: isSelected
-                                  ? CupertinoColors.white
-                                  : AppTheme.textPrimary,
+                          decoration: BoxDecoration(
+                            color: CupertinoColors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '$rating',
+                            style: AppTheme.bodySmall.copyWith(
+                              color: CupertinoColors.white,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      ],
+                    ],
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  Widget buildRatingSection() {
+  Widget buildSelectedMetricsSection() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Rating', style: AppTheme.headlineSmall),
-          const SizedBox(height: 8),
-          Text(
-            'Rate your $_selectedMetric on a scale of 1-10',
-            style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
-          ),
+          Text('Your Ratings', style: AppTheme.headlineSmall),
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '1',
-                style: AppTheme.bodyMedium.copyWith(
-                  color: AppTheme.textTertiary,
-                ),
+          ...(_selectedMetrics.entries.map((entry) {
+            final metric = entry.key;
+            final rating = entry.value;
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        MetricIcons.getIcon(metric),
+                        size: 20,
+                        color: AppTheme.textPrimary,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(child: Text(metric, style: AppTheme.labelLarge)),
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          setState(() {
+                            _selectedMetrics.remove(metric);
+                          });
+                        },
+                        child: const Icon(
+                          CupertinoIcons.xmark_circle_fill,
+                          color: CupertinoColors.systemRed,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Text(
+                        '1',
+                        style: AppTheme.bodySmall.copyWith(
+                          color: AppTheme.textTertiary,
+                        ),
+                      ),
+                      Expanded(
+                        child: CupertinoSlider(
+                          value: rating.toDouble(),
+                          min: 1,
+                          max: 10,
+                          divisions: 9,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedMetrics[metric] = value.round();
+                            });
+                          },
+                        ),
+                      ),
+                      Text(
+                        '10',
+                        style: AppTheme.bodySmall.copyWith(
+                          color: AppTheme.textTertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '$rating',
+                        style: AppTheme.headlineMedium.copyWith(
+                          color: AppTheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              Expanded(
-                child: CupertinoSlider(
-                  value: _rating.toDouble(),
-                  min: 1,
-                  max: 10,
-                  divisions: 9,
-                  onChanged: (value) {
-                    setState(() => _rating = value.round());
-                  },
-                ),
-              ),
-              Text(
-                '10',
-                style: AppTheme.bodyMedium.copyWith(
-                  color: AppTheme.textTertiary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                '$_rating',
-                style: AppTheme.headlineLarge.copyWith(
-                  color: AppTheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
+            );
+          }).toList()),
         ],
       ),
     );
@@ -245,28 +326,28 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   }
 
   Future<void> saveCheckIn() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate() || _selectedMetrics.isEmpty) return;
 
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final checkIn =
-          widget.checkIn?.copyWith(
-            metricName: _selectedMetric,
-            rating: _rating,
-            dateTime: _selectedDateTime,
-          ) ??
-          CheckIn(
-            id: '', // Will be set by the provider
-            metricName: _selectedMetric,
-            rating: _rating,
-            dateTime: _selectedDateTime,
-            createdAt: DateTime.now(),
-          );
+      // Create multiple check-ins for each selected metric
+      for (final entry in _selectedMetrics.entries) {
+        final metricName = entry.key;
+        final rating = entry.value;
 
-      await ref.read(checkInsNotifierProvider.notifier).addCheckIn(checkIn);
+        final checkIn = CheckIn(
+          id: '', // Will be set by the provider
+          metricName: metricName,
+          rating: rating,
+          dateTime: _selectedDateTime,
+          createdAt: DateTime.now(),
+        );
+
+        await ref.read(checkInsNotifierProvider.notifier).addCheckIn(checkIn);
+      }
 
       if (mounted) {
         widget.onSuccess?.call();
@@ -278,7 +359,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
           context: context,
           builder: (context) => CupertinoAlertDialog(
             title: const Text('Error'),
-            content: Text('Failed to save check-in: $e'),
+            content: Text('Failed to save check-ins: $e'),
             actions: [
               CupertinoDialogAction(
                 child: const Text('OK'),

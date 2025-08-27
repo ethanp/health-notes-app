@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'dart:ui';
 
 class AppTheme {
   // Enhanced color palette with Headspace-like warmth

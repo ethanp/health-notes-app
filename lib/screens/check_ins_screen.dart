@@ -6,6 +6,7 @@ import 'package:health_notes/screens/check_in_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/utils/check_in_utils.dart';
+import 'package:health_notes/utils/check_in_grouping.dart';
 import 'package:health_notes/utils/metric_icons.dart';
 import 'package:intl/intl.dart';
 
@@ -81,22 +82,123 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
   }
 
   Widget buildCheckInsList(List<CheckIn> checkIns) {
+    final groups = CheckInGrouping.groupCheckIns(checkIns);
+
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: checkIns.length,
+      itemCount: groups.length,
       itemBuilder: (context, index) {
-        final checkIn = checkIns[index];
-        return buildCheckInCard(checkIn);
+        final group = groups[index];
+        return buildCheckInGroupCard(group);
       },
     );
   }
 
-  Widget buildCheckInCard(CheckIn checkIn) {
+  Widget buildCheckInGroupCard(CheckInGroup group) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: AppTheme.primaryCard,
+      child: Column(
+        children: [
+          // Header with date/time and metric count
+          Container(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                // Time indicator
+                Container(
+                  width: 4,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        DateFormat(
+                          'MMM d, yyyy',
+                        ).format(group.primaryCheckIn.dateTime),
+                        style: AppTheme.labelLarge.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        DateFormat(
+                          'h:mm a',
+                        ).format(group.primaryCheckIn.dateTime),
+                        style: AppTheme.bodyMedium.copyWith(
+                          color: AppTheme.textTertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Metric count badge
+                if (group.isMultiMetric) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: AppTheme.primary.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          CupertinoIcons.chart_bar_alt_fill,
+                          size: 12,
+                          color: AppTheme.primary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${group.checkIns.length}',
+                          style: AppTheme.bodySmall.copyWith(
+                            color: AppTheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+
+          // Divider
+          Container(
+            height: 1,
+            color: AppTheme.backgroundTertiary,
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+          ),
+
+          // Check-ins list
+          ...group.checkIns.map((checkIn) => buildCheckInItem(checkIn)),
+        ],
+      ),
+    );
+  }
+
+  Widget buildCheckInItem(CheckIn checkIn) {
     return Dismissible(
       key: Key(checkIn.id),
       direction: DismissDirection.endToStart,
       background: Container(
-        margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           color: AppTheme.destructive,
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
@@ -106,7 +208,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
         child: const Icon(
           CupertinoIcons.delete,
           color: CupertinoColors.white,
-          size: 30,
+          size: 24,
         ),
       ),
       confirmDismiss: (direction) async {
@@ -115,75 +217,97 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
       onDismissed: (direction) {
         deleteCheckIn(checkIn.id);
       },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: AppTheme.primaryCard,
-        child: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => _showEditCheckInForm(checkIn),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            MetricIcons.getIcon(checkIn.metricName),
-                            size: 16,
-                            color: AppTheme.textPrimary,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              checkIn.metricName,
-                              style: AppTheme.labelLarge,
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: CheckInUtils.getRatingColor(
-                                checkIn.rating,
-                                checkIn.metricName,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              '${checkIn.rating}/10',
-                              style: AppTheme.bodySmall.copyWith(
-                                color: CupertinoColors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        DateFormat(
-                          'MMM d, yyyy • h:mm a',
-                        ).format(checkIn.dateTime),
-                        style: AppTheme.bodyMedium.copyWith(
-                          color: AppTheme.textTertiary,
-                        ),
-                      ),
-                    ],
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: () => _showEditCheckInForm(checkIn),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              // Metric icon with background
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppTheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: AppTheme.primary.withValues(alpha: 0.2),
+                    width: 1,
                   ),
                 ),
-                const Icon(
-                  CupertinoIcons.chevron_right,
-                  color: CupertinoColors.systemGrey,
-                  size: 16,
+                child: Icon(
+                  MetricIcons.getIcon(checkIn.metricName),
+                  size: 18,
+                  color: AppTheme.primary,
                 ),
-              ],
-            ),
+              ),
+
+              const SizedBox(width: 12),
+
+              // Metric details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      checkIn.metricName,
+                      style: AppTheme.labelLarge.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Rating: ${checkIn.rating}/10',
+                      style: AppTheme.bodySmall.copyWith(
+                        color: AppTheme.textTertiary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Rating indicator with improved styling
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: CheckInUtils.getRatingColor(
+                    checkIn.rating,
+                    checkIn.metricName,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: CheckInUtils.getRatingColor(
+                        checkIn.rating,
+                        checkIn.metricName,
+                      ).withValues(alpha: 0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  '${checkIn.rating}',
+                  style: AppTheme.bodySmall.copyWith(
+                    color: CupertinoColors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              // Chevron
+              const Icon(
+                CupertinoIcons.chevron_right,
+                color: CupertinoColors.systemGrey,
+                size: 14,
+              ),
+            ],
           ),
         ),
       ),
