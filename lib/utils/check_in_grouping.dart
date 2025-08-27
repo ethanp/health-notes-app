@@ -1,4 +1,5 @@
 import 'package:health_notes/models/check_in.dart';
+import 'package:health_notes/utils/metric_colors.dart';
 
 /// Groups check-ins that are within 10 minutes of each other
 class CheckInGrouping {
@@ -65,7 +66,14 @@ class CheckInGroup {
   final CheckIn primaryCheckIn;
   final List<CheckIn> checkIns;
 
-  CheckInGroup({required this.primaryCheckIn, required this.checkIns});
+  CheckInGroup({required this.primaryCheckIn, required this.checkIns}) {
+    // Sort check-ins by the consistent metric order
+    checkIns.sort((a, b) {
+      final aIndex = MetricColors.metricOrder.indexOf(a.metricName);
+      final bIndex = MetricColors.metricOrder.indexOf(b.metricName);
+      return aIndex.compareTo(bIndex);
+    });
+  }
 
   /// Returns true if this group contains multiple check-ins
   bool get isMultiMetric => checkIns.length > 1;

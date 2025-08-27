@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:health_notes/utils/metric_colors.dart';
 
 class CheckInUtils {
   /// Returns the appropriate color for a check-in rating based on the metric type.
@@ -38,5 +39,10 @@ class CheckInUtils {
         _ => CupertinoColors.systemGreen,
       };
     }
+  }
+
+  /// Returns the consistent color for a metric name
+  static Color getMetricColor(String metricName) {
+    return MetricColors.getColor(metricName);
   }
 }

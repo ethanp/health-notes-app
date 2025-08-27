@@ -7,6 +7,7 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/utils/check_in_utils.dart';
 import 'package:health_notes/utils/check_in_grouping.dart';
+import 'package:health_notes/utils/metric_colors.dart';
 import 'package:health_notes/utils/metric_icons.dart';
 import 'package:intl/intl.dart';
 
@@ -229,17 +230,17 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppTheme.primary.withValues(alpha: 0.1),
+                  color: MetricColors.getColor(checkIn.metricName).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: AppTheme.primary.withValues(alpha: 0.2),
+                    color: MetricColors.getColor(checkIn.metricName).withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
                 child: Icon(
                   MetricIcons.getIcon(checkIn.metricName),
                   size: 18,
-                  color: AppTheme.primary,
+                  color: MetricColors.getColor(checkIn.metricName),
                 ),
               ),
 

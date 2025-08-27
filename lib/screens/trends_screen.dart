@@ -333,19 +333,6 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       return buildEmptyCard('No check-in data available');
     }
 
-    // Get unique metrics
-    final metrics = checkIns.map((c) => c.metricName).toSet().toList();
-
-    // Show charts for the most recent metrics (up to 3)
-    final recentMetrics = metrics.take(3).toList();
-
-    return Column(
-      children: recentMetrics.map((metric) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: CheckInTrendsChart(checkIns: checkIns, metricName: metric),
-        );
-      }).toList(),
-    );
+    return CheckInTrendsChart(checkIns: checkIns);
   }
 }

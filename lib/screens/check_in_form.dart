@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/utils/metric_colors.dart';
 import 'package:health_notes/utils/metric_icons.dart';
 
 class CheckInForm extends ConsumerStatefulWidget {
@@ -32,18 +33,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   // Map to store metric -> rating pairs
   final Map<String, int> _selectedMetrics = {};
 
-  static const List<String> availableMetrics = [
-    'Anxiety',
-    'Nausea',
-    'Poop Scale',
-    'Energy Level',
-    'Pain Level',
-    'Mood',
-    'Sleep Quality',
-    'Stress Level',
-    'Appetite',
-    'Focus',
-  ];
+  static List<String> get availableMetrics => MetricColors.metricOrder;
 
   @override
   void initState() {
@@ -143,7 +133,26 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                 },
                 child: Container(
                   decoration: isSelected
-                      ? AppTheme.activeFilterChip
+                      ? BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              MetricColors.getColor(metric),
+                              MetricColors.getColor(
+                                metric,
+                              ).withValues(alpha: 0.8),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: MetricColors.getColor(
+                                metric,
+                              ).withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        )
                       : AppTheme.filterChip,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -153,7 +162,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                         size: 24,
                         color: isSelected
                             ? CupertinoColors.white
-                            : AppTheme.textPrimary,
+                            : MetricColors.getColor(metric),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -161,7 +170,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                         style: AppTheme.bodySmall.copyWith(
                           color: isSelected
                               ? CupertinoColors.white
-                              : AppTheme.textPrimary,
+                              : MetricColors.getColor(metric),
                           fontWeight: FontWeight.w500,
                         ),
                         textAlign: TextAlign.center,
@@ -278,13 +287,15 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.primary.withValues(alpha: 0.1),
+                        color: MetricColors.getColor(
+                          metric,
+                        ).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         '$rating',
                         style: AppTheme.headlineMedium.copyWith(
-                          color: AppTheme.primary,
+                          color: MetricColors.getColor(metric),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
