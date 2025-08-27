@@ -6,6 +6,7 @@ import 'package:health_notes/screens/check_in_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/utils/check_in_utils.dart';
+import 'package:health_notes/utils/metric_icons.dart';
 import 'package:intl/intl.dart';
 
 class CheckInsScreen extends ConsumerStatefulWidget {
@@ -130,6 +131,12 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
                     children: [
                       Row(
                         children: [
+                          Icon(
+                            MetricIcons.getIcon(checkIn.metricName),
+                            size: 16,
+                            color: AppTheme.textPrimary,
+                          ),
+                          const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               checkIn.metricName,

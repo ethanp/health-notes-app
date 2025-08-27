@@ -262,6 +262,18 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                         ),
                       ],
                     ),
+                    if (symptom.additionalNotes.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20),
+                        child: Text(
+                          symptom.additionalNotes,
+                          style: AppTheme.bodyMedium.copyWith(
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

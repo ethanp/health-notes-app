@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/check_in_utils.dart';
+import 'package:health_notes/utils/metric_icons.dart';
 import 'package:intl/intl.dart';
 
 class CheckInTrendsChart extends StatelessWidget {
@@ -54,7 +55,17 @@ class CheckInTrendsChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(metricName, style: AppTheme.labelLarge),
+          Row(
+            children: [
+              Icon(
+                MetricIcons.getIcon(metricName),
+                size: 20,
+                color: AppTheme.textPrimary,
+              ),
+              const SizedBox(width: 8),
+              Text(metricName, style: AppTheme.labelLarge),
+            ],
+          ),
           const SizedBox(height: 8),
           Expanded(
             child: LineChart(

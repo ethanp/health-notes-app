@@ -367,29 +367,57 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
                             padding: const EdgeInsets.only(
                               bottom: AppTheme.spacingXS,
                             ),
-                            child: Row(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: const BoxDecoration(
-                                    color: AppTheme.primary,
-                                    shape: BoxShape.circle,
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 8,
+                                      height: 8,
+                                      decoration: const BoxDecoration(
+                                        color: AppTheme.primary,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const SizedBox(width: AppTheme.spacingS),
+                                    EnhancedUIComponents.enhancedStatusIndicator(
+                                      text: '${symptom.severityLevel}/10',
+                                      color: AppTheme.primary,
+                                    ),
+                                    const SizedBox(width: AppTheme.spacingS),
+                                    Expanded(
+                                      child: Text(
+                                        symptom.minorComponent.isNotEmpty
+                                            ? '${symptom.majorComponent} - ${symptom.minorComponent}'
+                                            : symptom.majorComponent,
+                                        style: AppTheme.labelLarge,
+                                      ),
+                                    ),
+                                    Text(
+                                      DateFormat(
+                                        'h:mm a',
+                                      ).format(note.dateTime),
+                                      style: AppTheme.caption,
+                                    ),
+                                  ],
+                                ),
+                                if (symptom.additionalNotes.isNotEmpty) ...[
+                                  const SizedBox(height: AppTheme.spacingXS),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: AppTheme.spacingS + 8,
+                                    ),
+                                    child: Text(
+                                      symptom.additionalNotes,
+                                      style: AppTheme.bodySmall.copyWith(
+                                        color: AppTheme.textSecondary,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: AppTheme.spacingS),
-                                Expanded(
-                                  child: Text(
-                                    symptom.minorComponent.isNotEmpty
-                                        ? '${symptom.majorComponent} - ${symptom.minorComponent}'
-                                        : symptom.majorComponent,
-                                    style: AppTheme.labelLarge,
-                                  ),
-                                ),
-                                EnhancedUIComponents.enhancedStatusIndicator(
-                                  text: '${symptom.severityLevel}/10',
-                                  color: AppTheme.primary,
-                                ),
+                                ],
                               ],
                             ),
                           ),
@@ -426,20 +454,6 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
                       ],
                     ],
                   ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      DateFormat('h:mm a').format(note.dateTime),
-                      style: AppTheme.caption,
-                    ),
-                    const SizedBox(height: AppTheme.spacingXS),
-                    Text(
-                      DateFormat('M/d/yyyy').format(note.dateTime),
-                      style: AppTheme.captionSecondary,
-                    ),
-                  ],
                 ),
               ],
             ),

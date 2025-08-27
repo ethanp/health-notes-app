@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/utils/metric_icons.dart';
 
 class CheckInForm extends ConsumerStatefulWidget {
   final CheckIn? checkIn;
@@ -30,7 +31,6 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   late DateTime _selectedDateTime;
   bool _isLoading = false;
 
-  // Predefined metrics for check-ins
   static const List<String> availableMetrics = [
     'Anxiety',
     'Nausea',
@@ -122,13 +122,26 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                       decoration: isSelected
                           ? AppTheme.activeFilterChip
                           : AppTheme.filterChip,
-                      child: Text(
-                        metric,
-                        style: AppTheme.labelMedium.copyWith(
-                          color: isSelected
-                              ? CupertinoColors.white
-                              : AppTheme.textPrimary,
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            MetricIcons.getIcon(metric),
+                            size: 16,
+                            color: isSelected
+                                ? CupertinoColors.white
+                                : AppTheme.textPrimary,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            metric,
+                            style: AppTheme.labelMedium.copyWith(
+                              color: isSelected
+                                  ? CupertinoColors.white
+                                  : AppTheme.textPrimary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
