@@ -22,32 +22,6 @@ abstract class HealthToolCategory with _$HealthToolCategory {
 }
 
 extension HealthToolCategoryExtensions on HealthToolCategory {
-  bool get isValid => name.isNotEmpty && description.isNotEmpty;
-
-  HealthToolCategory copyWith({
-    String? id,
-    String? name,
-    String? description,
-    String? iconName,
-    String? colorHex,
-    int? sortOrder,
-    bool? isActive,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) {
-    return HealthToolCategory(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      description: description ?? this.description,
-      iconName: iconName ?? this.iconName,
-      colorHex: colorHex ?? this.colorHex,
-      sortOrder: sortOrder ?? this.sortOrder,
-      isActive: isActive ?? this.isActive,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
-
   Map<String, dynamic> toJsonForUpdate() {
     return {
       'name': name,
