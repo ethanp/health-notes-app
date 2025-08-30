@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/metric.dart';
 
@@ -20,13 +21,10 @@ class CheckInGrouping {
     for (final checkIn in sortedCheckIns) {
       if (currentGroup == null) {
         // Start a new group
-        currentGroup = CheckInGroup(
-          primaryCheckIn: checkIn,
-          checkIns: [checkIn],
-        );
+        currentGroup = CheckInGroup(checkIns: [checkIn]);
       } else {
         // Check if this check-in should be added to the current group
-        final timeDifference = currentGroup.primaryCheckIn.dateTime
+        final timeDifference = currentGroup.representativeCheckIn.dateTime
             .difference(checkIn.dateTime)
             .inMinutes
             .abs();
@@ -34,20 +32,10 @@ class CheckInGrouping {
         if (timeDifference <= _groupingThresholdMinutes) {
           // Add to current group
           currentGroup.checkIns.add(checkIn);
-          // Update primary check-in if this one is newer
-          if (checkIn.dateTime.isAfter(currentGroup.primaryCheckIn.dateTime)) {
-            currentGroup = CheckInGroup(
-              primaryCheckIn: checkIn,
-              checkIns: currentGroup.checkIns,
-            );
-          }
         } else {
           // Start a new group
           groups.add(currentGroup);
-          currentGroup = CheckInGroup(
-            primaryCheckIn: checkIn,
-            checkIns: [checkIn],
-          );
+          currentGroup = CheckInGroup(checkIns: [checkIn]);
         }
       }
     }
@@ -63,10 +51,9 @@ class CheckInGrouping {
 
 /// Represents a group of check-ins that occurred within the same time period
 class CheckInGroup {
-  final CheckIn primaryCheckIn;
   final List<CheckIn> checkIns;
 
-  CheckInGroup({required this.primaryCheckIn, required this.checkIns}) {
+  CheckInGroup({required this.checkIns}) {
     // Sort check-ins by the consistent metric order
     checkIns.sort((a, b) {
       final aMetric = Metric.fromName(a.metricName);
@@ -76,6 +63,9 @@ class CheckInGroup {
       return aIndex.compareTo(bIndex);
     });
   }
+
+  /// Returns the representative check-in for this group (newest one)
+  CheckIn get representativeCheckIn => checkIns.first;
 
   /// Returns true if this group contains multiple check-ins
   bool get isMultiMetric => checkIns.length > 1;
@@ -91,5 +81,28 @@ class CheckInGroup {
     if (checkIns.isEmpty) return 0;
     final total = checkIns.fold<int>(0, (sum, checkIn) => sum + checkIn.rating);
     return total / checkIns.length;
+  }
+
+  /// Returns the proportion of available metrics that are included in this group
+  double get metricProportion {
+    final totalMetrics = Metric.all.length;
+    final uniqueMetricsInGroup = uniqueMetrics.length;
+    return uniqueMetricsInGroup / totalMetrics;
+  }
+
+  /// Returns a color based on the proportion of metrics in this group
+  /// More metrics = greener, fewer metrics = redder
+  Color get proportionColor {
+    final proportion = metricProportion;
+
+    if (proportion >= 0.8) {
+      return CupertinoColors.systemGreen;
+    } else if (proportion >= 0.6) {
+      return CupertinoColors.systemYellow;
+    } else if (proportion >= 0.4) {
+      return CupertinoColors.systemOrange;
+    } else {
+      return CupertinoColors.systemRed;
+    }
   }
 }

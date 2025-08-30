@@ -27,7 +27,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
   void _toggleGroupExpansion(CheckInGroup group) {
     setState(() {
       final groupKey =
-          '${group.primaryCheckIn.id}_${group.primaryCheckIn.dateTime.millisecondsSinceEpoch}';
+          '${group.representativeCheckIn.id}_${group.representativeCheckIn.dateTime.millisecondsSinceEpoch}';
 
       if (!_animationControllers.containsKey(groupKey)) {
         _animationControllers[groupKey] = AnimationController(
@@ -50,7 +50,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
 
   bool _isGroupExpanded(CheckInGroup group) {
     final groupKey =
-        '${group.primaryCheckIn.id}_${group.primaryCheckIn.dateTime.millisecondsSinceEpoch}';
+        '${group.representativeCheckIn.id}_${group.representativeCheckIn.dateTime.millisecondsSinceEpoch}';
     return _expandedGroups.contains(groupKey);
   }
 
@@ -122,7 +122,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
 
         return Dismissible(
           key: Key(
-            'group_${group.primaryCheckIn.id}_${group.primaryCheckIn.dateTime.millisecondsSinceEpoch}',
+            'group_${group.representativeCheckIn.id}_${group.representativeCheckIn.dateTime.millisecondsSinceEpoch}',
           ),
           direction: DismissDirection.endToStart,
           background: Container(
@@ -166,7 +166,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
                               Text(
                                 DateFormat(
                                   'EEEE, MMMM d',
-                                ).format(group.primaryCheckIn.dateTime),
+                                ).format(group.representativeCheckIn.dateTime),
                                 style: AppTheme.labelLarge.copyWith(
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -175,7 +175,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
                               Text(
                                 DateFormat(
                                   'h:mm a',
-                                ).format(group.primaryCheckIn.dateTime),
+                                ).format(group.representativeCheckIn.dateTime),
                                 style: AppTheme.bodySmall.copyWith(
                                   color: AppTheme.textTertiary,
                                 ),
@@ -184,8 +184,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
                           ),
                         ),
 
-                        // Primary check-in preview (non-tappable)
-                        buildCollapsedCheckInItem(group.primaryCheckIn),
+                        buildGroupCountIndicator(group),
 
                         const SizedBox(width: 8),
 
@@ -209,7 +208,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
                 Builder(
                   builder: (context) {
                     final groupKey =
-                        '${group.primaryCheckIn.id}_${group.primaryCheckIn.dateTime.millisecondsSinceEpoch}';
+                        '${group.representativeCheckIn.id}_${group.representativeCheckIn.dateTime.millisecondsSinceEpoch}';
                     final controller = _animationControllers[groupKey];
 
                     if (controller == null) {
@@ -248,39 +247,43 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
     );
   }
 
-  Widget buildCollapsedCheckInItem(CheckIn checkIn) {
-    final metric = checkIn.metric;
-    if (metric == null) return const SizedBox.shrink();
-
+  Widget buildGroupCountIndicator(CheckInGroup group) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Metric icon with background
+        // Group icon (showing multiple metrics if applicable)
         Container(
           width: 28,
           height: 28,
           decoration: BoxDecoration(
-            color: metric.color.withValues(alpha: 0.1),
+            color: AppTheme.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: metric.color.withValues(alpha: 0.2),
+              color: AppTheme.primary.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
-          child: Icon(metric.icon, size: 14, color: metric.color),
+          child: Icon(
+            group.isMultiMetric
+                ? CupertinoIcons.list_bullet
+                : group.representativeCheckIn.metricIcon,
+            size: 14,
+            color: group.isMultiMetric
+                ? AppTheme.primary
+                : group.representativeCheckIn.metricColor,
+          ),
         ),
 
         const SizedBox(width: 6),
 
-        // Rating indicator
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
-            color: checkIn.ratingColor,
+            color: group.proportionColor,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
-            '${checkIn.rating}',
+            '${group.checkIns.length}',
             style: AppTheme.bodySmall.copyWith(
               color: CupertinoColors.white,
               fontWeight: FontWeight.bold,
@@ -426,7 +429,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
           builder: (context) {
             final groupDate = DateFormat(
               'M/d/yyyy',
-            ).format(group.primaryCheckIn.dateTime);
+            ).format(group.representativeCheckIn.dateTime);
             return AppAlertDialogs.confirmDestructive(
               title: 'Delete Check-in Group',
               content:
