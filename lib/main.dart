@@ -33,6 +33,7 @@ class MainScreen extends ConsumerWidget {
     return CupertinoApp(
       title: 'Health Notes',
       theme: AppTheme.darkTheme,
+      debugShowCheckedModeBanner: false,
       home: ref
           .watch(isAuthenticatedProvider)
           .when(
