@@ -149,29 +149,21 @@ abstract class Metric with _$Metric {
 enum MetricType {
   lowerIsBetter(
     description: 'Lower values are better',
-    ratingColorLogic: _lowerIsBetterColorLogicImpl,
+    getRatingColor: _lowerIsBetterColorLogicImpl,
   ),
   middleIsBest(
     description: 'Middle values (4-7) are optimal',
-    ratingColorLogic: _middleIsBestColorLogicImpl,
+    getRatingColor: _middleIsBestColorLogicImpl,
   ),
   higherIsBetter(
     description: 'Higher values are better',
-    ratingColorLogic: _higherIsBetterColorLogicImpl,
+    getRatingColor: _higherIsBetterColorLogicImpl,
   );
 
   final String description;
-  final Color Function(int) _ratingColorLogic;
+  final Color Function(int) getRatingColor;
 
-  const MetricType({
-    required this.description,
-    required Color Function(int) ratingColorLogic,
-  }) : _ratingColorLogic = ratingColorLogic;
-
-  /// Returns the appropriate color for a check-in rating based on the metric type
-  Color getRatingColor(int rating) {
-    return _ratingColorLogic(rating);
-  }
+  const MetricType({required this.description, required this.getRatingColor});
 
   static Color _lowerIsBetterColorLogicImpl(int rating) => switch (rating) {
     <= 3 => CupertinoColors.systemGreen,
@@ -195,13 +187,6 @@ enum MetricType {
 }
 
 extension MetricExtensions on Metric {
-  /// Returns true if the rating is in a "good" state for this metric
-  bool isRatingInGoodState(int rating) =>
-      type.getRatingColor(rating) == CupertinoColors.systemGreen;
-
-  /// Returns the display name for this metric
-  String get displayName => name;
-
   /// Returns the color associated with this metric
   Color get color => Metric._getConfig(name)?.color ?? AppTheme.primary;
 
@@ -210,9 +195,6 @@ extension MetricExtensions on Metric {
 
   /// Returns the appropriate color for a check-in rating based on the metric type
   Color getRatingColor(int rating) => type.getRatingColor(rating);
-
-  /// Returns a human-readable description of what this metric type means
-  String get typeDescription => type.description;
 
   /// Returns the index of this metric in the sorted list
   int get sortIndex {

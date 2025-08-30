@@ -1,6 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:health_notes/models/metric.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
 part 'check_in.freezed.dart';
@@ -52,42 +52,6 @@ extension CheckInExtensions on CheckIn {
   /// Get the rating color based on the metric type
   Color get ratingColor =>
       metric?.getRatingColor(rating) ?? CupertinoColors.systemGrey;
-
-  /// Check if the rating is in a good state for this metric
-  bool get isRatingInGoodState => metric?.isRatingInGoodState(rating) ?? false;
-
-  CheckIn copyWith({
-    String? id,
-    String? metricName,
-    int? rating,
-    DateTime? dateTime,
-    DateTime? createdAt,
-  }) {
-    return CheckIn(
-      id: id ?? this.id,
-      metricName: metricName ?? this.metricName,
-      rating: rating ?? this.rating,
-      dateTime: dateTime ?? this.dateTime,
-      createdAt: createdAt ?? this.createdAt,
-    );
-  }
-
-  /// Create a copy with a Metric object
-  CheckIn copyWithMetric({
-    String? id,
-    Metric? metric,
-    int? rating,
-    DateTime? dateTime,
-    DateTime? createdAt,
-  }) {
-    return CheckIn(
-      id: id ?? this.id,
-      metricName: metric?.name ?? metricName,
-      rating: rating ?? this.rating,
-      dateTime: dateTime ?? this.dateTime,
-      createdAt: createdAt ?? this.createdAt,
-    );
-  }
 
   Map<String, dynamic> toJsonForUpdate() {
     return {
