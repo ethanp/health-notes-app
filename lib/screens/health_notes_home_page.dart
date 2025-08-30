@@ -11,6 +11,7 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/animated_welcome_card.dart';
+import 'package:health_notes/widgets/refreshable_list_view.dart';
 import 'package:intl/intl.dart';
 
 class HealthNotesHomePage extends ConsumerStatefulWidget {
@@ -295,16 +296,22 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
     List<HealthNote> filteredNotes,
   ) {
     final filteredNoteIds = filteredNotes.map((note) => note.id).toSet();
+    final visibleGroups = groupedNotes.where((group) {
+      final visibleNotes = group.notes
+          .where((note) => filteredNoteIds.contains(note.id))
+          .toList();
+      return visibleNotes.isNotEmpty;
+    }).toList();
 
-    return ListView.builder(
-      itemCount: groupedNotes.length,
-      itemBuilder: (context, groupIndex) {
-        final group = groupedNotes[groupIndex];
+    return RefreshableListView<GroupedHealthNotes>(
+      onRefresh: () async {
+        await ref.read(healthNotesNotifierProvider.notifier).refreshNotes();
+      },
+      items: visibleGroups,
+      itemBuilder: (group) {
         final visibleNotes = group.notes
             .where((note) => filteredNoteIds.contains(note.id))
             .toList();
-
-        if (visibleNotes.isEmpty) return const SizedBox.shrink();
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,

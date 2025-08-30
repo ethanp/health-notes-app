@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_notes/models/check_in.dart';
+import 'package:health_notes/models/metric.dart';
 import 'package:health_notes/widgets/check_in_trends_chart.dart';
 
 void main() {
@@ -19,23 +20,23 @@ void main() {
 
     testWidgets('displays chart with multiple metrics', (tester) async {
       final checkIns = [
-        CheckIn(
+        CheckIn.withMetric(
           id: '1',
-          metricName: 'Energy Level',
+          metric: Metric.all.firstWhere((m) => m.name == 'Energy Level'),
           rating: 8,
           dateTime: DateTime.now().subtract(const Duration(days: 2)),
           createdAt: DateTime.now(),
         ),
-        CheckIn(
+        CheckIn.withMetric(
           id: '2',
-          metricName: 'Mood',
+          metric: Metric.all.firstWhere((m) => m.name == 'Mood'),
           rating: 7,
           dateTime: DateTime.now().subtract(const Duration(days: 1)),
           createdAt: DateTime.now(),
         ),
-        CheckIn(
+        CheckIn.withMetric(
           id: '3',
-          metricName: 'Energy Level',
+          metric: Metric.all.firstWhere((m) => m.name == 'Energy Level'),
           rating: 6,
           dateTime: DateTime.now(),
           createdAt: DateTime.now(),
@@ -49,7 +50,7 @@ void main() {
       );
 
       // Should show the chart title
-      expect(find.text('Check-in Trends'), findsOneWidget);
+      expect(find.text('Trends'), findsOneWidget);
 
       // Should show legend items for both metrics
       expect(find.text('Energy Level'), findsOneWidget);
@@ -58,16 +59,16 @@ void main() {
 
     testWidgets('handles single metric correctly', (tester) async {
       final checkIns = [
-        CheckIn(
+        CheckIn.withMetric(
           id: '1',
-          metricName: 'Pain Level',
+          metric: Metric.all.firstWhere((m) => m.name == 'Pain Level'),
           rating: 3,
           dateTime: DateTime.now().subtract(const Duration(days: 1)),
           createdAt: DateTime.now(),
         ),
-        CheckIn(
+        CheckIn.withMetric(
           id: '2',
-          metricName: 'Pain Level',
+          metric: Metric.all.firstWhere((m) => m.name == 'Pain Level'),
           rating: 5,
           dateTime: DateTime.now(),
           createdAt: DateTime.now(),
@@ -81,7 +82,7 @@ void main() {
       );
 
       // Should show the chart title
-      expect(find.text('Check-in Trends'), findsOneWidget);
+      expect(find.text('Trends'), findsOneWidget);
 
       // Should show legend item for the single metric
       expect(find.text('Pain Level'), findsOneWidget);
@@ -91,16 +92,16 @@ void main() {
       tester,
     ) async {
       final checkIns = [
-        CheckIn(
+        CheckIn.withMetric(
           id: '1',
-          metricName: 'Energy Level',
+          metric: Metric.all.firstWhere((m) => m.name == 'Energy Level'),
           rating: 8,
           dateTime: DateTime.now().subtract(const Duration(days: 1)),
           createdAt: DateTime.now(),
         ),
-        CheckIn(
+        CheckIn.withMetric(
           id: '2',
-          metricName: 'Mood',
+          metric: Metric.all.firstWhere((m) => m.name == 'Mood'),
           rating: 7,
           dateTime: DateTime.now(),
           createdAt: DateTime.now(),
@@ -137,9 +138,9 @@ void main() {
 
     testWidgets('legend chips are tappable', (tester) async {
       final checkIns = [
-        CheckIn(
+        CheckIn.withMetric(
           id: '1',
-          metricName: 'Pain Level',
+          metric: Metric.all.firstWhere((m) => m.name == 'Pain Level'),
           rating: 3,
           dateTime: DateTime.now(),
           createdAt: DateTime.now(),

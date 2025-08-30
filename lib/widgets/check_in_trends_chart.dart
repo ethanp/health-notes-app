@@ -1,9 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
+import 'package:health_notes/models/metric.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/utils/metric_colors.dart';
-import 'package:health_notes/utils/metric_icons.dart';
 import 'package:intl/intl.dart';
 
 class CheckInTrendsChart extends StatefulWidget {
@@ -49,7 +48,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     }
 
     // Get unique metrics and their data, sorted consistently
-    final metrics = MetricColors.sortMetrics(
+    final metrics = Metric.sortMetricNames(
       widget.checkIns.map((c) => c.metricName).toSet().toList(),
     );
     final metricData = <String, List<CheckIn>>{};
@@ -99,90 +98,79 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(
-                CupertinoIcons.chart_bar_alt_fill,
-                size: 20,
-                color: AppTheme.textPrimary,
-              ),
-              const SizedBox(width: 8),
-              Text('Check-in Trends', style: AppTheme.labelLarge),
-            ],
-          ),
+          Text('Trends', style: AppTheme.headlineSmall),
           const SizedBox(height: 16),
-
           // Legend
-          Container(
-            constraints: const BoxConstraints(maxHeight: 120),
-            child: SingleChildScrollView(
-              child: Wrap(
-                spacing: 12,
-                runSpacing: 8,
-                children: metrics.asMap().entries.map((entry) {
-                  final metric = entry.value;
-                  final color = MetricColors.getColor(metric);
-                  final isHidden = _hiddenMetrics.contains(metric);
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: metrics.asMap().entries.map((entry) {
+              final metric = entry.value;
+              final metricObj = Metric.fromName(metric);
+              if (metricObj == null) return const SizedBox.shrink();
 
-                  return GestureDetector(
-                    onTap: () => _toggleMetric(metric),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+              final color = metricObj.color;
+              final isHidden = _hiddenMetrics.contains(metric);
+
+              return GestureDetector(
+                onTap: () => _toggleMetric(metric),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isHidden
+                        ? AppTheme.backgroundSecondary
+                        : color.withValues(alpha: 0.1),
+                    border: Border.all(
+                      color: isHidden
+                          ? AppTheme.backgroundQuaternary
+                          : color.withValues(alpha: 0.3),
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        metricObj.icon,
+                        size: 16,
+                        color: isHidden ? AppTheme.textTertiary : color,
                       ),
-                      decoration: BoxDecoration(
-                        color: isHidden
-                            ? AppTheme.backgroundTertiary
-                            : color.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isHidden
-                              ? AppTheme.textTertiary
-                              : color.withValues(alpha: 0.3),
+                      const SizedBox(width: 6),
+                      Text(
+                        metric,
+                        style: AppTheme.bodySmall.copyWith(
+                          color: isHidden ? AppTheme.textTertiary : color,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            MetricIcons.getIcon(metric),
-                            size: 12,
-                            color: isHidden ? AppTheme.textTertiary : color,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            metric,
-                            style: AppTheme.bodySmall.copyWith(
-                              color: isHidden ? AppTheme.textTertiary : color,
-                              fontWeight: FontWeight.w500,
-                              decoration: isHidden
-                                  ? TextDecoration.lineThrough
-                                  : null,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
           ),
-
           const SizedBox(height: 16),
-
           // Chart
           Expanded(
             child: LineChart(
               LineChartData(
                 gridData: FlGridData(
                   show: true,
-                  drawVerticalLine: false,
+                  drawVerticalLine: true,
                   horizontalInterval: 2,
+                  verticalInterval: 1,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: AppTheme.backgroundTertiary,
+                      color: AppTheme.backgroundQuaternary,
+                      strokeWidth: 1,
+                    );
+                  },
+                  getDrawingVerticalLine: (value) {
+                    return FlLine(
+                      color: AppTheme.backgroundQuaternary,
                       strokeWidth: 1,
                     );
                   },
@@ -198,22 +186,23 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 40,
-                      interval: (sortedDates.length / 5).ceil().toDouble(),
-                      getTitlesWidget: (value, meta) {
-                        if (value.toInt() >= sortedDates.length) {
-                          return const Text('');
-                        }
-                        final date = sortedDates[value.toInt()];
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Text(
-                            DateFormat('MMM d').format(date),
-                            style: AppTheme.bodySmall.copyWith(
-                              color: AppTheme.textPrimary,
+                      reservedSize: 30,
+                      interval: 1,
+                      getTitlesWidget: (double value, TitleMeta meta) {
+                        if (value.toInt() >= 0 &&
+                            value.toInt() < sortedDates.length) {
+                          final date = sortedDates[value.toInt()];
+                          return SideTitleWidget(
+                            axisSide: meta.axisSide,
+                            child: Text(
+                              DateFormat('MMM d').format(date),
+                              style: AppTheme.bodySmall.copyWith(
+                                color: AppTheme.textSecondary,
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        }
+                        return const Text('');
                       },
                     ),
                   ),
@@ -221,24 +210,21 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
                     sideTitles: SideTitles(
                       showTitles: true,
                       interval: 2,
-                      reservedSize: 50,
-                      getTitlesWidget: (value, meta) {
+                      getTitlesWidget: (double value, TitleMeta meta) {
                         return Text(
                           value.toInt().toString(),
                           style: AppTheme.bodySmall.copyWith(
-                            color: AppTheme.textPrimary,
+                            color: AppTheme.textSecondary,
                           ),
                         );
                       },
+                      reservedSize: 42,
                     ),
                   ),
                 ),
                 borderData: FlBorderData(
                   show: true,
-                  border: Border.all(
-                    color: AppTheme.backgroundTertiary,
-                    width: 1,
-                  ),
+                  border: Border.all(color: AppTheme.backgroundQuaternary),
                 ),
                 minX: 0,
                 maxX: (sortedDates.length - 1).toDouble(),
@@ -250,7 +236,10 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
                     .where((entry) => !_hiddenMetrics.contains(entry.value))
                     .map((entry) {
                       final metric = entry.value;
-                      final color = MetricColors.getColor(metric);
+                      final metricObj = Metric.fromName(metric);
+                      if (metricObj == null) return LineChartBarData(spots: []);
+
+                      final color = metricObj.color;
                       final metricCheckIns = metricData[metric]!;
 
                       // Create spots for this metric
@@ -260,14 +249,11 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
                         final checkIn = metricCheckIns
                             .where(
                               (c) =>
-                                  DateTime(
-                                    c.dateTime.year,
-                                    c.dateTime.month,
-                                    c.dateTime.day,
-                                  ) ==
-                                  date,
+                                  c.dateTime.year == date.year &&
+                                  c.dateTime.month == date.month &&
+                                  c.dateTime.day == date.day,
                             )
-                            .lastOrNull;
+                            .firstOrNull;
 
                         if (checkIn != null) {
                           spots.add(
@@ -279,7 +265,12 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
                       return LineChartBarData(
                         spots: spots,
                         isCurved: true,
-                        color: color,
+                        gradient: LinearGradient(
+                          colors: [
+                            color.withValues(alpha: 0.8),
+                            color.withValues(alpha: 0.4),
+                          ],
+                        ),
                         barWidth: 3,
                         isStrokeCapRound: true,
                         dotData: FlDotData(
@@ -293,7 +284,15 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
                             );
                           },
                         ),
-                        belowBarData: BarAreaData(show: false),
+                        belowBarData: BarAreaData(
+                          show: true,
+                          gradient: LinearGradient(
+                            colors: [
+                              color.withValues(alpha: 0.3),
+                              color.withValues(alpha: 0.1),
+                            ],
+                          ),
+                        ),
                       );
                     })
                     .toList(),
@@ -303,20 +302,23 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
                     tooltipRoundedRadius: 8,
                     tooltipPadding: const EdgeInsets.all(8),
                     tooltipMargin: 8,
-                    getTooltipItems: (touchedSpots) {
-                      // Get visible metrics for tooltip mapping
-                      final visibleMetrics = metrics
-                          .where((m) => !_hiddenMetrics.contains(m))
-                          .toList();
-
-                      return touchedSpots.map((touchedSpot) {
-                        final metric = visibleMetrics[touchedSpot.barIndex];
-                        final color = MetricColors.getColor(metric);
+                    getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
+                      return touchedBarSpots.map((touchedSpot) {
                         final date = sortedDates[touchedSpot.x.toInt()];
+
+                        // Get visible metrics for tooltip mapping
+                        final visibleMetrics = metrics
+                            .where((m) => !_hiddenMetrics.contains(m))
+                            .toList();
+                        final metric = visibleMetrics[touchedSpot.barIndex];
+                        final metricObj = Metric.fromName(metric);
+                        if (metricObj == null) return null;
+
+                        final color = metricObj.color;
 
                         return LineTooltipItem(
                           '$metric: ${touchedSpot.y.toInt()}\n${DateFormat('MMM d, y').format(date)}',
-                          AppTheme.bodySmall.copyWith(
+                          AppTheme.bodyMedium.copyWith(
                             color: color,
                             fontWeight: FontWeight.w600,
                           ),

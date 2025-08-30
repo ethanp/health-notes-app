@@ -80,23 +80,37 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
         final checkInsAsync = ref.watch(checkInsNotifierProvider);
 
         return checkInsAsync.when(
-          data: (checkIns) => ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              buildSectionHeader('Check-in Trends'),
-              buildCheckInTrendsSection(checkIns),
-              const SizedBox(height: 20),
-              buildSectionHeader('Recent Symptom Trends'),
-              buildRecentSymptomTrendsCard(recentSymptomTrends),
-              const SizedBox(height: 20),
-              buildSectionHeader('Most Common Symptoms'),
-              buildSymptomFrequencyCard(symptomStats),
-              const SizedBox(height: 20),
-              buildSectionHeader('Drug Usage'),
-              buildDrugUsageCard(drugStats),
-              const SizedBox(height: 20),
-              buildSectionHeader('Monthly Trends'),
-              buildMonthlyTrendsCard(monthlyStats),
+          data: (checkIns) => CustomScrollView(
+            slivers: [
+              CupertinoSliverRefreshControl(
+                onRefresh: () async {
+                  await ref
+                      .read(healthNotesNotifierProvider.notifier)
+                      .refreshNotes();
+                  await ref.read(checkInsNotifierProvider.notifier).refresh();
+                },
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.all(16),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    buildSectionHeader('Check-in Trends'),
+                    buildCheckInTrendsSection(checkIns),
+                    const SizedBox(height: 20),
+                    buildSectionHeader('Recent Symptom Trends'),
+                    buildRecentSymptomTrendsCard(recentSymptomTrends),
+                    const SizedBox(height: 20),
+                    buildSectionHeader('Most Common Symptoms'),
+                    buildSymptomFrequencyCard(symptomStats),
+                    const SizedBox(height: 20),
+                    buildSectionHeader('Drug Usage'),
+                    buildDrugUsageCard(drugStats),
+                    const SizedBox(height: 20),
+                    buildSectionHeader('Monthly Trends'),
+                    buildMonthlyTrendsCard(monthlyStats),
+                  ]),
+                ),
+              ),
             ],
           ),
           loading: () => const Center(child: CupertinoActivityIndicator()),

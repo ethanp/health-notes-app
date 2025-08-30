@@ -6,6 +6,7 @@ import 'package:health_notes/screens/health_tool_category_screen.dart';
 import 'package:health_notes/screens/health_tool_category_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
+import 'package:health_notes/widgets/refreshable_list_view.dart';
 
 class MyToolsScreen extends ConsumerStatefulWidget {
   const MyToolsScreen();
@@ -79,13 +80,13 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
   }
 
   Widget buildCategoriesList(List<HealthToolCategory> categories) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: categories.length,
-      itemBuilder: (context, index) {
-        final category = categories[index];
-        return buildCategoryCard(category);
+    return RefreshableListView<HealthToolCategory>(
+      onRefresh: () async {
+        await ref.read(healthToolCategoriesNotifierProvider.notifier).refresh();
       },
+      items: categories,
+      itemBuilder: (category) => buildCategoryCard(category),
+      padding: const EdgeInsets.all(16),
     );
   }
 
@@ -122,7 +123,9 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
                     const SizedBox(height: 4),
                     Text(
                       category.description,
-                      style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+                      style: AppTheme.bodyMedium.copyWith(
+                        color: AppTheme.textTertiary,
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),

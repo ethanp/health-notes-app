@@ -1,24 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in.dart';
+import 'package:health_notes/models/metric.dart';
 import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/utils/metric_colors.dart';
-import 'package:health_notes/utils/metric_icons.dart';
 
 class CheckInForm extends ConsumerStatefulWidget {
   final CheckIn? checkIn;
   final String title;
   final String saveButtonText;
-  final Function()? onCancel;
-  final Function()? onSuccess;
+  final VoidCallback? onSuccess;
+  final VoidCallback? onCancel;
 
   const CheckInForm({
+    super.key,
     this.checkIn,
-    required this.title,
-    required this.saveButtonText,
-    this.onCancel,
+    this.title = 'Add Check-in',
+    this.saveButtonText = 'Save',
     this.onSuccess,
+    this.onCancel,
   });
 
   @override
@@ -26,14 +26,14 @@ class CheckInForm extends ConsumerStatefulWidget {
 }
 
 class _CheckInFormState extends ConsumerState<CheckInForm> {
-  final _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late DateTime _selectedDateTime;
   bool _isLoading = false;
 
   // Map to store metric -> rating pairs
   final Map<String, int> _selectedMetrics = {};
 
-  static List<String> get availableMetrics => MetricColors.metricOrder;
+  static List<Metric> get availableMetrics => Metric.sortedAll;
 
   @override
   void initState() {
@@ -118,16 +118,16 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
             itemCount: availableMetrics.length,
             itemBuilder: (context, index) {
               final metric = availableMetrics[index];
-              final isSelected = _selectedMetrics.containsKey(metric);
-              final rating = _selectedMetrics[metric] ?? 5;
+              final isSelected = _selectedMetrics.containsKey(metric.name);
+              final rating = _selectedMetrics[metric.name] ?? 5;
 
               return GestureDetector(
                 onTap: () {
                   setState(() {
                     if (isSelected) {
-                      _selectedMetrics.remove(metric);
+                      _selectedMetrics.remove(metric.name);
                     } else {
-                      _selectedMetrics[metric] = rating;
+                      _selectedMetrics[metric.name] = rating;
                     }
                   });
                 },
@@ -136,18 +136,14 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                       ? BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              MetricColors.getColor(metric),
-                              MetricColors.getColor(
-                                metric,
-                              ).withValues(alpha: 0.8),
+                              metric.color,
+                              metric.color.withValues(alpha: 0.8),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: MetricColors.getColor(
-                                metric,
-                              ).withValues(alpha: 0.3),
+                              color: metric.color.withValues(alpha: 0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -158,19 +154,19 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        MetricIcons.getIcon(metric),
+                        metric.icon,
                         size: 24,
                         color: isSelected
                             ? CupertinoColors.white
-                            : MetricColors.getColor(metric),
+                            : metric.color,
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        metric,
+                        metric.name,
                         style: AppTheme.bodySmall.copyWith(
                           color: isSelected
                               ? CupertinoColors.white
-                              : MetricColors.getColor(metric),
+                              : metric.color,
                           fontWeight: FontWeight.w500,
                         ),
                         textAlign: TextAlign.center,
@@ -218,8 +214,11 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
           Text('Your Ratings', style: AppTheme.headlineSmall),
           const SizedBox(height: 16),
           ...(_selectedMetrics.entries.map((entry) {
-            final metric = entry.key;
+            final metricName = entry.key;
             final rating = entry.value;
+            final metric = Metric.fromName(metricName);
+
+            if (metric == null) return const SizedBox.shrink();
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
@@ -228,18 +227,16 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                 children: [
                   Row(
                     children: [
-                      Icon(
-                        MetricIcons.getIcon(metric),
-                        size: 20,
-                        color: AppTheme.textPrimary,
-                      ),
+                      Icon(metric.icon, size: 20, color: AppTheme.textPrimary),
                       const SizedBox(width: 8),
-                      Expanded(child: Text(metric, style: AppTheme.labelLarge)),
+                      Expanded(
+                        child: Text(metric.name, style: AppTheme.labelLarge),
+                      ),
                       CupertinoButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
                           setState(() {
-                            _selectedMetrics.remove(metric);
+                            _selectedMetrics.remove(metricName);
                           });
                         },
                         child: const Icon(
@@ -267,7 +264,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                           divisions: 9,
                           onChanged: (value) {
                             setState(() {
-                              _selectedMetrics[metric] = value.round();
+                              _selectedMetrics[metricName] = value.round();
                             });
                           },
                         ),
@@ -287,15 +284,15 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: MetricColors.getColor(
-                          metric,
-                        ).withValues(alpha: 0.1),
+                        color: metric
+                            .getRatingColor(rating)
+                            .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         '$rating',
                         style: AppTheme.headlineMedium.copyWith(
-                          color: MetricColors.getColor(metric),
+                          color: metric.getRatingColor(rating),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -348,10 +345,13 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
       for (final entry in _selectedMetrics.entries) {
         final metricName = entry.key;
         final rating = entry.value;
+        final metric = Metric.fromName(metricName);
 
-        final checkIn = CheckIn(
+        if (metric == null) continue;
+
+        final checkIn = CheckIn.withMetric(
           id: '', // Will be set by the provider
-          metricName: metricName,
+          metric: metric,
           rating: rating,
           dateTime: _selectedDateTime,
           createdAt: DateTime.now(),
