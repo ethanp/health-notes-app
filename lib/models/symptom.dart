@@ -39,8 +39,7 @@ extension SymptomExtensions on Symptom {
     }
   }
 
-  /// Returns a simplified name for the symptom (just the major component if available)
-  String get simplifiedName => majorComponent;
+
 
   Symptom copyWith({
     String? majorComponent,

@@ -324,37 +324,6 @@ class EnhancedUIComponents {
             ),
     );
   }
-
-  // Enhanced tab bar with animations
-  static Widget enhancedTabBar({
-    required List<BottomNavigationBarItem> items,
-    required int currentIndex,
-    required ValueChanged<int> onTap,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppTheme.backgroundSecondary, AppTheme.backgroundTertiary],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-        border: Border(
-          top: BorderSide(
-            color: AppTheme.backgroundQuaternary.withValues(alpha: 0.3),
-            width: 0.5,
-          ),
-        ),
-      ),
-      child: CupertinoTabBar(
-        items: items,
-        currentIndex: currentIndex,
-        onTap: onTap,
-        backgroundColor: Colors.transparent,
-        activeColor: AppTheme.primary,
-        inactiveColor: AppTheme.textTertiary,
-      ),
-    );
-  }
 }
 
 // Reusable alert dialog widget to reduce boilerplate
@@ -423,19 +392,6 @@ class AppAlertDialogAction {
 
 // Convenience methods for common dialog patterns
 class AppAlertDialogs {
-  // Simple confirmation dialog with OK button
-  static AppAlertDialog confirm({
-    required String title,
-    required String content,
-    String okText = 'OK',
-  }) {
-    return AppAlertDialog(
-      title: title,
-      content: content,
-      actions: [AppAlertDialogAction(text: okText)],
-    );
-  }
-
   static AppAlertDialog confirmDestructive({
     required String title,
     required String content,
