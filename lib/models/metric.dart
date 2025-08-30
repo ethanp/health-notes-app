@@ -1,5 +1,5 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
 part 'metric.freezed.dart';
@@ -147,55 +147,57 @@ abstract class Metric with _$Metric {
 }
 
 enum MetricType {
-  lowerIsBetter,
-  middleIsBest,
-  higherIsBetter;
+  lowerIsBetter(
+    description: 'Lower values are better',
+    ratingColorLogic: _lowerIsBetterColorLogicImpl,
+  ),
+  middleIsBest(
+    description: 'Middle values (4-7) are optimal',
+    ratingColorLogic: _middleIsBestColorLogicImpl,
+  ),
+  higherIsBetter(
+    description: 'Higher values are better',
+    ratingColorLogic: _higherIsBetterColorLogicImpl,
+  );
 
-  /// Returns true if the rating is in a "good" state for this metric type
-  bool isRatingInGoodState(int rating) {
-    return switch (this) {
-      MetricType.lowerIsBetter => rating <= 3,
-      MetricType.middleIsBest => rating >= 4 && rating <= 7,
-      MetricType.higherIsBetter => rating >= 8,
-    };
-  }
+  final String description;
+  final Color Function(int) _ratingColorLogic;
+
+  const MetricType({
+    required this.description,
+    required Color Function(int) ratingColorLogic,
+  }) : _ratingColorLogic = ratingColorLogic;
 
   /// Returns the appropriate color for a check-in rating based on the metric type
   Color getRatingColor(int rating) {
-    return switch (this) {
-      MetricType.lowerIsBetter => switch (rating) {
-        <= 3 => CupertinoColors.systemGreen,
-        <= 6 => CupertinoColors.systemYellow,
-        <= 8 => CupertinoColors.systemOrange,
-        _ => CupertinoColors.systemRed,
-      },
-      MetricType.middleIsBest => switch (rating) {
-        1 || 10 => CupertinoColors.systemRed,
-        2 || 3 || 8 || 9 => CupertinoColors.systemYellow,
-        _ => CupertinoColors.systemGreen, // 4-7
-      },
-      MetricType.higherIsBetter => switch (rating) {
-        <= 3 => CupertinoColors.systemRed,
-        <= 5 => CupertinoColors.systemOrange,
-        <= 7 => CupertinoColors.systemYellow,
-        _ => CupertinoColors.systemGreen,
-      },
-    };
+    return _ratingColorLogic(rating);
   }
 
-  /// Returns a human-readable description of what this metric type means
-  String get description {
-    return switch (this) {
-      MetricType.lowerIsBetter => 'Lower values are better',
-      MetricType.middleIsBest => 'Middle values (4-7) are optimal',
-      MetricType.higherIsBetter => 'Higher values are better',
-    };
-  }
+  static Color _lowerIsBetterColorLogicImpl(int rating) => switch (rating) {
+    <= 3 => CupertinoColors.systemGreen,
+    <= 6 => CupertinoColors.systemYellow,
+    <= 8 => CupertinoColors.systemOrange,
+    _ => CupertinoColors.systemRed,
+  };
+
+  static Color _middleIsBestColorLogicImpl(int rating) => switch (rating) {
+    1 || 10 => CupertinoColors.systemRed,
+    2 || 3 || 8 || 9 => CupertinoColors.systemYellow,
+    _ => CupertinoColors.systemGreen, // 4-7
+  };
+
+  static Color _higherIsBetterColorLogicImpl(int rating) => switch (rating) {
+    <= 3 => CupertinoColors.systemRed,
+    <= 5 => CupertinoColors.systemOrange,
+    <= 7 => CupertinoColors.systemYellow,
+    _ => CupertinoColors.systemGreen,
+  };
 }
 
 extension MetricExtensions on Metric {
   /// Returns true if the rating is in a "good" state for this metric
-  bool isRatingInGoodState(int rating) => type.isRatingInGoodState(rating);
+  bool isRatingInGoodState(int rating) =>
+      type.getRatingColor(rating) == CupertinoColors.systemGreen;
 
   /// Returns the display name for this metric
   String get displayName => name;
