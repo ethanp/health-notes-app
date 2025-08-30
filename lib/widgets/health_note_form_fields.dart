@@ -6,6 +6,7 @@ import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/providers/symptom_suggestions_provider.dart';
 import 'package:health_notes/services/symptom_suggestions_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:intl/intl.dart';
 
 class HealthNoteFormFields extends ConsumerStatefulWidget {
@@ -215,17 +216,15 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Symptoms', style: AppTheme.labelLarge),
-              if (widget.isEditable)
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: addSymptom,
-                  child: const Icon(CupertinoIcons.add),
-                ),
-            ],
+          EnhancedUIComponents.enhancedSectionHeader(
+            title: 'Symptoms',
+            trailing: widget.isEditable
+                ? CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: addSymptom,
+                    child: const Icon(CupertinoIcons.add),
+                  )
+                : null,
           ),
           const SizedBox(height: 8),
           if (_symptoms.isEmpty)
@@ -254,11 +253,9 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                             style: AppTheme.labelLarge,
                           ),
                         ),
-                        Text(
-                          'Severity: ${symptom.severityLevel}/10',
-                          style: AppTheme.bodyMedium.copyWith(
-                            color: AppTheme.textTertiary,
-                          ),
+                        EnhancedUIComponents.enhancedStatusIndicator(
+                          text: '${symptom.severityLevel}/10',
+                          color: AppTheme.primary,
                         ),
                       ],
                     ),
@@ -303,17 +300,15 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Medications', style: AppTheme.labelLarge),
-              if (widget.isEditable)
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: addDrugDose,
-                  child: const Icon(CupertinoIcons.add),
-                ),
-            ],
+          EnhancedUIComponents.enhancedSectionHeader(
+            title: 'Medications',
+            trailing: widget.isEditable
+                ? CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: addDrugDose,
+                    child: const Icon(CupertinoIcons.add),
+                  )
+                : null,
           ),
           const SizedBox(height: 8),
           if (_drugDoses.isEmpty)

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/providers/user_profile_provider.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
 class AuthUtils {
   static Future<void> showSignOutDialog(BuildContext context) async {
@@ -13,9 +14,9 @@ class AuthUtils {
           final userProfileAsync = ref.watch(userProfileProvider);
 
           return userProfileAsync.when(
-            data: (userProfile) => CupertinoAlertDialog(
-              title: Text('Sign Out', style: AppTheme.headlineSmall),
-              content: Column(
+            data: (userProfile) => AppAlertDialogs.custom(
+              title: 'Sign Out',
+              contentWidget: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (userProfile != null) ...[
@@ -56,21 +57,15 @@ class AuthUtils {
                   ),
                 ],
               ),
+              showCancelButton: true,
+              cancelText: 'Cancel',
               actions: [
-                CupertinoDialogAction(
-                  child: Text('Cancel', style: AppTheme.buttonSecondary),
-                  onPressed: () => Navigator.of(context).pop(false),
-                ),
-                CupertinoDialogAction(
-                  isDestructiveAction: true,
-                  child: Text('Sign Out', style: AppTheme.error),
-                  onPressed: () => Navigator.of(context).pop(true),
-                ),
+                AppAlertDialogAction(text: 'Sign Out', isDestructive: true),
               ],
             ),
-            loading: () => CupertinoAlertDialog(
-              title: Text('Sign Out', style: AppTheme.headlineSmall),
-              content: const Column(
+            loading: () => AppAlertDialogs.custom(
+              title: 'Sign Out',
+              contentWidget: const Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CupertinoActivityIndicator(),
@@ -78,30 +73,14 @@ class AuthUtils {
                   Text('Loading user information...'),
                 ],
               ),
-              actions: [
-                CupertinoDialogAction(
-                  child: Text('Cancel', style: AppTheme.buttonSecondary),
-                  onPressed: () => Navigator.of(context).pop(false),
-                ),
-              ],
+              showCancelButton: true,
+              cancelText: 'Cancel',
+              actions: [],
             ),
-            error: (error, stack) => CupertinoAlertDialog(
-              title: Text('Sign Out', style: AppTheme.headlineSmall),
-              content: Text(
-                'Are you sure you want to sign out?',
-                style: AppTheme.bodyMedium,
-              ),
-              actions: [
-                CupertinoDialogAction(
-                  child: Text('Cancel', style: AppTheme.buttonSecondary),
-                  onPressed: () => Navigator.of(context).pop(false),
-                ),
-                CupertinoDialogAction(
-                  isDestructiveAction: true,
-                  child: Text('Sign Out', style: AppTheme.error),
-                  onPressed: () => Navigator.of(context).pop(true),
-                ),
-              ],
+            error: (error, stack) => AppAlertDialogs.confirmDestructive(
+              title: 'Sign Out',
+              content: 'Are you sure you want to sign out?',
+              confirmText: 'Sign Out',
             ),
           );
         },
@@ -116,15 +95,9 @@ class AuthUtils {
         if (context.mounted) {
           showCupertinoDialog(
             context: context,
-            builder: (context) => CupertinoAlertDialog(
-              title: Text('Error', style: AppTheme.headlineSmall),
-              content: Text('Failed to sign out: $e', style: AppTheme.error),
-              actions: [
-                CupertinoDialogAction(
-                  child: Text('OK', style: AppTheme.buttonSecondary),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
+            builder: (context) => AppAlertDialogs.error(
+              title: 'Error',
+              content: 'Failed to sign out: $e',
             ),
           );
         }

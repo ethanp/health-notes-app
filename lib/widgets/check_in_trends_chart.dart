@@ -418,7 +418,6 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
             tooltipMargin: 6,
             getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
               return touchedBarSpots.map((touchedSpot) {
-                final date = sortedDates[touchedSpot.x.toInt()];
                 final visibleMetrics = metrics
                     .where((m) => !_hiddenMetrics.contains(m))
                     .toList();
@@ -427,11 +426,9 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
                 if (metricObj == null) return null;
 
                 final rating = touchedSpot.y.toInt();
-                final isGood = metricObj.isRatingInGoodState(rating);
 
                 return LineTooltipItem(
-                  '$metric: $rating\n${DateFormat('MMM d').format(date)}\n'
-                  '${isGood ? "✅ Good" : "⚠️ Needs attention"}',
+                  '$metric: $rating',
                   AppTheme.bodySmall.copyWith(
                     color: metricObj.color,
                     fontWeight: FontWeight.w600,

@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
-import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/health_note_form_fields.dart';
 
 class HealthNoteForm extends ConsumerStatefulWidget {
@@ -46,8 +46,8 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
         : widget.note;
 
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.title, style: AppTheme.headlineSmall),
+      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+        title: widget.title,
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: widget.onCancel ?? () => Navigator.of(context).pop(),
@@ -130,18 +130,10 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
       if (mounted) {
         showCupertinoDialog(
           context: context,
-          builder: (context) => CupertinoAlertDialog(
-            title: Text('Error', style: AppTheme.headlineSmall),
-            content: Text(
-              'Failed to ${widget.note != null ? 'update' : 'save'} note: $e',
-              style: AppTheme.error,
-            ),
-            actions: [
-              CupertinoDialogAction(
-                child: Text('OK', style: AppTheme.buttonSecondary),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
+          builder: (context) => AppAlertDialogs.error(
+            title: 'Error',
+            content:
+                'Failed to ${widget.note != null ? 'update' : 'save'} note: $e',
           ),
         );
       }

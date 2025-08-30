@@ -74,6 +74,22 @@ class CheckInsNotifier extends _$CheckInsNotifier {
     }
   }
 
+  Future<void> deleteCheckInGroup(List<String> checkInIds) async {
+    try {
+      final supabase = Supabase.instance.client;
+      await supabase.from('check_ins').delete().inFilter('id', checkInIds);
+
+      final currentCheckIns = state.value ?? [];
+      final updatedCheckIns = currentCheckIns
+          .where((c) => !checkInIds.contains(c.id))
+          .toList();
+
+      state = AsyncValue.data(updatedCheckIns);
+    } catch (e) {
+      throw Exception('Failed to delete check-in group: $e');
+    }
+  }
+
   Future<void> refresh() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() => _fetchCheckIns());

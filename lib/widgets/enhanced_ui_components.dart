@@ -300,41 +300,8 @@ class EnhancedUIComponents {
     );
   }
 
-  // Enhanced list item with animations
-  static Widget enhancedListItem({
-    required Widget child,
-    required VoidCallback onTap,
-    EdgeInsetsGeometry? padding,
-    bool showDivider = true,
-  }) {
-    return Column(
-      children: [
-        AnimatedContainer(
-          duration: AppTheme.animationFast,
-          curve: AppTheme.animationCurve,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onTap,
-              child: Padding(
-                padding: padding ?? const EdgeInsets.all(AppTheme.spacingM),
-                child: child,
-              ),
-            ),
-          ),
-        ),
-        if (showDivider)
-          Container(
-            height: 1,
-            margin: const EdgeInsets.only(left: AppTheme.spacingM),
-            color: AppTheme.backgroundQuaternary.withValues(alpha: 0.3),
-          ),
-      ],
-    );
-  }
-
   // Enhanced navigation bar with gradient
-  static PreferredSizeWidget enhancedNavigationBar({
+  static ObstructingPreferredSizeWidget enhancedNavigationBar({
     required String title,
     Widget? leading,
     Widget? trailing,
@@ -386,6 +353,147 @@ class EnhancedUIComponents {
         activeColor: AppTheme.primary,
         inactiveColor: AppTheme.textTertiary,
       ),
+    );
+  }
+}
+
+// Reusable alert dialog widget to reduce boilerplate
+class AppAlertDialog extends StatelessWidget {
+  final String title;
+  final String? content;
+  final Widget? contentWidget;
+  final List<AppAlertDialogAction> actions;
+  final bool showCancelButton;
+  final String? cancelText;
+
+  const AppAlertDialog({
+    super.key,
+    required this.title,
+    this.content,
+    this.contentWidget,
+    required this.actions,
+    this.showCancelButton = false,
+    this.cancelText,
+  }) : assert(
+         content != null || contentWidget != null,
+         'Either content or contentWidget must be provided',
+       );
+
+  @override
+  Widget build(BuildContext context) {
+    final allActions = <CupertinoDialogAction>[];
+
+    // Add custom actions
+    allActions.addAll(
+      actions.map(
+        (action) => CupertinoDialogAction(
+          onPressed: () {
+            Navigator.of(context).pop(true);
+          },
+          isDestructiveAction: action.isDestructive,
+          child: Text(action.text),
+        ),
+      ),
+    );
+
+    // Add cancel button if requested
+    if (showCancelButton) {
+      allActions.add(
+        CupertinoDialogAction(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(cancelText ?? 'Cancel'),
+        ),
+      );
+    }
+
+    return CupertinoAlertDialog(
+      title: Text(title),
+      content: contentWidget ?? (content != null ? Text(content!) : null),
+      actions: allActions,
+    );
+  }
+}
+
+class AppAlertDialogAction {
+  final String text;
+  final bool isDestructive;
+
+  const AppAlertDialogAction({required this.text, this.isDestructive = false});
+}
+
+// Convenience methods for common dialog patterns
+class AppAlertDialogs {
+  // Simple confirmation dialog with OK button
+  static AppAlertDialog confirm({
+    required String title,
+    required String content,
+    String okText = 'OK',
+  }) {
+    return AppAlertDialog(
+      title: title,
+      content: content,
+      actions: [AppAlertDialogAction(text: okText)],
+    );
+  }
+
+  static AppAlertDialog confirmDestructive({
+    required String title,
+    required String content,
+    String confirmText = 'Confirm',
+    String cancelText = 'Cancel',
+    bool isDestructive = true,
+  }) {
+    return AppAlertDialog(
+      title: title,
+      content: content,
+      showCancelButton: true,
+      cancelText: cancelText,
+      actions: [
+        AppAlertDialogAction(text: confirmText, isDestructive: isDestructive),
+      ],
+    );
+  }
+
+  static AppAlertDialog error({
+    required String title,
+    required String content,
+    String okText = 'OK',
+  }) {
+    return AppAlertDialog(
+      title: title,
+      content: content,
+      actions: [AppAlertDialogAction(text: okText)],
+    );
+  }
+
+  static AppAlertDialog success({
+    required String title,
+    required String content,
+    String okText = 'OK',
+  }) {
+    return AppAlertDialog(
+      title: title,
+      content: content,
+      actions: [AppAlertDialogAction(text: okText)],
+    );
+  }
+
+  // Custom dialog with multiple actions
+  static AppAlertDialog custom({
+    required String title,
+    String? content,
+    Widget? contentWidget,
+    required List<AppAlertDialogAction> actions,
+    bool showCancelButton = false,
+    String? cancelText,
+  }) {
+    return AppAlertDialog(
+      title: title,
+      content: content,
+      contentWidget: contentWidget,
+      actions: actions,
+      showCancelButton: showCancelButton,
+      cancelText: cancelText,
     );
   }
 }

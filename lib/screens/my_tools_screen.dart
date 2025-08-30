@@ -6,6 +6,7 @@ import 'package:health_notes/screens/health_tool_category_screen.dart';
 import 'package:health_notes/screens/health_tool_category_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
 
 class MyToolsScreen extends ConsumerStatefulWidget {
@@ -21,8 +22,8 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
     final categoriesAsync = ref.watch(healthToolCategoriesNotifierProvider);
 
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text('My Tools', style: AppTheme.headlineSmall),
+      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+        title: 'My Tools',
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () => AuthUtils.showSignOutDialog(context),
@@ -39,7 +40,9 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
           data: (categories) => categories.isEmpty
               ? buildEmptyState()
               : buildCategoriesList(categories),
-          loading: () => const Center(child: CupertinoActivityIndicator()),
+          loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+            message: 'Loading your health tools...',
+          ),
           error: (error, stack) =>
               Center(child: Text('Error: $error', style: AppTheme.error)),
         ),
@@ -48,33 +51,14 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
   }
 
   Widget buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            CupertinoIcons.wrench,
-            size: 48,
-            color: CupertinoColors.systemGrey,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No health tools yet',
-            style: AppTheme.headlineSmall,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Create your first health tool category to get started',
-            style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          CupertinoButton.filled(
-            onPressed: () => _showAddCategoryForm(),
-            child: const Text('Add Category'),
-          ),
-        ],
+    return EnhancedUIComponents.enhancedEmptyState(
+      title: 'No health tools yet',
+      message: 'Create your first health tool category to get started',
+      icon: CupertinoIcons.wrench,
+      action: EnhancedUIComponents.enhancedButton(
+        text: 'Add Category',
+        onPressed: () => _showAddCategoryForm(),
+        icon: CupertinoIcons.add,
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:intl/intl.dart';
 
 class FilterModal extends StatefulWidget {
@@ -36,8 +37,8 @@ class _FilterModalState extends State<FilterModal> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text('Filters', style: AppTheme.headlineSmall),
+      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+        title: 'Filters',
         leading: CupertinoNavigationBarBackButton(
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -129,24 +130,12 @@ class _FilterModalState extends State<FilterModal> {
                       runSpacing: 8,
                       children: [
                         ...widget.availableDrugs.map(
-                          (drug) => CupertinoButton(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            color: _tempSelectedDrug == drug
-                                ? CupertinoColors.systemBlue
-                                : CupertinoColors.systemBackground,
-                            borderRadius: BorderRadius.circular(16),
-                            onPressed: () => setState(
+                          (drug) => EnhancedUIComponents.enhancedFilterChip(
+                            label: drug,
+                            isActive: _tempSelectedDrug == drug,
+                            onTap: () => setState(
                               () => _tempSelectedDrug =
                                   _tempSelectedDrug == drug ? null : drug,
-                            ),
-                            child: Text(
-                              drug,
-                              style: _tempSelectedDrug == drug
-                                  ? AppTheme.buttonPrimary
-                                  : AppTheme.bodyMedium,
                             ),
                           ),
                         ),

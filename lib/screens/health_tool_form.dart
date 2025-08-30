@@ -4,6 +4,7 @@ import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/models/health_tool_category.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
 class HealthToolForm extends ConsumerStatefulWidget {
   final HealthTool? tool;
@@ -53,8 +54,8 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
     final categoriesAsync = ref.watch(healthToolCategoriesNotifierProvider);
 
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.title, style: AppTheme.headlineSmall),
+      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+        title: widget.title,
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: widget.onCancel ?? () => Navigator.of(context).pop(),
@@ -151,7 +152,9 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
               if (categories.isEmpty) {
                 return Text(
                   'No categories available. Please create a category first.',
-                  style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+                  style: AppTheme.bodyMedium.copyWith(
+                    color: AppTheme.textTertiary,
+                  ),
                 );
               }
 
@@ -192,7 +195,9 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
                 },
               );
             },
-            loading: () => const CupertinoActivityIndicator(),
+            loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+              message: 'Loading categories...',
+            ),
             error: (error, stack) =>
                 Text('Error loading categories: $error', style: AppTheme.error),
           ),

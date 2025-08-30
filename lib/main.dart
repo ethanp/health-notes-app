@@ -6,6 +6,7 @@ import 'package:health_notes/screens/auth_screen.dart';
 import 'package:health_notes/screens/main_tab_screen.dart';
 import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -39,8 +40,10 @@ class MainScreen extends ConsumerWidget {
           .when(
             data: (isAuthenticated) =>
                 isAuthenticated ? const MainTabScreen() : const AuthScreen(),
-            loading: () => const CupertinoPageScaffold(
-              child: Center(child: CupertinoActivityIndicator()),
+            loading: () => CupertinoPageScaffold(
+              child: EnhancedUIComponents.enhancedLoadingIndicator(
+                message: 'Initializing app...',
+              ),
             ),
             error: (error, stack) => CupertinoPageScaffold(
               child: Center(

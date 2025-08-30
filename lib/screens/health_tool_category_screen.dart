@@ -5,6 +5,7 @@ import 'package:health_notes/models/health_tool_category.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/screens/health_tool_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
 
 class HealthToolCategoryScreen extends ConsumerStatefulWidget {
@@ -24,8 +25,8 @@ class _HealthToolCategoryScreenState
     final toolsAsync = ref.watch(toolsByCategoryProvider(widget.category.id));
 
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.category.name, style: AppTheme.headlineSmall),
+      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+        title: widget.category.name,
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () => _showAddToolForm(),
@@ -52,8 +53,9 @@ class _HealthToolCategoryScreenState
               child: toolsAsync.when(
                 data: (tools) =>
                     tools.isEmpty ? buildEmptyState() : buildToolsList(tools),
-                loading: () =>
-                    const Center(child: CupertinoActivityIndicator()),
+                loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+                  message: 'Loading tools...',
+                ),
                 error: (error, stack) =>
                     Center(child: Text('Error: $error', style: AppTheme.error)),
               ),
@@ -65,33 +67,14 @@ class _HealthToolCategoryScreenState
   }
 
   Widget buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            CupertinoIcons.wrench,
-            size: 48,
-            color: CupertinoColors.systemGrey,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No tools for ${widget.category.name}',
-            style: AppTheme.headlineSmall,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Add your first tool to get started',
-            style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          CupertinoButton.filled(
-            onPressed: () => _showAddToolForm(),
-            child: const Text('Add Tool'),
-          ),
-        ],
+    return EnhancedUIComponents.enhancedEmptyState(
+      title: 'No tools for ${widget.category.name}',
+      message: 'Add your first tool to get started',
+      icon: CupertinoIcons.wrench,
+      action: EnhancedUIComponents.enhancedButton(
+        text: 'Add Tool',
+        onPressed: () => _showAddToolForm(),
+        icon: CupertinoIcons.add,
       ),
     );
   }
@@ -203,25 +186,16 @@ class _HealthToolCategoryScreenState
   void _showDeleteConfirmation(HealthTool tool) {
     showCupertinoDialog(
       context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: const Text('Delete Tool'),
-        content: Text('Are you sure you want to delete "${tool.name}"?'),
-        actions: [
-          CupertinoDialogAction(
-            child: const Text('Cancel'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            onPressed: () {
-              Navigator.of(context).pop();
-              _deleteTool(tool);
-            },
-            child: const Text('Delete'),
-          ),
-        ],
+      builder: (context) => AppAlertDialogs.confirmDestructive(
+        title: 'Delete Tool',
+        content: 'Are you sure you want to delete "${tool.name}"?',
+        confirmText: 'Delete',
       ),
-    );
+    ).then((confirmed) {
+      if (confirmed == true) {
+        _deleteTool(tool);
+      }
+    });
   }
 
   Future<void> _deleteTool(HealthTool tool) async {
@@ -230,15 +204,9 @@ class _HealthToolCategoryScreenState
       if (mounted) {
         showCupertinoDialog(
           context: context,
-          builder: (context) => CupertinoAlertDialog(
-            title: const Text('Success'),
-            content: const Text('Tool deleted successfully'),
-            actions: [
-              CupertinoDialogAction(
-                child: const Text('OK'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
+          builder: (context) => AppAlertDialogs.success(
+            title: 'Success',
+            content: 'Tool deleted successfully',
           ),
         );
       }
@@ -246,15 +214,9 @@ class _HealthToolCategoryScreenState
       if (mounted) {
         showCupertinoDialog(
           context: context,
-          builder: (context) => CupertinoAlertDialog(
-            title: const Text('Error'),
-            content: Text('Failed to delete tool: $e'),
-            actions: [
-              CupertinoDialogAction(
-                child: const Text('OK'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
+          builder: (context) => AppAlertDialogs.error(
+            title: 'Error',
+            content: 'Failed to delete tool: $e',
           ),
         );
       }

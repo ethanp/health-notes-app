@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/health_note_form_fields.dart';
 
 class HealthNoteViewScreen extends ConsumerStatefulWidget {
@@ -24,8 +25,8 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
   Widget build(BuildContext context) {
     if (_isEditing) {
       return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Text('Edit Note', style: AppTheme.headlineSmall),
+        navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+          title: 'Edit Note',
           leading: CupertinoButton(
             padding: EdgeInsets.zero,
             onPressed: cancelEdit,
@@ -50,8 +51,8 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
     }
 
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text('Health Note', style: AppTheme.headlineSmall),
+      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+        title: 'Health Note',
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: toggleEditMode,
@@ -75,7 +76,9 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
 
         return HealthNoteFormFields(note: updatedNote, isEditable: false);
       },
-      loading: () => const Center(child: CupertinoActivityIndicator()),
+      loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+        message: 'Loading note data...',
+      ),
       error: (error, stack) => Center(
         child: Text('Error loading note: $error', style: AppTheme.error),
       ),

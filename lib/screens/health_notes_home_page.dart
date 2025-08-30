@@ -111,8 +111,8 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
     final groupedNotesAsync = ref.watch(groupedHealthNotesProvider);
 
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text('Health Notes', style: AppTheme.headlineSmall),
+      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+        title: 'Health Notes',
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () => AuthUtils.showSignOutDialog(context),
@@ -496,22 +496,11 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   Future<bool> showDeleteConfirmation(HealthNote note) async {
     return await showCupertinoDialog<bool>(
           context: context,
-          builder: (context) => CupertinoAlertDialog(
-            title: const Text('Delete Note'),
-            content: Text(
-              'Are you sure you want to delete this note from ${DateFormat('M/d/yyyy').format(note.dateTime)}?',
-            ),
-            actions: [
-              CupertinoDialogAction(
-                child: const Text('Cancel'),
-                onPressed: () => Navigator.of(context).pop(false),
-              ),
-              CupertinoDialogAction(
-                isDestructiveAction: true,
-                child: const Text('Delete'),
-                onPressed: () => Navigator.of(context).pop(true),
-              ),
-            ],
+          builder: (context) => AppAlertDialogs.confirmDestructive(
+            title: 'Delete Note',
+            content:
+                'Are you sure you want to delete this note from ${DateFormat('M/d/yyyy').format(note.dateTime)}?',
+            confirmText: 'Delete',
           ),
         ) ??
         false;

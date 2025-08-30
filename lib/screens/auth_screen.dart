@@ -170,15 +170,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
       if (mounted) {
         showCupertinoDialog(
           context: context,
-          builder: (context) => CupertinoAlertDialog(
-            title: const Text('Sign In Failed'),
-            content: Text('Please try again. Error: $e'),
-            actions: [
-              CupertinoDialogAction(
-                child: const Text('OK'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
+          builder: (context) => AppAlertDialogs.error(
+            title: 'Sign In Failed',
+            content: 'Please try again. Error: $e',
           ),
         );
       }

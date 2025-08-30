@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_tool_category.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
 class HealthToolCategoryForm extends ConsumerStatefulWidget {
   final HealthToolCategory? category;
@@ -77,8 +78,8 @@ class _HealthToolCategoryFormState
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.title, style: AppTheme.headlineSmall),
+      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+        title: widget.title,
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: widget.onCancel ?? () => Navigator.of(context).pop(),

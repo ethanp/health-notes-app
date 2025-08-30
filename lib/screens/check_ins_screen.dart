@@ -7,8 +7,8 @@ import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/screens/check_in_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
-
 import 'package:health_notes/utils/check_in_grouping.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
 import 'package:intl/intl.dart';
 
@@ -19,16 +19,30 @@ class CheckInsScreen extends ConsumerStatefulWidget {
   ConsumerState<CheckInsScreen> createState() => _CheckInsScreenState();
 }
 
-class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
+class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
+    with TickerProviderStateMixin {
   final Set<String> _expandedGroups = <String>{};
+  final Map<String, AnimationController> _animationControllers = {};
 
   void _toggleGroupExpansion(CheckInGroup group) {
     setState(() {
       final groupKey =
           '${group.primaryCheckIn.id}_${group.primaryCheckIn.dateTime.millisecondsSinceEpoch}';
+
+      if (!_animationControllers.containsKey(groupKey)) {
+        _animationControllers[groupKey] = AnimationController(
+          duration: const Duration(milliseconds: 400),
+          vsync: this,
+        );
+      }
+
+      final controller = _animationControllers[groupKey]!;
+
       if (_expandedGroups.contains(groupKey)) {
+        controller.reverse();
         _expandedGroups.remove(groupKey);
       } else {
+        controller.forward();
         _expandedGroups.add(groupKey);
       }
     });
@@ -41,12 +55,21 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
   }
 
   @override
+  void dispose() {
+    for (final controller in _animationControllers.values) {
+      controller.dispose();
+    }
+    _animationControllers.clear();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final checkInsAsync = ref.watch(checkInsNotifierProvider);
 
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text('Check-ins', style: AppTheme.headlineSmall),
+      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+        title: 'Check-ins',
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () => AuthUtils.showSignOutDialog(context),
@@ -63,7 +86,9 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
           data: (checkIns) => checkIns.isEmpty
               ? buildEmptyState()
               : buildCheckInsList(checkIns),
-          loading: () => const Center(child: CupertinoActivityIndicator()),
+          loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+            message: 'Loading your check-ins...',
+          ),
           error: (error, stack) =>
               Center(child: Text('Error: $error', style: AppTheme.error)),
         ),
@@ -72,33 +97,14 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
   }
 
   Widget buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            CupertinoIcons.chart_bar_alt_fill,
-            size: 48,
-            color: CupertinoColors.systemGrey,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No check-ins yet',
-            style: AppTheme.headlineSmall,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Tap the + button to add your first check-in',
-            style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          CupertinoButton.filled(
-            onPressed: () => _showAddCheckInForm(),
-            child: const Text('Add Check-in'),
-          ),
-        ],
+    return EnhancedUIComponents.enhancedEmptyState(
+      title: 'No check-ins yet',
+      message: 'Tap the + button to add your first check-in',
+      icon: CupertinoIcons.chart_bar_alt_fill,
+      action: EnhancedUIComponents.enhancedButton(
+        text: 'Add Check-in',
+        onPressed: () => _showAddCheckInForm(),
+        icon: CupertinoIcons.add,
       ),
     );
   }
@@ -114,68 +120,128 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
       itemBuilder: (group) {
         final isExpanded = _isGroupExpanded(group);
 
-        return Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          decoration: AppTheme.primaryCard,
-          child: Column(
-            children: [
-              // Header with date and primary check-in
-              GestureDetector(
-                onTap: () => _toggleGroupExpansion(group),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      // Date
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              DateFormat(
-                                'EEEE, MMMM d',
-                              ).format(group.primaryCheckIn.dateTime),
-                              style: AppTheme.labelLarge.copyWith(
-                                fontWeight: FontWeight.w600,
+        return Dismissible(
+          key: Key(
+            'group_${group.primaryCheckIn.id}_${group.primaryCheckIn.dateTime.millisecondsSinceEpoch}',
+          ),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: AppTheme.destructive,
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+            ),
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.only(right: AppTheme.spacingL),
+            child: const Icon(
+              CupertinoIcons.delete,
+              color: CupertinoColors.white,
+              size: 24,
+            ),
+          ),
+          confirmDismiss: (direction) async {
+            return await showDeleteGroupConfirmation(group);
+          },
+          onDismissed: (direction) {
+            deleteCheckInGroup(group);
+          },
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: AppTheme.primaryCard,
+            child: Column(
+              children: [
+                // Header with date and primary check-in
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => _toggleGroupExpansion(group),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        // Date
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                DateFormat(
+                                  'EEEE, MMMM d',
+                                ).format(group.primaryCheckIn.dateTime),
+                                style: AppTheme.labelLarge.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              DateFormat(
-                                'h:mm a',
-                              ).format(group.primaryCheckIn.dateTime),
-                              style: AppTheme.bodySmall.copyWith(
-                                color: AppTheme.textTertiary,
+                              const SizedBox(height: 4),
+                              Text(
+                                DateFormat(
+                                  'h:mm a',
+                                ).format(group.primaryCheckIn.dateTime),
+                                style: AppTheme.bodySmall.copyWith(
+                                  color: AppTheme.textTertiary,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
 
-                      // Primary check-in preview
-                      buildCollapsedCheckInItem(group.primaryCheckIn),
+                        // Primary check-in preview (non-tappable)
+                        buildCollapsedCheckInItem(group.primaryCheckIn),
 
-                      const SizedBox(width: 8),
+                        const SizedBox(width: 8),
 
-                      // Expand/collapse indicator
-                      Icon(
-                        isExpanded
-                            ? CupertinoIcons.chevron_up
-                            : CupertinoIcons.chevron_down,
-                        color: AppTheme.textTertiary,
-                        size: 16,
-                      ),
-                    ],
+                        // Expand/collapse indicator
+                        AnimatedRotation(
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeInOut,
+                          turns: isExpanded ? 0.5 : 0.0,
+                          child: const Icon(
+                            CupertinoIcons.chevron_down,
+                            color: CupertinoColors.systemGrey,
+                            size: 16,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-              // Expanded check-ins
-              if (isExpanded) ...[
-                const Divider(height: 1),
-                ...group.checkIns.map((checkIn) => buildCheckInItem(checkIn)),
+                // Expanded check-ins
+                Builder(
+                  builder: (context) {
+                    final groupKey =
+                        '${group.primaryCheckIn.id}_${group.primaryCheckIn.dateTime.millisecondsSinceEpoch}';
+                    final controller = _animationControllers[groupKey];
+
+                    if (controller == null) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return ClipRect(
+                      child: AnimatedBuilder(
+                        animation: controller,
+                        builder: (context, child) {
+                          return Align(
+                            alignment: Alignment.topCenter,
+                            heightFactor: controller.value,
+                            child: controller.value > 0
+                                ? Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Divider(height: 1),
+                                      ...group.checkIns.map(
+                                        (checkIn) => buildCheckInItem(checkIn),
+                                      ),
+                                    ],
+                                  )
+                                : const SizedBox.shrink(),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
               ],
-            ],
+            ),
           ),
         );
       },
@@ -186,47 +252,43 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
     final metric = checkIn.metric;
     if (metric == null) return const SizedBox.shrink();
 
-    return CupertinoButton(
-      padding: EdgeInsets.zero,
-      onPressed: () => _showEditCheckInForm(checkIn),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Metric icon with background
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: metric.color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: metric.color.withValues(alpha: 0.2),
-                width: 1,
-              ),
-            ),
-            child: Icon(metric.icon, size: 14, color: metric.color),
-          ),
-
-          const SizedBox(width: 6),
-
-          // Rating indicator
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: checkIn.ratingColor,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              '${checkIn.rating}',
-              style: AppTheme.bodySmall.copyWith(
-                color: CupertinoColors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 10,
-              ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Metric icon with background
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: metric.color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: metric.color.withValues(alpha: 0.2),
+              width: 1,
             ),
           ),
-        ],
-      ),
+          child: Icon(metric.icon, size: 14, color: metric.color),
+        ),
+
+        const SizedBox(width: 6),
+
+        // Rating indicator
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: checkIn.ratingColor,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            '${checkIn.rating}',
+            style: AppTheme.bodySmall.copyWith(
+              color: CupertinoColors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 10,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -292,11 +354,9 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      'Rating: ${checkIn.rating}/10',
-                      style: AppTheme.bodySmall.copyWith(
-                        color: AppTheme.textTertiary,
-                      ),
+                    EnhancedUIComponents.enhancedStatusIndicator(
+                      text: '${checkIn.rating}/10',
+                      color: checkIn.ratingColor,
                     ),
                   ],
                 ),
@@ -346,22 +406,11 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
   Future<bool> showDeleteConfirmation(CheckIn checkIn) async {
     return await showCupertinoDialog<bool>(
           context: context,
-          builder: (context) => CupertinoAlertDialog(
-            title: const Text('Delete Check-in'),
-            content: Text(
-              'Are you sure you want to delete this check-in from ${DateFormat('M/d/yyyy').format(checkIn.dateTime)}?',
-            ),
-            actions: [
-              CupertinoDialogAction(
-                child: const Text('Cancel'),
-                onPressed: () => Navigator.of(context).pop(false),
-              ),
-              CupertinoDialogAction(
-                isDestructiveAction: true,
-                child: const Text('Delete'),
-                onPressed: () => Navigator.of(context).pop(true),
-              ),
-            ],
+          builder: (context) => AppAlertDialogs.confirmDestructive(
+            title: 'Delete Check-in',
+            content:
+                'Are you sure you want to delete this check-in from ${DateFormat('M/d/yyyy').format(checkIn.dateTime)}?',
+            confirmText: 'Delete',
           ),
         ) ??
         false;
@@ -369,6 +418,29 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen> {
 
   void deleteCheckIn(String id) {
     ref.read(checkInsNotifierProvider.notifier).deleteCheckIn(id);
+  }
+
+  Future<bool> showDeleteGroupConfirmation(CheckInGroup group) async {
+    return await showCupertinoDialog<bool>(
+          context: context,
+          builder: (context) {
+            final groupDate = DateFormat(
+              'M/d/yyyy',
+            ).format(group.primaryCheckIn.dateTime);
+            return AppAlertDialogs.confirmDestructive(
+              title: 'Delete Check-in Group',
+              content:
+                  'Are you sure you want to delete all check-ins for $groupDate?',
+              confirmText: 'Delete',
+            );
+          },
+        ) ??
+        false;
+  }
+
+  void deleteCheckInGroup(CheckInGroup group) {
+    final checkInIds = group.checkIns.map((checkIn) => checkIn.id).toList();
+    ref.read(checkInsNotifierProvider.notifier).deleteCheckInGroup(checkInIds);
   }
 
   void _showAddCheckInForm() {

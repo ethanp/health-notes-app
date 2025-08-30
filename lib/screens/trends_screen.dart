@@ -7,6 +7,7 @@ import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/widgets/check_in_trends_chart.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:intl/intl.dart';
 
 class TrendsScreen extends ConsumerStatefulWidget {
@@ -22,8 +23,8 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     final healthNotesAsync = ref.watch(healthNotesNotifierProvider);
 
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text('Trends', style: AppTheme.headlineSmall),
+      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+        title: 'Trends',
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () => AuthUtils.showSignOutDialog(context),
@@ -34,7 +35,9 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
         child: healthNotesAsync.when(
           data: (notes) =>
               notes.isEmpty ? buildEmptyState() : buildTrendsContent(notes),
-          loading: () => const Center(child: CupertinoActivityIndicator()),
+          loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+            message: 'Loading your health trends...',
+          ),
           error: (error, stack) =>
               Center(child: Text('Error: $error', style: AppTheme.error)),
         ),
@@ -43,29 +46,10 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   }
 
   Widget buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            CupertinoIcons.chart_bar,
-            size: 48,
-            color: CupertinoColors.systemGrey,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No data for trends yet',
-            style: AppTheme.headlineSmall,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Add some health notes to see analytics',
-            style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+    return EnhancedUIComponents.enhancedEmptyState(
+      title: 'No data for trends yet',
+      message: 'Add some health notes to see analytics',
+      icon: CupertinoIcons.chart_bar,
     );
   }
 
@@ -113,7 +97,9 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
               ),
             ],
           ),
-          loading: () => const Center(child: CupertinoActivityIndicator()),
+          loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+            message: 'Loading check-in data...',
+          ),
           error: (error, stack) => Center(
             child: Text(
               'Error loading check-ins: $error',
@@ -126,10 +112,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   }
 
   Widget buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Text(title, style: AppTheme.headlineSmall),
-    );
+    return EnhancedUIComponents.enhancedSectionHeader(title: title);
   }
 
   Widget buildRecentSymptomTrendsCard(Map<String, int> recentTrends) {

@@ -4,6 +4,7 @@ import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/metric.dart';
 import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
 class CheckInForm extends ConsumerStatefulWidget {
   final CheckIn? checkIn;
@@ -49,8 +50,8 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.title, style: AppTheme.headlineSmall),
+      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+        title: widget.title,
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: widget.onCancel ?? () => Navigator.of(context).pop(),
@@ -93,17 +94,9 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Add Metrics', style: AppTheme.headlineSmall),
-              Text(
-                '${_selectedMetrics.length} selected',
-                style: AppTheme.bodySmall.copyWith(
-                  color: AppTheme.textTertiary,
-                ),
-              ),
-            ],
+          EnhancedUIComponents.enhancedSectionHeader(
+            title: 'Add Metrics',
+            subtitle: '${_selectedMetrics.length} selected',
           ),
           const SizedBox(height: 16),
           GridView.builder(
@@ -368,15 +361,9 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
       if (mounted) {
         showCupertinoDialog(
           context: context,
-          builder: (context) => CupertinoAlertDialog(
-            title: const Text('Error'),
-            content: Text('Failed to save check-ins: $e'),
-            actions: [
-              CupertinoDialogAction(
-                child: const Text('OK'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
+          builder: (context) => AppAlertDialogs.error(
+            title: 'Error',
+            content: 'Failed to save check-ins: $e',
           ),
         );
       }
