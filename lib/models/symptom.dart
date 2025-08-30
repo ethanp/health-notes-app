@@ -17,15 +17,6 @@ abstract class Symptom with _$Symptom {
 }
 
 extension SymptomExtensions on Symptom {
-  bool get isValid =>
-      majorComponent.isNotEmpty && severityLevel >= 1 && severityLevel <= 10;
-  bool get isEmpty => majorComponent.isEmpty;
-
-  String get displayName =>
-      majorComponent.isEmpty ? 'Unnamed symptom' : majorComponent;
-  String get displaySeverity => 'Severity: $severityLevel/10';
-  String get fullDisplay => '$displayName - $displaySeverity';
-
   /// Returns the full symptom description combining major and minor components
   String get fullDescription {
     if (majorComponent.isEmpty && minorComponent.isEmpty) {
@@ -37,22 +28,6 @@ extension SymptomExtensions on Symptom {
     } else {
       return '$majorComponent - $minorComponent';
     }
-  }
-
-
-
-  Symptom copyWith({
-    String? majorComponent,
-    String? minorComponent,
-    int? severityLevel,
-    String? additionalNotes,
-  }) {
-    return Symptom(
-      majorComponent: majorComponent ?? this.majorComponent,
-      minorComponent: minorComponent ?? this.minorComponent,
-      severityLevel: severityLevel ?? this.severityLevel,
-      additionalNotes: additionalNotes ?? this.additionalNotes,
-    );
   }
 
   static Symptom get empty =>
