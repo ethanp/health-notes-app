@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/check_in.dart';
@@ -8,6 +9,7 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/widgets/check_in_trends_chart.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:intl/intl.dart';
 
 class TrendsScreen extends ConsumerStatefulWidget {
@@ -18,6 +20,21 @@ class TrendsScreen extends ConsumerStatefulWidget {
 }
 
 class _TrendsScreenState extends ConsumerState<TrendsScreen> {
+  late TextEditingController _symptomSearchController;
+  String _symptomSearchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _symptomSearchController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _symptomSearchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final healthNotesAsync = ref.watch(healthNotesNotifierProvider);
@@ -84,8 +101,8 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
                     buildSectionHeader('Recent Symptom Trends'),
                     buildRecentSymptomTrendsCard(recentSymptomTrends),
                     const SizedBox(height: 20),
-                    buildSectionHeader('Most Common Symptoms'),
-                    buildSymptomFrequencyCard(symptomStats),
+                    buildSectionHeader('All Symptoms'),
+                    buildSearchableSymptomsTable(symptomStats),
                     const SizedBox(height: 20),
                     buildSectionHeader('Drug Usage'),
                     buildDrugUsageCard(drugStats),
@@ -139,12 +156,13 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     );
   }
 
-  Widget buildSymptomFrequencyCard(Map<String, int> symptomStats) {
+  Widget buildSearchableSymptomsTable(Map<String, int> symptomStats) {
     if (symptomStats.isEmpty) {
       return buildEmptyCard('No symptoms recorded yet');
     }
 
-    final sortedSymptoms = symptomStats.entries.toList()
+    final filteredSymptoms = _filterSymptoms(symptomStats);
+    final sortedSymptoms = filteredSymptoms.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
     return Container(
@@ -153,12 +171,100 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('All Time', style: AppTheme.labelLarge),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'All Symptoms (${filteredSymptoms.length})',
+                  style: AppTheme.labelLarge,
+                ),
+              ),
+              Text(
+                'Tap to view trends',
+                style: AppTheme.bodySmall.copyWith(
+                  color: CupertinoColors.systemGrey,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 12),
-          ...sortedSymptoms
-              .take(5)
-              .map((entry) => buildStatRow(entry.key, entry.value, 'times')),
+          EnhancedUIComponents.enhancedSearchField(
+            controller: _symptomSearchController,
+            placeholder: 'Search symptoms...',
+            onChanged: (query) {
+              setState(() {
+                _symptomSearchQuery = query;
+              });
+            },
+          ),
+          const SizedBox(height: 12),
+          if (sortedSymptoms.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'No symptoms match your search',
+                style: AppTheme.bodyMedium.copyWith(
+                  color: CupertinoColors.systemGrey,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            )
+          else
+            ...sortedSymptoms.map(
+              (entry) => buildSymptomRow(entry.key, entry.value),
+            ),
         ],
+      ),
+    );
+  }
+
+  Widget buildSymptomRow(String symptomName, int frequency) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.of(context).push(
+              CupertinoPageRoute(
+                builder: (context) =>
+                    SymptomTrendsScreen(symptomName: symptomName),
+              ),
+            );
+          },
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        symptomName,
+                        style: AppTheme.bodyMedium.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        '$frequency occurrences',
+                        style: AppTheme.bodySmall.copyWith(
+                          color: CupertinoColors.systemGrey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  CupertinoIcons.chevron_right,
+                  color: CupertinoColors.systemGrey,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -323,6 +429,17 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
           (map, symptom) =>
               map..update(symptom, (count) => count + 1, ifAbsent: () => 1),
         );
+  }
+
+  Map<String, int> _filterSymptoms(Map<String, int> allSymptoms) {
+    if (_symptomSearchQuery.isEmpty) return allSymptoms;
+
+    return Map.fromEntries(
+      allSymptoms.entries.where(
+        (entry) =>
+            entry.key.toLowerCase().contains(_symptomSearchQuery.toLowerCase()),
+      ),
+    );
   }
 
   Widget buildCheckInTrendsSection(List<CheckIn> checkIns) {
