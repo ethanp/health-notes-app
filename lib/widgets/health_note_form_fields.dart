@@ -56,7 +56,6 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
   @override
   void didUpdateWidget(HealthNoteFormFields oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // If the note changed, reinitialize controllers
     if (oldWidget.note?.id != widget.note?.id ||
         oldWidget.note?.dateTime != widget.note?.dateTime ||
         oldWidget.note?.notes != widget.note?.notes ||
@@ -97,7 +96,6 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
   }
 
   void initializeControllers() {
-    // Dispose old controllers first
     _notesController?.dispose();
     if (_drugDoseControllers.isNotEmpty) {
       _drugDoseControllers.values.forEach(
@@ -110,7 +108,6 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       );
     }
 
-    // Clear the maps
     _drugDoseControllers.clear();
     _symptomControllers.clear();
 
@@ -457,13 +454,11 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     );
   }
 
-  // Getters for accessing current values
   DateTime get currentDateTime => _selectedDateTime;
   List<Symptom> get currentSymptoms => _symptoms;
   String get currentNotes => _notesController?.text ?? '';
   List<DrugDose> get currentDrugDoses => _drugDoses;
 
-  // Methods for managing drug doses
   void addDrugDose() {
     setState(() {
       final newIndex = _drugDoses.length;
@@ -498,7 +493,6 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     widget.onDrugDosesChanged?.call(_drugDoses);
   }
 
-  // Methods for managing symptoms
   void addSymptom() {
     setState(() {
       final newIndex = _symptoms.length;
@@ -608,7 +602,6 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Show suggestions if this is the first symptom and we're adding a new note
           if (index == 0 && widget.note == null) buildSymptomSuggestions(),
           const SizedBox(height: 8),
           Row(

@@ -13,7 +13,6 @@ import time
 from typing import List, Dict, Tuple
 from textwrap import dedent
 
-# Import the base class
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from deployment_base import DeploymentBase
 
@@ -26,17 +25,14 @@ class IPhoneDeployment(DeploymentBase):
     
     def check_vpn(self) -> bool:
         """Check if VPN is active"""
-        # Check for VPN interfaces
         returncode, stdout, _ = self.run_command(["ifconfig"], check=False)
         if returncode == 0 and "utun" in stdout:
             return True
         
-        # Check for VPN processes
         returncode, stdout, _ = self.run_command(["pgrep", "-f", "openvpn|vpn|tunnel"], check=False)
         if returncode == 0:
             return True
         
-        # Check for VPN-related network services
         returncode, stdout, _ = self.run_command(["networksetup", "-listallnetworkservices"], check=False)
         if returncode == 0 and "VPN" in stdout:
             return True
@@ -58,11 +54,9 @@ class IPhoneDeployment(DeploymentBase):
         for line in lines:
             line = line.strip()
             
-            # Skip empty lines and headers
             if not line or line.startswith("Found") or line.startswith("Run"):
                 continue
             
-            # Check if this is a device line
             if "•" in line and ("mobile" in line or "ios" in line):
                 parts = [p.strip() for p in line.split("•")]
                 if len(parts) >= 3:
@@ -70,7 +64,6 @@ class IPhoneDeployment(DeploymentBase):
                     device_id = parts[1].strip()
                     platform = parts[2].strip()
                     
-                    # Check if it's wireless
                     is_wireless = "wireless" in line.lower()
                     
                     device_info = {
@@ -89,12 +82,10 @@ class IPhoneDeployment(DeploymentBase):
     
     def check_iphone_trust_status(self) -> str:
         """Check if iPhone is connected but not trusted"""
-        # Check if iPhone is physically connected via USB
         returncode, stdout, _ = self.run_command(["system_profiler", "SPUSBDataType"], check=False)
         if returncode != 0 or "iPhone" not in stdout:
             return "not_connected"
         
-        # Check if Flutter can see it as a USB device
         usb_devices, _ = self.parse_flutter_devices()
         ios_usb_devices = [d for d in usb_devices if "ios" in d["platform"].lower()]
         
@@ -203,32 +194,25 @@ class IPhoneDeployment(DeploymentBase):
         self.print_info("Checking for connected devices...")
         print()
         
-        # Get device information
         usb_devices, wireless_devices = self.parse_flutter_devices()
         vpn_active = self.check_vpn()
         
-        # Print device information
         returncode, stdout, _ = self.run_command(["flutter", "devices"], check=False)
         print(stdout)
         
-        # Check for trust issues
         trust_status = self.check_iphone_trust_status()
         if trust_status == "usb_connected_not_trusted":
             if not self.handle_trust_issue():
                 return False
-            # Recheck devices after trust
             usb_devices, wireless_devices = self.parse_flutter_devices()
             returncode, stdout, _ = self.run_command(["flutter", "devices"], check=False)
             print(stdout)
         
-        # Handle VPN warnings only if no USB devices and wireless issues
         if vpn_active and not usb_devices and wireless_devices:
             if not self.handle_vpn_warning():
                 return False
         
-        # Install to device
         if usb_devices:
-            # Use the first USB device
             device_id = usb_devices[0]["id"]
             return self.install_to_device(device_id)
         else:

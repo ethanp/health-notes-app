@@ -44,17 +44,13 @@ class SymptomSuggestionsService {
   ) {
     final Map<String, SymptomSuggestion> suggestionsMap = {};
 
-    // Sort notes by date (most recent first) to ensure we get the most recent symptoms
     final sortedNotes = List<HealthNote>.from(notes)
       ..sort((a, b) => b.dateTime.compareTo(a.dateTime));
 
-    // Iterate through notes in chronological order (most recent first)
     for (final note in sortedNotes) {
       for (final symptom in note.validSymptoms) {
-        // Create a unique key for the major-minor combination
         final key = '${symptom.majorComponent}|${symptom.minorComponent}';
 
-        // Only add if we don't already have this combination and we have at least one component
         if (!suggestionsMap.containsKey(key) &&
             (symptom.majorComponent.isNotEmpty ||
                 symptom.minorComponent.isNotEmpty)) {
@@ -64,14 +60,12 @@ class SymptomSuggestionsService {
             lastSeverityLevel: symptom.severityLevel,
           );
 
-          // Stop when we have 3 suggestions
           if (suggestionsMap.length >= 3) {
             break;
           }
         }
       }
 
-      // Stop when we have 3 suggestions
       if (suggestionsMap.length >= 3) {
         break;
       }

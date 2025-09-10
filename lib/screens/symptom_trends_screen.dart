@@ -129,7 +129,6 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     final now = DateTime.now();
     final monthsToShow = 12; // Show last 12 months
 
-    // Generate month-based grid
     final months = <Widget>[];
 
     for (int monthOffset = 0; monthOffset < monthsToShow; monthOffset++) {
@@ -137,7 +136,6 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
       final monthName = DateFormat('MMM yyyy').format(monthDate);
       final daysInMonth = DateTime(monthDate.year, monthDate.month + 1, 0).day;
 
-      // Check if this month has any activity
       bool monthHasActivity = false;
       for (int day = 1; day <= daysInMonth; day++) {
         final date = DateTime(monthDate.year, monthDate.month, day);
@@ -147,15 +145,12 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
         }
       }
 
-      // Skip months with no activity
       if (!monthHasActivity) continue;
 
-      // Create week rows for this month
       final monthWeeks = <Widget>[];
       final firstDayOfMonth = DateTime(monthDate.year, monthDate.month, 1);
       final firstWeekday = firstDayOfMonth.weekday; // 1 = Monday, 7 = Sunday
 
-      // Calculate how many weeks we need for this month
       final totalDays = firstWeekday - 1 + daysInMonth; // Include padding days
       final weeksInMonth = (totalDays / 7).ceil();
 
@@ -216,7 +211,6 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
               ),
             );
           } else {
-            // Empty space for days not in this month
             weekDays.add(
               Container(width: 30, height: 30, margin: const EdgeInsets.all(2)),
             );
@@ -247,7 +241,6 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
       );
     }
 
-    // If no months have activity, show a message
     if (months.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(24),
@@ -293,17 +286,12 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
   Color _getSeverityColor(int severity) {
     if (severity == 0) return AppTheme.backgroundPrimary.withValues(alpha: 0.3);
 
-    // Map severity 1-10 to a color gradient from light green to dark red
-    // Use HSL color space for better color transitions
     final normalizedSeverity = severity / 10.0; // 0.0 to 1.0
 
-    // Hue: 120 (green) to 0 (red) as severity increases
     final hue = 120 - (normalizedSeverity * 120);
 
-    // Saturation: 30% to 90% as severity increases
     final saturation = 30 + (normalizedSeverity * 60);
 
-    // Lightness: 85% to 35% as severity increases (darker = more severe)
     final lightness = 85 - (normalizedSeverity * 50);
 
     return HSLColor.fromAHSL(
@@ -482,14 +470,12 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
         (s) => s.majorComponent == widget.symptomName,
       );
 
-      // Create a date key (without time) - normalize to start of day
       final dateKey = DateTime(
         note.dateTime.year,
         note.dateTime.month,
         note.dateTime.day,
       );
 
-      // If multiple symptoms on same day, take the highest severity
       if (activityData.containsKey(dateKey)) {
         final oldSeverity = activityData[dateKey]!;
         final newSeverity = symptom.severityLevel;
@@ -524,7 +510,6 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
 
   void _showDateInfo(BuildContext context, DateTime date, int severity) {
     if (severity == 0) {
-      // Show simple dialog for dates with no symptoms
       final formattedDate = DateFormat('EEEE, MMMM dd, yyyy').format(date);
       showCupertinoDialog(
         context: context,
@@ -542,7 +527,6 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
       return;
     }
 
-    // Find the health note for this date
     final healthNotesAsync = ref.read(healthNotesNotifierProvider);
     final notes = healthNotesAsync.value ?? [];
 
@@ -557,7 +541,6 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     }).firstOrNull;
 
     if (noteForDate == null) {
-      // Fallback if no note found
       final formattedDate = DateFormat('EEEE, MMMM dd, yyyy').format(date);
       final severityText = _getSeverityDescription(severity);
 
@@ -579,7 +562,6 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
       return;
     }
 
-    // Show detailed popup with note information
     final formattedDate = DateFormat('EEEE, MMMM dd, yyyy').format(date);
     final symptom = noteForDate.symptomsList.firstWhere(
       (s) => s.majorComponent == widget.symptomName,
@@ -731,9 +713,6 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
   }
 
   void _navigateToNoteDetail(HealthNote note) {
-    // TODO: Navigate to note detail screen
-    // This would typically navigate to a screen that shows the full note details
-    // For now, we'll show a simple dialog with the note content
     showCupertinoDialog(
       context: context,
       builder: (BuildContext context) => CupertinoAlertDialog(

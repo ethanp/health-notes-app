@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
 class EnhancedUIComponents {
-  // Animated gradient background container
   static Widget animatedGradientBackground({
     required Widget child,
     Duration duration = AppTheme.animationSlow,
@@ -15,7 +14,6 @@ class EnhancedUIComponents {
     );
   }
 
-  // Enhanced card with hover effects and animations
   static Widget enhancedCard({
     required Widget child,
     EdgeInsetsGeometry? padding,
@@ -42,7 +40,6 @@ class EnhancedUIComponents {
     );
   }
 
-  // Enhanced button with gradient and animations
   static Widget enhancedButton({
     required String text,
     required VoidCallback onPressed,
@@ -92,7 +89,6 @@ class EnhancedUIComponents {
     );
   }
 
-  // Enhanced search field with animations
   static Widget enhancedSearchField({
     required TextEditingController controller,
     required String placeholder,
@@ -116,7 +112,6 @@ class EnhancedUIComponents {
     );
   }
 
-  // Enhanced filter chip with animations
   static Widget enhancedFilterChip({
     required String label,
     required bool isActive,
@@ -148,7 +143,6 @@ class EnhancedUIComponents {
     );
   }
 
-  // Enhanced status indicator
   static Widget enhancedStatusIndicator({
     required String text,
     required Color color,
@@ -181,7 +175,6 @@ class EnhancedUIComponents {
     );
   }
 
-  // Enhanced section header
   static Widget enhancedSectionHeader({
     required String title,
     String? subtitle,
@@ -209,7 +202,6 @@ class EnhancedUIComponents {
     );
   }
 
-  // Enhanced empty state
   static Widget enhancedEmptyState({
     required String title,
     required String message,
@@ -263,7 +255,6 @@ class EnhancedUIComponents {
     );
   }
 
-  // Enhanced loading indicator
   static Widget enhancedLoadingIndicator({String? message}) {
     return Center(
       child: Column(
@@ -300,7 +291,6 @@ class EnhancedUIComponents {
     );
   }
 
-  // Enhanced navigation bar with gradient
   static ObstructingPreferredSizeWidget enhancedNavigationBar({
     required String title,
     Widget? leading,
@@ -326,7 +316,6 @@ class EnhancedUIComponents {
   }
 }
 
-// Reusable alert dialog widget to reduce boilerplate
 class AppAlertDialog extends StatelessWidget {
   final String title;
   final String? content;
@@ -352,7 +341,6 @@ class AppAlertDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final allActions = <CupertinoDialogAction>[];
 
-    // Add custom actions
     allActions.addAll(
       actions.map(
         (action) => CupertinoDialogAction(
@@ -365,7 +353,6 @@ class AppAlertDialog extends StatelessWidget {
       ),
     );
 
-    // Add cancel button if requested
     if (showCancelButton) {
       allActions.add(
         CupertinoDialogAction(
@@ -390,7 +377,6 @@ class AppAlertDialogAction {
   const AppAlertDialogAction({required this.text, this.isDestructive = false});
 }
 
-// Convenience methods for common dialog patterns
 class AppAlertDialogs {
   static AppAlertDialog confirmDestructive({
     required String title,
@@ -434,7 +420,6 @@ class AppAlertDialogs {
     );
   }
 
-  // Custom dialog with multiple actions
   static AppAlertDialog custom({
     required String title,
     String? content,

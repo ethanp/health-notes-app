@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/check_in.dart';
+import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/providers/check_ins_provider.dart';
+import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/widgets/check_in_trends_chart.dart';
@@ -79,40 +81,52 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     return Consumer(
       builder: (context, ref, child) {
         final checkInsAsync = ref.watch(checkInsNotifierProvider);
+        final userMetricsAsync = ref.watch(checkInMetricsNotifierProvider);
 
         return checkInsAsync.when(
-          data: (checkIns) => CustomScrollView(
-            slivers: [
-              CupertinoSliverRefreshControl(
-                onRefresh: () async {
-                  await ref
-                      .read(healthNotesNotifierProvider.notifier)
-                      .refreshNotes();
-                  await ref.read(checkInsNotifierProvider.notifier).refresh();
-                },
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.all(16),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    buildSectionHeader('Check-in Trends'),
-                    buildCheckInTrendsSection(checkIns),
-                    const SizedBox(height: 20),
-                    buildSectionHeader('Recent Symptom Trends'),
-                    buildRecentSymptomTrendsCard(recentSymptomTrends),
-                    const SizedBox(height: 20),
-                    buildSectionHeader('All Symptoms'),
-                    buildSearchableSymptomsTable(symptomStats),
-                    const SizedBox(height: 20),
-                    buildSectionHeader('Drug Usage'),
-                    buildDrugUsageCard(drugStats),
-                    const SizedBox(height: 20),
-                    buildSectionHeader('Monthly Trends'),
-                    buildMonthlyTrendsCard(monthlyStats),
-                  ]),
+          data: (checkIns) => userMetricsAsync.when(
+            data: (userMetrics) => CustomScrollView(
+              slivers: [
+                CupertinoSliverRefreshControl(
+                  onRefresh: () async {
+                    await ref
+                        .read(healthNotesNotifierProvider.notifier)
+                        .refreshNotes();
+                    await ref.read(checkInsNotifierProvider.notifier).refresh();
+                  },
                 ),
+                SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      buildSectionHeader('Check-in Trends'),
+                      buildCheckInTrendsSection(checkIns, userMetrics),
+                      const SizedBox(height: 20),
+                      buildSectionHeader('Recent Symptom Trends'),
+                      buildRecentSymptomTrendsCard(recentSymptomTrends),
+                      const SizedBox(height: 20),
+                      buildSectionHeader('All Symptoms'),
+                      buildSearchableSymptomsTable(symptomStats),
+                      const SizedBox(height: 20),
+                      buildSectionHeader('Drug Usage'),
+                      buildDrugUsageCard(drugStats),
+                      const SizedBox(height: 20),
+                      buildSectionHeader('Monthly Trends'),
+                      buildMonthlyTrendsCard(monthlyStats),
+                    ]),
+                  ),
+                ),
+              ],
+            ),
+            loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+              message: 'Loading metrics...',
+            ),
+            error: (error, stack) => Center(
+              child: Text(
+                'Error loading metrics: $error',
+                style: AppTheme.error,
               ),
-            ],
+            ),
           ),
           loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
             message: 'Loading check-in data...',
@@ -373,7 +387,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
         return DateFormat('MMMM yyyy').format(DateTime(year, month));
       }
     } catch (e) {
-      // Fallback to original key if parsing fails
+      // Invalid date format - return original key
     }
     return monthKey;
   }
@@ -442,11 +456,14 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     );
   }
 
-  Widget buildCheckInTrendsSection(List<CheckIn> checkIns) {
+  Widget buildCheckInTrendsSection(
+    List<CheckIn> checkIns,
+    List<CheckInMetric> userMetrics,
+  ) {
     if (checkIns.isEmpty) {
       return buildEmptyCard('No check-in data available');
     }
 
-    return CheckInTrendsChart(checkIns: checkIns);
+    return CheckInTrendsChart(checkIns: checkIns, userMetrics: userMetrics);
   }
 }

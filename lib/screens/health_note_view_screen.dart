@@ -64,7 +64,6 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
   }
 
   Widget buildViewMode() {
-    // Get the latest note data from the provider
     final notesAsync = ref.watch(healthNotesNotifierProvider);
 
     return notesAsync.when(

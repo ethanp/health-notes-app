@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
-import 'package:health_notes/models/metric.dart';
 
 /// Groups check-ins that are within 10 minutes of each other
 class CheckInGrouping {
@@ -8,10 +7,12 @@ class CheckInGrouping {
 
   /// Groups check-ins by time proximity
   /// Check-ins within 10 minutes of each other are grouped together
-  static List<CheckInGroup> groupCheckIns(List<CheckIn> checkIns) {
+  static List<CheckInGroup> groupCheckIns(
+    List<CheckIn> checkIns,
+    int totalMetricsCount,
+  ) {
     if (checkIns.isEmpty) return [];
 
-    // Sort check-ins by date/time (newest first)
     final sortedCheckIns = List<CheckIn>.from(checkIns)
       ..sort((a, b) => b.dateTime.compareTo(a.dateTime));
 
@@ -20,27 +21,28 @@ class CheckInGrouping {
 
     for (final checkIn in sortedCheckIns) {
       if (currentGroup == null) {
-        // Start a new group
-        currentGroup = CheckInGroup(checkIns: [checkIn]);
+        currentGroup = CheckInGroup(
+          checkIns: [checkIn],
+          totalMetricsCount: totalMetricsCount,
+        );
       } else {
-        // Check if this check-in should be added to the current group
         final timeDifference = currentGroup.representativeCheckIn.dateTime
             .difference(checkIn.dateTime)
             .inMinutes
             .abs();
 
         if (timeDifference <= _groupingThresholdMinutes) {
-          // Add to current group
           currentGroup.checkIns.add(checkIn);
         } else {
-          // Start a new group
           groups.add(currentGroup);
-          currentGroup = CheckInGroup(checkIns: [checkIn]);
+          currentGroup = CheckInGroup(
+            checkIns: [checkIn],
+            totalMetricsCount: totalMetricsCount,
+          );
         }
       }
     }
 
-    // Add the last group
     if (currentGroup != null) {
       groups.add(currentGroup);
     }
@@ -52,16 +54,10 @@ class CheckInGrouping {
 /// Represents a group of check-ins that occurred within the same time period
 class CheckInGroup {
   final List<CheckIn> checkIns;
+  final int totalMetricsCount;
 
-  CheckInGroup({required this.checkIns}) {
-    // Sort check-ins by the consistent metric order
-    checkIns.sort((a, b) {
-      final aMetric = Metric.fromName(a.metricName);
-      final bMetric = Metric.fromName(b.metricName);
-      final aIndex = aMetric?.sortIndex ?? 999;
-      final bIndex = bMetric?.sortIndex ?? 999;
-      return aIndex.compareTo(bIndex);
-    });
+  CheckInGroup({required this.checkIns, required this.totalMetricsCount}) {
+    checkIns.sort((a, b) => a.metricName.compareTo(b.metricName));
   }
 
   /// Returns the representative check-in for this group (newest one)
@@ -85,9 +81,9 @@ class CheckInGroup {
 
   /// Returns the proportion of available metrics that are included in this group
   double get metricProportion {
-    final totalMetrics = Metric.all.length;
     final uniqueMetricsInGroup = uniqueMetrics.length;
-    return uniqueMetricsInGroup / totalMetrics;
+    if (totalMetricsCount == 0) return 0.0;
+    return uniqueMetricsInGroup / totalMetricsCount;
   }
 
   /// Returns a color based on the proportion of metrics in this group

@@ -1,14 +1,10 @@
 #!/bin/bash
 
-# Generate iOS app icons from PNG base image
-# This script requires ImageMagick to be installed
 
 echo "Generating iOS app icons from PNG base image..."
 
-# Create output directory
 mkdir -p ../../ios/Runner/Assets.xcassets/AppIcon.appiconset
 
-# Generate all required iOS icon sizes
 echo "Generating 1024x1024 App Store icon..."
 magick base_icon_img.png -resize 1024x1024 ../../ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png
 

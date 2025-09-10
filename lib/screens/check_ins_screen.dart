@@ -2,10 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in.dart';
-import 'package:health_notes/models/metric.dart';
+import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/providers/check_ins_provider.dart';
+import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/screens/check_in_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/screens/metrics_management_screen.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/utils/check_in_grouping.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
@@ -66,6 +68,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
   @override
   Widget build(BuildContext context) {
     final checkInsAsync = ref.watch(checkInsNotifierProvider);
+    final userMetricsAsync = ref.watch(checkInMetricsNotifierProvider);
 
     return CupertinoPageScaffold(
       navigationBar: EnhancedUIComponents.enhancedNavigationBar(
@@ -75,17 +78,43 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
           onPressed: () => AuthUtils.showSignOutDialog(context),
           child: const Icon(CupertinoIcons.person_circle),
         ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => _showAddCheckInForm(),
-          child: const Icon(CupertinoIcons.add),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () => Navigator.of(context).push(
+                CupertinoPageRoute(
+                  builder: (context) => const MetricsManagementScreen(),
+                ),
+              ),
+              child: const Icon(CupertinoIcons.settings),
+            ),
+            const SizedBox(width: 8),
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () => _showAddCheckInForm(),
+              child: const Icon(CupertinoIcons.add),
+            ),
+          ],
         ),
       ),
       child: SafeArea(
         child: checkInsAsync.when(
-          data: (checkIns) => checkIns.isEmpty
-              ? buildEmptyState()
-              : buildCheckInsList(checkIns),
+          data: (checkIns) => userMetricsAsync.when(
+            data: (userMetrics) => checkIns.isEmpty
+                ? buildEmptyState()
+                : buildCheckInsList(checkIns, userMetrics),
+            loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+              message: 'Loading metrics...',
+            ),
+            error: (error, stack) => Center(
+              child: Text(
+                'Error loading metrics: $error',
+                style: AppTheme.error,
+              ),
+            ),
+          ),
           loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
             message: 'Loading your check-ins...',
           ),
@@ -109,8 +138,14 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
     );
   }
 
-  Widget buildCheckInsList(List<CheckIn> checkIns) {
-    final groupedCheckIns = CheckInGrouping.groupCheckIns(checkIns);
+  Widget buildCheckInsList(
+    List<CheckIn> checkIns,
+    List<CheckInMetric> userMetrics,
+  ) {
+    final groupedCheckIns = CheckInGrouping.groupCheckIns(
+      checkIns,
+      userMetrics.length,
+    );
 
     return RefreshableListView<CheckInGroup>(
       onRefresh: () async {
@@ -150,7 +185,6 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
             decoration: AppTheme.primaryCard,
             child: Column(
               children: [
-                // Header with date and primary check-in
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => _toggleGroupExpansion(group),
@@ -158,7 +192,6 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
                     padding: const EdgeInsets.all(16),
                     child: Row(
                       children: [
-                        // Date
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,11 +217,10 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
                           ),
                         ),
 
-                        buildGroupCountIndicator(group),
+                        buildGroupCountIndicator(group, userMetrics),
 
                         const SizedBox(width: 8),
 
-                        // Expand/collapse indicator
                         AnimatedRotation(
                           duration: const Duration(milliseconds: 400),
                           curve: Curves.easeInOut,
@@ -204,7 +236,6 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
                   ),
                 ),
 
-                // Expanded check-ins
                 Builder(
                   builder: (context) {
                     final groupKey =
@@ -228,7 +259,10 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
                                     children: [
                                       const Divider(height: 1),
                                       ...group.checkIns.map(
-                                        (checkIn) => buildCheckInItem(checkIn),
+                                        (checkIn) => buildCheckInItem(
+                                          checkIn,
+                                          userMetrics,
+                                        ),
                                       ),
                                     ],
                                   )
@@ -247,11 +281,13 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
     );
   }
 
-  Widget buildGroupCountIndicator(CheckInGroup group) {
+  Widget buildGroupCountIndicator(
+    CheckInGroup group,
+    List<CheckInMetric> userMetrics,
+  ) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Group icon (showing multiple metrics if applicable)
         Container(
           width: 28,
           height: 28,
@@ -266,11 +302,25 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
           child: Icon(
             group.isMultiMetric
                 ? CupertinoIcons.list_bullet
-                : group.representativeCheckIn.metricIcon,
+                : userMetrics
+                      .firstWhere(
+                        (m) => m.name == group.representativeCheckIn.metricName,
+                        orElse: () => throw Exception(
+                          'Metric not found: ${group.representativeCheckIn.metricName}',
+                        ),
+                      )
+                      .icon,
             size: 14,
             color: group.isMultiMetric
                 ? AppTheme.primary
-                : group.representativeCheckIn.metricColor,
+                : userMetrics
+                      .firstWhere(
+                        (m) => m.name == group.representativeCheckIn.metricName,
+                        orElse: () => throw Exception(
+                          'Metric not found: ${group.representativeCheckIn.metricName}',
+                        ),
+                      )
+                      .color,
           ),
         ),
 
@@ -295,9 +345,11 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
     );
   }
 
-  Widget buildCheckInItem(CheckIn checkIn) {
-    final metric = checkIn.metric;
-    if (metric == null) return const SizedBox.shrink();
+  Widget buildCheckInItem(CheckIn checkIn, List<CheckInMetric> userMetrics) {
+    final metric = userMetrics.firstWhere(
+      (m) => m.name == checkIn.metricName,
+      orElse: () => throw Exception('Metric not found: ${checkIn.metricName}'),
+    );
 
     return Dismissible(
       key: Key(checkIn.id),
@@ -328,7 +380,6 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              // Metric icon with background
               Container(
                 width: 36,
                 height: 36,
@@ -345,7 +396,6 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
 
               const SizedBox(width: 12),
 
-              // Metric details
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,24 +409,25 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
                     const SizedBox(height: 2),
                     EnhancedUIComponents.enhancedStatusIndicator(
                       text: '${checkIn.rating}/10',
-                      color: checkIn.ratingColor,
+                      color: metric.getRatingColor(checkIn.rating),
                     ),
                   ],
                 ),
               ),
 
-              // Rating indicator with improved styling
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: checkIn.ratingColor,
+                  color: metric.getRatingColor(checkIn.rating),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: checkIn.ratingColor.withValues(alpha: 0.3),
+                      color: metric
+                          .getRatingColor(checkIn.rating)
+                          .withValues(alpha: 0.3),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -393,7 +444,6 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
 
               const SizedBox(width: 8),
 
-              // Chevron
               const Icon(
                 CupertinoIcons.chevron_right,
                 color: CupertinoColors.systemGrey,

@@ -12,6 +12,7 @@ import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/animated_welcome_card.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
+import 'package:health_notes/widgets/sync_status_widget.dart';
 import 'package:intl/intl.dart';
 
 class HealthNotesHomePage extends ConsumerStatefulWidget {
@@ -118,10 +119,17 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
           onPressed: () => AuthUtils.showSignOutDialog(context),
           child: const Icon(CupertinoIcons.person_circle),
         ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: showAddNoteModal,
-          child: const Icon(CupertinoIcons.add),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CompactSyncStatusWidget(),
+            const SizedBox(width: 8),
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: showAddNoteModal,
+              child: const Icon(CupertinoIcons.add),
+            ),
+          ],
         ),
       ),
       child: SafeArea(
@@ -278,16 +286,30 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   }
 
   Widget emptyTable() {
-    return AnimatedWelcomeCard(
-      title: 'Welcome to Health Notes',
-      message: 'Start tracking your health journey by adding your first note',
-      icon: CupertinoIcons.heart_fill,
-      iconColor: AppTheme.primary,
-      action: EnhancedUIComponents.enhancedButton(
-        text: 'Add First Note',
-        onPressed: showAddNoteModal,
-        icon: CupertinoIcons.add,
-      ),
+    return CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      slivers: [
+        CupertinoSliverRefreshControl(
+          onRefresh: () async {
+            await ref.read(healthNotesNotifierProvider.notifier).refreshNotes();
+          },
+        ),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: AnimatedWelcomeCard(
+            title: 'Welcome to Health Notes',
+            message:
+                'Start tracking your health journey by adding your first note',
+            icon: CupertinoIcons.heart_fill,
+            iconColor: AppTheme.primary,
+            action: EnhancedUIComponents.enhancedButton(
+              text: 'Add First Note',
+              onPressed: showAddNoteModal,
+              icon: CupertinoIcons.add,
+            ),
+          ),
+        ),
+      ],
     );
   }
 

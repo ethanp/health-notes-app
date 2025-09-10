@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
 class AppTheme {
-  // Enhanced color palette with Headspace-like warmth
   static const Color primary = Color(0xFF6B73FF); // Warm purple-blue
   static const Color primaryLight = Color(0xFF8B93FF);
   static const Color primaryDark = Color(0xFF4A52E0);
@@ -14,7 +13,6 @@ class AppTheme {
   static const Color successColor = Color(0xFF81C784); // Calming green
   static const Color warning = Color(0xFFFFB74D); // Warm orange
 
-  // Enhanced background system with depth and warmth
   static const Color backgroundPrimary = Color(0xFF1A1B2E); // Deep blue-grey
   static const Color backgroundSecondary = Color(
     0xFF252A3A,
@@ -25,13 +23,11 @@ class AppTheme {
   ); // Higher elevation
   static const Color backgroundQuinary = Color(0xFF4A5568); // Highest elevation
 
-  // Text colors with better contrast and warmth
   static const Color textPrimary = Color(0xFFF8FAFC); // Almost white
   static const Color textSecondary = Color(0xFFE2E8F0); // Soft white
   static const Color textTertiary = Color(0xFFCBD5E1); // Muted white
   static const Color textQuaternary = Color(0xFF94A3B8); // Very muted
 
-  // Gradient definitions for depth and texture
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [primary, primaryLight],
     begin: Alignment.topLeft,
@@ -56,7 +52,6 @@ class AppTheme {
     end: Alignment.bottomRight,
   );
 
-  // Enhanced shadows for depth
   static List<BoxShadow> get subtleShadow => [
     BoxShadow(
       color: CupertinoColors.black.withValues(alpha: 0.1),
@@ -81,13 +76,11 @@ class AppTheme {
     ),
   ];
 
-  // Enhanced border radius for friendlier feel
   static const double radiusSmall = 8.0;
   static const double radiusMedium = 12.0;
   static const double radiusLarge = 16.0;
   static const double radiusExtraLarge = 24.0;
 
-  // Enhanced spacing system
   static const double spacingXS = 4.0;
   static const double spacingS = 8.0;
   static const double spacingM = 16.0;
@@ -95,7 +88,6 @@ class AppTheme {
   static const double spacingXL = 32.0;
   static const double spacingXXL = 48.0;
 
-  // Enhanced Cupertino theme
   static const CupertinoThemeData darkTheme = CupertinoThemeData(
     brightness: Brightness.dark,
     primaryColor: primary,
@@ -107,7 +99,6 @@ class AppTheme {
     ),
   );
 
-  // Enhanced container decorations with gradients and shadows
   static BoxDecoration get primaryCard => BoxDecoration(
     gradient: cardGradient,
     borderRadius: BorderRadius.circular(radiusMedium),
@@ -176,7 +167,6 @@ class AppTheme {
     border: Border.all(color: successColor.withValues(alpha: 0.2), width: 1),
   );
 
-  // Enhanced typography with better hierarchy and warmth
   static TextStyle textStyle(
     double fontSize,
     FontWeight fontWeight,
@@ -191,7 +181,6 @@ class AppTheme {
     letterSpacing: letterSpacing,
   );
 
-  // Headline styles with more personality
   static TextStyle get headlineLarge => textStyle(
     32,
     FontWeight.w700,
@@ -216,7 +205,6 @@ class AppTheme {
     letterSpacing: -0.2,
   );
 
-  // Body styles with better readability
   static TextStyle get bodyLarge => textStyle(
     18,
     FontWeight.normal,
@@ -241,7 +229,6 @@ class AppTheme {
     letterSpacing: 0.1,
   );
 
-  // Label styles with better hierarchy
   static TextStyle get labelLarge => textStyle(
     16,
     FontWeight.w600,
@@ -266,7 +253,6 @@ class AppTheme {
     letterSpacing: 0.1,
   );
 
-  // Caption styles
   static TextStyle get caption => textStyle(
     12,
     FontWeight.normal,
@@ -283,7 +269,6 @@ class AppTheme {
     letterSpacing: 0.1,
   );
 
-  // Button styles
   static TextStyle get buttonPrimary => textStyle(
     16,
     FontWeight.w600,
@@ -295,7 +280,6 @@ class AppTheme {
   static TextStyle get buttonSecondary =>
       textStyle(16, FontWeight.w600, primary, height: 1.4, letterSpacing: 0.1);
 
-  // Input styles
   static TextStyle get input => textStyle(
     16,
     FontWeight.normal,
@@ -312,7 +296,6 @@ class AppTheme {
     letterSpacing: 0.1,
   );
 
-  // Status styles
   static TextStyle get error => textStyle(
     14,
     FontWeight.normal,
@@ -329,12 +312,10 @@ class AppTheme {
     letterSpacing: 0.1,
   );
 
-  // Animation durations for smooth interactions
   static const Duration animationFast = Duration(milliseconds: 200);
   static const Duration animationMedium = Duration(milliseconds: 300);
   static const Duration animationSlow = Duration(milliseconds: 500);
 
-  // Curves for natural feeling animations
   static const Curve animationCurve = Curves.easeInOutCubic;
   static const Curve bounceCurve = Curves.elasticOut;
   static const Curve slideCurve = Curves.easeOutQuart;

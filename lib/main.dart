@@ -5,6 +5,8 @@ import 'package:health_notes/providers/auth_provider.dart';
 import 'package:health_notes/screens/auth_screen.dart';
 import 'package:health_notes/screens/main_tab_screen.dart';
 import 'package:health_notes/services/auth_service.dart';
+import 'package:health_notes/services/connectivity_service.dart';
+import 'package:health_notes/services/local_database.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -12,14 +14,22 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
+
   await Supabase.initialize(
     url: dotenv.env['URL']!,
     anonKey: dotenv.env['ANON_KEY']!,
   );
+
   AuthService.initializeGoogleSignIn(
     clientId: dotenv.env['GOOGLE_IOS_CLIENT_ID']!,
     serverClientId: dotenv.env['GOOGLE_WEB_CLIENT_ID']!,
   );
+
+  await LocalDatabase.database;
+
+  await LocalDatabase.fixNullUpdatedAtValues();
+
+  await ConnectivityService().initialize();
 
   runApp(const ProviderScope(child: MainScreen()));
 }

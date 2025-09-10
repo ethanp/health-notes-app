@@ -31,7 +31,6 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
 
   @override
   Widget build(BuildContext context) {
-    // If we're editing an existing note, watch the provider for updates
     final currentNote = widget.note != null
         ? ref
               .watch(healthNotesNotifierProvider)

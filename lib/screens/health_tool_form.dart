@@ -158,7 +158,6 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
                 );
               }
 
-              // If only one category, show it as selected without a segmented control
               if (categories.length == 1) {
                 final category = categories.first;
                 _selectedCategoryId = category.id;

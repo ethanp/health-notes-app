@@ -1,17 +1,19 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
-import 'package:health_notes/models/metric.dart';
+import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:intl/intl.dart';
 
 class CheckInTrendsChart extends StatefulWidget {
   final List<CheckIn> checkIns;
+  final List<CheckInMetric> userMetrics;
   final int maxDataPoints;
 
   const CheckInTrendsChart({
     super.key,
     required this.checkIns,
+    required this.userMetrics,
     this.maxDataPoints = 30,
   });
 
@@ -32,6 +34,14 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     });
   }
 
+  CheckInMetric? _getUserMetricByName(String name) {
+    try {
+      return widget.userMetrics.firstWhere((m) => m.name == name);
+    } catch (e) {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.checkIns.isEmpty) {
@@ -47,9 +57,8 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
       );
     }
 
-    final metrics = Metric.sortMetricNames(
-      widget.checkIns.map((c) => c.metricName).toSet().toList(),
-    );
+    final metrics = widget.checkIns.map((c) => c.metricName).toSet().toList()
+      ..sort(); // Sort alphabetically
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -86,7 +95,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
       spacing: 6,
       runSpacing: 6,
       children: metrics.map((metric) {
-        final metricObj = Metric.fromName(metric);
+        final metricObj = _getUserMetricByName(metric);
         if (metricObj == null) return const SizedBox.shrink();
 
         final color = metricObj.color;
@@ -176,7 +185,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
   Widget _buildSplitCharts(List<String> metrics) {
     final groupedMetrics = <MetricType, List<String>>{};
     for (final metric in metrics) {
-      final metricObj = Metric.fromName(metric);
+      final metricObj = _getUserMetricByName(metric);
       if (metricObj == null) continue;
 
       final type = metricObj.type;
@@ -235,7 +244,6 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
               .toList()
             ..sort((a, b) => a.dateTime.compareTo(b.dateTime));
 
-      // Limit data points for better performance
       if (metricCheckIns.length > widget.maxDataPoints) {
         metricData[metric] = metricCheckIns.sublist(
           metricCheckIns.length - widget.maxDataPoints,
@@ -260,7 +268,6 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
 
     final sortedDates = allDates.toList()..sort();
 
-    // Limit to maxDataPoints most recent dates
     if (sortedDates.length > widget.maxDataPoints) {
       sortedDates.removeRange(0, sortedDates.length - widget.maxDataPoints);
     }
@@ -347,7 +354,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
             .where((entry) => !_hiddenMetrics.contains(entry.value))
             .map((entry) {
               final metric = entry.value;
-              final metricObj = Metric.fromName(metric);
+              final metricObj = _getUserMetricByName(metric);
               if (metricObj == null) {
                 return LineChartBarData(spots: []);
               }
@@ -422,7 +429,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
                     .where((m) => !_hiddenMetrics.contains(m))
                     .toList();
                 final metric = visibleMetrics[touchedSpot.barIndex];
-                final metricObj = Metric.fromName(metric);
+                final metricObj = _getUserMetricByName(metric);
                 if (metricObj == null) return null;
 
                 final rating = touchedSpot.y.toInt();

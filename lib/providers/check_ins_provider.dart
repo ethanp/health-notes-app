@@ -1,6 +1,9 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:health_notes/models/check_in.dart';
+import 'package:health_notes/services/check_ins_dao.dart';
+import 'package:health_notes/services/offline_repository.dart';
+import 'package:health_notes/providers/auth_provider.dart';
+import 'package:health_notes/utils/data_utils.dart';
 
 part 'check_ins_provider.g.dart';
 
@@ -8,90 +11,73 @@ part 'check_ins_provider.g.dart';
 class CheckInsNotifier extends _$CheckInsNotifier {
   @override
   Future<List<CheckIn>> build() async {
-    return _fetchCheckIns();
-  }
-
-  Future<List<CheckIn>> _fetchCheckIns() async {
-    try {
-      final supabase = Supabase.instance.client;
-      final response = await supabase
-          .from('check_ins')
-          .select()
-          .order('date_time', ascending: false);
-
-      return response.map((json) => CheckIn.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Failed to fetch check-ins: $e');
+    final user = await ref.watch(currentUserProvider.future);
+    if (user == null) {
+      throw Exception('User not authenticated');
     }
+
+    return await CheckInsDao.getAllCheckIns(user.id);
   }
 
   Future<void> addCheckIn(CheckIn checkIn) async {
-    try {
-      final supabase = Supabase.instance.client;
-      final response = await supabase
-          .from('check_ins')
-          .insert(checkIn.toJsonForUpdate())
-          .select()
-          .single();
-
-      final newCheckIn = CheckIn.fromJson(response);
-      state = AsyncValue.data([newCheckIn, ...state.value ?? []]);
-    } catch (e) {
-      throw Exception('Failed to add check-in: $e');
+    final user = await ref.read(currentUserProvider.future);
+    if (user == null) {
+      throw Exception('User not authenticated');
     }
+
+    final newCheckIn = CheckIn(
+      id: DataUtils.uuid.v4(),
+      metricName: checkIn.metricName,
+      rating: checkIn.rating,
+      dateTime: checkIn.dateTime,
+      createdAt: DateTime.now(),
+    );
+
+    await CheckInsDao.insertCheckIn(newCheckIn, user.id);
+    DataUtils.syncService.queueForSync(
+      'check_ins',
+      newCheckIn.id,
+      'insert',
+      newCheckIn.toJsonForUpdate(),
+    );
+
+    ref.invalidateSelf();
   }
 
   Future<void> updateCheckIn(CheckIn checkIn) async {
-    try {
-      final supabase = Supabase.instance.client;
-      await supabase
-          .from('check_ins')
-          .update(checkIn.toJsonForUpdate())
-          .eq('id', checkIn.id);
-
-      final currentCheckIns = state.value ?? [];
-      final updatedCheckIns = currentCheckIns.map((c) {
-        return c.id == checkIn.id ? checkIn : c;
-      }).toList();
-
-      state = AsyncValue.data(updatedCheckIns);
-    } catch (e) {
-      throw Exception('Failed to update check-in: $e');
-    }
+    await CheckInsDao.updateCheckIn(checkIn);
+    DataUtils.syncService.queueForSync(
+      'check_ins',
+      checkIn.id,
+      'update',
+      checkIn.toJsonForUpdate(),
+    );
+    ref.invalidateSelf();
   }
 
   Future<void> deleteCheckIn(String id) async {
-    try {
-      final supabase = Supabase.instance.client;
-      await supabase.from('check_ins').delete().eq('id', id);
-
-      final currentCheckIns = state.value ?? [];
-      final updatedCheckIns = currentCheckIns.where((c) => c.id != id).toList();
-
-      state = AsyncValue.data(updatedCheckIns);
-    } catch (e) {
-      throw Exception('Failed to delete check-in: $e');
-    }
+    await CheckInsDao.deleteCheckIn(id);
+    DataUtils.syncService.queueForSync('check_ins', id, 'delete', {});
+    ref.invalidateSelf();
   }
 
   Future<void> deleteCheckInGroup(List<String> checkInIds) async {
-    try {
-      final supabase = Supabase.instance.client;
-      await supabase.from('check_ins').delete().inFilter('id', checkInIds);
-
-      final currentCheckIns = state.value ?? [];
-      final updatedCheckIns = currentCheckIns
-          .where((c) => !checkInIds.contains(c.id))
-          .toList();
-
-      state = AsyncValue.data(updatedCheckIns);
-    } catch (e) {
-      throw Exception('Failed to delete check-in group: $e');
+    await CheckInsDao.deleteCheckInGroup(checkInIds);
+    for (final id in checkInIds) {
+      DataUtils.syncService.queueForSync('check_ins', id, 'delete', {});
     }
+    ref.invalidateSelf();
   }
 
   Future<void> refresh() async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _fetchCheckIns());
+    final user = await ref.read(currentUserProvider.future);
+    if (user != null) {
+      await OfflineRepository.syncAllData(user.id);
+    }
+    ref.invalidateSelf();
+  }
+
+  Future<CheckIn?> getCheckInById(String id) async {
+    return await CheckInsDao.getCheckInById(id);
   }
 }

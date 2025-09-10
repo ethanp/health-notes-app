@@ -129,11 +129,8 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
   }
 
   Color _parseColor(String colorHex) {
-    try {
-      return Color(int.parse(colorHex.replaceAll('#', '0xFF')));
-    } catch (e) {
-      return AppTheme.primary;
-    }
+    final parsed = int.tryParse(colorHex.replaceAll('#', '0xFF'));
+    return parsed != null ? Color(parsed) : AppTheme.primary;
   }
 
   IconData _getIconData(String iconName) {

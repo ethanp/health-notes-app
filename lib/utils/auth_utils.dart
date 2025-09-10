@@ -4,6 +4,7 @@ import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/providers/user_profile_provider.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/user_avatar_widget.dart';
 
 class AuthUtils {
   static Future<void> showSignOutDialog(BuildContext context) async {
@@ -11,7 +12,7 @@ class AuthUtils {
       context: context,
       builder: (context) => Consumer(
         builder: (context, ref, child) {
-          final userProfileAsync = ref.watch(userProfileProvider);
+          final userProfileAsync = ref.watch(userProfileNotifierProvider);
 
           return userProfileAsync.when(
             data: (userProfile) => AppAlertDialogs.custom(
@@ -19,38 +20,20 @@ class AuthUtils {
               contentWidget: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (userProfile != null) ...[
-                    const SizedBox(height: 8),
-                    if (userProfile.avatarUrl != null)
-                      ClipOval(
-                        child: Image.network(
-                          userProfile.avatarUrl!,
-                          width: 60,
-                          height: 60,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(
-                                CupertinoIcons.person_circle_fill,
-                                size: 60,
-                                color: CupertinoColors.systemGrey,
-                              ),
-                        ),
-                      )
-                    else
-                      const Icon(
-                        CupertinoIcons.person_circle_fill,
-                        size: 60,
-                        color: CupertinoColors.systemGrey,
-                      ),
-                    const SizedBox(height: 8),
-                    Text(
-                      userProfile.fullName,
-                      style: AppTheme.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                  const SizedBox(height: 8),
+                  UserAvatarWidget(
+                    avatarUrl: userProfile?.avatarUrl,
+                    fullName: userProfile?.fullName,
+                    size: 60,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    userProfile?.fullName ?? 'User',
+                    style: AppTheme.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(height: 8),
-                  ],
+                  ),
+                  const SizedBox(height: 16),
                   Text(
                     'Are you sure you want to sign out?',
                     style: AppTheme.bodyMedium,

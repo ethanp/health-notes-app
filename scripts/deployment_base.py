@@ -95,7 +95,6 @@ class DeploymentBase(ABC):
         hashes = []
         try:
             for root, dirs, files in os.walk(directory):
-                # Skip build and cache directories
                 dirs[:] = [d for d in dirs if d not in ['build', '.dart_tool', 'ios/build', 'ios/Pods']]
                 
                 for file in files:
@@ -106,8 +105,7 @@ class DeploymentBase(ABC):
                             hashes.append(f"{file_path}:{file_hash}")
         except (IOError, OSError):
             pass
-        
-        # Sort for consistent hash
+
         hashes.sort()
         return hashlib.md5('\n'.join(hashes).encode()).hexdigest()
     
@@ -115,7 +113,6 @@ class DeploymentBase(ABC):
         """Check if a rebuild is needed based on file changes"""
         self.print_info("Checking for file changes...")
         
-        # Define directories and files to monitor
         directories_to_check = [
             'lib',
             'assets',
@@ -129,20 +126,16 @@ class DeploymentBase(ABC):
             'ios/Runner/Info.plist'
         ]
         
-        # Get current hashes
         current_hashes = {}
         
-        # Check directories
         for directory in directories_to_check:
             if os.path.exists(directory):
                 current_hashes[directory] = self.get_directory_hash(directory)
         
-        # Check individual files
         for file_path in files_to_check:
             if os.path.exists(file_path):
                 current_hashes[file_path] = self.get_file_hash(file_path)
         
-        # Check if hash file exists and compare
         if os.path.exists(self.hash_file):
             try:
                 with open(self.hash_file, 'r') as f:
@@ -150,7 +143,6 @@ class DeploymentBase(ABC):
                 
                 stored_hashes = stored_data.get('hashes', {})
                 
-                # Compare hashes
                 if current_hashes == stored_hashes:
                     self.print_success("No changes detected - skipping clean and rebuild")
                     return False
@@ -161,7 +153,6 @@ class DeploymentBase(ABC):
         else:
             self.print_info("No previous build hash found - rebuilding")
         
-        # Store current hashes
         try:
             with open(self.hash_file, 'w') as f:
                 json.dump(current_hashes, f, indent=2)
@@ -173,7 +164,6 @@ class DeploymentBase(ABC):
     def record_deployment_timestamp(self):
         """Record the current deployment timestamp"""
         try:
-            # Read existing data
             if os.path.exists(self.hash_file):
                 with open(self.hash_file, 'r') as f:
                     stored_data = json.load(f)
@@ -182,7 +172,6 @@ class DeploymentBase(ABC):
             else:
                 hashes = {}
             
-            # Add timestamp
             deployment_data = {
                 'hashes': hashes,
                 'last_deploy_time': time.strftime('%Y-%m-%d %H:%M:%S')
@@ -198,7 +187,6 @@ class DeploymentBase(ABC):
         """Check if deployment is needed based on file changes since last deployment"""
         self.print_info("Checking if deployment is needed...")
         
-        # Define directories and files to monitor
         directories_to_check = [
             'lib',
             'assets',
@@ -212,20 +200,16 @@ class DeploymentBase(ABC):
             'ios/Runner/Info.plist'
         ]
         
-        # Get current hashes
         current_hashes = {}
         
-        # Check directories
         for directory in directories_to_check:
             if os.path.exists(directory):
                 current_hashes[directory] = self.get_directory_hash(directory)
         
-        # Check individual files
         for file_path in files_to_check:
             if os.path.exists(file_path):
                 current_hashes[file_path] = self.get_file_hash(file_path)
         
-        # Check if hash file exists and compare
         if os.path.exists(self.hash_file):
             try:
                 with open(self.hash_file, 'r') as f:
@@ -234,7 +218,6 @@ class DeploymentBase(ABC):
                 stored_hashes = stored_data.get('hashes', {})
                 last_deploy_time = stored_data.get('last_deploy_time')
                 
-                # Compare hashes
                 if current_hashes == stored_hashes:
                     if last_deploy_time:
                         self.print_success("No changes detected since last deployment - skipping deployment")
@@ -253,7 +236,6 @@ class DeploymentBase(ABC):
     
     def build_app(self) -> bool:
         """Build the Flutter app"""
-        # Check if rebuild is needed
         rebuild_needed = self.check_if_rebuild_needed()
         
         if rebuild_needed:
@@ -278,7 +260,9 @@ class DeploymentBase(ABC):
                 return False
             
             self.print_info(f"🏗️  Building iOS {self.build_type} version...")
-            returncode, _, stderr = self.run_command(["flutter", "build", "ios", f"--{self.build_type}"], check=False)
+            returncode, _, stderr = self.run_command([
+                "flutter", "build", "ios", f"--{self.build_type}", "--no-tree-shake-icons"
+            ], check=False)
             if returncode != 0:
                 self.print_error(f"Failed to build iOS: {stderr}")
                 return False
@@ -312,22 +296,17 @@ class DeploymentBase(ABC):
         """Main deployment function"""
         self.print_header(f"Health Notes - {self.script_name} Deployment Script")
         
-        # Check prerequisites
         if not self.check_prerequisites():
             sys.exit(1)
         
-        # Check if deployment is needed
         if not self.check_if_deployment_needed():
             self.print_success("Deployment skipped - no changes detected since last deployment")
             return
         
-        # Build the app
         if not self.build_app():
             sys.exit(1)
         
-        # Deploy (implemented by subclasses)
         if not self.deploy():
             sys.exit(1)
         
-        # Record successful deployment timestamp
         self.record_deployment_timestamp()

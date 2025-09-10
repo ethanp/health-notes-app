@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:health_notes/services/offline_repository.dart';
 
 class AuthService {
   static final AuthService _instance = AuthService._internal();
@@ -26,7 +27,6 @@ class AuthService {
   }
 
   Future<void> signIntoSupabase(GoogleSignInAccount googleUser) async {
-    print('Logging in: ${googleUser.displayName} (${googleUser.email})');
     await _supabase.auth.signInWithIdToken(
       provider: OAuthProvider.google,
       idToken: googleUser.authentication.idToken!,
@@ -35,28 +35,30 @@ class AuthService {
       fullName: googleUser.displayName ?? 'User',
       avatarUrl: googleUser.photoUrl,
     );
+
+    try {
+      await OfflineRepository.syncAllData(currentUser!.id);
+    } catch (e) {
+      // Sync failed - not critical for auth flow
+    }
   }
 
-  void loginStatusDidChange(GoogleSignInAuthenticationEvent? authEvent) =>
-      print('User signed ${authEvent == null ? 'out' : 'in'}');
+  void loginStatusDidChange(GoogleSignInAuthenticationEvent? authEvent) {}
 
   static void onGoogleAuthEvent(
     GoogleSignInAuthenticationEvent? authEvent,
   ) async {
     if (authEvent == null) {
-      print('Global: User signed out');
       return;
     }
-    print('Global: User signed in (def): $authEvent');
     if (authEvent is! GoogleSignInAuthenticationEventSignIn) {
-      print('unexpected authEvent ${authEvent.runtimeType}');
       return;
     }
 
     try {
       await AuthService().signIntoSupabase(authEvent.user);
     } catch (e) {
-      print('Error completing Supabase authentication: $e');
+      // Sync failed - not critical for auth flow
     }
   }
 
@@ -70,9 +72,7 @@ class AuthService {
           .then((_) {
             GoogleSignIn.instance.authenticationEvents
                 .listen(onGoogleAuthEvent)
-                .onError((dynamic error) {
-                  print('Global authentication error: $error');
-                });
+                .onError((dynamic error) {});
 
             GoogleSignIn.instance.attemptLightweightAuthentication();
           }),

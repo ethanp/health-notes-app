@@ -9,7 +9,6 @@ import os
 import time
 from textwrap import dedent
 
-# Import the base class
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from deployment_base import DeploymentBase
 
@@ -24,13 +23,11 @@ class SimulatorDeployment(DeploymentBase):
         """Start the iOS Simulator"""
         self.print_info("Starting iOS Simulator...")
         
-        # Start the simulator
         returncode, _, stderr = self.run_command(["open", "-a", "Simulator"], check=False)
         if returncode != 0:
             self.print_error(f"Failed to start simulator: {stderr}")
             return False
         
-        # Wait a moment for simulator to start
         print("Waiting for simulator to start...")
         time.sleep(3)
         return True
@@ -52,11 +49,9 @@ class SimulatorDeployment(DeploymentBase):
     
     def deploy(self) -> bool:
         """Deploy the app to iOS Simulator"""
-        # Start simulator
         if not self.start_simulator():
             return False
         
-        # Install to simulator
         return self.install_to_simulator()
 
 

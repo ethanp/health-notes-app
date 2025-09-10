@@ -1,10 +1,13 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:riverpod/riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/grouped_health_notes.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/symptom.dart';
+import 'package:health_notes/services/health_notes_dao.dart';
+import 'package:health_notes/services/offline_repository.dart';
+import 'package:health_notes/providers/auth_provider.dart';
+import 'package:health_notes/utils/data_utils.dart';
 import 'package:intl/intl.dart';
 
 part 'health_notes_provider.g.dart';
@@ -13,26 +16,12 @@ part 'health_notes_provider.g.dart';
 class HealthNotesNotifier extends _$HealthNotesNotifier {
   @override
   Future<List<HealthNote>> build() async {
-    return _loadNotes();
-  }
-
-  Future<List<HealthNote>> _loadNotes() async {
-    try {
-      final user = Supabase.instance.client.auth.currentUser;
-      if (user == null) {
-        throw Exception('User not authenticated');
-      }
-
-      final response = await Supabase.instance.client
-          .from('health_notes')
-          .select()
-          .eq('user_id', user.id)
-          .order('created_at', ascending: false);
-
-      return response.map((json) => HealthNote.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Failed to load notes: $e');
+    final user = await ref.watch(currentUserProvider.future);
+    if (user == null) {
+      throw Exception('User not authenticated');
     }
+
+    return await HealthNotesDao.getAllNotes(user.id);
   }
 
   Future<void> addNote({
@@ -41,46 +30,35 @@ class HealthNotesNotifier extends _$HealthNotesNotifier {
     required List<DrugDose> drugDoses,
     required String notes,
   }) async {
-    try {
-      final user = Supabase.instance.client.auth.currentUser;
-      if (user == null) {
-        throw Exception('User not authenticated');
-      }
-
-      await Supabase.instance.client.from('health_notes').insert({
-        'user_id': user.id,
-        'date_time': dateTime.toIso8601String(),
-        'symptoms_list': symptomsList
-            .map((symptom) => symptom.toJson())
-            .toList(),
-        'drug_doses': drugDoses.map((dose) => dose.toJson()).toList(),
-        'notes': notes.trim(),
-        'created_at': DateTime.now().toIso8601String(),
-      });
-
-      ref.invalidateSelf();
-    } catch (e) {
-      throw Exception('Failed to add note: $e');
+    final user = await ref.read(currentUserProvider.future);
+    if (user == null) {
+      throw Exception('User not authenticated');
     }
+
+    final note = HealthNote(
+      id: DataUtils.uuid.v4(),
+      dateTime: dateTime,
+      symptomsList: symptomsList,
+      drugDoses: drugDoses,
+      notes: notes,
+      createdAt: DateTime.now(),
+    );
+
+    await HealthNotesDao.insertNote(note, user.id);
+    DataUtils.syncService.queueForSync(
+      'health_notes',
+      note.id,
+      'insert',
+      note.toJsonForUpdate(),
+    );
+
+    ref.invalidateSelf();
   }
 
   Future<void> deleteNote(String id) async {
-    try {
-      final user = Supabase.instance.client.auth.currentUser;
-      if (user == null) {
-        throw Exception('User not authenticated');
-      }
-
-      await Supabase.instance.client
-          .from('health_notes')
-          .delete()
-          .eq('id', id)
-          .eq('user_id', user.id);
-
-      ref.invalidateSelf();
-    } catch (e) {
-      throw Exception('Failed to delete note: $e');
-    }
+    await HealthNotesDao.deleteNote(id);
+    DataUtils.syncService.queueForSync('health_notes', id, 'delete', {});
+    ref.invalidateSelf();
   }
 
   Future<void> updateNote({
@@ -90,33 +68,36 @@ class HealthNotesNotifier extends _$HealthNotesNotifier {
     required List<DrugDose> drugDoses,
     required String notes,
   }) async {
-    try {
-      final user = Supabase.instance.client.auth.currentUser;
-      if (user == null) {
-        throw Exception('User not authenticated');
-      }
+    final existingNote = await HealthNotesDao.getNoteById(id);
+    if (existingNote == null) return;
 
-      await Supabase.instance.client
-          .from('health_notes')
-          .update({
-            'date_time': dateTime.toIso8601String(),
-            'symptoms_list': symptomsList
-                .map((symptom) => symptom.toJson())
-                .toList(),
-            'drug_doses': drugDoses.map((dose) => dose.toJson()).toList(),
-            'notes': notes.trim(),
-          })
-          .eq('id', id)
-          .eq('user_id', user.id);
+    final updatedNote = existingNote.copyWith(
+      dateTime: dateTime,
+      symptomsList: symptomsList,
+      drugDoses: drugDoses,
+      notes: notes,
+    );
 
-      ref.invalidateSelf();
-    } catch (e) {
-      throw Exception('Failed to update note: $e');
-    }
+    await HealthNotesDao.updateNote(updatedNote);
+    DataUtils.syncService.queueForSync(
+      'health_notes',
+      id,
+      'update',
+      updatedNote.toJsonForUpdate(),
+    );
+    ref.invalidateSelf();
   }
 
   Future<void> refreshNotes() async {
+    final user = await ref.read(currentUserProvider.future);
+    if (user != null) {
+      await OfflineRepository.syncAllData(user.id);
+    }
     ref.invalidateSelf();
+  }
+
+  Future<HealthNote?> getHealthNoteById(String id) async {
+    return await HealthNotesDao.getNoteById(id);
   }
 
   List<GroupedHealthNotes> _groupNotesByDate(List<HealthNote> notes) {

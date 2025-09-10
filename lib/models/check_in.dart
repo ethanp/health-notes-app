@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:health_notes/models/metric.dart';
+import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
 part 'check_in.freezed.dart';
@@ -19,10 +19,10 @@ abstract class CheckIn with _$CheckIn {
   factory CheckIn.fromJson(Map<String, dynamic> json) =>
       _$CheckInFromJson(json);
 
-  /// Create a CheckIn with a Metric object
-  factory CheckIn.withMetric({
+  /// Create a CheckIn with a CheckInMetric object
+  factory CheckIn.withCheckInMetric({
     required String id,
-    required Metric metric,
+    required CheckInMetric metric,
     required int rating,
     required DateTime dateTime,
     required DateTime createdAt,
@@ -40,17 +40,16 @@ abstract class CheckIn with _$CheckIn {
 extension CheckInExtensions on CheckIn {
   bool get isValid => rating >= 1 && rating <= 10 && metricName.isNotEmpty;
 
-  /// Get the Metric object for this check-in
-  Metric? get metric => Metric.fromName(metricName);
+  /// Get the color for this check-in's metric (requires CheckInMetric to be passed)
+  Color getMetricColor(CheckInMetric? metric) =>
+      metric?.color ?? AppTheme.primary;
 
-  /// Get the color for this check-in's metric
-  Color get metricColor => metric?.color ?? AppTheme.primary;
+  /// Get the icon for this check-in's metric (requires CheckInMetric to be passed)
+  IconData getMetricIcon(CheckInMetric? metric) =>
+      metric?.icon ?? CupertinoIcons.circle;
 
-  /// Get the icon for this check-in's metric
-  IconData get metricIcon => metric?.icon ?? CupertinoIcons.circle;
-
-  /// Get the rating color based on the metric type
-  Color get ratingColor =>
+  /// Get the rating color based on the metric type (requires CheckInMetric to be passed)
+  Color getRatingColor(CheckInMetric? metric) =>
       metric?.getRatingColor(rating) ?? CupertinoColors.systemGrey;
 
   Map<String, dynamic> toJsonForUpdate() {

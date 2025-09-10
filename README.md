@@ -1,6 +1,8 @@
 # Health Notes
 
-A simple iOS app for tracking your daily health symptoms, medications, and notes. Built with Flutter and designed to feel native on iPhone.
+A simple iOS app for tracking your daily health symptoms, medications, and notes. 
+Built with Flutter and designed to feel native on iPhone (Cupertino Widgets).
+Most of the code was written by Cursor.
 
 ## What is Health Notes?
 
@@ -19,23 +21,25 @@ Health Notes helps you keep track of your health over time. You can:
 
 ### Get Started
 
-1. **Clone and install dependencies**
+1. Also see the `cursor-design-docs/` dir 
+
+2. **Clone and install dependencies**
    ```bash
    git clone <repository-url>
    cd health_notes
    flutter pub get
    ```
 
-2. **Set up your environment**
+3. **Set up your environment**
    - Create a `.env` file in the project root
    - Add your Supabase and Google OAuth credentials (see setup guide below)
 
-3. **Generate code**
+4. **Generate code**
    ```bash
    flutter packages pub run build_runner build
    ```
 
-4. **Run the app**
+5. **Run the app**
    ```bash
    flutter run
    ```
@@ -110,12 +114,6 @@ When you change data models:
 flutter packages pub run build_runner build --delete-conflicting-outputs
 ```
 
-### Key Files
-- `lib/main.dart` - App entry point
-- `lib/screens/` - Main app screens
-- `lib/models/` - Data models
-- `lib/providers/` - State management
-
 ## Troubleshooting
 
 ### Common Issues
@@ -135,8 +133,7 @@ flutter packages pub run build_runner build --delete-conflicting-outputs
 
 ### Getting Help
 - Check the `scripts/README.md` for detailed deployment troubleshooting
-- Review `GOOGLE_OAUTH_SETUP.md` for authentication setup
-- Look at `WIRELESS_DEPLOYMENT_GUIDE.md` for advanced deployment options
+- Review the `cursor-design-docs/` directory, for more documentation
 
 ## App Icon
 

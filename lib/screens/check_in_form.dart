@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in.dart';
-import 'package:health_notes/models/metric.dart';
+import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/providers/check_ins_provider.dart';
+import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
@@ -31,17 +32,13 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   late DateTime _selectedDateTime;
   bool _isLoading = false;
 
-  // Map to store metric -> rating pairs
   final Map<String, int> _selectedMetrics = {};
-
-  static List<Metric> get availableMetrics => Metric.sortedAll;
 
   @override
   void initState() {
     super.initState();
     _selectedDateTime = widget.checkIn?.dateTime ?? DateTime.now();
 
-    // Initialize with existing check-in data if editing
     if (widget.checkIn != null) {
       _selectedMetrics[widget.checkIn!.metricName] = widget.checkIn!.rating;
     }
@@ -49,6 +46,8 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
 
   @override
   Widget build(BuildContext context) {
+    final userMetricsAsync = ref.watch(checkInMetricsNotifierProvider);
+
     return CupertinoPageScaffold(
       navigationBar: EnhancedUIComponents.enhancedNavigationBar(
         title: widget.title,
@@ -70,24 +69,85 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
       child: SafeArea(
         child: Form(
           key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              buildMetricsGridSection(),
-              if (_selectedMetrics.isNotEmpty) ...[
+          child: userMetricsAsync.when(
+            data: (userMetrics) => ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                buildMetricsGridSection(userMetrics),
+                if (_selectedMetrics.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  buildSelectedMetricsSection(userMetrics),
+                ],
                 const SizedBox(height: 16),
-                buildSelectedMetricsSection(),
+                buildDateTimeSection(),
               ],
-              const SizedBox(height: 16),
-              buildDateTimeSection(),
-            ],
+            ),
+            loading: () => const Center(child: CupertinoActivityIndicator()),
+            error: (error, stack) => Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    CupertinoIcons.exclamationmark_triangle,
+                    size: 48,
+                    color: CupertinoColors.systemRed,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Failed to load metrics',
+                    style: CupertinoTheme.of(
+                      context,
+                    ).textTheme.navTitleTextStyle,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    error.toString(),
+                    style: CupertinoTheme.of(context).textTheme.textStyle,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  CupertinoButton.filled(
+                    onPressed: () =>
+                        ref.invalidate(checkInMetricsNotifierProvider),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget buildMetricsGridSection() {
+  Widget buildMetricsGridSection(List<CheckInMetric> userMetrics) {
+    if (userMetrics.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: AppTheme.primaryCard,
+        child: Column(
+          children: [
+            const Icon(
+              CupertinoIcons.chart_bar,
+              size: 48,
+              color: CupertinoColors.systemGrey,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No metrics available',
+              style: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Add some metrics to start tracking your health',
+              style: CupertinoTheme.of(context).textTheme.textStyle,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: AppTheme.primaryCard,
@@ -108,9 +168,9 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
               mainAxisSpacing: 12,
               childAspectRatio: 1.2,
             ),
-            itemCount: availableMetrics.length,
+            itemCount: userMetrics.length,
             itemBuilder: (context, index) {
-              final metric = availableMetrics[index];
+              final metric = userMetrics[index];
               final isSelected = _selectedMetrics.containsKey(metric.name);
               final rating = _selectedMetrics[metric.name] ?? 5;
 
@@ -197,7 +257,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     );
   }
 
-  Widget buildSelectedMetricsSection() {
+  Widget buildSelectedMetricsSection(List<CheckInMetric> userMetrics) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: AppTheme.primaryCard,
@@ -209,9 +269,10 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
           ...(_selectedMetrics.entries.map((entry) {
             final metricName = entry.key;
             final rating = entry.value;
-            final metric = Metric.fromName(metricName);
-
-            if (metric == null) return const SizedBox.shrink();
+            final metric = userMetrics.firstWhere(
+              (m) => m.name == metricName,
+              orElse: () => throw Exception('Metric not found: $metricName'),
+            );
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
@@ -334,17 +395,12 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     });
 
     try {
-      // Create multiple check-ins for each selected metric
       for (final entry in _selectedMetrics.entries) {
         final metricName = entry.key;
         final rating = entry.value;
-        final metric = Metric.fromName(metricName);
-
-        if (metric == null) continue;
-
-        final checkIn = CheckIn.withMetric(
+        final checkIn = CheckIn(
           id: '', // Will be set by the provider
-          metric: metric,
+          metricName: metricName,
           rating: rating,
           dateTime: _selectedDateTime,
           createdAt: DateTime.now(),

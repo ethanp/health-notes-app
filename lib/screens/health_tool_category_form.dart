@@ -35,7 +35,6 @@ class _HealthToolCategoryFormState
   late String _selectedColor;
   bool _isLoading = false;
 
-  // Predefined icons and colors
   static const List<Map<String, String>> availableIcons = [
     {'name': 'Allergies', 'value': 'allergies'},
     {'name': 'Anxiety', 'value': 'anxiety'},
@@ -261,11 +260,8 @@ class _HealthToolCategoryFormState
   }
 
   Color _parseColor(String colorHex) {
-    try {
-      return Color(int.parse(colorHex.replaceAll('#', '0xFF')));
-    } catch (e) {
-      return AppTheme.primary;
-    }
+    final parsed = int.tryParse(colorHex.replaceAll('#', '0xFF'));
+    return parsed != null ? Color(parsed) : AppTheme.primary;
   }
 
   Future<void> saveCategory() async {
