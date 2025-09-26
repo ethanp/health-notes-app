@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/services/check_in_metrics_dao.dart';
 import 'package:health_notes/services/sync_service.dart';
@@ -14,6 +15,7 @@ class OfflineRepository {
     await _syncService.forceSyncAllData(userId);
   }
 
+  /// Stream of sync status changes (true means it isSyncing)
   static Stream<bool> get syncStatusStream => _syncService.syncStatusStream;
 
   static bool get isSyncing => _syncService.isSyncing;

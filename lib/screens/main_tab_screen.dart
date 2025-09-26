@@ -45,7 +45,6 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen>
     try {
       final user = await ref.read(currentUserProvider.future);
       if (user != null) {
-        OfflineRepository.syncStatusStream;
         await OfflineRepository.forceSyncAllData(user.id);
       }
     } catch (e) {

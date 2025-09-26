@@ -1,8 +1,8 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:riverpod/riverpod.dart';
-import 'package:health_notes/services/offline_repository.dart';
-import 'package:health_notes/services/connectivity_service.dart';
 import 'package:health_notes/providers/auth_provider.dart';
+import 'package:health_notes/services/connectivity_service.dart';
+import 'package:health_notes/services/offline_repository.dart';
+import 'package:riverpod/riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'sync_provider.g.dart';
 
@@ -43,21 +43,16 @@ class SyncNotifier extends _$SyncNotifier {
 @riverpod
 bool connectivityStatus(Ref ref) {
   final connectivityService = ConnectivityService();
-  return connectivityService.isConnected;
-}
 
-@riverpod
-Stream<bool> connectivityStream(Ref ref) {
-  final connectivityService = ConnectivityService();
-  return connectivityService.connectivityStream;
-}
-
-@riverpod
-Stream<bool> syncStatusStream(Ref ref) {
-  return OfflineRepository.syncStatusStream;
-}
-
-@riverpod
-Stream<String?> syncErrorStream(Ref ref) {
-  return OfflineRepository.syncErrorStream;
+  // Listen to connectivity changes to make this reactive
+  return ref
+      .watch(
+        StreamProvider<bool>((ref) => connectivityService.connectivityStream),
+      )
+      .when(
+        data: (isConnected) => isConnected,
+        loading: () =>
+            connectivityService.isConnected, // Fallback to current state
+        error: (_, stackTrace) => false,
+      );
 }

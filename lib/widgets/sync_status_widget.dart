@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/providers/sync_provider.dart';
+import 'package:health_notes/services/offline_repository.dart';
 
 /// Compact sync status indicator for app bars
 class CompactSyncStatusWidget extends ConsumerWidget {
@@ -12,13 +13,14 @@ class CompactSyncStatusWidget extends ConsumerWidget {
     final isSyncing = ref.watch(syncNotifierProvider);
 
     return StreamBuilder<String?>(
-      stream: ref.watch(syncErrorStreamProvider.future).asStream(),
+      stream: OfflineRepository.syncErrorStream,
       builder: (context, errorSnapshot) {
-        final syncError = errorSnapshot.data;
+        final String? syncError = errorSnapshot.data;
+
         return StreamBuilder<bool>(
-          stream: ref.watch(syncStatusStreamProvider.future).asStream(),
-          builder: (context, snapshot) {
-            final syncInProgress = snapshot.data ?? false;
+          stream: OfflineRepository.syncStatusStream,
+          builder: (context, syncSnapshot) {
+            final bool syncInProgress = syncSnapshot.data ?? false;
 
             if (!isConnected) {
               return const Icon(

@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:health_notes/services/local_database.dart';
-import 'package:health_notes/services/health_notes_dao.dart';
-import 'package:health_notes/services/check_ins_dao.dart';
-import 'package:health_notes/services/user_profile_dao.dart';
 import 'package:health_notes/services/check_in_metrics_dao.dart';
+import 'package:health_notes/services/check_ins_dao.dart';
+import 'package:health_notes/services/health_notes_dao.dart';
+import 'package:health_notes/services/local_database.dart';
+import 'package:health_notes/services/user_profile_dao.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Service responsible for syncing local data with Supabase
 class SyncService {
@@ -19,7 +20,7 @@ class SyncService {
   final _syncErrorController = StreamController<String?>.broadcast();
   bool _isSyncing = false;
 
-  /// Stream of sync status changes
+  /// Stream of sync status changes (true means it isSyncing)
   Stream<bool> get syncStatusStream => _syncStatusController.stream;
 
   /// Whether sync is currently in progress

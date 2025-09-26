@@ -305,7 +305,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
                 if (value.toInt() >= 0 && value.toInt() < sortedDates.length) {
                   final date = sortedDates[value.toInt()];
                   return SideTitleWidget(
-                    axisSide: meta.axisSide,
+                    meta: meta,
                     child: Text(
                       DateFormat('MMM d').format(date),
                       style: AppTheme.bodySmall.copyWith(
@@ -420,9 +420,9 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
         lineTouchData: LineTouchData(
           enabled: true,
           touchTooltipData: LineTouchTooltipData(
-            tooltipRoundedRadius: 6,
-            tooltipPadding: const EdgeInsets.all(6),
-            tooltipMargin: 6,
+            getTooltipColor: (spot) => AppTheme.backgroundSecondary,
+            fitInsideHorizontally: true,
+            fitInsideVertically: true,
             getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
               return touchedBarSpots.map((touchedSpot) {
                 final visibleMetrics = metrics
