@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/grouped_health_notes.dart';
+import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/screens/filter_modal.dart';
 import 'package:health_notes/screens/health_note_form.dart';
@@ -9,8 +9,8 @@ import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/services/search_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/animated_welcome_card.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 import 'package:intl/intl.dart';
@@ -112,7 +112,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
     final groupedNotesAsync = ref.watch(groupedHealthNotesProvider);
 
     return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+      navigationBar: EnhancedUIComponents.navigationBar(
         title: 'Health Notes',
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
@@ -137,7 +137,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
           data: (groupedNotes) => groupedNotes.isEmpty
               ? emptyTable()
               : buildFilteredContent(groupedNotes),
-          loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+          loading: () => EnhancedUIComponents.loadingIndicator(
             message: 'Loading your health notes...',
           ),
           error: (error, stack) =>
@@ -180,7 +180,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
       child: Row(
         children: [
           Expanded(
-            child: EnhancedUIComponents.enhancedSearchField(
+            child: EnhancedUIComponents.searchField(
               controller: _searchController,
               placeholder: 'Search your health notes...',
               onChanged: (value) => setState(() => _searchQuery = value),
@@ -194,7 +194,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
             ),
           ),
           const SizedBox(width: AppTheme.spacingS),
-          EnhancedUIComponents.enhancedButton(
+          EnhancedUIComponents.button(
             text: '',
             onPressed: () => showFilterModal(),
             isPrimary: false,
@@ -254,7 +254,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   }) {
     return Container(
       margin: const EdgeInsets.only(right: AppTheme.spacingS),
-      child: EnhancedUIComponents.enhancedFilterChip(
+      child: EnhancedUIComponents.filterChip(
         label: label,
         isActive: isClearAll,
         onTap: onTap,
@@ -264,7 +264,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
 
   Widget buildNoResultsMessage(bool hasActiveFilters) {
     if (hasActiveFilters) {
-      return EnhancedUIComponents.enhancedEmptyState(
+      return EnhancedUIComponents.emptyState(
         title: 'No matches found',
         message:
             'Try adjusting your search or filters to find what you\'re looking for',
@@ -276,7 +276,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
         message: 'Start tracking your health journey by adding your first note',
         icon: CupertinoIcons.heart_fill,
         iconColor: AppTheme.primary,
-        action: EnhancedUIComponents.enhancedButton(
+        action: EnhancedUIComponents.button(
           text: 'Add First Note',
           onPressed: showAddNoteModal,
           icon: CupertinoIcons.add,
@@ -302,7 +302,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
                 'Start tracking your health journey by adding your first note',
             icon: CupertinoIcons.heart_fill,
             iconColor: AppTheme.primary,
-            action: EnhancedUIComponents.enhancedButton(
+            action: EnhancedUIComponents.button(
               text: 'Add First Note',
               onPressed: showAddNoteModal,
               icon: CupertinoIcons.add,
@@ -338,7 +338,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            EnhancedUIComponents.enhancedSectionHeader(
+            EnhancedUIComponents.sectionHeader(
               title: _formatGroupDate(group.date),
               subtitle:
                   '${visibleNotes.length} note${visibleNotes.length == 1 ? '' : 's'}',
@@ -377,7 +377,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
       onDismissed: (direction) {
         deleteNote(note.id);
       },
-      child: EnhancedUIComponents.enhancedCard(
+      child: EnhancedUIComponents.card(
         onTap: () => navigateToView(note),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -409,7 +409,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
                                       ),
                                     ),
                                     const SizedBox(width: AppTheme.spacingS),
-                                    EnhancedUIComponents.enhancedStatusIndicator(
+                                    EnhancedUIComponents.statusIndicator(
                                       text: '${symptom.severityLevel}/10',
                                       color: AppTheme.primary,
                                     ),

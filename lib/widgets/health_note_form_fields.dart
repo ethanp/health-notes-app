@@ -213,7 +213,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EnhancedUIComponents.enhancedSectionHeader(
+          EnhancedUIComponents.sectionHeader(
             title: 'Symptoms',
             trailing: widget.isEditable
                 ? CupertinoButton(
@@ -250,7 +250,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                             style: AppTheme.labelLarge,
                           ),
                         ),
-                        EnhancedUIComponents.enhancedStatusIndicator(
+                        EnhancedUIComponents.statusIndicator(
                           text: '${symptom.severityLevel}/10',
                           color: AppTheme.primary,
                         ),
@@ -297,7 +297,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EnhancedUIComponents.enhancedSectionHeader(
+          EnhancedUIComponents.sectionHeader(
             title: 'Medications',
             trailing: widget.isEditable
                 ? CupertinoButton(

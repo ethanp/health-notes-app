@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/check_in_metric.dart';
-import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/providers/check_in_metrics_provider.dart';
+import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/screens/check_in_form.dart';
-import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/screens/metrics_management_screen.dart';
+import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/utils/check_in_grouping.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
@@ -71,7 +71,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
     final userMetricsAsync = ref.watch(checkInMetricsNotifierProvider);
 
     return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+      navigationBar: EnhancedUIComponents.navigationBar(
         title: 'Check-ins',
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
@@ -105,7 +105,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
             data: (userMetrics) => checkIns.isEmpty
                 ? buildEmptyState()
                 : buildCheckInsList(checkIns, userMetrics),
-            loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+            loading: () => EnhancedUIComponents.loadingIndicator(
               message: 'Loading metrics...',
             ),
             error: (error, stack) => Center(
@@ -115,7 +115,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
               ),
             ),
           ),
-          loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+          loading: () => EnhancedUIComponents.loadingIndicator(
             message: 'Loading your check-ins...',
           ),
           error: (error, stack) =>
@@ -126,11 +126,11 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
   }
 
   Widget buildEmptyState() {
-    return EnhancedUIComponents.enhancedEmptyState(
+    return EnhancedUIComponents.emptyState(
       title: 'No check-ins yet',
       message: 'Tap the + button to add your first check-in',
       icon: CupertinoIcons.chart_bar_alt_fill,
-      action: EnhancedUIComponents.enhancedButton(
+      action: EnhancedUIComponents.button(
         text: 'Add Check-in',
         onPressed: () => _showAddCheckInForm(),
         icon: CupertinoIcons.add,
@@ -407,7 +407,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
                       ),
                     ),
                     const SizedBox(height: 2),
-                    EnhancedUIComponents.enhancedStatusIndicator(
+                    EnhancedUIComponents.statusIndicator(
                       text: '${checkIn.rating}/10',
                       color: metric.getRatingColor(checkIn.rating),
                     ),

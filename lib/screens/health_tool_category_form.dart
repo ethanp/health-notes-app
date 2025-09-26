@@ -77,7 +77,7 @@ class _HealthToolCategoryFormState
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+      navigationBar: EnhancedUIComponents.navigationBar(
         title: widget.title,
         leading: CupertinoButton(
           padding: EdgeInsets.zero,

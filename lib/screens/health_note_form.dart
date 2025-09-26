@@ -45,7 +45,7 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
         : widget.note;
 
     return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+      navigationBar: EnhancedUIComponents.navigationBar(
         title: widget.title,
         leading: CupertinoButton(
           padding: EdgeInsets.zero,

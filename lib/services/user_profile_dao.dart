@@ -76,18 +76,6 @@ class UserProfileDao {
     );
   }
 
-  /// Mark a profile sync as failed
-  static Future<void> markSyncFailed(String id, String error) async {
-    final db = await LocalDatabase.database;
-
-    await db.update(
-      _tableName,
-      {'sync_status': SyncStatus.failed.value},
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-  }
-
   /// Upsert a profile from server (for sync)
   static Future<void> upsertFromServer(Map<String, dynamic> serverData) async {
     final db = await LocalDatabase.database;

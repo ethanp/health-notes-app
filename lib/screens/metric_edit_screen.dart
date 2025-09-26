@@ -42,7 +42,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+      navigationBar: EnhancedUIComponents.navigationBar(
         title: widget.metric == null ? 'Add Metric' : 'Edit Metric',
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
@@ -78,7 +78,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
   }
 
   Widget _buildNameSection() {
-    return EnhancedUIComponents.enhancedCard(
+    return EnhancedUIComponents.card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -104,7 +104,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
   }
 
   Widget _buildTypeSection() {
-    return EnhancedUIComponents.enhancedCard(
+    return EnhancedUIComponents.card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -203,7 +203,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
   }
 
   Widget _buildColorSection() {
-    return EnhancedUIComponents.enhancedCard(
+    return EnhancedUIComponents.card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -256,7 +256,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
   }
 
   Widget _buildIconSection() {
-    return EnhancedUIComponents.enhancedCard(
+    return EnhancedUIComponents.card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

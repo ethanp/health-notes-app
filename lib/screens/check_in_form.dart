@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/check_in_metric.dart';
-import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/providers/check_in_metrics_provider.dart';
+import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
@@ -49,7 +49,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     final userMetricsAsync = ref.watch(checkInMetricsNotifierProvider);
 
     return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+      navigationBar: EnhancedUIComponents.navigationBar(
         title: widget.title,
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
@@ -154,7 +154,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EnhancedUIComponents.enhancedSectionHeader(
+          EnhancedUIComponents.sectionHeader(
             title: 'Add Metrics',
             subtitle: '${_selectedMetrics.length} selected',
           ),

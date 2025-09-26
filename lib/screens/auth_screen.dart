@@ -153,7 +153,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   }
 
   Widget signInButton() {
-    return EnhancedUIComponents.enhancedButton(
+    return EnhancedUIComponents.button(
       text: 'Continue with Google',
       onPressed: _isLoading ? () {} : () => signInButtonPressed(),
       isLoading: _isLoading,

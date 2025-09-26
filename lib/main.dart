@@ -14,23 +14,17 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
-
   await Supabase.initialize(
     url: dotenv.env['URL']!,
     anonKey: dotenv.env['ANON_KEY']!,
   );
-
   AuthService.initializeGoogleSignIn(
     clientId: dotenv.env['GOOGLE_IOS_CLIENT_ID']!,
     serverClientId: dotenv.env['GOOGLE_WEB_CLIENT_ID']!,
   );
-
   await LocalDatabase.database;
-
   await LocalDatabase.fixNullUpdatedAtValues();
-
   await ConnectivityService().initialize();
-
   runApp(const ProviderScope(child: MainScreen()));
 }
 
@@ -51,7 +45,7 @@ class MainScreen extends ConsumerWidget {
             data: (isAuthenticated) =>
                 isAuthenticated ? const MainTabScreen() : const AuthScreen(),
             loading: () => CupertinoPageScaffold(
-              child: EnhancedUIComponents.enhancedLoadingIndicator(
+              child: EnhancedUIComponents.loadingIndicator(
                 message: 'Initializing app...',
               ),
             ),

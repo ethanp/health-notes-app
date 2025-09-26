@@ -25,7 +25,7 @@ class _HealthToolCategoryScreenState
     final toolsAsync = ref.watch(toolsByCategoryProvider(widget.category.id));
 
     return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+      navigationBar: EnhancedUIComponents.navigationBar(
         title: widget.category.name,
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
@@ -53,7 +53,7 @@ class _HealthToolCategoryScreenState
               child: toolsAsync.when(
                 data: (tools) =>
                     tools.isEmpty ? buildEmptyState() : buildToolsList(tools),
-                loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+                loading: () => EnhancedUIComponents.loadingIndicator(
                   message: 'Loading tools...',
                 ),
                 error: (error, stack) =>
@@ -67,11 +67,11 @@ class _HealthToolCategoryScreenState
   }
 
   Widget buildEmptyState() {
-    return EnhancedUIComponents.enhancedEmptyState(
+    return EnhancedUIComponents.emptyState(
       title: 'No tools for ${widget.category.name}',
       message: 'Add your first tool to get started',
       icon: CupertinoIcons.wrench,
-      action: EnhancedUIComponents.enhancedButton(
+      action: EnhancedUIComponents.button(
         text: 'Add Tool',
         onPressed: () => _showAddToolForm(),
         icon: CupertinoIcons.add,

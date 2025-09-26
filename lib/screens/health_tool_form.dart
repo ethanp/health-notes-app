@@ -54,7 +54,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
     final categoriesAsync = ref.watch(healthToolCategoriesNotifierProvider);
 
     return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+      navigationBar: EnhancedUIComponents.navigationBar(
         title: widget.title,
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
@@ -194,7 +194,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
                 },
               );
             },
-            loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+            loading: () => EnhancedUIComponents.loadingIndicator(
               message: 'Loading categories...',
             ),
             error: (error, stack) =>

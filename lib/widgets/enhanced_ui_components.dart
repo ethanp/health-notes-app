@@ -14,7 +14,7 @@ class EnhancedUIComponents {
     );
   }
 
-  static Widget enhancedCard({
+  static Widget card({
     required Widget child,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
@@ -40,7 +40,7 @@ class EnhancedUIComponents {
     );
   }
 
-  static Widget enhancedButton({
+  static Widget button({
     required String text,
     required VoidCallback onPressed,
     bool isPrimary = true,
@@ -89,7 +89,7 @@ class EnhancedUIComponents {
     );
   }
 
-  static Widget enhancedSearchField({
+  static Widget searchField({
     required TextEditingController controller,
     required String placeholder,
     required ValueChanged<String> onChanged,
@@ -112,7 +112,7 @@ class EnhancedUIComponents {
     );
   }
 
-  static Widget enhancedFilterChip({
+  static Widget filterChip({
     required String label,
     required bool isActive,
     required VoidCallback onTap,
@@ -143,7 +143,7 @@ class EnhancedUIComponents {
     );
   }
 
-  static Widget enhancedStatusIndicator({
+  static Widget statusIndicator({
     required String text,
     required Color color,
     IconData? icon,
@@ -175,7 +175,7 @@ class EnhancedUIComponents {
     );
   }
 
-  static Widget enhancedSectionHeader({
+  static Widget sectionHeader({
     required String title,
     String? subtitle,
     Widget? trailing,
@@ -202,7 +202,7 @@ class EnhancedUIComponents {
     );
   }
 
-  static Widget enhancedEmptyState({
+  static Widget emptyState({
     required String title,
     required String message,
     IconData? icon,
@@ -255,7 +255,7 @@ class EnhancedUIComponents {
     );
   }
 
-  static Widget enhancedLoadingIndicator({String? message}) {
+  static Widget loadingIndicator({String? message}) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -291,7 +291,7 @@ class EnhancedUIComponents {
     );
   }
 
-  static ObstructingPreferredSizeWidget enhancedNavigationBar({
+  static ObstructingPreferredSizeWidget navigationBar({
     required String title,
     Widget? leading,
     Widget? trailing,

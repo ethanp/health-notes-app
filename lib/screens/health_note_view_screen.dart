@@ -25,7 +25,7 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
   Widget build(BuildContext context) {
     if (_isEditing) {
       return CupertinoPageScaffold(
-        navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+        navigationBar: EnhancedUIComponents.navigationBar(
           title: 'Edit Note',
           leading: CupertinoButton(
             padding: EdgeInsets.zero,
@@ -51,7 +51,7 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
     }
 
     return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+      navigationBar: EnhancedUIComponents.navigationBar(
         title: 'Health Note',
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
@@ -75,7 +75,7 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
 
         return HealthNoteFormFields(note: updatedNote, isEditable: false);
       },
-      loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+      loading: () => EnhancedUIComponents.loadingIndicator(
         message: 'Loading note data...',
       ),
       error: (error, stack) => Center(

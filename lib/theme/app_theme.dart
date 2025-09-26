@@ -297,7 +297,7 @@ class AppTheme {
   );
 
   static TextStyle get error => textStyle(
-    14,
+    12,
     FontWeight.normal,
     destructive,
     height: 1.4,
@@ -317,6 +317,5 @@ class AppTheme {
   static const Duration animationSlow = Duration(milliseconds: 500);
 
   static const Curve animationCurve = Curves.easeInOutCubic;
-  static const Curve bounceCurve = Curves.elasticOut;
   static const Curve slideCurve = Curves.easeOutQuart;
 }

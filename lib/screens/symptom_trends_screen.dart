@@ -48,7 +48,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
       child: SafeArea(
         child: healthNotesAsync.when(
           data: (notes) => buildSymptomTrendsContent(notes),
-          loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+          loading: () => EnhancedUIComponents.loadingIndicator(
             message: 'Loading symptom trends...',
           ),
           error: (error, stack) =>
@@ -68,7 +68,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
         .toList();
 
     if (symptomNotes.isEmpty) {
-      return EnhancedUIComponents.enhancedEmptyState(
+      return EnhancedUIComponents.emptyState(
         title: 'No data for ${widget.symptomName}',
         message: 'No health notes with this symptom have been recorded yet',
         icon: CupertinoIcons.exclamationmark_triangle,
@@ -360,7 +360,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
   }
 
   Widget buildSearchSection() {
-    return EnhancedUIComponents.enhancedSearchField(
+    return EnhancedUIComponents.searchField(
       controller: _searchController,
       placeholder: 'Search notes for ${widget.symptomName}...',
       onChanged: (query) {
@@ -373,7 +373,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
 
   Widget buildSymptomNotesList(List<HealthNote> notes) {
     if (notes.isEmpty) {
-      return EnhancedUIComponents.enhancedEmptyState(
+      return EnhancedUIComponents.emptyState(
         title: 'No matching notes',
         message: 'Try adjusting your search terms',
         icon: CupertinoIcons.search,

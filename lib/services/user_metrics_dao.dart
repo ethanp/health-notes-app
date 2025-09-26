@@ -173,18 +173,6 @@ class CheckInMetricsDao {
     );
   }
 
-  /// Mark a check-in metric sync as failed
-  static Future<void> markSyncFailed(String id, String error) async {
-    final db = await LocalDatabase.database;
-
-    await db.update(
-      _tableName,
-      {'sync_status': SyncStatus.failed.value},
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-  }
-
   /// Upsert check-in metric from server data
   static Future<void> upsertFromServer(Map<String, dynamic> data) async {
     final db = await LocalDatabase.database;
@@ -203,18 +191,6 @@ class CheckInMetricsDao {
       'synced_at': now,
       'sync_status': SyncStatus.synced.value,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
-  }
-
-  static Future<void> markAllAsPending(String userId) async {
-    final db = await LocalDatabase.database;
-    final now = DateTime.now().toIso8601String();
-
-    await db.update(
-      _tableName,
-      {'sync_status': SyncStatus.pending.value, 'updated_at': now},
-      where: 'user_id = ? AND is_deleted = 0',
-      whereArgs: [userId],
-    );
   }
 
   /// Convert database map to CheckInMetric object

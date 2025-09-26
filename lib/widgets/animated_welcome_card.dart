@@ -216,7 +216,7 @@ class _AnimatedProgressCardState extends State<AnimatedProgressCard>
 
   @override
   Widget build(BuildContext context) {
-    return EnhancedUIComponents.enhancedCard(
+    return EnhancedUIComponents.card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

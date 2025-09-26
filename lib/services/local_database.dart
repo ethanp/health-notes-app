@@ -210,16 +210,6 @@ class LocalDatabase {
     }
   }
 
-  /// Clear all data (useful for testing or logout)
-  static Future<void> clearAllData() async {
-    final db = await database;
-    await db.delete('health_notes');
-    await db.delete('check_ins');
-    await db.delete('user_profiles');
-    await db.delete('check_in_metrics');
-    await db.delete('sync_queue');
-  }
-
   /// Fix any existing data with null updated_at values
   static Future<void> fixNullUpdatedAtValues() async {
     final db = await database;

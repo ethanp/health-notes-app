@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_tool_category.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
-import 'package:health_notes/screens/health_tool_category_screen.dart';
 import 'package:health_notes/screens/health_tool_category_form.dart';
+import 'package:health_notes/screens/health_tool_category_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
@@ -22,7 +22,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
     final categoriesAsync = ref.watch(healthToolCategoriesNotifierProvider);
 
     return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+      navigationBar: EnhancedUIComponents.navigationBar(
         title: 'My Tools',
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
@@ -40,7 +40,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
           data: (categories) => categories.isEmpty
               ? buildEmptyState()
               : buildCategoriesList(categories),
-          loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+          loading: () => EnhancedUIComponents.loadingIndicator(
             message: 'Loading your health tools...',
           ),
           error: (error, stack) =>
@@ -51,11 +51,11 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
   }
 
   Widget buildEmptyState() {
-    return EnhancedUIComponents.enhancedEmptyState(
+    return EnhancedUIComponents.emptyState(
       title: 'No health tools yet',
       message: 'Create your first health tool category to get started',
       icon: CupertinoIcons.wrench,
-      action: EnhancedUIComponents.enhancedButton(
+      action: EnhancedUIComponents.button(
         text: 'Add Category',
         onPressed: () => _showAddCategoryForm(),
         icon: CupertinoIcons.add,

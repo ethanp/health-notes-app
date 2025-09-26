@@ -1,17 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/check_in_metric.dart';
-import 'package:health_notes/providers/health_notes_provider.dart';
-import 'package:health_notes/providers/check_ins_provider.dart';
+import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/check_in_metrics_provider.dart';
+import 'package:health_notes/providers/check_ins_provider.dart';
+import 'package:health_notes/providers/health_notes_provider.dart';
+import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/widgets/check_in_trends_chart.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
-import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:intl/intl.dart';
 
 class TrendsScreen extends ConsumerStatefulWidget {
@@ -42,7 +42,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     final healthNotesAsync = ref.watch(healthNotesNotifierProvider);
 
     return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+      navigationBar: EnhancedUIComponents.navigationBar(
         title: 'Trends',
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
@@ -54,7 +54,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
         child: healthNotesAsync.when(
           data: (notes) =>
               notes.isEmpty ? buildEmptyState() : buildTrendsContent(notes),
-          loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+          loading: () => EnhancedUIComponents.loadingIndicator(
             message: 'Loading your health trends...',
           ),
           error: (error, stack) =>
@@ -65,7 +65,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   }
 
   Widget buildEmptyState() {
-    return EnhancedUIComponents.enhancedEmptyState(
+    return EnhancedUIComponents.emptyState(
       title: 'No data for trends yet',
       message: 'Add some health notes to see analytics',
       icon: CupertinoIcons.chart_bar,
@@ -118,7 +118,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
                 ),
               ],
             ),
-            loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+            loading: () => EnhancedUIComponents.loadingIndicator(
               message: 'Loading metrics...',
             ),
             error: (error, stack) => Center(
@@ -128,7 +128,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
               ),
             ),
           ),
-          loading: () => EnhancedUIComponents.enhancedLoadingIndicator(
+          loading: () => EnhancedUIComponents.loadingIndicator(
             message: 'Loading check-in data...',
           ),
           error: (error, stack) => Center(
@@ -143,7 +143,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   }
 
   Widget buildSectionHeader(String title) {
-    return EnhancedUIComponents.enhancedSectionHeader(title: title);
+    return EnhancedUIComponents.sectionHeader(title: title);
   }
 
   Widget buildRecentSymptomTrendsCard(Map<String, int> recentTrends) {
@@ -202,7 +202,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          EnhancedUIComponents.enhancedSearchField(
+          EnhancedUIComponents.searchField(
             controller: _symptomSearchController,
             placeholder: 'Search symptoms...',
             onChanged: (query) {

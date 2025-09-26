@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in_metric.dart';
+import 'package:health_notes/providers/auth_provider.dart';
 import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/providers/sync_provider.dart';
-import 'package:health_notes/providers/auth_provider.dart';
 import 'package:health_notes/screens/metric_edit_screen.dart';
+import 'package:health_notes/services/offline_repository.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
-import 'package:health_notes/services/offline_repository.dart';
 
 class MetricsManagementScreen extends ConsumerStatefulWidget {
   const MetricsManagementScreen({super.key});
@@ -24,7 +24,7 @@ class _MetricsManagementScreenState
     final metricsAsync = ref.watch(checkInMetricsNotifierProvider);
 
     return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+      navigationBar: EnhancedUIComponents.navigationBar(
         title: 'Manage Metrics',
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
@@ -154,7 +154,7 @@ class _MetricsManagementScreenState
     return Container(
       key: ValueKey(metric.id),
       margin: const EdgeInsets.only(bottom: 6),
-      child: EnhancedUIComponents.enhancedCard(
+      child: EnhancedUIComponents.card(
         child: CupertinoListTile(
           padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 12, 10),
           leading: Container(

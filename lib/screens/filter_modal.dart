@@ -37,7 +37,7 @@ class _FilterModalState extends State<FilterModal> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.enhancedNavigationBar(
+      navigationBar: EnhancedUIComponents.navigationBar(
         title: 'Filters',
         leading: CupertinoNavigationBarBackButton(
           onPressed: () => Navigator.of(context).pop(),
@@ -130,7 +130,7 @@ class _FilterModalState extends State<FilterModal> {
                       runSpacing: 8,
                       children: [
                         ...widget.availableDrugs.map(
-                          (drug) => EnhancedUIComponents.enhancedFilterChip(
+                          (drug) => EnhancedUIComponents.filterChip(
                             label: drug,
                             isActive: _tempSelectedDrug == drug,
                             onTap: () => setState(
