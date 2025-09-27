@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_tool_category.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
 class HealthToolCategoryForm extends ConsumerStatefulWidget {
@@ -115,17 +116,17 @@ class _HealthToolCategoryFormState
   Widget nameSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Category Name', style: AppTheme.headlineSmall),
+          Text('Category Name', style: AppTypography.headlineSmall),
           const SizedBox(height: 16),
           CupertinoTextField(
             controller: _nameController,
             placeholder: 'Enter category name',
-            style: AppTheme.input,
-            decoration: AppTheme.inputField,
+            style: AppTypography.input,
+            decoration: AppComponents.inputField,
             padding: const EdgeInsets.all(12),
           ),
         ],
@@ -136,22 +137,22 @@ class _HealthToolCategoryFormState
   Widget descriptionSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Description', style: AppTheme.headlineSmall),
+          Text('Description', style: AppTypography.headlineSmall),
           const SizedBox(height: 8),
           Text(
             'Describe what this category is for',
-            style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+            style: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
           ),
           const SizedBox(height: 16),
           CupertinoTextField(
             controller: _descriptionController,
             placeholder: 'Enter description...',
-            style: AppTheme.input,
-            decoration: AppTheme.inputField,
+            style: AppTypography.input,
+            decoration: AppComponents.inputField,
             padding: const EdgeInsets.all(12),
             maxLines: 3,
             minLines: 2,
@@ -164,11 +165,11 @@ class _HealthToolCategoryFormState
   Widget iconSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Icon', style: AppTheme.headlineSmall),
+          Text('Icon', style: AppTypography.headlineSmall),
           const SizedBox(height: 16),
           iconChoices(),
         ],
@@ -188,21 +189,21 @@ class _HealthToolCategoryFormState
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppTheme.primary
-                  : AppTheme.backgroundTertiary,
+                  ? AppColors.primary
+                  : AppColors.backgroundTertiary,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: isSelected
-                    ? AppTheme.primary
-                    : AppTheme.backgroundTertiary,
+                    ? AppColors.primary
+                    : AppColors.backgroundTertiary,
               ),
             ),
             child: Text(
               icon['name']!,
-              style: AppTheme.bodySmall.copyWith(
+              style: AppTypography.bodySmall.copyWith(
                 color: isSelected
                     ? CupertinoColors.white
-                    : AppTheme.textPrimary,
+                    : AppColors.textPrimary,
               ),
             ),
           ),
@@ -214,11 +215,11 @@ class _HealthToolCategoryFormState
   Widget colorSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Color', style: AppTheme.headlineSmall),
+          Text('Color', style: AppTypography.headlineSmall),
           const SizedBox(height: 16),
           colorChoices(),
         ],
@@ -264,7 +265,7 @@ class _HealthToolCategoryFormState
 
   Color _parseColor(String colorHex) {
     final parsed = int.tryParse(colorHex.replaceAll('#', '0xFF'));
-    return parsed != null ? Color(parsed) : AppTheme.primary;
+    return parsed != null ? Color(parsed) : AppColors.primary;
   }
 
   Future<void> saveCategory() async {

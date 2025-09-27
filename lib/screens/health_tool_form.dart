@@ -4,6 +4,7 @@ import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/models/health_tool_category.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
 class HealthToolForm extends ConsumerStatefulWidget {
@@ -90,17 +91,17 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
   Widget nameSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Tool Name', style: AppTheme.headlineSmall),
+          Text('Tool Name', style: AppTypography.headlineSmall),
           const SizedBox(height: 16),
           CupertinoTextField(
             controller: _nameController,
             placeholder: 'Enter tool name',
-            style: AppTheme.input,
-            decoration: AppTheme.inputField,
+            style: AppTypography.input,
+            decoration: AppComponents.inputField,
             padding: const EdgeInsets.all(12),
           ),
         ],
@@ -111,22 +112,22 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
   Widget descriptionSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Description', style: AppTheme.headlineSmall),
+          Text('Description', style: AppTypography.headlineSmall),
           const SizedBox(height: 8),
           Text(
             'Describe what this tool is and how to use it',
-            style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+            style: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
           ),
           const SizedBox(height: 16),
           CupertinoTextField(
             controller: _descriptionController,
             placeholder: 'Enter detailed description...',
-            style: AppTheme.input,
-            decoration: AppTheme.inputField,
+            style: AppTypography.input,
+            decoration: AppComponents.inputField,
             padding: const EdgeInsets.all(12),
             maxLines: 5,
             minLines: 3,
@@ -139,11 +140,11 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
   Widget categorySection(AsyncValue<List<HealthToolCategory>> categoriesAsync) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Category', style: AppTheme.headlineSmall),
+          Text('Category', style: AppTypography.headlineSmall),
           const SizedBox(height: 16),
           categoriesAsync.when(
             data: (categories) => categoryContent(categories),
@@ -151,7 +152,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
               message: 'Loading categories...',
             ),
             error: (error, stack) =>
-                Text('Error loading categories: $error', style: AppTheme.error),
+                Text('Error loading categories: $error', style: AppTypography.error),
           ),
         ],
       ),
@@ -162,7 +163,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
     if (categories.isEmpty) {
       return Text(
         'No categories available. Please create a category first.',
-        style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+        style: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
       );
     }
 
@@ -178,16 +179,16 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
   Widget singleCategoryDisplay(HealthToolCategory category) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: AppTheme.inputField,
+      decoration: AppComponents.inputField,
       child: Row(
         children: [
           Icon(
             CupertinoIcons.check_mark_circled_solid,
-            color: AppTheme.primary,
+            color: AppColors.primary,
             size: 20,
           ),
           const SizedBox(width: 8),
-          Text(category.name, style: AppTheme.bodyMedium),
+          Text(category.name, style: AppTypography.bodyMedium),
         ],
       ),
     );
@@ -200,7 +201,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
         for (final category in categories)
           category.id: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(category.name, style: AppTheme.bodyMedium),
+            child: Text(category.name, style: AppTypography.bodyMedium),
           ),
       },
       onValueChanged: (value) {

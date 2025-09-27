@@ -5,6 +5,7 @@ import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
 import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
@@ -56,7 +57,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
             message: 'Loading drug trends...',
           ),
           error: (error, stack) =>
-              Center(child: Text('Error: $error', style: AppTheme.error)),
+              Center(child: Text('Error: $error', style: AppTypography.error)),
         ),
       ),
     );
@@ -117,7 +118,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Search Notes', style: AppTheme.labelLarge),
+        Text('Search Notes', style: AppTypography.labelLarge),
         const SizedBox(height: 12),
         EnhancedUIComponents.searchField(
           controller: _searchController,
@@ -139,11 +140,14 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Health Notes (${notes.length})', style: AppTheme.labelLarge),
+            Text(
+              'Health Notes (${notes.length})',
+              style: AppTypography.labelLarge,
+            ),
             if (notes.isNotEmpty)
               Text(
                 'Total doses: ${_calculateTotalDoses(notes)}',
-                style: AppTheme.bodySmall.copyWith(
+                style: AppTypography.bodySmall.copyWith(
                   color: CupertinoColors.systemGrey,
                 ),
               ),
@@ -152,7 +156,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
         const SizedBox(height: 12),
         if (notes.isEmpty)
           Container(
-            decoration: AppTheme.primaryCard,
+            decoration: AppComponents.primaryCard,
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
@@ -165,7 +169,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
                 Expanded(
                   child: Text(
                     'No notes match your search criteria',
-                    style: AppTheme.bodyMedium.copyWith(
+                    style: AppTypography.bodyMedium.copyWith(
                       color: CupertinoColors.systemGrey,
                     ),
                   ),
@@ -186,7 +190,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -209,11 +213,13 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
       children: [
         Text(
           DateFormat('EEEE, MMMM dd, yyyy').format(dateTime),
-          style: AppTheme.labelMedium,
+          style: AppTypography.labelMedium,
         ),
         Text(
           DateFormat('h:mm a').format(dateTime),
-          style: AppTheme.bodySmall.copyWith(color: CupertinoColors.systemGrey),
+          style: AppTypography.bodySmall.copyWith(
+            color: CupertinoColors.systemGrey,
+          ),
         ),
       ],
     );
@@ -224,21 +230,21 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.primary.withValues(alpha: 0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: AppTheme.primary.withValues(alpha: 0.3),
+          color: AppColors.primary.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
       child: Row(
         children: [
-          Icon(CupertinoIcons.capsule, color: AppTheme.primary, size: 20),
+          Icon(CupertinoIcons.capsule, color: AppColors.primary, size: 20),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               dose.fullDisplay,
-              style: AppTheme.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+              style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -253,7 +259,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
         const SizedBox(height: 8),
         Text(
           'Symptoms: ${symptoms.map((s) => s.fullDescription).join(', ')}',
-          style: AppTheme.bodySmall.copyWith(color: CupertinoColors.systemGrey),
+          style: AppTypography.bodySmall.copyWith(color: CupertinoColors.systemGrey),
         ),
       ],
     );
@@ -266,7 +272,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
         const SizedBox(height: 8),
         Text(
           'Notes: $notes',
-          style: AppTheme.bodySmall.copyWith(color: CupertinoColors.systemGrey),
+          style: AppTypography.bodySmall.copyWith(color: CupertinoColors.systemGrey),
         ),
       ],
     );
@@ -414,7 +420,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
                   children: [
                     Icon(
                       CupertinoIcons.capsule,
-                      color: AppTheme.primary,
+                      color: AppColors.primary,
                       size: 16,
                     ),
                     const SizedBox(width: 8),

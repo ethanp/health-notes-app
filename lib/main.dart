@@ -8,6 +8,7 @@ import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/services/connectivity_service.dart';
 import 'package:health_notes/services/local_database.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -37,7 +38,20 @@ class MainScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return CupertinoApp(
       title: 'Health Notes',
-      theme: AppTheme.darkTheme,
+      theme: const CupertinoThemeData(
+        brightness: Brightness.dark,
+        primaryColor: Color(0xFF6B73FF), // AppColors.primary
+        scaffoldBackgroundColor: Color(
+          0xFF1A1B2E,
+        ), // AppColors.backgroundPrimary
+        barBackgroundColor: Color(0xFF252A3A), // AppColors.backgroundSecondary
+        textTheme: CupertinoTextThemeData(
+          primaryColor: Color(0xFF6B73FF), // AppColors.primary
+          textStyle: TextStyle(
+            color: Color(0xFFF8FAFC),
+          ), // AppColors.textPrimary
+        ),
+      ),
       debugShowCheckedModeBanner: false,
       home: ref
           .watch(isAuthenticatedProvider)
@@ -51,7 +65,7 @@ class MainScreen extends ConsumerWidget {
             ),
             error: (error, stack) => CupertinoPageScaffold(
               child: Center(
-                child: Text('Error: $error', style: AppTheme.error),
+                child: Text('Error: $error', style: AppTypography.error),
               ),
             ),
           ),

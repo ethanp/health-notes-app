@@ -11,6 +11,7 @@ import 'package:health_notes/providers/sync_provider.dart';
 import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/screens/drug_trends_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/widgets/check_in_trends_chart.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
@@ -195,12 +196,12 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       ..sort((a, b) => b.value.compareTo(a.value));
 
     return Container(
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Last 30 Days', style: AppTheme.labelLarge),
+          Text('Last 30 Days', style: AppTypography.labelLarge),
           const SizedBox(height: 12),
           ...sortedTrends
               .take(3)
@@ -222,7 +223,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       ..sort((a, b) => b.value.compareTo(a.value));
 
     return Container(
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,12 +233,12 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
               Expanded(
                 child: Text(
                   'All Symptoms (${filteredSymptoms.length})',
-                  style: AppTheme.labelLarge,
+                  style: AppTypography.labelLarge,
                 ),
               ),
               Text(
                 'Tap to view trends',
-                style: AppTheme.bodySmall.copyWith(
+                style: AppTypography.bodySmall.copyWith(
                   color: CupertinoColors.systemGrey,
                 ),
               ),
@@ -259,7 +260,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
               padding: const EdgeInsets.all(16),
               child: Text(
                 'No symptoms match your search',
-                style: AppTheme.bodyMedium.copyWith(
+                style: AppTypography.bodyMedium.copyWith(
                   color: CupertinoColors.systemGrey,
                 ),
                 textAlign: TextAlign.center,
@@ -299,13 +300,13 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
                     children: [
                       Text(
                         symptomName,
-                        style: AppTheme.bodyMedium.copyWith(
+                        style: AppTypography.bodyMedium.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       Text(
                         '$frequency occurrences',
-                        style: AppTheme.bodySmall.copyWith(
+                        style: AppTypography.bodySmall.copyWith(
                           color: CupertinoColors.systemGrey,
                         ),
                       ),
@@ -334,7 +335,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       ..sort((a, b) => b.value.compareTo(a.value));
 
     return Container(
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -342,11 +343,11 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
           Row(
             children: [
               Expanded(
-                child: Text('Most Used Drugs', style: AppTheme.labelLarge),
+                child: Text('Most Used Drugs', style: AppTypography.labelLarge),
               ),
               Text(
                 'Tap to view trends',
-                style: AppTheme.bodySmall.copyWith(
+                style: AppTypography.bodySmall.copyWith(
                   color: CupertinoColors.systemGrey,
                 ),
               ),
@@ -372,12 +373,12 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       ..sort((a, b) => b.key.compareTo(a.key));
 
     return Container(
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Notes per Month', style: AppTheme.labelLarge),
+          Text('Notes per Month', style: AppTypography.labelLarge),
           const SizedBox(height: 12),
           ...sortedMonths
               .take(6)
@@ -409,10 +410,10 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(child: Text(label, style: AppTheme.bodyMedium)),
+                Expanded(child: Text(label, style: AppTypography.bodyMedium)),
                 Text(
                   '$value $unit',
-                  style: AppTheme.bodyMedium.copyWith(
+                  style: AppTypography.bodyMedium.copyWith(
                     fontWeight: FontWeight.w600,
                     color: CupertinoColors.systemBlue,
                   ),
@@ -444,10 +445,10 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(child: Text(drugName, style: AppTheme.bodyMedium)),
+                Expanded(child: Text(drugName, style: AppTypography.bodyMedium)),
                 Text(
                   '$value $unit',
-                  style: AppTheme.bodyMedium.copyWith(
+                  style: AppTypography.bodyMedium.copyWith(
                     fontWeight: FontWeight.w600,
                     color: CupertinoColors.systemBlue,
                   ),
@@ -466,10 +467,10 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: Text(label, style: AppTheme.bodyMedium)),
+          Expanded(child: Text(label, style: AppTypography.bodyMedium)),
           Text(
             '$value $unit',
-            style: AppTheme.bodyMedium.copyWith(
+            style: AppTypography.bodyMedium.copyWith(
               fontWeight: FontWeight.w600,
               color: CupertinoColors.systemBlue,
             ),
@@ -481,7 +482,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
 
   Widget emptyCard(String message) {
     return Container(
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
@@ -494,7 +495,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
           Expanded(
             child: Text(
               message,
-              style: AppTheme.bodyMedium.copyWith(
+              style: AppTypography.bodyMedium.copyWith(
                 color: CupertinoColors.systemGrey,
               ),
             ),

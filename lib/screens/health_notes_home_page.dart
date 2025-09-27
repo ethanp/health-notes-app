@@ -10,6 +10,7 @@ import 'package:health_notes/screens/health_note_form.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/services/search_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/widgets/animated_welcome_card.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
@@ -38,11 +39,11 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: AppTheme.animationMedium,
+      duration: AppAnimation.medium,
       vsync: this,
     );
     _slideAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: AppTheme.slideCurve),
+      CurvedAnimation(parent: _animationController, curve: AppAnimation.slideCurve),
     );
     _animationController.forward();
   }
@@ -143,7 +144,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
             message: 'Loading your health notes...',
           ),
           error: (error, stack) =>
-              Center(child: Text('Error: $error', style: AppTheme.error)),
+              Center(child: Text('Error: $error', style: AppTypography.error)),
         ),
       ),
     );
@@ -178,7 +179,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
 
   Widget searchBar() {
     return Container(
-      margin: const EdgeInsets.all(AppTheme.spacingM),
+      margin: const EdgeInsets.all(AppSpacing.m),
       child: Row(
         children: [
           Expanded(
@@ -195,7 +196,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
               showSuffix: _searchQuery.isNotEmpty,
             ),
           ),
-          const SizedBox(width: AppTheme.spacingS),
+          const SizedBox(width: AppSpacing.s),
           EnhancedUIComponents.button(
             text: '',
             onPressed: () => showFilterModal(),
@@ -226,7 +227,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   Widget filterChips(List<HealthNote> notes) {
     return Container(
       height: 50,
-      margin: const EdgeInsets.symmetric(horizontal: AppTheme.spacingM),
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.m),
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
@@ -255,7 +256,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
     bool isClearAll = false,
   }) {
     return Container(
-      margin: const EdgeInsets.only(right: AppTheme.spacingS),
+      margin: const EdgeInsets.only(right: AppSpacing.s),
       child: EnhancedUIComponents.filterChip(
         label: label,
         isActive: isClearAll,
@@ -277,7 +278,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
         title: 'Welcome to Health Notes',
         message: 'Start tracking your health journey by adding your first note',
         icon: CupertinoIcons.heart_fill,
-        iconColor: AppTheme.primary,
+        iconColor: AppColors.primary,
         action: EnhancedUIComponents.button(
           text: 'Add First Note',
           onPressed: showAddNoteModal,
@@ -303,7 +304,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
             message:
                 'Start tracking your health journey by adding your first note',
             icon: CupertinoIcons.heart_fill,
-            iconColor: AppTheme.primary,
+            iconColor: AppColors.primary,
             action: EnhancedUIComponents.button(
               text: 'Add First Note',
               onPressed: showAddNoteModal,
@@ -371,7 +372,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
           children: [
             noteContent(note),
             if (note.notes.isNotEmpty) ...[
-              const SizedBox(height: AppTheme.spacingM),
+              const SizedBox(height: AppSpacing.m),
               noteSummary(note.notes),
             ],
           ],
@@ -383,15 +384,15 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   Widget noteDismissBackground() {
     return Container(
       margin: const EdgeInsets.symmetric(
-        horizontal: AppTheme.spacingM,
-        vertical: AppTheme.spacingXS,
+        horizontal: AppSpacing.m,
+        vertical: AppSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.destructive,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        color: AppColors.destructive,
+        borderRadius: BorderRadius.circular(AppRadius.medium),
       ),
       alignment: Alignment.centerRight,
-      padding: const EdgeInsets.only(right: AppTheme.spacingL),
+      padding: const EdgeInsets.only(right: AppSpacing.l),
       child: const Icon(
         CupertinoIcons.delete,
         color: CupertinoColors.white,
@@ -410,7 +411,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
             children: [
               if (note.hasSymptoms) ...symptomDetails(note),
               if (note.drugDoses.isNotEmpty) ...[
-                const SizedBox(height: AppTheme.spacingS),
+                const SizedBox(height: AppSpacing.s),
                 ...note.drugDoses.map(medicationRow),
               ],
             ],
@@ -423,7 +424,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   List<Widget> symptomDetails(HealthNote note) {
     return note.validSymptoms.map((symptom) {
       return Padding(
-        padding: const EdgeInsets.only(bottom: AppTheme.spacingXS),
+        padding: const EdgeInsets.only(bottom: AppSpacing.xs),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -443,27 +444,27 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
           width: 8,
           height: 8,
           decoration: const BoxDecoration(
-            color: AppTheme.primary,
+            color: AppColors.primary,
             shape: BoxShape.circle,
           ),
         ),
-        const SizedBox(width: AppTheme.spacingS),
+        const SizedBox(width: AppSpacing.s),
         EnhancedUIComponents.statusIndicator(
           text: '${symptom.severityLevel}/10',
-          color: AppTheme.primary,
+          color: AppColors.primary,
         ),
-        const SizedBox(width: AppTheme.spacingS),
+        const SizedBox(width: AppSpacing.s),
         Expanded(
           child: Text(
             symptom.minorComponent.isNotEmpty
                 ? '${symptom.majorComponent} - ${symptom.minorComponent}'
                 : symptom.majorComponent,
-            style: AppTheme.labelLarge,
+            style: AppTypography.labelLarge,
           ),
         ),
         Text(
           DateFormat('h:mm a').format(note.dateTime),
-          style: AppTheme.caption,
+          style: AppTypography.caption,
         ),
       ],
     );
@@ -471,10 +472,10 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
 
   Widget symptomAdditionalNotes(Symptom symptom) {
     return Padding(
-      padding: const EdgeInsets.only(left: AppTheme.spacingS + 8),
+      padding: const EdgeInsets.only(left: AppSpacing.s + 8),
       child: Text(
         symptom.additionalNotes,
-        style: AppTheme.bodySmall.copyWith(color: AppTheme.textSecondary),
+        style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
@@ -483,22 +484,22 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
 
   Widget medicationRow(DrugDose dose) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppTheme.spacingXS),
+      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
       child: Row(
         children: [
           Container(
             width: 8,
             height: 8,
             decoration: const BoxDecoration(
-              color: AppTheme.accent,
+              color: AppColors.accent,
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: AppTheme.spacingS),
+          const SizedBox(width: AppSpacing.s),
           Expanded(
             child: Text(
               '${dose.name} ${dose.dosage}',
-              style: AppTheme.labelMedium,
+              style: AppTypography.labelMedium,
             ),
           ),
         ],
@@ -509,7 +510,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   Widget noteSummary(String notes) {
     return Text(
       notes,
-      style: AppTheme.bodySmall,
+      style: AppTypography.bodySmall,
       maxLines: 3,
       overflow: TextOverflow.ellipsis,
     );

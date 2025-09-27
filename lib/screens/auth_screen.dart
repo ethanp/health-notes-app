@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
@@ -22,14 +23,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: AppTheme.animationSlow,
+      duration: AppAnimation.slow,
       vsync: this,
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
-        curve: const Interval(0.0, 0.6, curve: AppTheme.animationCurve),
+        curve: const Interval(0.0, 0.6, curve: AppAnimation.curve),
       ),
     );
 
@@ -37,7 +38,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
         Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
           CurvedAnimation(
             parent: _animationController,
-            curve: const Interval(0.3, 1.0, curve: AppTheme.slideCurve),
+            curve: const Interval(0.3, 1.0, curve: AppAnimation.slideCurve),
           ),
         );
 
@@ -55,17 +56,17 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     return EnhancedUIComponents.animatedGradientBackground(
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(AppTheme.spacingXL),
+          padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               introIcon(),
-              const SizedBox(height: AppTheme.spacingXL),
+              const SizedBox(height: AppSpacing.xl),
               introTextBlock(),
-              const SizedBox(height: AppTheme.spacingXXL),
+              const SizedBox(height: AppSpacing.xxl),
               signInButtonSection(),
-              const SizedBox(height: AppTheme.spacingM),
+              const SizedBox(height: AppSpacing.m),
               privacyMessage(),
             ],
           ),
@@ -78,22 +79,22 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Container(
-        padding: const EdgeInsets.all(AppTheme.spacingL),
+        padding: const EdgeInsets.all(AppSpacing.l),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.primary.withValues(alpha: 0.1),
-              AppTheme.primary.withValues(alpha: 0.05),
+              AppColors.primary.withValues(alpha: 0.1),
+              AppColors.primary.withValues(alpha: 0.05),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(AppTheme.radiusExtraLarge),
+          borderRadius: BorderRadius.circular(AppRadius.extraLarge),
         ),
         child: const Icon(
           CupertinoIcons.heart_fill,
           size: 80,
-          color: AppTheme.primary,
+          color: AppColors.primary,
         ),
       ),
     );
@@ -109,19 +110,19 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
             Text(
               'Health Notes',
               textAlign: TextAlign.center,
-              style: AppTheme.headlineLarge,
+              style: AppTypography.headlineLarge,
             ),
-            const SizedBox(height: AppTheme.spacingS),
+            const SizedBox(height: AppSpacing.s),
             Text(
               'Your personal health companion',
               textAlign: TextAlign.center,
-              style: AppTheme.bodyLarge.copyWith(color: AppTheme.textSecondary),
+              style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
             ),
-            const SizedBox(height: AppTheme.spacingL),
+            const SizedBox(height: AppSpacing.l),
             Text(
               'Track symptoms, medications, and insights to better understand your health patterns',
               textAlign: TextAlign.center,
-              style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+              style: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
             ),
           ],
         ),
@@ -142,7 +143,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
       child: Text(
         'Your health data stays private and secure',
         textAlign: TextAlign.center,
-        style: AppTheme.caption.copyWith(color: AppTheme.textQuaternary),
+        style: AppTypography.caption.copyWith(color: AppColors.textQuaternary),
       ),
     );
   }

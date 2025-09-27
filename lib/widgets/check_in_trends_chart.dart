@@ -1,8 +1,11 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/utils/color_mapping_utils.dart';
+
 import 'package:intl/intl.dart';
 
 class CheckInTrendsChart extends StatefulWidget {
@@ -47,11 +50,13 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     if (widget.checkIns.isEmpty) {
       return Container(
         height: 450,
-        decoration: AppTheme.primaryCard,
+        decoration: AppComponents.primaryCard,
         child: Center(
           child: Text(
             'No check-in data available',
-            style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+            style: AppTypography.bodyMedium.copyWith(
+              color: AppColors.textTertiary,
+            ),
           ),
         ),
       );
@@ -62,7 +67,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.primaryCard.copyWith(
+      decoration: AppComponents.primaryCard.copyWith(
         boxShadow: [
           BoxShadow(
             color: CupertinoColors.black.withValues(alpha: 0.05),
@@ -76,9 +81,9 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
         children: [
           Text(
             'Trends',
-            style: AppTheme.headlineSmall.copyWith(
+            style: AppTypography.headlineSmall.copyWith(
               fontWeight: FontWeight.w600,
-              color: AppTheme.textPrimary,
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 16),
@@ -111,11 +116,11 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
           color: isHidden
-              ? AppTheme.backgroundSecondary
+              ? AppColors.backgroundSecondary
               : color.withValues(alpha: 0.08),
           border: Border.all(
             color: isHidden
-                ? AppTheme.backgroundQuaternary
+                ? AppColors.backgroundQuaternary
                 : color.withValues(alpha: 0.2),
           ),
           borderRadius: BorderRadius.circular(16),
@@ -126,13 +131,13 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
             Icon(
               metricObj.icon,
               size: 14,
-              color: isHidden ? AppTheme.textTertiary : color,
+              color: isHidden ? AppColors.textTertiary : color,
             ),
             const SizedBox(width: 5),
             Text(
               metric,
-              style: AppTheme.bodySmall.copyWith(
-                color: isHidden ? AppTheme.textTertiary : color,
+              style: AppTypography.bodySmall.copyWith(
+                color: isHidden ? AppColors.textTertiary : color,
                 fontWeight: FontWeight.w500,
                 fontSize: 12,
               ),
@@ -173,7 +178,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
           Expanded(
             child: Text(
               'Green zones: 0-3 (Lower is Better), 4-7 (Middle is Best), 8-10 (Higher is Better)',
-              style: AppTheme.bodySmall.copyWith(
+              style: AppTypography.bodySmall.copyWith(
                 color: CupertinoColors.systemGreen,
                 fontSize: 10,
               ),
@@ -218,9 +223,9 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
       children: [
         Text(
           _getTypeDisplayName(type),
-          style: AppTheme.bodySmall.copyWith(
+          style: AppTypography.bodySmall.copyWith(
             fontWeight: FontWeight.w600,
-            color: AppTheme.textPrimary,
+            color: AppColors.textPrimary,
             fontSize: 13,
           ),
         ),
@@ -241,30 +246,43 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     final metricData = _prepareMetricData(metrics);
     final sortedDates = _getSortedDates(metricData);
 
-    return LineChart(
-      LineChartData(
-        gridData: chartGridData(),
-        titlesData: chartTitlesData(sortedDates),
-        borderData: chartBorderData(),
-        minX: 0,
-        maxX: (sortedDates.length - 1).toDouble(),
-        minY: 0,
-        maxY: 10,
-        backgroundColor: AppTheme.backgroundPrimary.withValues(alpha: 0.02),
-        lineBarsData: lineBarsData(metrics, metricData, sortedDates),
-        lineTouchData: chartTouchData(metrics),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: ColorMappingUtils.getBackgroundGradient(metricType),
+          stops: ColorMappingUtils.getBackgroundGradientStops(metricType),
+        ),
+        borderRadius: BorderRadius.circular(8),
       ),
-      duration: Duration.zero,
+      child: LineChart(
+        LineChartData(
+          gridData: chartGridData(),
+          titlesData: chartTitlesData(sortedDates),
+          borderData: chartBorderData(),
+          minX: 0,
+          maxX: (sortedDates.length - 1).toDouble(),
+          minY: 0,
+          maxY: 10,
+          backgroundColor: Colors.transparent,
+          lineBarsData: lineBarsData(metrics, metricData, sortedDates),
+          lineTouchData: chartTouchData(metrics),
+        ),
+        duration: Duration.zero,
+      ),
     );
   }
 
   Widget noDataContainer() {
     return Container(
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       child: Center(
         child: Text(
           'No data',
-          style: AppTheme.bodySmall.copyWith(color: AppTheme.textTertiary),
+          style: AppTypography.bodySmall.copyWith(
+            color: AppColors.textTertiary,
+          ),
         ),
       ),
     );
@@ -321,13 +339,13 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
       verticalInterval: 1,
       getDrawingHorizontalLine: (value) {
         return FlLine(
-          color: AppTheme.backgroundQuaternary.withValues(alpha: 0.3),
+          color: AppColors.backgroundQuaternary.withValues(alpha: 0.3),
           strokeWidth: 0.5,
         );
       },
       getDrawingVerticalLine: (value) {
         return FlLine(
-          color: AppTheme.backgroundQuaternary.withValues(alpha: 0.3),
+          color: AppColors.backgroundQuaternary.withValues(alpha: 0.3),
           strokeWidth: 0.5,
         );
       },
@@ -357,8 +375,8 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
               meta: meta,
               child: Text(
                 DateFormat('MMM d').format(date),
-                style: AppTheme.bodySmall.copyWith(
-                  color: AppTheme.textSecondary,
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
                   fontSize: 9,
                 ),
               ),
@@ -378,8 +396,8 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
         getTitlesWidget: (double value, TitleMeta meta) {
           return Text(
             value.toInt().toString(),
-            style: AppTheme.bodySmall.copyWith(
-              color: AppTheme.textSecondary,
+            style: AppTypography.bodySmall.copyWith(
+              color: AppColors.textSecondary,
               fontSize: 9,
             ),
           );
@@ -393,7 +411,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     return FlBorderData(
       show: true,
       border: Border.all(
-        color: AppTheme.backgroundQuaternary.withValues(alpha: 0.4),
+        color: AppColors.backgroundQuaternary.withValues(alpha: 0.4),
         width: 0.5,
       ),
     );
@@ -494,7 +512,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     return LineTouchData(
       enabled: true,
       touchTooltipData: LineTouchTooltipData(
-        getTooltipColor: (spot) => AppTheme.backgroundSecondary,
+        getTooltipColor: (spot) => AppColors.backgroundSecondary,
         fitInsideHorizontally: true,
         fitInsideVertically: true,
         getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
@@ -510,7 +528,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
 
             return LineTooltipItem(
               '$metric: $rating',
-              AppTheme.bodySmall.copyWith(
+              AppTypography.bodySmall.copyWith(
                 color: metricObj.color,
                 fontWeight: FontWeight.w600,
                 fontSize: 10,

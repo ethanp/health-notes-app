@@ -5,12 +5,15 @@ import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/providers/check_ins_provider.dart';
+import 'package:health_notes/screens/check_in_date_detail_screen.dart';
 import 'package:health_notes/screens/check_in_form.dart';
 import 'package:health_notes/screens/metrics_management_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/utils/check_in_grouping.dart';
 import 'package:health_notes/services/text_normalizer.dart';
+import 'package:health_notes/widgets/activity_calendar.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
@@ -99,13 +102,13 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
           data: (checkIns) => userMetricsAsync.when(
             data: (userMetrics) => checkIns.isEmpty
                 ? emptyState()
-                : checkInsList(checkIns, userMetrics),
+                : checkInsCalendar(checkIns, userMetrics),
             loading: () =>
                 const SyncStatusWidget.loading(message: 'Loading metrics...'),
             error: (error, stack) => Center(
               child: Text(
                 'Error loading metrics: $error',
-                style: AppTheme.error,
+                style: AppTypography.error,
               ),
             ),
           ),
@@ -113,7 +116,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
             message: 'Loading your check-ins...',
           ),
           error: (error, stack) =>
-              Center(child: Text('Error: $error', style: AppTheme.error)),
+              Center(child: Text('Error: $error', style: AppTypography.error)),
         ),
       ),
     );
@@ -132,18 +135,34 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
     );
   }
 
-  Widget checkInsList(List<CheckIn> checkIns, List<CheckInMetric> userMetrics) {
-    final groupedCheckIns = CheckInGrouping.groupCheckIns(
-      checkIns,
-      userMetrics.length,
+  Widget checkInsCalendar(
+    List<CheckIn> checkIns,
+    List<CheckInMetric> userMetrics,
+  ) {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: CheckInsActivityCalendar(
+          checkIns: checkIns,
+          onDateTap: (date) => _showCheckInsForDate(date, checkIns),
+        ),
+      ),
     );
+  }
 
-    return RefreshableListView<CheckInGroup>(
-      onRefresh: () async {
-        ref.invalidate(checkInsNotifierProvider);
-      },
-      items: groupedCheckIns,
-      itemBuilder: (group) => checkInGroupItem(group, userMetrics),
+  Widget checkInsList(List<CheckIn> checkIns, List<CheckInMetric> userMetrics) {
+    return Column(
+      children: [
+        Expanded(
+          child: RefreshableListView<CheckInGroup>(
+            onRefresh: () async {
+              ref.invalidate(checkInsNotifierProvider);
+            },
+            items: CheckInGrouping.groupCheckIns(checkIns, userMetrics.length),
+            itemBuilder: (group) => checkInGroupItem(group, userMetrics),
+          ),
+        ),
+      ],
     );
   }
 
@@ -158,7 +177,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
       onDismissed: (direction) => deleteCheckInGroup(group),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
-        decoration: AppTheme.primaryCard,
+        decoration: AppComponents.primaryCard,
         child: Column(
           children: [
             groupHeader(group, userMetrics, isExpanded),
@@ -199,12 +218,12 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
           DateFormat(
             'EEEE, MMMM d',
           ).format(group.representativeCheckIn.dateTime),
-          style: AppTheme.labelLarge.copyWith(fontWeight: FontWeight.w600),
+          style: AppTypography.labelLargePrimary,
         ),
         const SizedBox(height: 4),
         Text(
           DateFormat('h:mm a').format(group.representativeCheckIn.dateTime),
-          style: AppTheme.bodySmall.copyWith(color: AppTheme.textTertiary),
+          style: AppTypography.bodySmallTertiary,
         ),
       ],
     );
@@ -262,11 +281,11 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: AppTheme.destructive,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        color: AppColors.destructive,
+        borderRadius: BorderRadius.circular(AppRadius.medium),
       ),
       alignment: Alignment.centerRight,
-      padding: const EdgeInsets.only(right: AppTheme.spacingL),
+      padding: const EdgeInsets.only(right: AppSpacing.l),
       child: const Icon(
         CupertinoIcons.delete,
         color: CupertinoColors.white,
@@ -296,17 +315,17 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
       width: 28,
       height: 28,
       decoration: BoxDecoration(
-        color: AppTheme.primary.withValues(alpha: 0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: AppTheme.primary.withValues(alpha: 0.2),
+          color: AppColors.primary.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
       child: Icon(
         group.isMultiMetric ? CupertinoIcons.list_bullet : metric.icon,
         size: 14,
-        color: group.isMultiMetric ? AppTheme.primary : metric.color,
+        color: group.isMultiMetric ? AppColors.primary : metric.color,
       ),
     );
   }
@@ -320,8 +339,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
       ),
       child: Text(
         '${group.checkIns.length}',
-        style: AppTheme.bodySmall.copyWith(
-          color: CupertinoColors.white,
+        style: AppTypography.buttonPrimary.copyWith(
           fontWeight: FontWeight.bold,
           fontSize: 10,
         ),
@@ -400,11 +418,11 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
   Widget deleteBackground() {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.destructive,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        color: AppColors.destructive,
+        borderRadius: BorderRadius.circular(AppRadius.medium),
       ),
       alignment: Alignment.centerRight,
-      padding: const EdgeInsets.only(right: AppTheme.spacingL),
+      padding: const EdgeInsets.only(right: AppSpacing.l),
       child: const Icon(
         CupertinoIcons.delete,
         color: CupertinoColors.white,
@@ -435,7 +453,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
       children: [
         Text(
           checkIn.metricName,
-          style: AppTheme.labelLarge.copyWith(fontWeight: FontWeight.w500),
+          style: AppTypography.labelLarge.copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 2),
         EnhancedUIComponents.statusIndicator(
@@ -462,8 +480,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
       ),
       child: Text(
         '${checkIn.rating}',
-        style: AppTheme.bodySmall.copyWith(
-          color: CupertinoColors.white,
+        style: AppTypography.buttonPrimary.copyWith(
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -524,6 +541,15 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
           title: 'Edit Check-in',
           saveButtonText: 'Update',
         ),
+      ),
+    );
+  }
+
+  void _showCheckInsForDate(DateTime date, List<CheckIn> allCheckIns) {
+    Navigator.of(context).push(
+      CupertinoPageRoute(
+        builder: (context) =>
+            CheckInDateDetailScreen(date: date, allCheckIns: allCheckIns),
       ),
     );
   }

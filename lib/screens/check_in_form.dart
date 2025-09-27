@@ -5,6 +5,7 @@ import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
 class CheckInForm extends ConsumerStatefulWidget {
@@ -124,7 +125,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     if (userMetrics.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(16),
-        decoration: AppTheme.primaryCard,
+        decoration: AppComponents.primaryCard,
         child: Column(
           children: [
             const Icon(
@@ -150,7 +151,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -205,7 +206,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                   ),
                 ],
               )
-            : AppTheme.filterChip,
+            : AppComponents.filterChip,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -217,7 +218,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
             const SizedBox(height: 8),
             Text(
               metric.name,
-              style: AppTheme.bodySmall.copyWith(
+              style: AppTypography.bodySmall.copyWith(
                 color: isSelected ? CupertinoColors.white : metric.color,
                 fontWeight: FontWeight.w500,
               ),
@@ -243,7 +244,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
         ),
         child: Text(
           '$rating',
-          style: AppTheme.bodySmall.copyWith(
+          style: AppTypography.bodySmall.copyWith(
             color: CupertinoColors.white,
             fontWeight: FontWeight.bold,
           ),
@@ -255,11 +256,11 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   Widget selectedMetricsSection(List<CheckInMetric> userMetrics) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Your Ratings', style: AppTheme.headlineSmall),
+          Text('Your Ratings', style: AppTypography.headlineSmall),
           const SizedBox(height: 16),
           ..._selectedMetrics.entries.map(
             (entry) => selectedMetricCard(entry, userMetrics),
@@ -287,9 +288,11 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
         children: [
           Row(
             children: [
-              Icon(metric.icon, size: 20, color: AppTheme.textPrimary),
+              Icon(metric.icon, size: 20, color: AppColors.textPrimary),
               const SizedBox(width: 8),
-              Expanded(child: Text(metric.name, style: AppTheme.labelLarge)),
+              Expanded(
+                child: Text(metric.name, style: AppTypography.labelLarge),
+              ),
               CupertinoButton(
                 padding: EdgeInsets.zero,
                 onPressed: () {
@@ -319,7 +322,9 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
       children: [
         Text(
           '1',
-          style: AppTheme.bodySmall.copyWith(color: AppTheme.textTertiary),
+          style: AppTypography.bodySmall.copyWith(
+            color: AppColors.textTertiary,
+          ),
         ),
         Expanded(
           child: CupertinoSlider(
@@ -336,24 +341,28 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
         ),
         Text(
           '10',
-          style: AppTheme.bodySmall.copyWith(color: AppTheme.textTertiary),
+          style: AppTypography.bodySmall.copyWith(
+            color: AppColors.textTertiary,
+          ),
         ),
       ],
     );
   }
 
   Widget ratingSummary(CheckInMetric metric, int rating) {
+    final ratingColor = metric.type.getRatingColor(rating);
+
     return Center(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: metric.getRatingColor(rating).withValues(alpha: 0.1),
+          color: ratingColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           '$rating',
-          style: AppTheme.headlineMedium.copyWith(
-            color: metric.getRatingColor(rating),
+          style: AppTypography.headlineMedium.copyWith(
+            color: ratingColor,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -364,19 +373,19 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   Widget dateTimeSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Date & Time', style: AppTheme.headlineSmall),
+          Text('Date & Time', style: AppTypography.headlineSmall),
           const SizedBox(height: 16),
           Container(
             height: 200,
-            decoration: AppTheme.inputField,
+            decoration: AppComponents.inputField,
             child: CupertinoDatePicker(
               mode: CupertinoDatePickerMode.dateAndTime,
               initialDateTime: _selectedDateTime,
-              backgroundColor: AppTheme.backgroundTertiary,
+              backgroundColor: AppColors.backgroundTertiary,
               onDateTimeChanged: (DateTime newDateTime) {
                 setState(() => _selectedDateTime = newDateTime);
               },

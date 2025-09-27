@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
 import 'package:health_notes/providers/user_profile_provider.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/user_avatar_widget.dart';
@@ -29,14 +30,14 @@ class AuthUtils {
                   const SizedBox(height: 8),
                   Text(
                     userProfile?.fullName ?? 'User',
-                    style: AppTheme.bodyMedium.copyWith(
+                    style: AppTypography.bodyMedium.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'Are you sure you want to sign out?',
-                    style: AppTheme.bodyMedium,
+                    style: AppTypography.bodyMedium,
                   ),
                 ],
               ),

@@ -5,6 +5,7 @@ import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/screens/health_tool_category_form.dart';
 import 'package:health_notes/screens/health_tool_category_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
@@ -44,7 +45,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
             message: 'Loading your health tools...',
           ),
           error: (error, stack) =>
-              Center(child: Text('Error: $error', style: AppTheme.error)),
+              Center(child: Text('Error: $error', style: AppTypography.error)),
         ),
       ),
     );
@@ -77,7 +78,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
   Widget categoryCard(HealthToolCategory category) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: () => _navigateToCategory(category),
@@ -102,7 +103,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
 
   Color _parseColor(String colorHex) {
     final parsed = int.tryParse(colorHex.replaceAll('#', '0xFF'));
-    return parsed != null ? Color(parsed) : AppTheme.primary;
+    return parsed != null ? Color(parsed) : AppColors.primary;
   }
 
   IconData _getIconData(String iconName) {
@@ -158,11 +159,11 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(category.name, style: AppTheme.labelLarge),
+        Text(category.name, style: AppTypography.labelLarge),
         const SizedBox(height: 4),
         Text(
           category.description,
-          style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+          style: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),

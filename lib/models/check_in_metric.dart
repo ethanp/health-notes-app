@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/utils/color_mapping_utils.dart';
 
 part 'check_in_metric.freezed.dart';
 part 'check_in_metric.g.dart';
@@ -36,7 +37,7 @@ abstract class CheckInMetric with _$CheckInMetric {
       userId: userId,
       name: name,
       type: type,
-      colorValue: (color ?? AppTheme.primary).toARGB32(),
+      colorValue: (color ?? AppColors.primary).toARGB32(),
       iconCodePoint: (icon ?? CupertinoIcons.circle).codePoint,
       sortOrder: sortOrder ?? 0,
       createdAt: DateTime.now(),
@@ -48,41 +49,21 @@ abstract class CheckInMetric with _$CheckInMetric {
 enum MetricType {
   lowerIsBetter(
     description: 'Lower values are better',
-    getRatingColor: _lowerIsBetterColorLogicImpl,
+    getRatingColor: ColorMappingUtils.lowerIsBetterColor,
   ),
   middleIsBest(
     description: 'Middle values (4-7) are optimal',
-    getRatingColor: _middleIsBestColorLogicImpl,
+    getRatingColor: ColorMappingUtils.middleIsBestColor,
   ),
   higherIsBetter(
     description: 'Higher values are better',
-    getRatingColor: _higherIsBetterColorLogicImpl,
+    getRatingColor: ColorMappingUtils.higherIsBetterColor,
   );
 
   final String description;
   final Color Function(int) getRatingColor;
 
   const MetricType({required this.description, required this.getRatingColor});
-
-  static Color _lowerIsBetterColorLogicImpl(int rating) => switch (rating) {
-    <= 3 => CupertinoColors.systemGreen,
-    <= 6 => CupertinoColors.systemYellow,
-    <= 8 => CupertinoColors.systemOrange,
-    _ => CupertinoColors.systemRed,
-  };
-
-  static Color _middleIsBestColorLogicImpl(int rating) => switch (rating) {
-    1 || 10 => CupertinoColors.systemRed,
-    2 || 3 || 8 || 9 => CupertinoColors.systemYellow,
-    _ => CupertinoColors.systemGreen, // 4-7
-  };
-
-  static Color _higherIsBetterColorLogicImpl(int rating) => switch (rating) {
-    <= 3 => CupertinoColors.systemRed,
-    <= 5 => CupertinoColors.systemOrange,
-    <= 7 => CupertinoColors.systemYellow,
-    _ => CupertinoColors.systemGreen,
-  };
 }
 
 extension CheckInMetricExtensions on CheckInMetric {
@@ -117,13 +98,13 @@ extension CheckInMetricExtensions on CheckInMetric {
 /// Default color palette for new metrics
 class MetricColorPalette {
   static const List<Color> colors = [
-    AppTheme.primary,
-    AppTheme.secondary,
-    AppTheme.accent,
-    AppTheme.accentWarm,
-    AppTheme.successColor,
-    AppTheme.warning,
-    AppTheme.destructive,
+    AppColors.primary,
+    AppColors.secondary,
+    AppColors.accent,
+    AppColors.accentWarm,
+    AppColors.success,
+    AppColors.warning,
+    AppColors.destructive,
     CupertinoColors.systemPurple,
     CupertinoColors.systemTeal,
     CupertinoColors.systemIndigo,

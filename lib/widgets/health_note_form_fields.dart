@@ -7,6 +7,7 @@ import 'package:health_notes/providers/symptom_suggestions_provider.dart';
 import 'package:health_notes/services/symptom_suggestions_service.dart';
 import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:intl/intl.dart';
 
@@ -166,20 +167,20 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
   Widget dateTimeSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Date & Time', style: AppTheme.headlineSmall),
+          Text('Date & Time', style: AppTypography.headlineSmall),
           const SizedBox(height: 16),
           if (widget.isEditable)
             Container(
               height: 200,
-              decoration: AppTheme.inputField,
+              decoration: AppComponents.inputField,
               child: CupertinoDatePicker(
                 mode: CupertinoDatePickerMode.dateAndTime,
                 initialDateTime: _selectedDateTime,
-                backgroundColor: AppTheme.backgroundTertiary,
+                backgroundColor: AppColors.backgroundTertiary,
                 onDateTimeChanged: (DateTime newDateTime) {
                   setState(() => _selectedDateTime = newDateTime);
                   widget.onDateTimeChanged?.call(newDateTime);
@@ -192,13 +193,13 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
               children: [
                 Text(
                   DateFormat('EEEE, MMMM d, yyyy').format(_selectedDateTime),
-                  style: AppTheme.headlineSmall,
+                  style: AppTypography.headlineSmall,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   DateFormat('h:mm a').format(_selectedDateTime),
-                  style: AppTheme.bodyMedium.copyWith(
-                    color: AppTheme.textTertiary,
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: AppColors.textTertiary,
                   ),
                 ),
               ],
@@ -213,8 +214,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: widget.isEditable
-          ? AppTheme.inputField
-          : AppTheme.primaryCard,
+          ? AppComponents.inputField
+          : AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -241,7 +242,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
 
   Widget symptomsContent() {
     if (_symptoms.isEmpty) {
-      return Text('No symptoms recorded', style: AppTheme.bodyMedium);
+      return Text('No symptoms recorded', style: AppTypography.bodyMedium);
     }
 
     if (!widget.isEditable) {
@@ -277,7 +278,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                 width: 8,
                 height: 8,
                 decoration: const BoxDecoration(
-                  color: AppTheme.primary,
+                  color: AppColors.primary,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -285,12 +286,12 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
               Expanded(
                 child: Text(
                   symptom.fullDescription,
-                  style: AppTheme.labelLarge,
+                  style: AppTypography.labelLarge,
                 ),
               ),
               EnhancedUIComponents.statusIndicator(
                 text: '${symptom.severityLevel}/10',
-                color: AppTheme.primary,
+                color: AppColors.primary,
               ),
             ],
           ),
@@ -300,8 +301,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
               padding: const EdgeInsets.only(left: 20),
               child: Text(
                 symptom.additionalNotes,
-                style: AppTheme.bodyMedium.copyWith(
-                  color: AppTheme.textSecondary,
+                style: AppTypography.bodyMedium.copyWith(
+                  color: AppColors.textSecondary,
                 ),
               ),
             ),
@@ -316,8 +317,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: widget.isEditable
-          ? AppTheme.inputField
-          : AppTheme.primaryCard,
+          ? AppComponents.inputField
+          : AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -344,7 +345,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
 
   Widget drugDosesContent() {
     if (_drugDoses.isEmpty) {
-      return Text('No medications recorded', style: AppTheme.bodyMedium);
+      return Text('No medications recorded', style: AppTypography.bodyMedium);
     }
 
     if (!widget.isEditable) {
@@ -377,15 +378,15 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
             width: 8,
             height: 8,
             decoration: const BoxDecoration(
-              color: AppTheme.primary,
+              color: AppColors.primary,
               shape: BoxShape.circle,
             ),
           ),
           const SizedBox(width: 12),
-          Expanded(child: Text(dose.name, style: AppTheme.labelLarge)),
+          Expanded(child: Text(dose.name, style: AppTypography.labelLarge)),
           Text(
             dose.displayDosage,
-            style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+            style: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
           ),
         ],
       ),
@@ -400,7 +401,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -410,8 +411,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                 child: CupertinoTextField(
                   controller: controllers.name,
                   placeholder: 'Medication name',
-                  placeholderStyle: AppTheme.inputPlaceholder,
-                  style: AppTheme.input,
+                  placeholderStyle: AppTypography.inputPlaceholder,
+                  style: AppTypography.input,
                   onChanged: (value) => updateDrugDose(index, name: value),
                 ),
               ),
@@ -421,7 +422,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                 onPressed: () => removeDrugDose(index),
                 child: const Icon(
                   CupertinoIcons.delete,
-                  color: AppTheme.destructive,
+                  color: AppColors.destructive,
                 ),
               ),
             ],
@@ -433,8 +434,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                 child: CupertinoTextField(
                   controller: controllers.dosage,
                   placeholder: 'Dosage',
-                  placeholderStyle: AppTheme.inputPlaceholder,
-                  style: AppTheme.input,
+                  placeholderStyle: AppTypography.inputPlaceholder,
+                  style: AppTypography.input,
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final dosage = double.tryParse(value) ?? 0.0;
@@ -448,8 +449,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                 child: CupertinoTextField(
                   controller: controllers.unit,
                   placeholder: 'Unit',
-                  placeholderStyle: AppTheme.inputPlaceholder,
-                  style: AppTheme.input,
+                  placeholderStyle: AppTypography.inputPlaceholder,
+                  style: AppTypography.input,
                   onChanged: (value) => updateDrugDose(index, unit: value),
                 ),
               ),
@@ -465,8 +466,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: widget.isEditable
-          ? AppTheme.inputField
-          : AppTheme.primaryCard,
+          ? AppComponents.inputField
+          : AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [notesHeader(), const SizedBox(height: 8), notesContent()],
@@ -475,7 +476,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
   }
 
   Widget notesHeader() {
-    return Text('Notes', style: AppTheme.labelLarge);
+    return Text('Notes', style: AppTypography.labelLarge);
   }
 
   Widget notesContent() {
@@ -483,8 +484,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       return CupertinoTextField(
         controller: _notesController!,
         placeholder: 'Additional Notes (optional)',
-        placeholderStyle: AppTheme.inputPlaceholder,
-        style: AppTheme.input,
+        placeholderStyle: AppTypography.inputPlaceholder,
+        style: AppTypography.input,
         maxLines: 4,
         onChanged: widget.onNotesChanged,
       );
@@ -493,7 +494,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     final text = _notesController?.text.isNotEmpty == true
         ? _notesController!.text
         : 'No additional notes';
-    return Text(text, style: AppTheme.bodyMedium);
+    return Text(text, style: AppTypography.bodyMedium);
   }
 
   DateTime get currentDateTime => _selectedDateTime;
@@ -635,8 +636,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
               children: [
                 Text(
                   'Recent symptoms:',
-                  style: AppTheme.labelMedium.copyWith(
-                    color: AppTheme.textSecondary,
+                  style: AppTypography.labelMedium.copyWith(
+                    color: AppColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -649,7 +650,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                         horizontal: 12,
                         vertical: 6,
                       ),
-                      color: AppTheme.backgroundSecondary,
+                      color: AppColors.backgroundSecondary,
                       borderRadius: BorderRadius.circular(16),
                       onPressed: () {
                         final newSymptom =
@@ -670,8 +671,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                       },
                       child: Text(
                         suggestion.toString(),
-                        style: AppTheme.bodySmall.copyWith(
-                          color: AppTheme.textPrimary,
+                        style: AppTypography.bodySmall.copyWith(
+                          color: AppColors.textPrimary,
                         ),
                       ),
                     );
@@ -695,7 +696,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -707,8 +708,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                 child: CupertinoTextField(
                   controller: controllers.majorComponent,
                   placeholder: 'Major component (e.g., headache)',
-                  placeholderStyle: AppTheme.inputPlaceholder,
-                  style: AppTheme.input,
+                  placeholderStyle: AppTypography.inputPlaceholder,
+                  style: AppTypography.input,
                   onChanged: (value) =>
                       updateSymptom(index, majorComponent: value),
                 ),
@@ -718,8 +719,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                 child: CupertinoTextField(
                   controller: controllers.minorComponent,
                   placeholder: 'Minor component (e.g., right temple)',
-                  placeholderStyle: AppTheme.inputPlaceholder,
-                  style: AppTheme.input,
+                  placeholderStyle: AppTypography.inputPlaceholder,
+                  style: AppTypography.input,
                   onChanged: (value) =>
                       updateSymptom(index, minorComponent: value),
                 ),
@@ -730,8 +731,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                 child: CupertinoTextField(
                   controller: controllers.severity,
                   placeholder: '1-10',
-                  placeholderStyle: AppTheme.inputPlaceholder,
-                  style: AppTheme.input,
+                  placeholderStyle: AppTypography.inputPlaceholder,
+                  style: AppTypography.input,
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final severity = int.tryParse(value);
@@ -756,8 +757,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
           CupertinoTextField(
             controller: controllers.additionalNotes,
             placeholder: 'Additional notes (optional)',
-            placeholderStyle: AppTheme.inputPlaceholder,
-            style: AppTheme.input,
+            placeholderStyle: AppTypography.inputPlaceholder,
+            style: AppTypography.input,
             maxLines: 2,
             onChanged: (value) => updateSymptom(index, additionalNotes: value),
           ),

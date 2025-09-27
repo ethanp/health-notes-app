@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/health_note_form_fields.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
@@ -79,7 +80,7 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
       loading: () =>
           const SyncStatusWidget.loading(message: 'Loading note data...'),
       error: (error, stack) => Center(
-        child: Text('Error loading note: $error', style: AppTheme.error),
+        child: Text('Error loading note: $error', style: AppTypography.error),
       ),
     );
   }
@@ -125,11 +126,11 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
         showCupertinoDialog(
           context: context,
           builder: (context) => CupertinoAlertDialog(
-            title: Text('Error', style: AppTheme.headlineSmall),
-            content: Text('Failed to update note: $e', style: AppTheme.error),
+            title: Text('Error', style: AppTypography.headlineSmall),
+            content: Text('Failed to update note: $e', style: AppTypography.error),
             actions: [
               CupertinoDialogAction(
-                child: Text('OK', style: AppTheme.buttonSecondary),
+                child: Text('OK', style: AppTypography.buttonSecondary),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ],

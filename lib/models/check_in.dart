@@ -42,7 +42,7 @@ extension CheckInExtensions on CheckIn {
 
   /// Get the color for this check-in's metric (requires CheckInMetric to be passed)
   Color getMetricColor(CheckInMetric? metric) =>
-      metric?.color ?? AppTheme.primary;
+      metric?.color ?? AppColors.primary;
 
   /// Get the icon for this check-in's metric (requires CheckInMetric to be passed)
   IconData getMetricIcon(CheckInMetric? metric) =>

@@ -115,28 +115,28 @@ class SyncStatusWidget extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(AppTheme.spacingL),
+            padding: const EdgeInsets.all(AppSpacing.l),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.primary.withValues(alpha: 0.1),
-                  AppTheme.primary.withValues(alpha: 0.05),
+                  AppColors.primary.withValues(alpha: 0.1),
+                  AppColors.primary.withValues(alpha: 0.05),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(AppTheme.radiusExtraLarge),
+              borderRadius: BorderRadius.circular(AppRadius.extraLarge),
             ),
             child: const CupertinoActivityIndicator(
               radius: 20,
-              color: AppTheme.primary,
+              color: AppColors.primary,
             ),
           ),
           if (message != null) ...[
-            const SizedBox(height: AppTheme.spacingM),
+            const SizedBox(height: AppSpacing.m),
             Text(
               message!,
-              style: AppTheme.bodyMedium,
+              style: AppTypography.bodyMedium,
               textAlign: TextAlign.center,
             ),
           ],
@@ -156,11 +156,11 @@ class SyncStatusWidget extends ConsumerWidget {
 
         return Center(
           child: Container(
-            padding: const EdgeInsets.all(AppTheme.spacingL),
-            margin: const EdgeInsets.all(AppTheme.spacingL),
+            padding: const EdgeInsets.all(AppSpacing.l),
+            margin: const EdgeInsets.all(AppSpacing.l),
             decoration: BoxDecoration(
-              gradient: AppTheme.cardGradient,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+              gradient: AppComponents.cardGradient,
+              borderRadius: BorderRadius.circular(AppRadius.medium),
               border: Border.all(
                 color: CupertinoColors.systemGrey4.withValues(alpha: 0.3),
                 width: 1,
@@ -175,16 +175,16 @@ class SyncStatusWidget extends ConsumerWidget {
                     size: 48,
                     color: CupertinoColors.systemRed,
                   ),
-                  const SizedBox(height: AppTheme.spacingM),
+                  const SizedBox(height: AppSpacing.m),
                   Text(
                     'No internet connection',
-                    style: AppTheme.headlineSmall,
+                    style: AppTypography.headlineSmall,
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: AppTheme.spacingS),
+                  const SizedBox(height: AppSpacing.s),
                   Text(
                     'Data will sync when connection is restored',
-                    style: AppTheme.bodyMedium.copyWith(
+                    style: AppTypography.bodyMedium.copyWith(
                       color: CupertinoColors.systemGrey,
                     ),
                     textAlign: TextAlign.center,
@@ -195,22 +195,22 @@ class SyncStatusWidget extends ConsumerWidget {
                     size: 48,
                     color: CupertinoColors.systemOrange,
                   ),
-                  const SizedBox(height: AppTheme.spacingM),
+                  const SizedBox(height: AppSpacing.m),
                   Text(
                     'Sync Error',
-                    style: AppTheme.headlineSmall,
+                    style: AppTypography.headlineSmall,
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: AppTheme.spacingS),
+                  const SizedBox(height: AppSpacing.s),
                   Text(
                     syncError,
-                    style: AppTheme.bodyMedium.copyWith(
+                    style: AppTypography.bodyMedium.copyWith(
                       color: CupertinoColors.systemGrey,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   if (onRetry != null) ...[
-                    const SizedBox(height: AppTheme.spacingM),
+                    const SizedBox(height: AppSpacing.m),
                     CupertinoButton.filled(
                       onPressed: onRetry,
                       child: const Text('Retry'),
@@ -219,19 +219,19 @@ class SyncStatusWidget extends ConsumerWidget {
                 ] else if (isSyncing) ...[
                   const CupertinoActivityIndicator(
                     radius: 24,
-                    color: AppTheme.primary,
+                    color: AppColors.primary,
                   ),
-                  const SizedBox(height: AppTheme.spacingM),
+                  const SizedBox(height: AppSpacing.m),
                   Text(
                     'Syncing data...',
-                    style: AppTheme.headlineSmall,
+                    style: AppTypography.headlineSmall,
                     textAlign: TextAlign.center,
                   ),
                   if (message != null) ...[
-                    const SizedBox(height: AppTheme.spacingS),
+                    const SizedBox(height: AppSpacing.s),
                     Text(
                       message!,
-                      style: AppTheme.bodyMedium.copyWith(
+                      style: AppTypography.bodyMedium.copyWith(
                         color: CupertinoColors.systemGrey,
                       ),
                       textAlign: TextAlign.center,
@@ -243,15 +243,15 @@ class SyncStatusWidget extends ConsumerWidget {
                     size: 48,
                     color: CupertinoColors.systemGreen,
                   ),
-                  const SizedBox(height: AppTheme.spacingM),
+                  const SizedBox(height: AppSpacing.m),
                   Text(
                     'Data in sync',
-                    style: AppTheme.headlineSmall,
+                    style: AppTypography.headlineSmall,
                     textAlign: TextAlign.center,
                   ),
                 ],
                 if (child != null) ...[
-                  const SizedBox(height: AppTheme.spacingM),
+                  const SizedBox(height: AppSpacing.m),
                   child!,
                 ],
               ],
@@ -265,22 +265,22 @@ class SyncStatusWidget extends ConsumerWidget {
   Widget _buildSectionLoadingState() {
     return Container(
       decoration: BoxDecoration(
-        gradient: AppTheme.cardGradient,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        gradient: AppComponents.cardGradient,
+        borderRadius: BorderRadius.circular(AppRadius.medium),
         border: Border.all(
           color: CupertinoColors.systemGrey4.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
-      padding: const EdgeInsets.all(AppTheme.spacingM),
+      padding: const EdgeInsets.all(AppSpacing.m),
       child: Row(
         children: [
           const CupertinoActivityIndicator(radius: 10),
-          const SizedBox(width: AppTheme.spacingM),
+          const SizedBox(width: AppSpacing.m),
           Expanded(
             child: Text(
               message ?? 'Loading...',
-              style: AppTheme.bodyMedium.copyWith(
+              style: AppTypography.bodyMedium.copyWith(
                 color: CupertinoColors.systemGrey,
               ),
             ),
@@ -293,8 +293,8 @@ class SyncStatusWidget extends ConsumerWidget {
   Widget _buildErrorState() {
     return Center(
       child: Container(
-        padding: const EdgeInsets.all(AppTheme.spacingL),
-        margin: const EdgeInsets.all(AppTheme.spacingL),
+        padding: const EdgeInsets.all(AppSpacing.l),
+        margin: const EdgeInsets.all(AppSpacing.l),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -304,7 +304,7 @@ class SyncStatusWidget extends ConsumerWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          borderRadius: BorderRadius.circular(AppRadius.medium),
           border: Border.all(
             color: CupertinoColors.systemRed.withValues(alpha: 0.3),
             width: 1,
@@ -318,31 +318,31 @@ class SyncStatusWidget extends ConsumerWidget {
               size: 48,
               color: CupertinoColors.systemRed,
             ),
-            const SizedBox(height: AppTheme.spacingM),
+            const SizedBox(height: AppSpacing.m),
             Text(
               'Error',
-              style: AppTheme.headlineSmall,
+              style: AppTypography.headlineSmall,
               textAlign: TextAlign.center,
             ),
             if (errorMessage != null) ...[
-              const SizedBox(height: AppTheme.spacingS),
+              const SizedBox(height: AppSpacing.s),
               Text(
                 errorMessage!,
-                style: AppTheme.bodyMedium.copyWith(
+                style: AppTypography.bodyMedium.copyWith(
                   color: CupertinoColors.systemGrey,
                 ),
                 textAlign: TextAlign.center,
               ),
             ],
             if (onRetry != null) ...[
-              const SizedBox(height: AppTheme.spacingM),
+              const SizedBox(height: AppSpacing.m),
               CupertinoButton.filled(
                 onPressed: onRetry,
                 child: const Text('Retry'),
               ),
             ],
             if (child != null) ...[
-              const SizedBox(height: AppTheme.spacingM),
+              const SizedBox(height: AppSpacing.m),
               child!,
             ],
           ],

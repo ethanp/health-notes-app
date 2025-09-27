@@ -7,6 +7,7 @@ import 'package:health_notes/screens/my_tools_screen.dart';
 import 'package:health_notes/screens/trends_screen.dart';
 import 'package:health_notes/providers/sync_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
 class MainTabScreen extends ConsumerStatefulWidget {
@@ -26,13 +27,13 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen>
   void initState() {
     super.initState();
     _fadeInController = AnimationController(
-      duration: AppTheme.animationMedium,
+      duration: AppAnimation.medium,
       vsync: this,
     );
     _fadeInAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _fadeInController,
-        curve: AppTheme.animationCurve,
+        curve: AppAnimation.curve,
       ),
     );
     _fadeInController.forward();
@@ -65,11 +66,11 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen>
             _fadeInController.forward();
           },
           backgroundColor: Colors.transparent,
-          activeColor: AppTheme.primary,
-          inactiveColor: AppTheme.textTertiary,
+          activeColor: AppColors.primary,
+          inactiveColor: AppColors.textTertiary,
           border: Border(
             top: BorderSide(
-              color: AppTheme.backgroundQuaternary.withValues(alpha: 0.3),
+              color: AppColors.backgroundQuaternary.withValues(alpha: 0.3),
               width: 0.5,
             ),
           ),

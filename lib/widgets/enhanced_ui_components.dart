@@ -5,11 +5,11 @@ import 'package:health_notes/theme/app_theme.dart';
 class EnhancedUIComponents {
   static Widget animatedGradientBackground({
     required Widget child,
-    Duration duration = AppTheme.animationSlow,
+    Duration duration = AppAnimation.slow,
   }) {
     return AnimatedContainer(
       duration: duration,
-      decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
+      decoration: const BoxDecoration(gradient: AppComponents.backgroundGradient),
       child: child,
     );
   }
@@ -22,17 +22,17 @@ class EnhancedUIComponents {
     bool isElevated = false,
   }) {
     return AnimatedContainer(
-      duration: AppTheme.animationMedium,
-      curve: AppTheme.animationCurve,
-      margin: margin ?? const EdgeInsets.all(AppTheme.spacingM),
-      decoration: isElevated ? AppTheme.elevatedCard : AppTheme.primaryCard,
+      duration: AppAnimation.medium,
+      curve: AppAnimation.curve,
+      margin: margin ?? const EdgeInsets.all(AppSpacing.m),
+      decoration: isElevated ? AppComponents.elevatedCard : AppComponents.primaryCard,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          borderRadius: BorderRadius.circular(AppRadius.medium),
           child: Padding(
-            padding: padding ?? const EdgeInsets.all(AppTheme.spacingM),
+            padding: padding ?? const EdgeInsets.all(AppSpacing.m),
             child: child,
           ),
         ),
@@ -49,16 +49,16 @@ class EnhancedUIComponents {
     double? width,
   }) {
     return AnimatedContainer(
-      duration: AppTheme.animationFast,
-      curve: AppTheme.animationCurve,
+      duration: AppAnimation.fast,
+      curve: AppAnimation.curve,
       width: width,
       height: 48,
-      decoration: isPrimary ? AppTheme.primaryButton : AppTheme.secondaryButton,
+      decoration: isPrimary ? AppComponents.primaryButton : AppComponents.secondaryButton,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: isLoading ? null : onPressed,
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          borderRadius: BorderRadius.circular(AppRadius.medium),
           child: Center(
             child: isLoading
                 ? const CupertinoActivityIndicator(color: CupertinoColors.white)
@@ -70,16 +70,16 @@ class EnhancedUIComponents {
                           icon,
                           color: isPrimary
                               ? CupertinoColors.white
-                              : AppTheme.primary,
+                              : AppColors.primary,
                           size: 20,
                         ),
-                        const SizedBox(width: AppTheme.spacingS),
+                        const SizedBox(width: AppSpacing.s),
                       ],
                       Text(
                         text,
                         style: isPrimary
-                            ? AppTheme.buttonPrimary
-                            : AppTheme.buttonSecondary,
+                            ? AppTypography.buttonPrimary
+                            : AppTypography.buttonSecondary,
                       ),
                     ],
                   ),
@@ -97,14 +97,14 @@ class EnhancedUIComponents {
     bool showSuffix = false,
   }) {
     return AnimatedContainer(
-      duration: AppTheme.animationMedium,
-      curve: AppTheme.animationCurve,
-      decoration: AppTheme.searchField,
+      duration: AppAnimation.medium,
+      curve: AppAnimation.curve,
+      decoration: AppComponents.searchField,
       child: CupertinoSearchTextField(
         controller: controller,
         placeholder: placeholder,
-        placeholderStyle: AppTheme.inputPlaceholder,
-        style: AppTheme.input,
+        placeholderStyle: AppTypography.inputPlaceholder,
+        style: AppTypography.input,
         onChanged: onChanged,
         onSuffixTap: showSuffix ? onSuffixTap : null,
         decoration: const BoxDecoration(),
@@ -118,24 +118,24 @@ class EnhancedUIComponents {
     required VoidCallback onTap,
   }) {
     return AnimatedContainer(
-      duration: AppTheme.animationFast,
-      curve: AppTheme.animationCurve,
-      decoration: isActive ? AppTheme.activeFilterChip : AppTheme.filterChip,
+      duration: AppAnimation.fast,
+      curve: AppAnimation.curve,
+      decoration: isActive ? AppComponents.activeFilterChip : AppComponents.filterChip,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+          borderRadius: BorderRadius.circular(AppRadius.large),
           child: Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: AppTheme.spacingM,
-              vertical: AppTheme.spacingS,
+              horizontal: AppSpacing.m,
+              vertical: AppSpacing.s,
             ),
             child: Text(
               label,
               style: isActive
-                  ? AppTheme.labelMedium.copyWith(color: CupertinoColors.white)
-                  : AppTheme.labelMedium,
+                  ? AppTypography.labelMedium.copyWith(color: CupertinoColors.white)
+                  : AppTypography.labelMedium,
             ),
           ),
         ),
@@ -150,8 +150,8 @@ class EnhancedUIComponents {
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppTheme.spacingM,
-        vertical: AppTheme.spacingS,
+        horizontal: AppSpacing.m,
+        vertical: AppSpacing.s,
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -159,7 +159,7 @@ class EnhancedUIComponents {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        borderRadius: BorderRadius.circular(AppRadius.medium),
         border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
       ),
       child: Row(
@@ -167,9 +167,9 @@ class EnhancedUIComponents {
         children: [
           if (icon != null) ...[
             Icon(icon, color: color, size: 16),
-            const SizedBox(width: AppTheme.spacingS),
+            const SizedBox(width: AppSpacing.s),
           ],
-          Text(text, style: AppTheme.labelSmall.copyWith(color: color)),
+          Text(text, style: AppTypography.labelSmall.copyWith(color: color)),
         ],
       ),
     );
@@ -181,17 +181,17 @@ class EnhancedUIComponents {
     Widget? trailing,
   }) {
     return Padding(
-      padding: const EdgeInsets.all(AppTheme.spacingM),
+      padding: const EdgeInsets.all(AppSpacing.m),
       child: Row(
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: AppTheme.headlineSmall),
+                Text(title, style: AppTypography.headlineSmall),
                 if (subtitle != null) ...[
-                  const SizedBox(height: AppTheme.spacingXS),
-                  Text(subtitle, style: AppTheme.bodySmall),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(subtitle, style: AppTypography.bodySmall),
                 ],
               ],
             ),
@@ -210,43 +210,43 @@ class EnhancedUIComponents {
   }) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(AppTheme.spacingXL),
+        padding: const EdgeInsets.all(AppSpacing.xl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (icon != null) ...[
               Container(
-                padding: const EdgeInsets.all(AppTheme.spacingL),
+                padding: const EdgeInsets.all(AppSpacing.l),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.primary.withValues(alpha: 0.1),
-                      AppTheme.primary.withValues(alpha: 0.05),
+                      AppColors.primary.withValues(alpha: 0.1),
+                      AppColors.primary.withValues(alpha: 0.05),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(
-                    AppTheme.radiusExtraLarge,
+                    AppRadius.extraLarge,
                   ),
                 ),
-                child: Icon(icon, size: 48, color: AppTheme.primary),
+                child: Icon(icon, size: 48, color: AppColors.primary),
               ),
-              const SizedBox(height: AppTheme.spacingL),
+              const SizedBox(height: AppSpacing.l),
             ],
             Text(
               title,
-              style: AppTheme.headlineMedium,
+              style: AppTypography.headlineMedium,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: AppTheme.spacingM),
+            const SizedBox(height: AppSpacing.m),
             Text(
               message,
-              style: AppTheme.bodyMedium,
+              style: AppTypography.bodyMedium,
               textAlign: TextAlign.center,
             ),
             if (action != null) ...[
-              const SizedBox(height: AppTheme.spacingL),
+              const SizedBox(height: AppSpacing.l),
               action,
             ],
           ],
@@ -261,28 +261,28 @@ class EnhancedUIComponents {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(AppTheme.spacingL),
+            padding: const EdgeInsets.all(AppSpacing.l),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.primary.withValues(alpha: 0.1),
-                  AppTheme.primary.withValues(alpha: 0.05),
+                  AppColors.primary.withValues(alpha: 0.1),
+                  AppColors.primary.withValues(alpha: 0.05),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(AppTheme.radiusExtraLarge),
+              borderRadius: BorderRadius.circular(AppRadius.extraLarge),
             ),
             child: const CupertinoActivityIndicator(
               radius: 20,
-              color: AppTheme.primary,
+              color: AppColors.primary,
             ),
           ),
           if (message != null) ...[
-            const SizedBox(height: AppTheme.spacingM),
+            const SizedBox(height: AppSpacing.m),
             Text(
               message,
-              style: AppTheme.bodyMedium,
+              style: AppTypography.bodyMedium,
               textAlign: TextAlign.center,
             ),
           ],
@@ -298,17 +298,17 @@ class EnhancedUIComponents {
     bool showGradient = true,
   }) {
     return CupertinoNavigationBar(
-      middle: Text(title, style: AppTheme.headlineSmall),
+      middle: Text(title, style: AppTypography.headlineSmall),
       leading: leading,
       trailing: trailing,
       backgroundColor: showGradient
           ? Colors.transparent
-          : AppTheme.backgroundSecondary,
+          : AppColors.backgroundSecondary,
       border: showGradient
           ? null
           : Border(
               bottom: BorderSide(
-                color: AppTheme.backgroundQuaternary.withValues(alpha: 0.3),
+                color: AppColors.backgroundQuaternary.withValues(alpha: 0.3),
                 width: 0.5,
               ),
             ),

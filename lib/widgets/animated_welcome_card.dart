@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
 class AnimatedWelcomeCard extends StatefulWidget {
@@ -73,7 +74,7 @@ class _AnimatedWelcomeCardState extends State<AnimatedWelcomeCard>
     return AnimationLimiter(
       child: Column(
         children: AnimationConfiguration.toStaggeredList(
-          duration: AppTheme.animationSlow,
+          duration: AppAnimation.slow,
           childAnimationBuilder: (widget) => SlideAnimation(
             horizontalOffset: 50.0,
             child: FadeInAnimation(child: widget),
@@ -87,14 +88,14 @@ class _AnimatedWelcomeCardState extends State<AnimatedWelcomeCard>
                   child: Transform.scale(
                     scale: _pulseAnimation.value,
                     child: Container(
-                      padding: const EdgeInsets.all(AppTheme.spacingL),
+                      padding: const EdgeInsets.all(AppSpacing.l),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            (widget.iconColor ?? AppTheme.primary).withValues(
+                            (widget.iconColor ?? AppColors.primary).withValues(
                               alpha: 0.1,
                             ),
-                            (widget.iconColor ?? AppTheme.primary).withValues(
+                            (widget.iconColor ?? AppColors.primary).withValues(
                               alpha: 0.05,
                             ),
                           ],
@@ -102,11 +103,11 @@ class _AnimatedWelcomeCardState extends State<AnimatedWelcomeCard>
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(
-                          AppTheme.radiusExtraLarge,
+                          AppRadius.extraLarge,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: (widget.iconColor ?? AppTheme.primary)
+                            color: (widget.iconColor ?? AppColors.primary)
                                 .withValues(alpha: 0.2),
                             blurRadius: 20,
                             offset: const Offset(0, 8),
@@ -116,29 +117,29 @@ class _AnimatedWelcomeCardState extends State<AnimatedWelcomeCard>
                       child: Icon(
                         widget.icon,
                         size: 64,
-                        color: widget.iconColor ?? AppTheme.primary,
+                        color: widget.iconColor ?? AppColors.primary,
                       ),
                     ),
                   ),
                 );
               },
             ),
-            const SizedBox(height: AppTheme.spacingL),
+            const SizedBox(height: AppSpacing.l),
             Text(
               widget.title,
-              style: AppTheme.headlineMedium,
+              style: AppTypography.headlineMedium,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: AppTheme.spacingM),
+            const SizedBox(height: AppSpacing.m),
             Text(
               widget.message,
-              style: AppTheme.bodyMedium.copyWith(
-                color: AppTheme.textSecondary,
+              style: AppTypography.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
               ),
               textAlign: TextAlign.center,
             ),
             if (widget.action != null) ...[
-              const SizedBox(height: AppTheme.spacingL),
+              const SizedBox(height: AppSpacing.l),
               widget.action!,
             ],
           ],
@@ -177,14 +178,14 @@ class _AnimatedProgressCardState extends State<AnimatedProgressCard>
   void initState() {
     super.initState();
     _progressController = AnimationController(
-      duration: AppTheme.animationSlow,
+      duration: AppAnimation.slow,
       vsync: this,
     );
     _progressAnimation = Tween<double>(begin: 0.0, end: widget.progress)
         .animate(
           CurvedAnimation(
             parent: _progressController,
-            curve: AppTheme.animationCurve,
+            curve: AppAnimation.curve,
           ),
         );
     _progressController.forward();
@@ -201,7 +202,7 @@ class _AnimatedProgressCardState extends State<AnimatedProgressCard>
           ).animate(
             CurvedAnimation(
               parent: _progressController,
-              curve: AppTheme.animationCurve,
+              curve: AppAnimation.curve,
             ),
           );
       _progressController.forward(from: 0.0);
@@ -225,20 +226,24 @@ class _AnimatedProgressCardState extends State<AnimatedProgressCard>
               if (widget.icon != null) ...[
                 Icon(
                   widget.icon,
-                  color: widget.progressColor ?? AppTheme.primary,
+                  color: widget.progressColor ?? AppColors.primary,
                   size: 24,
                 ),
-                const SizedBox(width: AppTheme.spacingS),
+                const SizedBox(width: AppSpacing.s),
               ],
-              Expanded(child: Text(widget.title, style: AppTheme.labelLarge)),
+              Expanded(
+                child: Text(widget.title, style: AppTypography.labelLarge),
+              ),
             ],
           ),
-          const SizedBox(height: AppTheme.spacingS),
+          const SizedBox(height: AppSpacing.s),
           Text(
             widget.message,
-            style: AppTheme.bodySmall.copyWith(color: AppTheme.textTertiary),
+            style: AppTypography.bodySmall.copyWith(
+              color: AppColors.textTertiary,
+            ),
           ),
-          const SizedBox(height: AppTheme.spacingM),
+          const SizedBox(height: AppSpacing.m),
           AnimatedBuilder(
             animation: _progressAnimation,
             builder: (context, child) {
@@ -250,22 +255,22 @@ class _AnimatedProgressCardState extends State<AnimatedProgressCard>
                     children: [
                       Text(
                         '${(_progressAnimation.value * 100).toInt()}%',
-                        style: AppTheme.labelMedium.copyWith(
-                          color: widget.progressColor ?? AppTheme.primary,
+                        style: AppTypography.labelMedium.copyWith(
+                          color: widget.progressColor ?? AppColors.primary,
                         ),
                       ),
                       Text(
                         '${widget.progress * 100}%',
-                        style: AppTheme.caption,
+                        style: AppTypography.caption,
                       ),
                     ],
                   ),
-                  const SizedBox(height: AppTheme.spacingS),
+                  const SizedBox(height: AppSpacing.s),
                   Container(
                     height: 8,
                     decoration: BoxDecoration(
-                      color: AppTheme.backgroundQuaternary,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                      color: AppColors.backgroundQuaternary,
+                      borderRadius: BorderRadius.circular(AppRadius.small),
                     ),
                     child: FractionallySizedBox(
                       alignment: Alignment.centerLeft,
@@ -274,16 +279,14 @@ class _AnimatedProgressCardState extends State<AnimatedProgressCard>
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              widget.progressColor ?? AppTheme.primary,
-                              (widget.progressColor ?? AppTheme.primary)
+                              widget.progressColor ?? AppColors.primary,
+                              (widget.progressColor ?? AppColors.primary)
                                   .withValues(alpha: 0.7),
                             ],
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight,
                           ),
-                          borderRadius: BorderRadius.circular(
-                            AppTheme.radiusSmall,
-                          ),
+                          borderRadius: BorderRadius.circular(AppRadius.small),
                         ),
                       ),
                     ),

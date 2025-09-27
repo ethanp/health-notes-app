@@ -5,6 +5,7 @@ import 'package:health_notes/models/health_tool_category.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/screens/health_tool_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
 
@@ -39,12 +40,12 @@ class _HealthToolCategoryScreenState
             // Category header
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: AppTheme.primaryCard,
+              decoration: AppComponents.primaryCard,
               margin: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(widget.category.description, style: AppTheme.bodyMedium),
+                  Text(widget.category.description, style: AppTypography.bodyMedium),
                 ],
               ),
             ),
@@ -57,7 +58,7 @@ class _HealthToolCategoryScreenState
                   message: 'Loading tools...',
                 ),
                 error: (error, stack) =>
-                    Center(child: Text('Error: $error', style: AppTheme.error)),
+                    Center(child: Text('Error: $error', style: AppTypography.error)),
               ),
             ),
           ],
@@ -93,7 +94,7 @@ class _HealthToolCategoryScreenState
   Widget toolCard(HealthTool tool) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: AppTheme.primaryCard,
+      decoration: AppComponents.primaryCard,
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: () => _showToolDetails(tool),
@@ -115,7 +116,7 @@ class _HealthToolCategoryScreenState
   Widget toolHeader(HealthTool tool) {
     return Row(
       children: [
-        Expanded(child: Text(tool.name, style: AppTheme.labelLarge)),
+        Expanded(child: Text(tool.name, style: AppTypography.labelLarge)),
         const Icon(
           CupertinoIcons.chevron_right,
           color: CupertinoColors.systemGrey,
@@ -128,7 +129,7 @@ class _HealthToolCategoryScreenState
   Widget toolDescription(HealthTool tool) {
     return Text(
       tool.description,
-      style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+      style: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
       maxLines: 3,
       overflow: TextOverflow.ellipsis,
     );

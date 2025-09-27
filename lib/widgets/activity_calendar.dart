@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
 import 'package:intl/intl.dart';
 
 typedef ActivityDataExtractor<T> = Map<DateTime, T> Function();
@@ -34,16 +36,16 @@ class ActivityCalendar<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: AppTheme.primaryCard,
-      padding: const EdgeInsets.all(16),
+      decoration: AppComponents.primaryCard,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppTheme.headlineSmall),
+          Text(title, style: AppTypography.headlineSmall),
           const SizedBox(height: 8),
           Text(
             subtitle,
-            style: AppTheme.bodySmall.copyWith(
+            style: AppTypography.bodySmall.copyWith(
               color: CupertinoColors.systemGrey,
             ),
           ),
@@ -61,7 +63,7 @@ class ActivityCalendar<T> extends StatelessWidget {
     final monthsToShow = 12;
     final months = <Widget>[];
 
-    for (int monthOffset = 0; monthOffset < monthsToShow; monthOffset++) {
+    for (int monthOffset = monthsToShow - 1; monthOffset >= 0; monthOffset--) {
       final monthDate = DateTime(now.year, now.month - monthOffset, 1);
       final daysInMonth = DateTime(monthDate.year, monthDate.month + 1, 0).day;
 
@@ -71,7 +73,7 @@ class ActivityCalendar<T> extends StatelessWidget {
       months.add(monthWidget(context, monthDate, monthName, daysInMonth));
     }
 
-    return months.isEmpty ? emptyState() : monthsScrollView(months);
+    return months.isEmpty ? emptyState() : monthsScrollView(context, months);
   }
 
   bool monthHasActivity(DateTime monthDate, int daysInMonth) {
@@ -105,7 +107,7 @@ class ActivityCalendar<T> extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8, left: 4),
       child: Text(
         monthName,
-        style: AppTheme.bodySmall.copyWith(
+        style: AppTypography.bodySmall.copyWith(
           color: CupertinoColors.systemGrey,
           fontWeight: FontWeight.w500,
         ),
@@ -139,7 +141,9 @@ class ActivityCalendar<T> extends StatelessWidget {
         }
       }
 
-      weekRows.add(Row(mainAxisSize: MainAxisSize.min, children: weekDays));
+      weekRows.add(
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: weekDays),
+      );
     }
 
     return weekRows;
@@ -148,27 +152,61 @@ class ActivityCalendar<T> extends StatelessWidget {
   Widget dayCell(BuildContext context, DateTime date) {
     final value = activityData[date] ?? emptyValue;
     final color = colorCalculator(value);
+    final hasActivity = value != emptyValue;
+    final displayText = hasActivity
+        ? _formatActivityValue(value)
+        : '${date.day}';
 
     return GestureDetector(
       onTap: () => onDateTap(context, date, value),
       child: Container(
-        width: 30,
-        height: 30,
-        margin: const EdgeInsets.all(2),
+        width: 40,
+        height: 40,
+        margin: const EdgeInsets.all(3),
         decoration: BoxDecoration(
-          color: value != emptyValue
+          color: hasActivity
               ? color
-              : AppTheme.backgroundPrimary.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(3),
-          border: Border.all(color: cellBorderColor(value)),
+              : AppColors.backgroundPrimary.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: cellBorderColor(value),
+            width: hasActivity ? 1.5 : 0.5,
+          ),
+          boxShadow: hasActivity
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.3),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
-        child: Center(child: Text('${date.day}', style: cellTextStyle(value))),
+        child: Center(
+          child: Text(
+            displayText,
+            style: cellTextStyle(value).copyWith(
+              fontSize: hasActivity ? 12 : 14,
+              fontWeight: hasActivity ? FontWeight.bold : FontWeight.w500,
+            ),
+          ),
+        ),
       ),
     );
   }
 
+  String _formatActivityValue(T value) {
+    if (value is int) {
+      return value.toString();
+    } else if (value is double) {
+      return value.toStringAsFixed(value.truncateToDouble() == value ? 0 : 1);
+    } else {
+      return value.toString();
+    }
+  }
+
   Widget emptyCell() {
-    return Container(width: 30, height: 30, margin: const EdgeInsets.all(2));
+    return Container(width: 40, height: 40, margin: const EdgeInsets.all(3));
   }
 
   Widget emptyState() {
@@ -185,7 +223,7 @@ class ActivityCalendar<T> extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'No activity data available',
-              style: AppTheme.bodyMedium.copyWith(
+              style: AppTypography.bodyMedium.copyWith(
                 color: CupertinoColors.systemGrey,
                 fontWeight: FontWeight.w500,
               ),
@@ -193,7 +231,7 @@ class ActivityCalendar<T> extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               'Start recording data to see trends',
-              style: AppTheme.bodySmall.copyWith(
+              style: AppTypography.bodySmall.copyWith(
                 color: CupertinoColors.systemGrey.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
@@ -204,11 +242,11 @@ class ActivityCalendar<T> extends StatelessWidget {
     );
   }
 
-  Widget monthsScrollView(List<Widget> months) {
+  Widget monthsScrollView(BuildContext context, List<Widget> months) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: months,
       ),
     );
@@ -223,7 +261,7 @@ class ActivityCalendar<T> extends StatelessWidget {
 
   TextStyle cellTextStyle(T value) {
     if (value == emptyValue) {
-      return AppTheme.bodySmall.copyWith(
+      return AppTypography.bodySmall.copyWith(
         color: CupertinoColors.systemGrey.withValues(alpha: 0.6),
         fontSize: 12,
       );
@@ -235,7 +273,7 @@ class ActivityCalendar<T> extends StatelessWidget {
         ? CupertinoColors.black
         : CupertinoColors.white;
 
-    return AppTheme.bodySmall.copyWith(
+    return AppTypography.bodySmall.copyWith(
       color: textColor,
       fontSize: 12,
       fontWeight: FontWeight.w500,
@@ -273,12 +311,25 @@ class SeverityActivityCalendar extends StatelessWidget {
   }
 
   Color _severityColor(int severity) {
-    if (severity == 0) return AppTheme.backgroundPrimary.withValues(alpha: 0.3);
+    if (severity == 0)
+      return AppColors.backgroundPrimary.withValues(alpha: 0.3);
 
-    final normalizedSeverity = severity / 10.0;
-    final hue = 120 - (normalizedSeverity * 120);
-    final saturation = 30 + (normalizedSeverity * 60);
-    final lightness = 85 - (normalizedSeverity * 50);
+    final normalizedSeverity = (severity / 10.0).clamp(
+      0.0,
+      1.0,
+    ); // Normalize and clamp to 0.0-1.0
+    final hue = (120 - (normalizedSeverity * 120)).clamp(
+      0.0,
+      360.0,
+    ); // Ensure hue is in valid range
+    final saturation = (30 + (normalizedSeverity * 60)).clamp(
+      0.0,
+      100.0,
+    ); // Ensure saturation is valid
+    final lightness = (85 - (normalizedSeverity * 50)).clamp(
+      0.0,
+      100.0,
+    ); // Ensure lightness is valid
 
     return HSLColor.fromAHSL(
       1.0,
@@ -294,7 +345,7 @@ class SeverityActivityCalendar extends StatelessWidget {
       children: [
         Text(
           'Severity Levels:',
-          style: AppTheme.bodyMedium.copyWith(
+          style: AppTypography.bodyMedium.copyWith(
             fontWeight: FontWeight.w600,
             color: CupertinoColors.white,
           ),
@@ -333,7 +384,7 @@ class SeverityActivityCalendar extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           label,
-          style: AppTheme.bodySmall.copyWith(
+          style: AppTypography.bodySmall.copyWith(
             color: CupertinoColors.white.withValues(alpha: 0.8),
           ),
         ),
@@ -377,11 +428,12 @@ class DosageActivityCalendar extends StatelessWidget {
   }
 
   Color _dosageColor(double dosage, double maxDosage) {
-    if (dosage == 0.0) return AppTheme.backgroundPrimary.withValues(alpha: 0.3);
-    if (maxDosage == 0.0) return AppTheme.primary.withValues(alpha: 0.1);
+    if (dosage == 0.0)
+      return AppColors.backgroundPrimary.withValues(alpha: 0.3);
+    if (maxDosage == 0.0) return AppColors.primary.withValues(alpha: 0.1);
 
     final intensity = dosage / maxDosage;
-    final baseColor = AppTheme.primary;
+    final baseColor = AppColors.primary;
     return Color.lerp(
       baseColor.withValues(alpha: 0.1),
       baseColor.withValues(alpha: 0.8),
@@ -394,12 +446,14 @@ class DosageActivityCalendar extends StatelessWidget {
       children: [
         Text(
           'Less',
-          style: AppTheme.bodySmall.copyWith(color: CupertinoColors.systemGrey),
+          style: AppTypography.bodySmall.copyWith(
+            color: CupertinoColors.systemGrey,
+          ),
         ),
         const SizedBox(width: 8),
         ...List.generate(5, (index) {
           final intensity = (index + 1) / 5.0;
-          final baseColor = AppTheme.primary;
+          final baseColor = AppColors.primary;
           return Container(
             width: 12,
             height: 12,
@@ -417,16 +471,150 @@ class DosageActivityCalendar extends StatelessWidget {
         const SizedBox(width: 8),
         Text(
           'More',
-          style: AppTheme.bodySmall.copyWith(color: CupertinoColors.systemGrey),
+          style: AppTypography.bodySmall.copyWith(
+            color: CupertinoColors.systemGrey,
+          ),
         ),
         const Spacer(),
         if (maxDosage > 0)
           Text(
             'Max: ${maxDosage.toStringAsFixed(maxDosage.truncateToDouble() == maxDosage ? 0 : 1)}mg',
-            style: AppTheme.bodySmall.copyWith(
+            style: AppTypography.bodySmall.copyWith(
               color: CupertinoColors.systemGrey,
             ),
           ),
+      ],
+    );
+  }
+}
+
+class CheckInsActivityCalendar extends StatelessWidget {
+  final List<CheckIn> checkIns;
+  final void Function(DateTime date) onDateTap;
+
+  const CheckInsActivityCalendar({
+    super.key,
+    required this.checkIns,
+    required this.onDateTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final activityData = _generateActivityData();
+
+    return ActivityCalendar<int>(
+      title: 'Check-ins',
+      subtitle: 'Tap on a date to view check-ins for that day',
+      activityData: activityData,
+      colorCalculator: _checkInsColor,
+      legendBuilder: checkInsLegend,
+      onDateTap: (context, date, count) => onDateTap(date),
+      activityDescriptor: (count) => count == 0
+          ? 'No check-ins'
+          : '$count check-in${count == 1 ? '' : 's'}',
+      emptyValue: 0,
+    );
+  }
+
+  Map<DateTime, int> _generateActivityData() {
+    final activityData = <DateTime, int>{};
+
+    for (final checkIn in checkIns) {
+      final dateKey = DateTime(
+        checkIn.dateTime.year,
+        checkIn.dateTime.month,
+        checkIn.dateTime.day,
+      );
+
+      activityData.update(
+        dateKey,
+        (existing) => existing + 1,
+        ifAbsent: () => 1,
+      );
+    }
+
+    return activityData;
+  }
+
+  Color _checkInsColor(int count) {
+    if (count == 0) return AppColors.backgroundPrimary.withValues(alpha: 0.1);
+
+    switch (count) {
+      case 1:
+        return const Color(0xFFE8F5E8); // Very light green
+      case 2:
+        return const Color(0xFFC8E6C9); // Light green
+      case 3:
+        return const Color(0xFFA5D6A7); // Medium light green
+      case 4:
+        return const Color(0xFF81C784); // Medium green
+      case 5:
+        return const Color(0xFF66BB6A); // Strong green
+      default: // 6+
+        return const Color(0xFF4CAF50); // Deep green (best)
+    }
+  }
+
+  Widget checkInsLegend() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Daily Check-in Count:',
+          style: AppTypography.bodyMedium.copyWith(
+            fontWeight: FontWeight.w600,
+            color: CupertinoColors.white,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            _checkInsLegendItem(0, 'None'),
+            const SizedBox(width: 16),
+            _checkInsLegendItem(1, '1'),
+            const SizedBox(width: 12),
+            _checkInsLegendItem(2, '2'),
+            const SizedBox(width: 12),
+            _checkInsLegendItem(3, '3'),
+            const SizedBox(width: 12),
+            _checkInsLegendItem(4, '4'),
+            const SizedBox(width: 12),
+            _checkInsLegendItem(5, '5'),
+            const SizedBox(width: 12),
+            _checkInsLegendItem(6, '6+'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _checkInsLegendItem(int count, String label) {
+    final color = _checkInsColor(count);
+    return Column(
+      children: [
+        Container(
+          width: 20,
+          height: 20,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(
+              color: count == 0
+                  ? CupertinoColors.systemGrey4.withValues(alpha: 0.5)
+                  : color.withValues(alpha: 0.8),
+              width: count == 0 ? 0.5 : 1,
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: AppTypography.bodySmall.copyWith(
+            color: CupertinoColors.white.withValues(alpha: 0.9),
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ],
     );
   }

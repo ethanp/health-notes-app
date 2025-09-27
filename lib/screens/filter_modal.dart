@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
+
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:intl/intl.dart';
 
@@ -45,7 +46,7 @@ class _FilterModalState extends State<FilterModal> {
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: applyFilters,
-          child: Text('Apply', style: AppTheme.buttonSecondary),
+          child: Text('Apply', style: AppTypography.buttonSecondary),
         ),
       ),
       child: SafeArea(
@@ -70,11 +71,11 @@ class _FilterModalState extends State<FilterModal> {
   Widget dateFilterSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.filterChip,
+      decoration: AppComponents.filterChip,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Filter by Date', style: AppTheme.headlineSmall),
+          Text('Filter by Date', style: AppTypography.headlineSmall),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -104,8 +105,8 @@ class _FilterModalState extends State<FilterModal> {
             ? DateFormat('M/d/yyyy').format(_tempSelectedDate!)
             : 'Select Date',
         style: _tempSelectedDate != null
-            ? AppTheme.buttonPrimary
-            : AppTheme.bodyMedium,
+            ? AppTypography.buttonPrimary
+            : AppTypography.bodyMedium,
       ),
     );
   }
@@ -127,16 +128,16 @@ class _FilterModalState extends State<FilterModal> {
   Widget drugFilterSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.filterChip,
+      decoration: AppComponents.filterChip,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Filter by Drug', style: AppTheme.headlineSmall),
+          Text('Filter by Drug', style: AppTypography.headlineSmall),
           const SizedBox(height: 16),
           if (widget.availableDrugs.isEmpty)
             Text(
               'No drugs recorded yet',
-              style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+              style: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
             )
           else
             Wrap(
@@ -164,14 +165,14 @@ class _FilterModalState extends State<FilterModal> {
   Widget datePickerOverlay() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.inputField,
+      decoration: AppComponents.inputField,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Select Date', style: AppTheme.headlineSmall),
+              Text('Select Date', style: AppTypography.headlineSmall),
               CupertinoButton(
                 padding: EdgeInsets.zero,
                 onPressed: () => setState(() => _isDatePickerVisible = false),
@@ -182,7 +183,7 @@ class _FilterModalState extends State<FilterModal> {
           const SizedBox(height: 16),
           Container(
             height: 300,
-            decoration: AppTheme.inputField,
+            decoration: AppComponents.inputField,
             child: customDatePicker(),
           ),
         ],
@@ -234,7 +235,7 @@ class _FilterModalState extends State<FilterModal> {
       ),
       children: months
           .map(
-            (month) => Center(child: Text(month, style: AppTheme.bodyMedium)),
+            (month) => Center(child: Text(month, style: AppTypography.bodyMedium)),
           )
           .toList(),
     );
@@ -252,7 +253,7 @@ class _FilterModalState extends State<FilterModal> {
         ),
       ),
       children: days
-          .map((day) => Center(child: Text(day, style: AppTheme.bodyMedium)))
+          .map((day) => Center(child: Text(day, style: AppTypography.bodyMedium)))
           .toList(),
     );
   }
@@ -269,7 +270,7 @@ class _FilterModalState extends State<FilterModal> {
         ),
       ),
       children: years
-          .map((year) => Center(child: Text(year, style: AppTheme.bodyMedium)))
+          .map((year) => Center(child: Text(year, style: AppTypography.bodyMedium)))
           .toList(),
     );
   }
