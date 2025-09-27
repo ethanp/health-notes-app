@@ -147,9 +147,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
             if (notes.isNotEmpty)
               Text(
                 'Total doses: ${_calculateTotalDoses(notes)}',
-                style: AppTypography.bodySmall.copyWith(
-                  color: CupertinoColors.systemGrey,
-                ),
+                style: AppTypography.bodySmallSystemGrey,
               ),
           ],
         ),
@@ -169,9 +167,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
                 Expanded(
                   child: Text(
                     'No notes match your search criteria',
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: CupertinoColors.systemGrey,
-                    ),
+                    style: AppTypography.bodyMediumSystemGrey,
                   ),
                 ),
               ],
@@ -217,9 +213,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
         ),
         Text(
           DateFormat('h:mm a').format(dateTime),
-          style: AppTypography.bodySmall.copyWith(
-            color: CupertinoColors.systemGrey,
-          ),
+          style: AppTypography.bodySmallSystemGrey,
         ),
       ],
     );
@@ -244,7 +238,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
           Expanded(
             child: Text(
               dose.fullDisplay,
-              style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+              style: AppTypography.bodyMediumSemibold,
             ),
           ),
         ],
@@ -259,7 +253,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
         const SizedBox(height: 8),
         Text(
           'Symptoms: ${symptoms.map((s) => s.fullDescription).join(', ')}',
-          style: AppTypography.bodySmall.copyWith(color: CupertinoColors.systemGrey),
+          style: AppTypography.bodySmallSystemGrey,
         ),
       ],
     );
@@ -270,10 +264,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
-        Text(
-          'Notes: $notes',
-          style: AppTypography.bodySmall.copyWith(color: CupertinoColors.systemGrey),
-        ),
+        Text('Notes: $notes', style: AppTypography.bodySmallSystemGrey),
       ],
     );
   }

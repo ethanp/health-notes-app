@@ -39,7 +39,7 @@ class AppColors {
 /// Typography system for consistent text styling
 /// Pre-configured text styles eliminate the need for repetitive copyWith calls
 class AppTypography {
-  // Base text styles (for customization)
+  // Base text styles (foundational styles)
   static TextStyle get headlineLarge => const TextStyle(
     fontSize: 32,
     fontWeight: FontWeight.w700,
@@ -48,21 +48,15 @@ class AppTypography {
     letterSpacing: -0.5,
   );
 
-  static TextStyle get headlineMedium => const TextStyle(
+  static TextStyle get headlineMedium => headlineLarge.copyWith(
     fontSize: 24,
     fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
     height: 1.3,
     letterSpacing: -0.3,
   );
 
-  static TextStyle get headlineSmall => const TextStyle(
-    fontSize: 20,
-    fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
-    height: 1.4,
-    letterSpacing: -0.2,
-  );
+  static TextStyle get headlineSmall =>
+      headlineMedium.copyWith(fontSize: 20, height: 1.4, letterSpacing: -0.2);
 
   static TextStyle get bodyLarge => const TextStyle(
     fontSize: 18,
@@ -72,21 +66,10 @@ class AppTypography {
     letterSpacing: 0.1,
   );
 
-  static TextStyle get bodyMedium => const TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.normal,
-    color: AppColors.textPrimary,
-    height: 1.5,
-    letterSpacing: 0.1,
-  );
+  static TextStyle get bodyMedium => bodyLarge.copyWith(fontSize: 16);
 
-  static TextStyle get bodySmall => const TextStyle(
-    fontSize: 14,
-    fontWeight: FontWeight.normal,
-    color: AppColors.textSecondary,
-    height: 1.5,
-    letterSpacing: 0.1,
-  );
+  static TextStyle get bodySmall =>
+      bodyMedium.copyWith(fontSize: 14, color: AppColors.textSecondary);
 
   static TextStyle get labelLarge => const TextStyle(
     fontSize: 16,
@@ -96,21 +79,11 @@ class AppTypography {
     letterSpacing: 0.1,
   );
 
-  static TextStyle get labelMedium => const TextStyle(
-    fontSize: 14,
-    fontWeight: FontWeight.w500,
-    color: AppColors.textPrimary,
-    height: 1.4,
-    letterSpacing: 0.1,
-  );
+  static TextStyle get labelMedium =>
+      labelLarge.copyWith(fontSize: 14, fontWeight: FontWeight.w500);
 
-  static TextStyle get labelSmall => const TextStyle(
-    fontSize: 12,
-    fontWeight: FontWeight.w500,
-    color: AppColors.textSecondary,
-    height: 1.4,
-    letterSpacing: 0.1,
-  );
+  static TextStyle get labelSmall =>
+      labelMedium.copyWith(fontSize: 12, color: AppColors.textSecondary);
 
   static TextStyle get caption => const TextStyle(
     fontSize: 12,
@@ -120,94 +93,8 @@ class AppTypography {
     letterSpacing: 0.1,
   );
 
-  static TextStyle get captionSecondary => const TextStyle(
-    fontSize: 12,
-    fontWeight: FontWeight.normal,
-    color: AppColors.textQuaternary,
-    height: 1.4,
-    letterSpacing: 0.1,
-  );
-
-  // Pre-configured text styles with correct colors (no need for copyWith)
-  static TextStyle get headlineSmallPrimary => const TextStyle(
-    fontSize: 20,
-    fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
-    height: 1.4,
-    letterSpacing: -0.2,
-  );
-
-  static TextStyle get bodyMediumPrimary => const TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.normal,
-    color: AppColors.textPrimary,
-    height: 1.5,
-    letterSpacing: 0.1,
-  );
-
-  static TextStyle get bodySmallSecondary => const TextStyle(
-    fontSize: 14,
-    fontWeight: FontWeight.normal,
-    color: AppColors.textSecondary,
-    height: 1.5,
-    letterSpacing: 0.1,
-  );
-
-  static TextStyle get bodySmallTertiary => const TextStyle(
-    fontSize: 14,
-    fontWeight: FontWeight.normal,
-    color: AppColors.textTertiary,
-    height: 1.5,
-    letterSpacing: 0.1,
-  );
-
-  static TextStyle get labelLargePrimary => const TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
-    height: 1.4,
-    letterSpacing: 0.1,
-  );
-
-  static TextStyle get bodyLargePrimary => const TextStyle(
-    fontSize: 18,
-    fontWeight: FontWeight.normal,
-    color: AppColors.textPrimary,
-    height: 1.5,
-    letterSpacing: 0.1,
-  );
-
-  static TextStyle get captionQuaternary => const TextStyle(
-    fontSize: 12,
-    fontWeight: FontWeight.normal,
-    color: AppColors.textQuaternary,
-    height: 1.4,
-    letterSpacing: 0.1,
-  );
-
-  static TextStyle get labelMediumPrimary => const TextStyle(
-    fontSize: 14,
-    fontWeight: FontWeight.w500,
-    color: AppColors.textPrimary,
-    height: 1.4,
-    letterSpacing: 0.1,
-  );
-
-  static TextStyle get bodyMediumSecondary => const TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.normal,
-    color: AppColors.textSecondary,
-    height: 1.5,
-    letterSpacing: 0.1,
-  );
-
-  static TextStyle get bodyMediumTertiary => const TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.normal,
-    color: AppColors.textTertiary,
-    height: 1.5,
-    letterSpacing: 0.1,
-  );
+  static TextStyle get captionSecondary =>
+      caption.copyWith(color: AppColors.textQuaternary);
 
   // Semantic text styles
   static TextStyle get buttonPrimary => const TextStyle(
@@ -218,13 +105,8 @@ class AppTypography {
     letterSpacing: 0.1,
   );
 
-  static TextStyle get buttonSecondary => const TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    color: AppColors.primary,
-    height: 1.4,
-    letterSpacing: 0.1,
-  );
+  static TextStyle get buttonSecondary =>
+      buttonPrimary.copyWith(color: AppColors.primary);
 
   static TextStyle get input => const TextStyle(
     fontSize: 16,
@@ -234,13 +116,8 @@ class AppTypography {
     letterSpacing: 0.1,
   );
 
-  static TextStyle get inputPlaceholder => const TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.normal,
-    color: AppColors.textQuaternary,
-    height: 1.5,
-    letterSpacing: 0.1,
-  );
+  static TextStyle get inputPlaceholder =>
+      input.copyWith(color: AppColors.textQuaternary);
 
   static TextStyle get error => const TextStyle(
     fontSize: 12,
@@ -257,6 +134,126 @@ class AppTypography {
     height: 1.4,
     letterSpacing: 0.1,
   );
+
+  // Hierarchical text style variations
+  static TextStyle get headlineSmallWhite =>
+      headlineSmall.copyWith(color: CupertinoColors.white, fontSize: 18);
+
+  static TextStyle get bodyMediumPrimary =>
+      bodyMedium.copyWith(color: AppColors.textPrimary);
+
+  static TextStyle get bodySmallSecondary =>
+      bodySmall.copyWith(color: AppColors.textSecondary);
+
+  static TextStyle get bodySmallTertiary =>
+      bodySmall.copyWith(color: AppColors.textTertiary);
+
+  static TextStyle get labelLargePrimary =>
+      labelLarge.copyWith(color: AppColors.textPrimary);
+
+  static TextStyle get bodyLargePrimary =>
+      bodyLarge.copyWith(color: AppColors.textPrimary);
+
+  static TextStyle get captionQuaternary =>
+      caption.copyWith(color: AppColors.textQuaternary);
+
+  static TextStyle get labelMediumPrimary =>
+      labelMedium.copyWith(color: AppColors.textPrimary);
+
+  static TextStyle get bodyMediumSecondary =>
+      bodyMedium.copyWith(color: AppColors.textSecondary);
+
+  static TextStyle get bodyMediumTertiary =>
+      bodyMedium.copyWith(color: AppColors.textTertiary);
+
+  static TextStyle get labelMediumWhite =>
+      labelMedium.copyWith(color: CupertinoColors.white);
+
+  static TextStyle get bodySmallWhite =>
+      bodySmall.copyWith(color: CupertinoColors.white);
+
+  static TextStyle get bodySmallSystemGrey =>
+      bodySmall.copyWith(color: CupertinoColors.systemGrey);
+
+  static TextStyle get bodyMediumSemibold =>
+      bodyMedium.copyWith(fontWeight: FontWeight.w600);
+
+  static TextStyle get bodySmallPrimary =>
+      bodySmall.copyWith(color: AppColors.textPrimary);
+
+  static TextStyle get bodyMediumQuaternary =>
+      bodyMedium.copyWith(color: AppColors.textQuaternary);
+
+  static TextStyle get labelSmallWhite =>
+      labelSmall.copyWith(color: CupertinoColors.white);
+
+  static TextStyle get labelLargeWhite =>
+      labelLarge.copyWith(color: CupertinoColors.white);
+
+  static TextStyle get bodySmallSystemGreySemibold =>
+      bodySmallSystemGrey.copyWith(fontWeight: FontWeight.w500);
+
+  static TextStyle get bodyMediumWhiteSemibold =>
+      bodyMediumWhite.copyWith(fontWeight: FontWeight.w600);
+
+  static TextStyle get buttonPrimaryBold =>
+      buttonPrimary.copyWith(fontWeight: FontWeight.bold);
+
+  static TextStyle get buttonPrimaryBoldSmall =>
+      buttonPrimaryBold.copyWith(fontSize: 10);
+
+  static TextStyle get bodySmallWhiteBold =>
+      bodySmallWhite.copyWith(fontWeight: FontWeight.bold);
+
+  static TextStyle get bodySmallGreenSmall =>
+      bodySmall.copyWith(color: CupertinoColors.systemGreen, fontSize: 10);
+
+  static TextStyle get bodySmallSemiboldPrimary => bodySmall.copyWith(
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+    fontSize: 13,
+  );
+
+  static TextStyle get bodySmallSecondarySmall =>
+      bodySmallSecondary.copyWith(fontSize: 9);
+
+  static TextStyle get bodyMediumSystemGrey =>
+      bodyMedium.copyWith(color: CupertinoColors.systemGrey);
+
+  static TextStyle get labelMediumSecondary =>
+      labelMedium.copyWith(color: AppColors.textSecondary);
+
+  static TextStyle get bodyLargeSecondary =>
+      bodyLarge.copyWith(color: AppColors.textSecondary);
+
+  static TextStyle get bodyMediumPrimarySemibold => bodyMedium.copyWith(
+    fontWeight: FontWeight.w600,
+    color: AppColors.primary,
+  );
+
+  static TextStyle get labelMediumSystemGreySemibold => labelMedium.copyWith(
+    fontWeight: FontWeight.w600,
+    color: CupertinoColors.systemGrey,
+  );
+
+  static TextStyle get bodyMediumWhite =>
+      bodyMedium.copyWith(color: CupertinoColors.white);
+
+  static TextStyle get labelLargeWhiteSemibold =>
+      labelLargeWhite.copyWith(fontWeight: FontWeight.w600);
+
+  static TextStyle get labelSmallSeverityColor =>
+      labelSmall.copyWith(fontWeight: FontWeight.w600);
+
+  static TextStyle get bodyMediumSemiboldBlue =>
+      bodyMediumSemibold.copyWith(color: CupertinoColors.systemBlue);
+
+  // Additional styles that were referenced but not in the original hierarchy
+  static TextStyle get headlineSmallPrimary =>
+      headlineSmall.copyWith(color: AppColors.textPrimary);
+
+  static TextStyle get bodyMediumSystemGreySemibold =>
+      bodyMediumSystemGrey.copyWith(fontWeight: FontWeight.w500);
 }
 
 /// Spacing system for consistent layout

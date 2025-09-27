@@ -43,12 +43,7 @@ class ActivityCalendar<T> extends StatelessWidget {
         children: [
           Text(title, style: AppTypography.headlineSmall),
           const SizedBox(height: 8),
-          Text(
-            subtitle,
-            style: AppTypography.bodySmall.copyWith(
-              color: CupertinoColors.systemGrey,
-            ),
-          ),
+          Text(subtitle, style: AppTypography.bodySmallSystemGrey),
           const SizedBox(height: 16),
           legendBuilder(),
           const SizedBox(height: 16),
@@ -105,13 +100,7 @@ class ActivityCalendar<T> extends StatelessWidget {
   Widget monthHeader(String monthName) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8, left: 4),
-      child: Text(
-        monthName,
-        style: AppTypography.bodySmall.copyWith(
-          color: CupertinoColors.systemGrey,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
+      child: Text(monthName, style: AppTypography.bodySmallSystemGreySemibold),
     );
   }
 
@@ -223,15 +212,12 @@ class ActivityCalendar<T> extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'No activity data available',
-              style: AppTypography.bodyMedium.copyWith(
-                color: CupertinoColors.systemGrey,
-                fontWeight: FontWeight.w500,
-              ),
+              style: AppTypography.bodyMediumSystemGreySemibold,
             ),
             const SizedBox(height: 8),
             Text(
               'Start recording data to see trends',
-              style: AppTypography.bodySmall.copyWith(
+              style: AppTypography.bodySmallSystemGrey.copyWith(
                 color: CupertinoColors.systemGrey.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
@@ -343,13 +329,7 @@ class SeverityActivityCalendar extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Severity Levels:',
-          style: AppTypography.bodyMedium.copyWith(
-            fontWeight: FontWeight.w600,
-            color: CupertinoColors.white,
-          ),
-        ),
+        Text('Severity Levels:', style: AppTypography.bodyMediumWhiteSemibold),
         const SizedBox(height: 8),
         Wrap(
           spacing: 12,
@@ -384,7 +364,7 @@ class SeverityActivityCalendar extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           label,
-          style: AppTypography.bodySmall.copyWith(
+          style: AppTypography.bodySmallWhite.copyWith(
             color: CupertinoColors.white.withValues(alpha: 0.8),
           ),
         ),
@@ -444,12 +424,7 @@ class DosageActivityCalendar extends StatelessWidget {
   Widget dosageLegend(double maxDosage) {
     return Row(
       children: [
-        Text(
-          'Less',
-          style: AppTypography.bodySmall.copyWith(
-            color: CupertinoColors.systemGrey,
-          ),
-        ),
+        Text('Less', style: AppTypography.bodySmallSystemGrey),
         const SizedBox(width: 8),
         ...List.generate(5, (index) {
           final intensity = (index + 1) / 5.0;
@@ -469,19 +444,12 @@ class DosageActivityCalendar extends StatelessWidget {
           );
         }),
         const SizedBox(width: 8),
-        Text(
-          'More',
-          style: AppTypography.bodySmall.copyWith(
-            color: CupertinoColors.systemGrey,
-          ),
-        ),
+        Text('More', style: AppTypography.bodySmallSystemGrey),
         const Spacer(),
         if (maxDosage > 0)
           Text(
             'Max: ${maxDosage.toStringAsFixed(maxDosage.truncateToDouble() == maxDosage ? 0 : 1)}mg',
-            style: AppTypography.bodySmall.copyWith(
-              color: CupertinoColors.systemGrey,
-            ),
+            style: AppTypography.bodySmallSystemGrey,
           ),
       ],
     );
@@ -561,10 +529,7 @@ class CheckInsActivityCalendar extends StatelessWidget {
       children: [
         Text(
           'Daily Check-in Count:',
-          style: AppTypography.bodyMedium.copyWith(
-            fontWeight: FontWeight.w600,
-            color: CupertinoColors.white,
-          ),
+          style: AppTypography.bodyMediumWhiteSemibold,
         ),
         const SizedBox(height: 12),
         Row(
@@ -609,7 +574,7 @@ class CheckInsActivityCalendar extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: AppTypography.bodySmall.copyWith(
+          style: AppTypography.bodySmallWhite.copyWith(
             color: CupertinoColors.white.withValues(alpha: 0.9),
             fontSize: 11,
             fontWeight: FontWeight.w500,

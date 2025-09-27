@@ -198,9 +198,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                 const SizedBox(height: 4),
                 Text(
                   DateFormat('h:mm a').format(_selectedDateTime),
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: AppColors.textTertiary,
-                  ),
+                  style: AppTypography.bodyMediumTertiary,
                 ),
               ],
             ),
@@ -301,9 +299,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
               padding: const EdgeInsets.only(left: 20),
               child: Text(
                 symptom.additionalNotes,
-                style: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+                style: AppTypography.bodyMediumSecondary,
               ),
             ),
           ],
@@ -384,10 +380,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
           ),
           const SizedBox(width: 12),
           Expanded(child: Text(dose.name, style: AppTypography.labelLarge)),
-          Text(
-            dose.displayDosage,
-            style: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
-          ),
+          Text(dose.displayDosage, style: AppTypography.bodyMediumTertiary),
         ],
       ),
     );
@@ -636,9 +629,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
               children: [
                 Text(
                   'Recent symptoms:',
-                  style: AppTypography.labelMedium.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+                  style: AppTypography.labelMediumSecondary,
                 ),
                 const SizedBox(height: 8),
                 Wrap(
@@ -671,9 +662,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                       },
                       child: Text(
                         suggestion.toString(),
-                        style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
+                        style: AppTypography.bodySmallPrimary,
                       ),
                     );
                   }).toList(),

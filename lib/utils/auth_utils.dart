@@ -30,9 +30,7 @@ class AuthUtils {
                   const SizedBox(height: 8),
                   Text(
                     userProfile?.fullName ?? 'User',
-                    style: AppTypography.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppTypography.bodyMediumSemibold,
                   ),
                   const SizedBox(height: 16),
                   Text(

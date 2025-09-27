@@ -184,9 +184,7 @@ class SyncStatusWidget extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.s),
                   Text(
                     'Data will sync when connection is restored',
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: CupertinoColors.systemGrey,
-                    ),
+                    style: AppTypography.bodyMediumSystemGrey,
                     textAlign: TextAlign.center,
                   ),
                 ] else if (syncError != null && syncError.isNotEmpty) ...[
@@ -204,9 +202,7 @@ class SyncStatusWidget extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.s),
                   Text(
                     syncError,
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: CupertinoColors.systemGrey,
-                    ),
+                    style: AppTypography.bodyMediumSystemGrey,
                     textAlign: TextAlign.center,
                   ),
                   if (onRetry != null) ...[
@@ -231,9 +227,7 @@ class SyncStatusWidget extends ConsumerWidget {
                     const SizedBox(height: AppSpacing.s),
                     Text(
                       message!,
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: CupertinoColors.systemGrey,
-                      ),
+                      style: AppTypography.bodyMediumSystemGrey,
                       textAlign: TextAlign.center,
                     ),
                   ],

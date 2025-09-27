@@ -116,13 +116,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
             Text(
               'Your personal health companion',
               textAlign: TextAlign.center,
-              style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
+              style: AppTypography.bodyLargeSecondary,
             ),
             const SizedBox(height: AppSpacing.l),
             Text(
               'Track symptoms, medications, and insights to better understand your health patterns',
               textAlign: TextAlign.center,
-              style: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
+              style: AppTypography.bodyMediumTertiary,
             ),
           ],
         ),
@@ -143,7 +143,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
       child: Text(
         'Your health data stays private and secure',
         textAlign: TextAlign.center,
-        style: AppTypography.caption.copyWith(color: AppColors.textQuaternary),
+        style: AppTypography.captionQuaternary,
       ),
     );
   }

@@ -133,9 +133,7 @@ class _AnimatedWelcomeCardState extends State<AnimatedWelcomeCard>
             const SizedBox(height: AppSpacing.m),
             Text(
               widget.message,
-              style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
+              style: AppTypography.bodyMediumSecondary,
               textAlign: TextAlign.center,
             ),
             if (widget.action != null) ...[
@@ -237,12 +235,7 @@ class _AnimatedProgressCardState extends State<AnimatedProgressCard>
             ],
           ),
           const SizedBox(height: AppSpacing.s),
-          Text(
-            widget.message,
-            style: AppTypography.bodySmall.copyWith(
-              color: AppColors.textTertiary,
-            ),
-          ),
+          Text(widget.message, style: AppTypography.bodySmallTertiary),
           const SizedBox(height: AppSpacing.m),
           AnimatedBuilder(
             animation: _progressAnimation,

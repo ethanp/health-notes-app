@@ -45,7 +45,10 @@ class _HealthToolCategoryScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(widget.category.description, style: AppTypography.bodyMedium),
+                  Text(
+                    widget.category.description,
+                    style: AppTypography.bodyMedium,
+                  ),
                 ],
               ),
             ),
@@ -57,8 +60,9 @@ class _HealthToolCategoryScreenState
                 loading: () => EnhancedUIComponents.loadingIndicator(
                   message: 'Loading tools...',
                 ),
-                error: (error, stack) =>
-                    Center(child: Text('Error: $error', style: AppTypography.error)),
+                error: (error, stack) => Center(
+                  child: Text('Error: $error', style: AppTypography.error),
+                ),
               ),
             ),
           ],
@@ -129,7 +133,7 @@ class _HealthToolCategoryScreenState
   Widget toolDescription(HealthTool tool) {
     return Text(
       tool.description,
-      style: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
+      style: AppTypography.bodyMediumTertiary,
       maxLines: 3,
       overflow: TextOverflow.ellipsis,
     );

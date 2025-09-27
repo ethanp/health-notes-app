@@ -339,10 +339,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
       ),
       child: Text(
         '${group.checkIns.length}',
-        style: AppTypography.buttonPrimary.copyWith(
-          fontWeight: FontWeight.bold,
-          fontSize: 10,
-        ),
+        style: AppTypography.buttonPrimaryBoldSmall,
       ),
     );
   }
@@ -451,10 +448,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          checkIn.metricName,
-          style: AppTypography.labelLarge.copyWith(fontWeight: FontWeight.w500),
-        ),
+        Text(checkIn.metricName, style: AppTypography.labelMedium),
         const SizedBox(height: 2),
         EnhancedUIComponents.statusIndicator(
           text: '${checkIn.rating}/10',
@@ -478,12 +472,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
           ),
         ],
       ),
-      child: Text(
-        '${checkIn.rating}',
-        style: AppTypography.buttonPrimary.copyWith(
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      child: Text('${checkIn.rating}', style: AppTypography.buttonPrimaryBold),
     );
   }
 

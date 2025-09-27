@@ -54,9 +54,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
         child: Center(
           child: Text(
             'No check-in data available',
-            style: AppTypography.bodyMedium.copyWith(
-              color: AppColors.textTertiary,
-            ),
+            style: AppTypography.bodyMediumTertiary,
           ),
         ),
       );
@@ -79,13 +77,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Trends',
-            style: AppTypography.headlineSmall.copyWith(
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
-          ),
+          Text('Trends', style: AppTypography.headlineSmall),
           const SizedBox(height: 16),
           improvementZonesIndicator(),
           const SizedBox(height: 12),
@@ -178,10 +170,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
           Expanded(
             child: Text(
               'Green zones: 0-3 (Lower is Better), 4-7 (Middle is Best), 8-10 (Higher is Better)',
-              style: AppTypography.bodySmall.copyWith(
-                color: CupertinoColors.systemGreen,
-                fontSize: 10,
-              ),
+              style: AppTypography.bodySmallGreenSmall,
             ),
           ),
         ],
@@ -223,11 +212,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
       children: [
         Text(
           _getTypeDisplayName(type),
-          style: AppTypography.bodySmall.copyWith(
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
-            fontSize: 13,
-          ),
+          style: AppTypography.bodySmallSemiboldPrimary,
         ),
         const SizedBox(height: 6),
         legendForType(type, typeMetrics),
@@ -278,12 +263,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     return Container(
       decoration: AppComponents.primaryCard,
       child: Center(
-        child: Text(
-          'No data',
-          style: AppTypography.bodySmall.copyWith(
-            color: AppColors.textTertiary,
-          ),
-        ),
+        child: Text('No data', style: AppTypography.bodySmallTertiary),
       ),
     );
   }
@@ -375,10 +355,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
               meta: meta,
               child: Text(
                 DateFormat('MMM d').format(date),
-                style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.textSecondary,
-                  fontSize: 9,
-                ),
+                style: AppTypography.bodySmallSecondarySmall,
               ),
             );
           }
@@ -396,10 +373,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
         getTitlesWidget: (double value, TitleMeta meta) {
           return Text(
             value.toInt().toString(),
-            style: AppTypography.bodySmall.copyWith(
-              color: AppColors.textSecondary,
-              fontSize: 9,
-            ),
+            style: AppTypography.bodySmallSecondarySmall,
           );
         },
         reservedSize: 25,

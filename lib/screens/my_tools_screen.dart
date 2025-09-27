@@ -163,7 +163,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
         const SizedBox(height: 4),
         Text(
           category.description,
-          style: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
+          style: AppTypography.bodyMediumTertiary,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),

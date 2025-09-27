@@ -242,13 +242,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
           color: CupertinoColors.white.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Text(
-          '$rating',
-          style: AppTypography.bodySmall.copyWith(
-            color: CupertinoColors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        child: Text('$rating', style: AppTypography.bodySmallWhiteBold),
       ),
     );
   }
@@ -320,12 +314,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   Widget ratingSliderRow(String metricName, int rating) {
     return Row(
       children: [
-        Text(
-          '1',
-          style: AppTypography.bodySmall.copyWith(
-            color: AppColors.textTertiary,
-          ),
-        ),
+        Text('1', style: AppTypography.bodySmallTertiary),
         Expanded(
           child: CupertinoSlider(
             value: rating.toDouble(),
@@ -339,12 +328,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
             },
           ),
         ),
-        Text(
-          '10',
-          style: AppTypography.bodySmall.copyWith(
-            color: AppColors.textTertiary,
-          ),
-        ),
+        Text('10', style: AppTypography.bodySmallTertiary),
       ],
     );
   }

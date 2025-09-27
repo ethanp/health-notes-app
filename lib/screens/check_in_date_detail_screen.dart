@@ -147,9 +147,7 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
               ),
               child: Text(
                 '${checkIn.rating}',
-                style: AppTypography.buttonPrimary.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: AppTypography.buttonPrimaryBold,
               ),
             ),
           ],

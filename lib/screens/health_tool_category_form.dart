@@ -145,7 +145,7 @@ class _HealthToolCategoryFormState
           const SizedBox(height: 8),
           Text(
             'Describe what this category is for',
-            style: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
+            style: AppTypography.bodyMediumTertiary,
           ),
           const SizedBox(height: 16),
           CupertinoTextField(

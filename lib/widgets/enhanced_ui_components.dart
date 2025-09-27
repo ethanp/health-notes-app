@@ -9,7 +9,9 @@ class EnhancedUIComponents {
   }) {
     return AnimatedContainer(
       duration: duration,
-      decoration: const BoxDecoration(gradient: AppComponents.backgroundGradient),
+      decoration: const BoxDecoration(
+        gradient: AppComponents.backgroundGradient,
+      ),
       child: child,
     );
   }
@@ -25,7 +27,9 @@ class EnhancedUIComponents {
       duration: AppAnimation.medium,
       curve: AppAnimation.curve,
       margin: margin ?? const EdgeInsets.all(AppSpacing.m),
-      decoration: isElevated ? AppComponents.elevatedCard : AppComponents.primaryCard,
+      decoration: isElevated
+          ? AppComponents.elevatedCard
+          : AppComponents.primaryCard,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -53,7 +57,9 @@ class EnhancedUIComponents {
       curve: AppAnimation.curve,
       width: width,
       height: 48,
-      decoration: isPrimary ? AppComponents.primaryButton : AppComponents.secondaryButton,
+      decoration: isPrimary
+          ? AppComponents.primaryButton
+          : AppComponents.secondaryButton,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -120,7 +126,9 @@ class EnhancedUIComponents {
     return AnimatedContainer(
       duration: AppAnimation.fast,
       curve: AppAnimation.curve,
-      decoration: isActive ? AppComponents.activeFilterChip : AppComponents.filterChip,
+      decoration: isActive
+          ? AppComponents.activeFilterChip
+          : AppComponents.filterChip,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -134,7 +142,7 @@ class EnhancedUIComponents {
             child: Text(
               label,
               style: isActive
-                  ? AppTypography.labelMedium.copyWith(color: CupertinoColors.white)
+                  ? AppTypography.labelMediumWhite
                   : AppTypography.labelMedium,
             ),
           ),
@@ -226,9 +234,7 @@ class EnhancedUIComponents {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(
-                    AppRadius.extraLarge,
-                  ),
+                  borderRadius: BorderRadius.circular(AppRadius.extraLarge),
                 ),
                 child: Icon(icon, size: 48, color: AppColors.primary),
               ),

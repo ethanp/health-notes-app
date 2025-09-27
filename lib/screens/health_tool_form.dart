@@ -120,7 +120,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
           const SizedBox(height: 8),
           Text(
             'Describe what this tool is and how to use it',
-            style: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
+            style: AppTypography.bodyMediumTertiary,
           ),
           const SizedBox(height: 16),
           CupertinoTextField(
@@ -151,8 +151,10 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
             loading: () => EnhancedUIComponents.loadingIndicator(
               message: 'Loading categories...',
             ),
-            error: (error, stack) =>
-                Text('Error loading categories: $error', style: AppTypography.error),
+            error: (error, stack) => Text(
+              'Error loading categories: $error',
+              style: AppTypography.error,
+            ),
           ),
         ],
       ),
@@ -163,7 +165,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
     if (categories.isEmpty) {
       return Text(
         'No categories available. Please create a category first.',
-        style: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
+        style: AppTypography.bodyMediumTertiary,
       );
     }
 

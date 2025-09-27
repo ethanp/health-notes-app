@@ -238,9 +238,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
               ),
               Text(
                 'Tap to view trends',
-                style: AppTypography.bodySmall.copyWith(
-                  color: CupertinoColors.systemGrey,
-                ),
+                style: AppTypography.bodySmallSystemGrey,
               ),
             ],
           ),
@@ -260,9 +258,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
               padding: const EdgeInsets.all(16),
               child: Text(
                 'No symptoms match your search',
-                style: AppTypography.bodyMedium.copyWith(
-                  color: CupertinoColors.systemGrey,
-                ),
+                style: AppTypography.bodyMediumSystemGrey,
                 textAlign: TextAlign.center,
               ),
             )
@@ -300,15 +296,11 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
                     children: [
                       Text(
                         symptomName,
-                        style: AppTypography.bodyMedium.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: AppTypography.bodyMediumSemibold,
                       ),
                       Text(
                         '$frequency occurrences',
-                        style: AppTypography.bodySmall.copyWith(
-                          color: CupertinoColors.systemGrey,
-                        ),
+                        style: AppTypography.bodySmallSystemGrey,
                       ),
                     ],
                   ),
@@ -347,9 +339,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
               ),
               Text(
                 'Tap to view trends',
-                style: AppTypography.bodySmall.copyWith(
-                  color: CupertinoColors.systemGrey,
-                ),
+                style: AppTypography.bodySmallSystemGrey,
               ),
             ],
           ),
@@ -413,10 +403,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
                 Expanded(child: Text(label, style: AppTypography.bodyMedium)),
                 Text(
                   '$value $unit',
-                  style: AppTypography.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: CupertinoColors.systemBlue,
-                  ),
+                  style: AppTypography.bodyMediumSemiboldBlue,
                 ),
               ],
             ),
@@ -445,13 +432,12 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(child: Text(drugName, style: AppTypography.bodyMedium)),
+                Expanded(
+                  child: Text(drugName, style: AppTypography.bodyMedium),
+                ),
                 Text(
                   '$value $unit',
-                  style: AppTypography.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: CupertinoColors.systemBlue,
-                  ),
+                  style: AppTypography.bodyMediumSemiboldBlue,
                 ),
               ],
             ),
@@ -468,13 +454,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(child: Text(label, style: AppTypography.bodyMedium)),
-          Text(
-            '$value $unit',
-            style: AppTypography.bodyMedium.copyWith(
-              fontWeight: FontWeight.w600,
-              color: CupertinoColors.systemBlue,
-            ),
-          ),
+          Text('$value $unit', style: AppTypography.bodyMediumSemiboldBlue),
         ],
       ),
     );
@@ -493,12 +473,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(
-              message,
-              style: AppTypography.bodyMedium.copyWith(
-                color: CupertinoColors.systemGrey,
-              ),
-            ),
+            child: Text(message, style: AppTypography.bodyMediumSystemGrey),
           ),
         ],
       ),

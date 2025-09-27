@@ -113,7 +113,8 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
   }
 
   Color _severityColor(int severity) {
-    if (severity == 0) return AppColors.backgroundPrimary.withValues(alpha: 0.3);
+    if (severity == 0)
+      return AppColors.backgroundPrimary.withValues(alpha: 0.3);
 
     final normalizedSeverity = (severity / 10.0).clamp(
       0.0,
@@ -164,7 +165,10 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Health Notes (${notes.length})', style: AppTypography.headlineSmall),
+        Text(
+          'Health Notes (${notes.length})',
+          style: AppTypography.headlineSmall,
+        ),
         const SizedBox(height: 12),
         ...notes.map((note) => noteCard(note)),
       ],
@@ -198,9 +202,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
             const SizedBox(height: 8),
             Text(
               symptom.minorComponent,
-              style: AppTypography.bodyMedium.copyWith(
-                color: CupertinoColors.systemGrey,
-              ),
+              style: AppTypography.bodyMediumSystemGrey,
             ),
           ],
           if (symptom.additionalNotes.isNotEmpty) ...[
@@ -355,13 +357,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
       builder: (BuildContext context) => CupertinoAlertDialog(
         title: Column(
           children: [
-            Text(
-              formattedDate,
-              style: AppTypography.headlineSmall.copyWith(
-                color: CupertinoColors.white,
-                fontSize: 18,
-              ),
-            ),
+            Text(formattedDate, style: AppTypography.headlineSmallWhite),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -419,10 +415,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
                   Expanded(
                     child: Text(
                       'View full health note',
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: AppTypography.bodyMediumPrimarySemibold,
                     ),
                   ),
                   Icon(
@@ -461,18 +454,10 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
           width: 80,
           child: Text(
             '$label:',
-            style: AppTypography.labelMedium.copyWith(
-              color: CupertinoColors.systemGrey,
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppTypography.labelMediumSystemGreySemibold,
           ),
         ),
-        Expanded(
-          child: Text(
-            value,
-            style: AppTypography.bodyMedium.copyWith(color: CupertinoColors.white),
-          ),
-        ),
+        Expanded(child: Text(value, style: AppTypography.bodyMediumWhite)),
       ],
     );
   }
@@ -499,10 +484,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
       builder: (BuildContext context) => CupertinoAlertDialog(
         title: Text(
           DateFormat('MMM dd, yyyy').format(note.dateTime),
-          style: AppTypography.headlineSmall.copyWith(
-            color: CupertinoColors.white,
-            fontSize: 18,
-          ),
+          style: AppTypography.headlineSmallWhite,
         ),
         content: Column(
           children: [
@@ -526,10 +508,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
                       children: [
                         Text(
                           symptom.majorComponent,
-                          style: AppTypography.labelLarge.copyWith(
-                            color: CupertinoColors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: AppTypography.labelLargeWhiteSemibold,
                         ),
                         const Spacer(),
                         Container(
@@ -562,18 +541,14 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
                       const SizedBox(height: 8),
                       Text(
                         symptom.minorComponent,
-                        style: AppTypography.bodyMedium.copyWith(
-                          color: CupertinoColors.systemGrey,
-                        ),
+                        style: AppTypography.bodyMediumSystemGrey,
                       ),
                     ],
                     if (symptom.additionalNotes.isNotEmpty) ...[
                       const SizedBox(height: 8),
                       Text(
                         symptom.additionalNotes,
-                        style: AppTypography.bodyMedium.copyWith(
-                          color: CupertinoColors.white,
-                        ),
+                        style: AppTypography.bodyMediumWhite,
                       ),
                     ],
                   ],

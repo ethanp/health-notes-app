@@ -137,7 +137,7 @@ class _FilterModalState extends State<FilterModal> {
           if (widget.availableDrugs.isEmpty)
             Text(
               'No drugs recorded yet',
-              style: AppTypography.bodyMedium.copyWith(color: AppColors.textTertiary),
+              style: AppTypography.bodyMediumTertiary,
             )
           else
             Wrap(
@@ -235,7 +235,8 @@ class _FilterModalState extends State<FilterModal> {
       ),
       children: months
           .map(
-            (month) => Center(child: Text(month, style: AppTypography.bodyMedium)),
+            (month) =>
+                Center(child: Text(month, style: AppTypography.bodyMedium)),
           )
           .toList(),
     );
@@ -253,7 +254,9 @@ class _FilterModalState extends State<FilterModal> {
         ),
       ),
       children: days
-          .map((day) => Center(child: Text(day, style: AppTypography.bodyMedium)))
+          .map(
+            (day) => Center(child: Text(day, style: AppTypography.bodyMedium)),
+          )
           .toList(),
     );
   }
@@ -270,7 +273,10 @@ class _FilterModalState extends State<FilterModal> {
         ),
       ),
       children: years
-          .map((year) => Center(child: Text(year, style: AppTypography.bodyMedium)))
+          .map(
+            (year) =>
+                Center(child: Text(year, style: AppTypography.bodyMedium)),
+          )
           .toList(),
     );
   }

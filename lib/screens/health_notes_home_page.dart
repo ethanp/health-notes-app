@@ -43,7 +43,10 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
       vsync: this,
     );
     _slideAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: AppAnimation.slideCurve),
+      CurvedAnimation(
+        parent: _animationController,
+        curve: AppAnimation.slideCurve,
+      ),
     );
     _animationController.forward();
   }
@@ -475,7 +478,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
       padding: const EdgeInsets.only(left: AppSpacing.s + 8),
       child: Text(
         symptom.additionalNotes,
-        style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+        style: AppTypography.bodySmallSecondary,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
