@@ -47,7 +47,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
       ),
       child: SafeArea(
         child: healthNotesAsync.when(
-          data: (notes) => buildSymptomTrendsContent(notes),
+          data: (notes) => symptomTrendsContent(notes),
           loading: () => EnhancedUIComponents.loadingIndicator(
             message: 'Loading symptom trends...',
           ),
@@ -58,7 +58,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     );
   }
 
-  Widget buildSymptomTrendsContent(List<HealthNote> notes) {
+  Widget symptomTrendsContent(List<HealthNote> notes) {
     final symptomNotes = notes
         .where(
           (note) => note.symptomsList.any(
@@ -89,11 +89,11 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
           padding: const EdgeInsets.all(16),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              buildActivityChart(activityData),
+              activityChart(activityData),
               const SizedBox(height: 20),
-              buildSearchSection(),
+              searchSection(),
               const SizedBox(height: 20),
-              buildSymptomNotesList(filteredNotes),
+              symptomNotesList(filteredNotes),
             ]),
           ),
         ),
@@ -101,7 +101,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     );
   }
 
-  Widget buildActivityChart(Map<DateTime, int> activityData) {
+  Widget activityChart(Map<DateTime, int> activityData) {
     return Container(
       decoration: AppTheme.primaryCard,
       padding: const EdgeInsets.all(16),
@@ -117,15 +117,15 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          buildSeverityLegend(),
+          severityLegend(),
           const SizedBox(height: 16),
-          buildActivityGrid(activityData),
+          activityGrid(activityData),
         ],
       ),
     );
   }
 
-  Widget buildActivityGrid(Map<DateTime, int> activityData) {
+  Widget activityGrid(Map<DateTime, int> activityData) {
     final now = DateTime.now();
     final monthsToShow = 12; // Show last 12 months
 
@@ -168,7 +168,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
               dayOffset + 1,
             );
             final severity = activityData[date] ?? 0;
-            final color = _getSeverityColor(severity);
+            final color = _severityColor(severity);
 
             weekDays.add(
               GestureDetector(
@@ -184,27 +184,12 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
                             alpha: 0.3,
                           ), // More translucent for inactive days
                     borderRadius: BorderRadius.circular(3),
-                    border: Border.all(
-                      color: severity > 0
-                          ? CupertinoColors.systemGrey4.withValues(alpha: 0.5)
-                          : AppTheme.backgroundPrimary.withValues(
-                              alpha: 0.2,
-                            ), // Subtle border for inactive days
-                      width: 0.5,
-                    ),
+                    border: Border.all(color: _gridCellBorderColor(severity)),
                   ),
                   child: Center(
                     child: Text(
                       '${date.day}',
-                      style: AppTheme.bodySmall.copyWith(
-                        color: severity > 0
-                            ? CupertinoColors.white
-                            : AppTheme.textQuaternary.withValues(
-                                alpha: 0.6,
-                              ), // More muted text for inactive days
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                      ),
+                      style: _gridCellTextStyle(severity),
                     ),
                   ),
                 ),
@@ -283,7 +268,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     );
   }
 
-  Color _getSeverityColor(int severity) {
+  Color _severityColor(int severity) {
     if (severity == 0) return AppTheme.backgroundPrimary.withValues(alpha: 0.3);
 
     final normalizedSeverity = severity / 10.0; // 0.0 to 1.0
@@ -302,7 +287,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     ).toColor();
   }
 
-  Widget buildSeverityLegend() {
+  Widget severityLegend() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -318,15 +303,15 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
           spacing: 12,
           runSpacing: 8,
           children: [
-            _buildLegendItem(0, 'No Activity'),
-            for (int i = 1; i <= 10; i++) _buildLegendItem(i, '$i'),
+            legendItem(0, 'No Activity'),
+            for (int i = 1; i <= 10; i++) legendItem(i, '$i'),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildLegendItem(int severity, String label) {
+  Widget legendItem(int severity, String label) {
     final isInactive = severity == 0;
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -335,14 +320,9 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
           width: 26,
           height: 26,
           decoration: BoxDecoration(
-            color: _getSeverityColor(severity),
+            color: _severityColor(severity),
             borderRadius: BorderRadius.circular(3),
-            border: Border.all(
-              color: isInactive
-                  ? AppTheme.backgroundPrimary.withValues(alpha: 0.2)
-                  : CupertinoColors.systemGrey4.withValues(alpha: 0.5),
-              width: 1,
-            ),
+            border: Border.all(color: _legendBorderColor(isInactive), width: 1),
           ),
         ),
         const SizedBox(width: 6),
@@ -359,7 +339,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     );
   }
 
-  Widget buildSearchSection() {
+  Widget searchSection() {
     return EnhancedUIComponents.searchField(
       controller: _searchController,
       placeholder: 'Search notes for ${widget.symptomName}...',
@@ -371,7 +351,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     );
   }
 
-  Widget buildSymptomNotesList(List<HealthNote> notes) {
+  Widget symptomNotesList(List<HealthNote> notes) {
     if (notes.isEmpty) {
       return EnhancedUIComponents.emptyState(
         title: 'No matching notes',
@@ -385,12 +365,12 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
       children: [
         Text('Health Notes (${notes.length})', style: AppTheme.headlineSmall),
         const SizedBox(height: 12),
-        ...notes.map((note) => buildNoteCard(note)),
+        ...notes.map((note) => noteCard(note)),
       ],
     );
   }
 
-  Widget buildNoteCard(HealthNote note) {
+  Widget noteCard(HealthNote note) {
     final symptom = note.symptomsList.firstWhere(
       (s) => s.majorComponent == widget.symptomName,
     );
@@ -410,7 +390,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
                   style: AppTheme.labelLarge,
                 ),
               ),
-              _buildSeverityIndicator(symptom.severityLevel),
+              severityIndicator(symptom.severityLevel),
             ],
           ),
           if (symptom.minorComponent.isNotEmpty) ...[
@@ -442,8 +422,8 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     );
   }
 
-  Widget _buildSeverityIndicator(int severity) {
-    final severityColor = _getSeverityColor(severity);
+  Widget severityIndicator(int severity) {
+    final severityColor = _severityColor(severity);
     final severityText = severity >= 1 && severity <= 10
         ? severity.toString()
         : 'Unknown';
@@ -585,17 +565,17 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: _getSeverityColor(severity).withValues(alpha: 0.2),
+                color: _severityColor(severity).withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: _getSeverityColor(severity).withValues(alpha: 0.4),
+                  color: _severityColor(severity).withValues(alpha: 0.4),
                   width: 1,
                 ),
               ),
               child: Text(
                 'Level $severity - $severityText',
                 style: AppTheme.labelMedium.copyWith(
-                  color: _getSeverityColor(severity),
+                  color: _severityColor(severity),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -757,12 +737,12 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: _getSeverityColor(
+                            color: _severityColor(
                               symptom.severityLevel,
                             ).withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: _getSeverityColor(
+                              color: _severityColor(
                                 symptom.severityLevel,
                               ).withValues(alpha: 0.4),
                             ),
@@ -770,7 +750,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
                           child: Text(
                             'Level ${symptom.severityLevel}',
                             style: AppTheme.labelSmall.copyWith(
-                              color: _getSeverityColor(symptom.severityLevel),
+                              color: _severityColor(symptom.severityLevel),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -842,5 +822,27 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
         ],
       ),
     );
+  }
+
+  Color _gridCellBorderColor(int severity) {
+    return severity > 0
+        ? CupertinoColors.systemGrey4.withValues(alpha: 0.5)
+        : AppTheme.backgroundPrimary.withValues(alpha: 0.2);
+  }
+
+  TextStyle _gridCellTextStyle(int severity) {
+    return AppTheme.bodySmall.copyWith(
+      color: severity > 0
+          ? CupertinoColors.white
+          : AppTheme.textQuaternary.withValues(alpha: 0.6),
+      fontWeight: FontWeight.w600,
+      fontSize: 12,
+    );
+  }
+
+  Color _legendBorderColor(bool isInactive) {
+    return isInactive
+        ? AppTheme.backgroundPrimary.withValues(alpha: 0.2)
+        : CupertinoColors.systemGrey4.withValues(alpha: 0.5);
   }
 }

@@ -52,7 +52,7 @@ class _HealthToolCategoryScreenState
             Expanded(
               child: toolsAsync.when(
                 data: (tools) =>
-                    tools.isEmpty ? buildEmptyState() : buildToolsList(tools),
+                    tools.isEmpty ? emptyState() : toolsList(tools),
                 loading: () => EnhancedUIComponents.loadingIndicator(
                   message: 'Loading tools...',
                 ),
@@ -66,7 +66,7 @@ class _HealthToolCategoryScreenState
     );
   }
 
-  Widget buildEmptyState() {
+  Widget emptyState() {
     return EnhancedUIComponents.emptyState(
       title: 'No tools for ${widget.category.name}',
       message: 'Add your first tool to get started',
@@ -79,18 +79,18 @@ class _HealthToolCategoryScreenState
     );
   }
 
-  Widget buildToolsList(List<HealthTool> tools) {
+  Widget toolsList(List<HealthTool> tools) {
     return RefreshableListView<HealthTool>(
       onRefresh: () async {
         await ref.read(healthToolsNotifierProvider.notifier).refresh();
       },
       items: tools,
-      itemBuilder: (tool) => buildToolCard(tool),
+      itemBuilder: (tool) => toolCard(tool),
       padding: const EdgeInsets.symmetric(horizontal: 16),
     );
   }
 
-  Widget buildToolCard(HealthTool tool) {
+  Widget toolCard(HealthTool tool) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: AppTheme.primaryCard,
@@ -102,29 +102,35 @@ class _HealthToolCategoryScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Expanded(child: Text(tool.name, style: AppTheme.labelLarge)),
-                  const Icon(
-                    CupertinoIcons.chevron_right,
-                    color: CupertinoColors.systemGrey,
-                    size: 16,
-                  ),
-                ],
-              ),
+              toolHeader(tool),
               const SizedBox(height: 8),
-              Text(
-                tool.description,
-                style: AppTheme.bodyMedium.copyWith(
-                  color: AppTheme.textTertiary,
-                ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
+              toolDescription(tool),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget toolHeader(HealthTool tool) {
+    return Row(
+      children: [
+        Expanded(child: Text(tool.name, style: AppTheme.labelLarge)),
+        const Icon(
+          CupertinoIcons.chevron_right,
+          color: CupertinoColors.systemGrey,
+          size: 16,
+        ),
+      ],
+    );
+  }
+
+  Widget toolDescription(HealthTool tool) {
+    return Text(
+      tool.description,
+      style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
     );
   }
 

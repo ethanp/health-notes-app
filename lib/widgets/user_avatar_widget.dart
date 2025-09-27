@@ -18,13 +18,13 @@ class UserAvatarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipOval(
-      child: SizedBox(width: size, height: size, child: _buildAvatar()),
+      child: SizedBox(width: size, height: size, child: avatarContent()),
     );
   }
 
-  Widget _buildAvatar() {
+  Widget avatarContent() {
     if (avatarUrl == null || avatarUrl!.isEmpty) {
-      return _getGoogleAvatar();
+      return googleAvatar();
     }
 
     return Image.network(
@@ -39,16 +39,16 @@ class UserAvatarWidget extends StatelessWidget {
             }
           : null,
       errorBuilder: (context, error, stackTrace) {
-        return _getGoogleAvatar();
+        return googleAvatar();
       },
     );
   }
 
-  Widget _getGoogleAvatar() {
-    return _getDefaultAvatar();
+  Widget googleAvatar() {
+    return defaultAvatar();
   }
 
-  Widget _getDefaultAvatar() {
+  Widget defaultAvatar() {
     return Container(
       width: size,
       height: size,

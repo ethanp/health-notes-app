@@ -98,13 +98,13 @@ class _HealthToolCategoryFormState
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              buildNameSection(),
+              nameSection(),
               const SizedBox(height: 16),
-              buildDescriptionSection(),
+              descriptionSection(),
               const SizedBox(height: 16),
-              buildIconSection(),
+              iconSection(),
               const SizedBox(height: 16),
-              buildColorSection(),
+              colorSection(),
             ],
           ),
         ),
@@ -112,7 +112,7 @@ class _HealthToolCategoryFormState
     );
   }
 
-  Widget buildNameSection() {
+  Widget nameSection() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: AppTheme.primaryCard,
@@ -133,7 +133,7 @@ class _HealthToolCategoryFormState
     );
   }
 
-  Widget buildDescriptionSection() {
+  Widget descriptionSection() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: AppTheme.primaryCard,
@@ -161,7 +161,7 @@ class _HealthToolCategoryFormState
     );
   }
 
-  Widget buildIconSection() {
+  Widget iconSection() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: AppTheme.primaryCard,
@@ -170,47 +170,48 @@ class _HealthToolCategoryFormState
         children: [
           Text('Icon', style: AppTheme.headlineSmall),
           const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: availableIcons.map((icon) {
-              final isSelected = _selectedIcon == icon['value'];
-              return GestureDetector(
-                onTap: () => setState(() => _selectedIcon = icon['value']!),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? AppTheme.primary
-                        : AppTheme.backgroundTertiary,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: isSelected
-                          ? AppTheme.primary
-                          : AppTheme.backgroundTertiary,
-                    ),
-                  ),
-                  child: Text(
-                    icon['name']!,
-                    style: AppTheme.bodySmall.copyWith(
-                      color: isSelected
-                          ? CupertinoColors.white
-                          : AppTheme.textPrimary,
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
+          iconChoices(),
         ],
       ),
     );
   }
 
-  Widget buildColorSection() {
+  Widget iconChoices() {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: availableIcons.map((icon) {
+        final isSelected = _selectedIcon == icon['value'];
+        return GestureDetector(
+          onTap: () => setState(() => _selectedIcon = icon['value']!),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? AppTheme.primary
+                  : AppTheme.backgroundTertiary,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isSelected
+                    ? AppTheme.primary
+                    : AppTheme.backgroundTertiary,
+              ),
+            ),
+            child: Text(
+              icon['name']!,
+              style: AppTheme.bodySmall.copyWith(
+                color: isSelected
+                    ? CupertinoColors.white
+                    : AppTheme.textPrimary,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget colorSection() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: AppTheme.primaryCard,
@@ -219,43 +220,45 @@ class _HealthToolCategoryFormState
         children: [
           Text('Color', style: AppTheme.headlineSmall),
           const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: availableColors.map((color) {
-              final isSelected = _selectedColor == color['value'];
-              return GestureDetector(
-                onTap: () => setState(() => _selectedColor = color['value']!),
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: _parseColor(color['value']!),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isSelected
-                          ? CupertinoColors.white
-                          : Colors.transparent,
-                      width: 3,
-                    ),
-                    boxShadow: isSelected
-                        ? [
-                            BoxShadow(
-                              color: _parseColor(
-                                color['value']!,
-                              ).withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              spreadRadius: 2,
-                            ),
-                          ]
-                        : null,
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
+          colorChoices(),
         ],
       ),
+    );
+  }
+
+  Widget colorChoices() {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: availableColors.map((color) {
+        final isSelected = _selectedColor == color['value'];
+        return GestureDetector(
+          onTap: () => setState(() => _selectedColor = color['value']!),
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: _parseColor(color['value']!),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isSelected ? CupertinoColors.white : Colors.transparent,
+                width: 3,
+              ),
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: _parseColor(
+                          color['value']!,
+                        ).withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        spreadRadius: 2,
+                      ),
+                    ]
+                  : null,
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 

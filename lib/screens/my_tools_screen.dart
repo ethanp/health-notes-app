@@ -37,9 +37,8 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
       ),
       child: SafeArea(
         child: categoriesAsync.when(
-          data: (categories) => categories.isEmpty
-              ? buildEmptyState()
-              : buildCategoriesList(categories),
+          data: (categories) =>
+              categories.isEmpty ? emptyState() : categoriesList(categories),
           loading: () => EnhancedUIComponents.loadingIndicator(
             message: 'Loading your health tools...',
           ),
@@ -50,7 +49,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
     );
   }
 
-  Widget buildEmptyState() {
+  Widget emptyState() {
     return EnhancedUIComponents.emptyState(
       title: 'No health tools yet',
       message: 'Create your first health tool category to get started',
@@ -63,18 +62,18 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
     );
   }
 
-  Widget buildCategoriesList(List<HealthToolCategory> categories) {
+  Widget categoriesList(List<HealthToolCategory> categories) {
     return RefreshableListView<HealthToolCategory>(
       onRefresh: () async {
         await ref.read(healthToolCategoriesNotifierProvider.notifier).refresh();
       },
       items: categories,
-      itemBuilder: (category) => buildCategoryCard(category),
+      itemBuilder: (category) => categoryCard(category),
       padding: const EdgeInsets.all(16),
     );
   }
 
-  Widget buildCategoryCard(HealthToolCategory category) {
+  Widget categoryCard(HealthToolCategory category) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: AppTheme.primaryCard,
@@ -85,37 +84,9 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: _parseColor(category.colorHex),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  _getIconData(category.iconName),
-                  color: CupertinoColors.white,
-                  size: 24,
-                ),
-              ),
+              categoryIcon(category),
               const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(category.name, style: AppTheme.labelLarge),
-                    const SizedBox(height: 4),
-                    Text(
-                      category.description,
-                      style: AppTheme.bodyMedium.copyWith(
-                        color: AppTheme.textTertiary,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
+              Expanded(child: categoryDetails(category)),
               const Icon(
                 CupertinoIcons.chevron_right,
                 color: CupertinoColors.systemGrey,
@@ -163,6 +134,38 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
           saveButtonText: 'Save',
         ),
       ),
+    );
+  }
+
+  Widget categoryIcon(HealthToolCategory category) {
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: _parseColor(category.colorHex),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(
+        _getIconData(category.iconName),
+        color: CupertinoColors.white,
+        size: 24,
+      ),
+    );
+  }
+
+  Widget categoryDetails(HealthToolCategory category) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(category.name, style: AppTheme.labelLarge),
+        const SizedBox(height: 4),
+        Text(
+          category.description,
+          style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
     );
   }
 }

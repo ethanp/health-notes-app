@@ -63,13 +63,13 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              _buildNameSection(),
+              nameSection(),
               const SizedBox(height: 24),
-              _buildTypeSection(),
+              typeSection(),
               const SizedBox(height: 24),
-              _buildColorSection(),
+              colorSection(),
               const SizedBox(height: 24),
-              _buildIconSection(),
+              iconSection(),
             ],
           ),
         ),
@@ -77,7 +77,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
     );
   }
 
-  Widget _buildNameSection() {
+  Widget nameSection() {
     return EnhancedUIComponents.card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,7 +103,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
     );
   }
 
-  Widget _buildTypeSection() {
+  Widget typeSection() {
     return EnhancedUIComponents.card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,7 +115,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
             ).textTheme.textStyle.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
-          ...MetricType.values.map((type) => _buildTypeOption(type)),
+          ...MetricType.values.map((type) => typeOption(type)),
         ],
       ),
     );
@@ -132,7 +132,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
     }
   }
 
-  Widget _buildTypeOption(MetricType type) {
+  Widget typeOption(MetricType type) {
     final isSelected = _selectedType == type;
 
     return Container(
@@ -202,7 +202,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
     );
   }
 
-  Widget _buildColorSection() {
+  Widget colorSection() {
     return EnhancedUIComponents.card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,7 +218,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
             spacing: 12,
             runSpacing: 12,
             children: MetricColorPalette.colors
-                .map((color) => _buildColorOption(color))
+                .map((color) => colorOption(color))
                 .toList(),
           ),
         ],
@@ -226,7 +226,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
     );
   }
 
-  Widget _buildColorOption(Color color) {
+  Widget colorOption(Color color) {
     final isSelected = _selectedColor.toARGB32() == color.toARGB32();
 
     return GestureDetector(
@@ -255,7 +255,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
     );
   }
 
-  Widget _buildIconSection() {
+  Widget iconSection() {
     return EnhancedUIComponents.card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,7 +271,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
             spacing: 12,
             runSpacing: 12,
             children: MetricIconPalette.icons
-                .map((icon) => _buildIconOption(icon))
+                .map((icon) => iconOption(icon))
                 .toList(),
           ),
         ],
@@ -279,7 +279,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
     );
   }
 
-  Widget _buildIconOption(IconData icon) {
+  Widget iconOption(IconData icon) {
     final isSelected = _selectedIcon.codePoint == icon.codePoint;
 
     return GestureDetector(

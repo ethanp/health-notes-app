@@ -73,13 +73,13 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
             data: (userMetrics) => ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                buildMetricsGridSection(userMetrics),
+                metricsGridSection(userMetrics),
                 if (_selectedMetrics.isNotEmpty) ...[
                   const SizedBox(height: 16),
-                  buildSelectedMetricsSection(userMetrics),
+                  selectedMetricsSection(userMetrics),
                 ],
                 const SizedBox(height: 16),
-                buildDateTimeSection(),
+                dateTimeSection(),
               ],
             ),
             loading: () => const Center(child: CupertinoActivityIndicator()),
@@ -120,7 +120,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     );
   }
 
-  Widget buildMetricsGridSection(List<CheckInMetric> userMetrics) {
+  Widget metricsGridSection(List<CheckInMetric> userMetrics) {
     if (userMetrics.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(16),
@@ -169,95 +169,90 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
               childAspectRatio: 1.2,
             ),
             itemCount: userMetrics.length,
-            itemBuilder: (context, index) {
-              final metric = userMetrics[index];
-              final isSelected = _selectedMetrics.containsKey(metric.name);
-              final rating = _selectedMetrics[metric.name] ?? 5;
-
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    if (isSelected) {
-                      _selectedMetrics.remove(metric.name);
-                    } else {
-                      _selectedMetrics[metric.name] = rating;
-                    }
-                  });
-                },
-                child: Container(
-                  decoration: isSelected
-                      ? BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              metric.color,
-                              metric.color.withValues(alpha: 0.8),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: metric.color.withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        )
-                      : AppTheme.filterChip,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        metric.icon,
-                        size: 24,
-                        color: isSelected
-                            ? CupertinoColors.white
-                            : metric.color,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        metric.name,
-                        style: AppTheme.bodySmall.copyWith(
-                          color: isSelected
-                              ? CupertinoColors.white
-                              : metric.color,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (isSelected) ...[
-                        const SizedBox(height: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: CupertinoColors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            '$rating',
-                            style: AppTheme.bodySmall.copyWith(
-                              color: CupertinoColors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              );
-            },
+            itemBuilder: (context, index) => metricGridItem(userMetrics[index]),
           ),
         ],
       ),
     );
   }
 
-  Widget buildSelectedMetricsSection(List<CheckInMetric> userMetrics) {
+  Widget metricGridItem(CheckInMetric metric) {
+    final isSelected = _selectedMetrics.containsKey(metric.name);
+    final rating = _selectedMetrics[metric.name] ?? 5;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          if (isSelected) {
+            _selectedMetrics.remove(metric.name);
+          } else {
+            _selectedMetrics[metric.name] = rating;
+          }
+        });
+      },
+      child: Container(
+        decoration: isSelected
+            ? BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [metric.color, metric.color.withValues(alpha: 0.8)],
+                ),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: metric.color.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              )
+            : AppTheme.filterChip,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              metric.icon,
+              size: 24,
+              color: isSelected ? CupertinoColors.white : metric.color,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              metric.name,
+              style: AppTheme.bodySmall.copyWith(
+                color: isSelected ? CupertinoColors.white : metric.color,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            if (isSelected) ratingBadge(rating),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget ratingBadge(int rating) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        decoration: BoxDecoration(
+          color: CupertinoColors.white.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          '$rating',
+          style: AppTheme.bodySmall.copyWith(
+            color: CupertinoColors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget selectedMetricsSection(List<CheckInMetric> userMetrics) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: AppTheme.primaryCard,
@@ -266,102 +261,107 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
         children: [
           Text('Your Ratings', style: AppTheme.headlineSmall),
           const SizedBox(height: 16),
-          ...(_selectedMetrics.entries.map((entry) {
-            final metricName = entry.key;
-            final rating = entry.value;
-            final metric = userMetrics.firstWhere(
-              (m) => m.name == metricName,
-              orElse: () => throw Exception('Metric not found: $metricName'),
-            );
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(metric.icon, size: 20, color: AppTheme.textPrimary),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(metric.name, style: AppTheme.labelLarge),
-                      ),
-                      CupertinoButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () {
-                          setState(() {
-                            _selectedMetrics.remove(metricName);
-                          });
-                        },
-                        child: const Icon(
-                          CupertinoIcons.xmark_circle_fill,
-                          color: CupertinoColors.systemRed,
-                          size: 20,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Text(
-                        '1',
-                        style: AppTheme.bodySmall.copyWith(
-                          color: AppTheme.textTertiary,
-                        ),
-                      ),
-                      Expanded(
-                        child: CupertinoSlider(
-                          value: rating.toDouble(),
-                          min: 1,
-                          max: 10,
-                          divisions: 9,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedMetrics[metricName] = value.round();
-                            });
-                          },
-                        ),
-                      ),
-                      Text(
-                        '10',
-                        style: AppTheme.bodySmall.copyWith(
-                          color: AppTheme.textTertiary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: metric
-                            .getRatingColor(rating)
-                            .withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        '$rating',
-                        style: AppTheme.headlineMedium.copyWith(
-                          color: metric.getRatingColor(rating),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList()),
+          ..._selectedMetrics.entries
+              .map((entry) => selectedMetricCard(entry, userMetrics))
+              .toList(),
         ],
       ),
     );
   }
 
-  Widget buildDateTimeSection() {
+  Widget selectedMetricCard(
+    MapEntry<String, int> entry,
+    List<CheckInMetric> userMetrics,
+  ) {
+    final metricName = entry.key;
+    final rating = entry.value;
+    final metric = userMetrics.firstWhere(
+      (m) => m.name == metricName,
+      orElse: () => throw Exception('Metric not found: $metricName'),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(metric.icon, size: 20, color: AppTheme.textPrimary),
+              const SizedBox(width: 8),
+              Expanded(child: Text(metric.name, style: AppTheme.labelLarge)),
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: () {
+                  setState(() {
+                    _selectedMetrics.remove(metricName);
+                  });
+                },
+                child: const Icon(
+                  CupertinoIcons.xmark_circle_fill,
+                  color: CupertinoColors.systemRed,
+                  size: 20,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ratingSliderRow(metricName, rating),
+          const SizedBox(height: 8),
+          ratingSummary(metric, rating),
+        ],
+      ),
+    );
+  }
+
+  Widget ratingSliderRow(String metricName, int rating) {
+    return Row(
+      children: [
+        Text(
+          '1',
+          style: AppTheme.bodySmall.copyWith(color: AppTheme.textTertiary),
+        ),
+        Expanded(
+          child: CupertinoSlider(
+            value: rating.toDouble(),
+            min: 1,
+            max: 10,
+            divisions: 9,
+            onChanged: (value) {
+              setState(() {
+                _selectedMetrics[metricName] = value.round();
+              });
+            },
+          ),
+        ),
+        Text(
+          '10',
+          style: AppTheme.bodySmall.copyWith(color: AppTheme.textTertiary),
+        ),
+      ],
+    );
+  }
+
+  Widget ratingSummary(CheckInMetric metric, int rating) {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: metric.getRatingColor(rating).withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          '$rating',
+          style: AppTheme.headlineMedium.copyWith(
+            color: metric.getRatingColor(rating),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget dateTimeSection() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: AppTheme.primaryCard,

@@ -213,75 +213,94 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EnhancedUIComponents.sectionHeader(
-            title: 'Symptoms',
-            trailing: widget.isEditable
-                ? CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: addSymptom,
-                    child: const Icon(CupertinoIcons.add),
-                  )
-                : null,
-          ),
+          symptomsHeader(),
           const SizedBox(height: 8),
-          if (_symptoms.isEmpty)
-            Text('No symptoms recorded', style: AppTheme.bodyMedium)
-          else if (!widget.isEditable)
-            ..._symptoms.map(
-              (symptom) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: AppTheme.primary,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            symptom.fullDescription,
-                            style: AppTheme.labelLarge,
-                          ),
-                        ),
-                        EnhancedUIComponents.statusIndicator(
-                          text: '${symptom.severityLevel}/10',
-                          color: AppTheme.primary,
-                        ),
-                      ],
-                    ),
-                    if (symptom.additionalNotes.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20),
-                        child: Text(
-                          symptom.additionalNotes,
-                          style: AppTheme.bodyMedium.copyWith(
-                            color: AppTheme.textSecondary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
+          symptomsContent(),
+        ],
+      ),
+    );
+  }
+
+  Widget symptomsHeader() {
+    return EnhancedUIComponents.sectionHeader(
+      title: 'Symptoms',
+      trailing: widget.isEditable
+          ? CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: addSymptom,
+              child: const Icon(CupertinoIcons.add),
+            )
+          : null,
+    );
+  }
+
+  Widget symptomsContent() {
+    if (_symptoms.isEmpty) {
+      return Text('No symptoms recorded', style: AppTheme.bodyMedium);
+    }
+
+    if (!widget.isEditable) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: _symptoms.map(readOnlySymptomItem).toList(),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: _symptoms.asMap().entries.map((entry) {
+        final index = entry.key;
+        final symptom = entry.value;
+        return editableSymptomItem(
+          index: index,
+          symptom: symptom,
+          controllers: _symptomControllers[index]!,
+        );
+      }).toList(),
+    );
+  }
+
+  Widget readOnlySymptomItem(Symptom symptom) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: AppTheme.primary,
+                  shape: BoxShape.circle,
                 ),
               ),
-            )
-          else if (widget.isEditable)
-            ..._symptoms.asMap().entries.map((entry) {
-              final index = entry.key;
-              final symptom = entry.value;
-              return editableSymptomItem(
-                index: index,
-                symptom: symptom,
-                controllers: _symptomControllers[index]!,
-              );
-            }),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  symptom.fullDescription,
+                  style: AppTheme.labelLarge,
+                ),
+              ),
+              EnhancedUIComponents.statusIndicator(
+                text: '${symptom.severityLevel}/10',
+                color: AppTheme.primary,
+              ),
+            ],
+          ),
+          if (symptom.additionalNotes.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Text(
+                symptom.additionalNotes,
+                style: AppTheme.bodyMedium.copyWith(
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -297,57 +316,72 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EnhancedUIComponents.sectionHeader(
-            title: 'Medications',
-            trailing: widget.isEditable
-                ? CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: addDrugDose,
-                    child: const Icon(CupertinoIcons.add),
-                  )
-                : null,
-          ),
+          drugDosesHeader(),
           const SizedBox(height: 8),
-          if (_drugDoses.isEmpty)
-            Text('No medications recorded', style: AppTheme.bodyMedium)
-          else if (!widget.isEditable)
-            ..._drugDoses.map(
-              (dose) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: AppTheme.primary,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(dose.name, style: AppTheme.labelLarge),
-                    ),
-                    Text(
-                      dose.displayDosage,
-                      style: AppTheme.bodyMedium.copyWith(
-                        color: AppTheme.textTertiary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+          drugDosesContent(),
+        ],
+      ),
+    );
+  }
+
+  Widget drugDosesHeader() {
+    return EnhancedUIComponents.sectionHeader(
+      title: 'Medications',
+      trailing: widget.isEditable
+          ? CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: addDrugDose,
+              child: const Icon(CupertinoIcons.add),
             )
-          else if (widget.isEditable)
-            ..._drugDoses.asMap().entries.map((entry) {
-              final index = entry.key;
-              final dose = entry.value;
-              return editableDrugDoseItem(
-                index: index,
-                dose: dose,
-                controllers: _drugDoseControllers[index]!,
-              );
-            }),
+          : null,
+    );
+  }
+
+  Widget drugDosesContent() {
+    if (_drugDoses.isEmpty) {
+      return Text('No medications recorded', style: AppTheme.bodyMedium);
+    }
+
+    if (!widget.isEditable) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: _drugDoses.map(readOnlyDrugDoseItem).toList(),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: _drugDoses.asMap().entries.map((entry) {
+        final index = entry.key;
+        final dose = entry.value;
+        return editableDrugDoseItem(
+          index: index,
+          dose: dose,
+          controllers: _drugDoseControllers[index]!,
+        );
+      }).toList(),
+    );
+  }
+
+  Widget readOnlyDrugDoseItem(DrugDose dose) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: const BoxDecoration(
+              color: AppTheme.primary,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Text(dose.name, style: AppTheme.labelLarge)),
+          Text(
+            dose.displayDosage,
+            style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+          ),
         ],
       ),
     );
@@ -430,28 +464,31 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
           : AppTheme.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Notes', style: AppTheme.labelLarge),
-          const SizedBox(height: 8),
-          if (widget.isEditable)
-            CupertinoTextField(
-              controller: _notesController!,
-              placeholder: 'Additional Notes (optional)',
-              placeholderStyle: AppTheme.inputPlaceholder,
-              style: AppTheme.input,
-              maxLines: 4,
-              onChanged: widget.onNotesChanged,
-            )
-          else
-            Text(
-              _notesController?.text.isNotEmpty == true
-                  ? _notesController!.text
-                  : 'No additional notes',
-              style: AppTheme.bodyMedium,
-            ),
-        ],
+        children: [notesHeader(), const SizedBox(height: 8), notesContent()],
       ),
     );
+  }
+
+  Widget notesHeader() {
+    return Text('Notes', style: AppTheme.labelLarge);
+  }
+
+  Widget notesContent() {
+    if (widget.isEditable) {
+      return CupertinoTextField(
+        controller: _notesController!,
+        placeholder: 'Additional Notes (optional)',
+        placeholderStyle: AppTheme.inputPlaceholder,
+        style: AppTheme.input,
+        maxLines: 4,
+        onChanged: widget.onNotesChanged,
+      );
+    }
+
+    final text = _notesController?.text.isNotEmpty == true
+        ? _notesController!.text
+        : 'No additional notes';
+    return Text(text, style: AppTheme.bodyMedium);
   }
 
   DateTime get currentDateTime => _selectedDateTime;

@@ -60,94 +60,89 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: Container(
-                  padding: const EdgeInsets.all(AppTheme.spacingL),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppTheme.primary.withValues(alpha: 0.1),
-                        AppTheme.primary.withValues(alpha: 0.05),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(
-                      AppTheme.radiusExtraLarge,
-                    ),
-                  ),
-                  child: const Icon(
-                    CupertinoIcons.heart_fill,
-                    size: 80,
-                    color: AppTheme.primary,
-                  ),
-                ),
-              ),
-
+              introIcon(),
               const SizedBox(height: AppTheme.spacingXL),
-
-              SlideTransition(
-                position: _slideAnimation,
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: Column(
-                    children: [
-                      Text(
-                        'Health Notes',
-                        textAlign: TextAlign.center,
-                        style: AppTheme.headlineLarge,
-                      ),
-
-                      const SizedBox(height: AppTheme.spacingS),
-
-                      Text(
-                        'Your personal health companion',
-                        textAlign: TextAlign.center,
-                        style: AppTheme.bodyLarge.copyWith(
-                          color: AppTheme.textSecondary,
-                        ),
-                      ),
-
-                      const SizedBox(height: AppTheme.spacingL),
-
-                      Text(
-                        'Track symptoms, medications, and insights to better understand your health patterns',
-                        textAlign: TextAlign.center,
-                        style: AppTheme.bodyMedium.copyWith(
-                          color: AppTheme.textTertiary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
+              introTextBlock(),
               const SizedBox(height: AppTheme.spacingXXL),
-
-              SlideTransition(
-                position: _slideAnimation,
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: signInButton(),
-                ),
-              ),
-
+              signInButtonSection(),
               const SizedBox(height: AppTheme.spacingM),
-
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: Text(
-                  'Your health data stays private and secure',
-                  textAlign: TextAlign.center,
-                  style: AppTheme.caption.copyWith(
-                    color: AppTheme.textQuaternary,
-                  ),
-                ),
-              ),
+              privacyMessage(),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget introIcon() {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Container(
+        padding: const EdgeInsets.all(AppTheme.spacingL),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppTheme.primary.withValues(alpha: 0.1),
+              AppTheme.primary.withValues(alpha: 0.05),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(AppTheme.radiusExtraLarge),
+        ),
+        child: const Icon(
+          CupertinoIcons.heart_fill,
+          size: 80,
+          color: AppTheme.primary,
+        ),
+      ),
+    );
+  }
+
+  Widget introTextBlock() {
+    return SlideTransition(
+      position: _slideAnimation,
+      child: FadeTransition(
+        opacity: _fadeAnimation,
+        child: Column(
+          children: [
+            Text(
+              'Health Notes',
+              textAlign: TextAlign.center,
+              style: AppTheme.headlineLarge,
+            ),
+            const SizedBox(height: AppTheme.spacingS),
+            Text(
+              'Your personal health companion',
+              textAlign: TextAlign.center,
+              style: AppTheme.bodyLarge.copyWith(color: AppTheme.textSecondary),
+            ),
+            const SizedBox(height: AppTheme.spacingL),
+            Text(
+              'Track symptoms, medications, and insights to better understand your health patterns',
+              textAlign: TextAlign.center,
+              style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget signInButtonSection() {
+    return SlideTransition(
+      position: _slideAnimation,
+      child: FadeTransition(opacity: _fadeAnimation, child: signInButton()),
+    );
+  }
+
+  Widget privacyMessage() {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Text(
+        'Your health data stays private and secure',
+        textAlign: TextAlign.center,
+        style: AppTheme.caption.copyWith(color: AppTheme.textQuaternary),
       ),
     );
   }

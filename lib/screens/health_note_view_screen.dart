@@ -59,11 +59,11 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
           child: const Icon(CupertinoIcons.pencil),
         ),
       ),
-      child: SafeArea(child: buildViewMode()),
+      child: SafeArea(child: viewMode()),
     );
   }
 
-  Widget buildViewMode() {
+  Widget viewMode() {
     final notesAsync = ref.watch(healthNotesNotifierProvider);
 
     return notesAsync.when(

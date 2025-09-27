@@ -29,14 +29,14 @@ class RefreshableListView<T> extends ConsumerWidget {
       slivers: [
         CupertinoSliverRefreshControl(onRefresh: onRefresh),
         if (padding != null)
-          SliverPadding(padding: padding!, sliver: _buildSliverList())
+          SliverPadding(padding: padding!, sliver: sliverList())
         else
-          _buildSliverList(),
+          sliverList(),
       ],
     );
   }
 
-  Widget _buildSliverList() {
+  Widget sliverList() {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         (context, index) => itemBuilder(items[index]),

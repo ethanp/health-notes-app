@@ -75,11 +75,11 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              buildNameSection(),
+              nameSection(),
               const SizedBox(height: 16),
-              buildDescriptionSection(),
+              descriptionSection(),
               const SizedBox(height: 16),
-              buildCategorySection(categoriesAsync),
+              categorySection(categoriesAsync),
             ],
           ),
         ),
@@ -87,7 +87,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
     );
   }
 
-  Widget buildNameSection() {
+  Widget nameSection() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: AppTheme.primaryCard,
@@ -108,7 +108,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
     );
   }
 
-  Widget buildDescriptionSection() {
+  Widget descriptionSection() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: AppTheme.primaryCard,
@@ -136,9 +136,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
     );
   }
 
-  Widget buildCategorySection(
-    AsyncValue<List<HealthToolCategory>> categoriesAsync,
-  ) {
+  Widget categorySection(AsyncValue<List<HealthToolCategory>> categoriesAsync) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: AppTheme.primaryCard,
@@ -148,52 +146,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
           Text('Category', style: AppTheme.headlineSmall),
           const SizedBox(height: 16),
           categoriesAsync.when(
-            data: (categories) {
-              if (categories.isEmpty) {
-                return Text(
-                  'No categories available. Please create a category first.',
-                  style: AppTheme.bodyMedium.copyWith(
-                    color: AppTheme.textTertiary,
-                  ),
-                );
-              }
-
-              if (categories.length == 1) {
-                final category = categories.first;
-                _selectedCategoryId = category.id;
-                return Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: AppTheme.inputField,
-                  child: Row(
-                    children: [
-                      Icon(
-                        CupertinoIcons.check_mark_circled_solid,
-                        color: AppTheme.primary,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(category.name, style: AppTheme.bodyMedium),
-                    ],
-                  ),
-                );
-              }
-
-              return CupertinoSlidingSegmentedControl<String>(
-                groupValue: _selectedCategoryId,
-                children: {
-                  for (final category in categories)
-                    category.id: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Text(category.name, style: AppTheme.bodyMedium),
-                    ),
-                },
-                onValueChanged: (value) {
-                  if (value != null) {
-                    setState(() => _selectedCategoryId = value);
-                  }
-                },
-              );
-            },
+            data: (categories) => categoryContent(categories),
             loading: () => EnhancedUIComponents.loadingIndicator(
               message: 'Loading categories...',
             ),
@@ -202,6 +155,59 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget categoryContent(List<HealthToolCategory> categories) {
+    if (categories.isEmpty) {
+      return Text(
+        'No categories available. Please create a category first.',
+        style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+      );
+    }
+
+    if (categories.length == 1) {
+      final category = categories.first;
+      _selectedCategoryId = category.id;
+      return singleCategoryDisplay(category);
+    }
+
+    return categorySelector(categories);
+  }
+
+  Widget singleCategoryDisplay(HealthToolCategory category) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: AppTheme.inputField,
+      child: Row(
+        children: [
+          Icon(
+            CupertinoIcons.check_mark_circled_solid,
+            color: AppTheme.primary,
+            size: 20,
+          ),
+          const SizedBox(width: 8),
+          Text(category.name, style: AppTheme.bodyMedium),
+        ],
+      ),
+    );
+  }
+
+  Widget categorySelector(List<HealthToolCategory> categories) {
+    return CupertinoSlidingSegmentedControl<String>(
+      groupValue: _selectedCategoryId,
+      children: {
+        for (final category in categories)
+          category.id: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(category.name, style: AppTheme.bodyMedium),
+          ),
+      },
+      onValueChanged: (value) {
+        if (value != null) {
+          setState(() => _selectedCategoryId = value);
+        }
+      },
     );
   }
 

@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/grouped_health_notes.dart';
 import 'package:health_notes/models/health_note.dart';
+import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/screens/filter_modal.dart';
 import 'package:health_notes/screens/health_note_form.dart';
@@ -359,149 +361,157 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
     return Dismissible(
       key: Key(note.id),
       direction: DismissDirection.endToStart,
-      background: Container(
-        margin: const EdgeInsets.symmetric(
-          horizontal: AppTheme.spacingM,
-          vertical: AppTheme.spacingXS,
-        ),
-        decoration: BoxDecoration(
-          color: AppTheme.destructive,
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        ),
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: AppTheme.spacingL),
-        child: const Icon(
-          CupertinoIcons.delete,
-          color: CupertinoColors.white,
-          size: 30,
-        ),
-      ),
-      confirmDismiss: (direction) async {
-        return await showDeleteConfirmation(note);
-      },
-      onDismissed: (direction) {
-        deleteNote(note.id);
-      },
+      background: noteDismissBackground(),
+      confirmDismiss: (direction) async => await showDeleteConfirmation(note),
+      onDismissed: (direction) => deleteNote(note.id),
       child: EnhancedUIComponents.card(
         onTap: () => navigateToView(note),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (note.hasSymptoms) ...[
-                        ...note.validSymptoms.map(
-                          (symptom) => Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: AppTheme.spacingXS,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 8,
-                                      height: 8,
-                                      decoration: const BoxDecoration(
-                                        color: AppTheme.primary,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    const SizedBox(width: AppTheme.spacingS),
-                                    EnhancedUIComponents.statusIndicator(
-                                      text: '${symptom.severityLevel}/10',
-                                      color: AppTheme.primary,
-                                    ),
-                                    const SizedBox(width: AppTheme.spacingS),
-                                    Expanded(
-                                      child: Text(
-                                        symptom.minorComponent.isNotEmpty
-                                            ? '${symptom.majorComponent} - ${symptom.minorComponent}'
-                                            : symptom.majorComponent,
-                                        style: AppTheme.labelLarge,
-                                      ),
-                                    ),
-                                    Text(
-                                      DateFormat(
-                                        'h:mm a',
-                                      ).format(note.dateTime),
-                                      style: AppTheme.caption,
-                                    ),
-                                  ],
-                                ),
-                                if (symptom.additionalNotes.isNotEmpty) ...[
-                                  const SizedBox(height: AppTheme.spacingXS),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      left: AppTheme.spacingS + 8,
-                                    ),
-                                    child: Text(
-                                      symptom.additionalNotes,
-                                      style: AppTheme.bodySmall.copyWith(
-                                        color: AppTheme.textSecondary,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                      if (note.drugDoses.isNotEmpty) ...[
-                        const SizedBox(height: AppTheme.spacingS),
-                        ...note.drugDoses.map(
-                          (dose) => Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: AppTheme.spacingXS,
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: const BoxDecoration(
-                                    color: AppTheme.accent,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                const SizedBox(width: AppTheme.spacingS),
-                                Expanded(
-                                  child: Text(
-                                    '${dose.name} ${dose.dosage}',
-                                    style: AppTheme.labelMedium,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            noteContent(note),
             if (note.notes.isNotEmpty) ...[
               const SizedBox(height: AppTheme.spacingM),
-              Text(
-                note.notes,
-                style: AppTheme.bodySmall,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
+              noteSummary(note.notes),
             ],
           ],
         ),
       ),
+    );
+  }
+
+  Widget noteDismissBackground() {
+    return Container(
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppTheme.spacingM,
+        vertical: AppTheme.spacingXS,
+      ),
+      decoration: BoxDecoration(
+        color: AppTheme.destructive,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+      ),
+      alignment: Alignment.centerRight,
+      padding: const EdgeInsets.only(right: AppTheme.spacingL),
+      child: const Icon(
+        CupertinoIcons.delete,
+        color: CupertinoColors.white,
+        size: 30,
+      ),
+    );
+  }
+
+  Widget noteContent(HealthNote note) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (note.hasSymptoms) ...symptomDetails(note),
+              if (note.drugDoses.isNotEmpty) ...[
+                const SizedBox(height: AppTheme.spacingS),
+                ...note.drugDoses.map(medicationRow),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<Widget> symptomDetails(HealthNote note) {
+    return note.validSymptoms.map((symptom) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: AppTheme.spacingXS),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            symptomHeader(note, symptom),
+            if (symptom.additionalNotes.isNotEmpty)
+              symptomAdditionalNotes(symptom),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  Widget symptomHeader(HealthNote note, Symptom symptom) {
+    return Row(
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: const BoxDecoration(
+            color: AppTheme.primary,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: AppTheme.spacingS),
+        EnhancedUIComponents.statusIndicator(
+          text: '${symptom.severityLevel}/10',
+          color: AppTheme.primary,
+        ),
+        const SizedBox(width: AppTheme.spacingS),
+        Expanded(
+          child: Text(
+            symptom.minorComponent.isNotEmpty
+                ? '${symptom.majorComponent} - ${symptom.minorComponent}'
+                : symptom.majorComponent,
+            style: AppTheme.labelLarge,
+          ),
+        ),
+        Text(
+          DateFormat('h:mm a').format(note.dateTime),
+          style: AppTheme.caption,
+        ),
+      ],
+    );
+  }
+
+  Widget symptomAdditionalNotes(Symptom symptom) {
+    return Padding(
+      padding: const EdgeInsets.only(left: AppTheme.spacingS + 8),
+      child: Text(
+        symptom.additionalNotes,
+        style: AppTheme.bodySmall.copyWith(color: AppTheme.textSecondary),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+
+  Widget medicationRow(DrugDose dose) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppTheme.spacingXS),
+      child: Row(
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: const BoxDecoration(
+              color: AppTheme.accent,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: AppTheme.spacingS),
+          Expanded(
+            child: Text(
+              '${dose.name} ${dose.dosage}',
+              style: AppTheme.labelMedium,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget noteSummary(String notes) {
+    return Text(
+      notes,
+      style: AppTheme.bodySmall,
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
     );
   }
 

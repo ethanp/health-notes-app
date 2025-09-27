@@ -53,129 +53,13 @@ class _FilterModalState extends State<FilterModal> {
           padding: const EdgeInsets.all(16),
           children: [
             const SizedBox(height: 20),
-
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: AppTheme.filterChip,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Filter by Date', style: AppTheme.headlineSmall),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CupertinoButton(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          color: _tempSelectedDate != null
-                              ? CupertinoColors.systemBlue
-                              : CupertinoColors.systemGrey6,
-                          borderRadius: BorderRadius.circular(8),
-                          onPressed: () => setState(
-                            () => _isDatePickerVisible = !_isDatePickerVisible,
-                          ),
-                          child: Text(
-                            _tempSelectedDate != null
-                                ? DateFormat(
-                                    'M/d/yyyy',
-                                  ).format(_tempSelectedDate!)
-                                : 'Select Date',
-                            style: _tempSelectedDate != null
-                                ? AppTheme.buttonPrimary
-                                : AppTheme.bodyMedium,
-                          ),
-                        ),
-                      ),
-                      if (_tempSelectedDate != null) ...[
-                        const SizedBox(width: 8),
-                        CupertinoButton(
-                          padding: const EdgeInsets.all(8),
-                          color: CupertinoColors.destructiveRed,
-                          borderRadius: BorderRadius.circular(8),
-                          onPressed: () =>
-                              setState(() => _tempSelectedDate = null),
-                          child: const Icon(
-                            CupertinoIcons.xmark,
-                            color: CupertinoColors.white,
-                            size: 16,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
+            dateFilterSection(),
             const SizedBox(height: 20),
-
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: AppTheme.filterChip,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Filter by Drug', style: AppTheme.headlineSmall),
-                  const SizedBox(height: 16),
-                  if (widget.availableDrugs.isEmpty)
-                    Text(
-                      'No drugs recorded yet',
-                      style: AppTheme.bodyMedium.copyWith(
-                        color: AppTheme.textTertiary,
-                      ),
-                    )
-                  else
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        ...widget.availableDrugs.map(
-                          (drug) => EnhancedUIComponents.filterChip(
-                            label: drug,
-                            isActive: _tempSelectedDrug == drug,
-                            onTap: () => setState(
-                              () => _tempSelectedDrug =
-                                  _tempSelectedDrug == drug ? null : drug,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                ],
-              ),
-            ),
-
+            drugFilterSection(),
             if (_isDatePickerVisible) ...[
               const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: AppTheme.inputField,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Select Date', style: AppTheme.headlineSmall),
-                        CupertinoButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: () =>
-                              setState(() => _isDatePickerVisible = false),
-                          child: const Icon(CupertinoIcons.xmark),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      height: 300,
-                      decoration: AppTheme.inputField,
-                      child: buildCustomDatePicker(),
-                    ),
-                  ],
-                ),
-              ),
+              datePickerOverlay(),
             ],
-
             const SizedBox(height: 40),
           ],
         ),
@@ -183,7 +67,130 @@ class _FilterModalState extends State<FilterModal> {
     );
   }
 
-  Widget buildCustomDatePicker() {
+  Widget dateFilterSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: AppTheme.filterChip,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Filter by Date', style: AppTheme.headlineSmall),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(child: dateSelectorButton()),
+              if (_tempSelectedDate != null) ...[
+                const SizedBox(width: 8),
+                clearDateButton(),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget dateSelectorButton() {
+    return CupertinoButton(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      color: _tempSelectedDate != null
+          ? CupertinoColors.systemBlue
+          : CupertinoColors.systemGrey6,
+      borderRadius: BorderRadius.circular(8),
+      onPressed: () =>
+          setState(() => _isDatePickerVisible = !_isDatePickerVisible),
+      child: Text(
+        _tempSelectedDate != null
+            ? DateFormat('M/d/yyyy').format(_tempSelectedDate!)
+            : 'Select Date',
+        style: _tempSelectedDate != null
+            ? AppTheme.buttonPrimary
+            : AppTheme.bodyMedium,
+      ),
+    );
+  }
+
+  Widget clearDateButton() {
+    return CupertinoButton(
+      padding: const EdgeInsets.all(8),
+      color: CupertinoColors.destructiveRed,
+      borderRadius: BorderRadius.circular(8),
+      onPressed: () => setState(() => _tempSelectedDate = null),
+      child: const Icon(
+        CupertinoIcons.xmark,
+        color: CupertinoColors.white,
+        size: 16,
+      ),
+    );
+  }
+
+  Widget drugFilterSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: AppTheme.filterChip,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Filter by Drug', style: AppTheme.headlineSmall),
+          const SizedBox(height: 16),
+          if (widget.availableDrugs.isEmpty)
+            Text(
+              'No drugs recorded yet',
+              style: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
+            )
+          else
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: widget.availableDrugs
+                  .map((drug) => drugChip(drug))
+                  .toList(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget drugChip(String drug) {
+    return EnhancedUIComponents.filterChip(
+      label: drug,
+      isActive: _tempSelectedDrug == drug,
+      onTap: () => setState(
+        () => _tempSelectedDrug = _tempSelectedDrug == drug ? null : drug,
+      ),
+    );
+  }
+
+  Widget datePickerOverlay() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: AppTheme.inputField,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Select Date', style: AppTheme.headlineSmall),
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: () => setState(() => _isDatePickerVisible = false),
+                child: const Icon(CupertinoIcons.xmark),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Container(
+            height: 300,
+            decoration: AppTheme.inputField,
+            child: customDatePicker(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget customDatePicker() {
     final currentDate = _tempSelectedDate ?? DateTime.now();
     final months = [
       'January',
@@ -207,63 +214,63 @@ class _FilterModalState extends State<FilterModal> {
 
     return Row(
       children: [
-        Expanded(
-          child: CupertinoPicker(
-            itemExtent: 40,
-            backgroundColor: CupertinoColors.systemGrey5,
-            onSelectedItemChanged: (index) => setState(
-              () => _tempSelectedDate = DateTime(
-                currentDate.year,
-                index + 1,
-                currentDate.day,
-              ),
-            ),
-            children: months
-                .map(
-                  (month) =>
-                      Center(child: Text(month, style: AppTheme.bodyMedium)),
-                )
-                .toList(),
-          ),
-        ),
-        Expanded(
-          child: CupertinoPicker(
-            itemExtent: 40,
-            backgroundColor: CupertinoColors.systemGrey5,
-            onSelectedItemChanged: (index) => setState(
-              () => _tempSelectedDate = DateTime(
-                currentDate.year,
-                currentDate.month,
-                index + 1,
-              ),
-            ),
-            children: days
-                .map(
-                  (day) => Center(child: Text(day, style: AppTheme.bodyMedium)),
-                )
-                .toList(),
-          ),
-        ),
-        Expanded(
-          child: CupertinoPicker(
-            itemExtent: 40,
-            backgroundColor: CupertinoColors.systemGrey5,
-            onSelectedItemChanged: (index) => setState(
-              () => _tempSelectedDate = DateTime(
-                int.parse(years[index]),
-                currentDate.month,
-                currentDate.day,
-              ),
-            ),
-            children: years
-                .map(
-                  (year) =>
-                      Center(child: Text(year, style: AppTheme.bodyMedium)),
-                )
-                .toList(),
-          ),
-        ),
+        Expanded(child: monthPicker(months, currentDate)),
+        Expanded(child: dayPicker(days, currentDate)),
+        Expanded(child: yearPicker(years, currentDate)),
       ],
+    );
+  }
+
+  Widget monthPicker(List<String> months, DateTime currentDate) {
+    return CupertinoPicker(
+      itemExtent: 40,
+      backgroundColor: CupertinoColors.systemGrey5,
+      onSelectedItemChanged: (index) => setState(
+        () => _tempSelectedDate = DateTime(
+          currentDate.year,
+          index + 1,
+          currentDate.day,
+        ),
+      ),
+      children: months
+          .map(
+            (month) => Center(child: Text(month, style: AppTheme.bodyMedium)),
+          )
+          .toList(),
+    );
+  }
+
+  Widget dayPicker(List<String> days, DateTime currentDate) {
+    return CupertinoPicker(
+      itemExtent: 40,
+      backgroundColor: CupertinoColors.systemGrey5,
+      onSelectedItemChanged: (index) => setState(
+        () => _tempSelectedDate = DateTime(
+          currentDate.year,
+          currentDate.month,
+          index + 1,
+        ),
+      ),
+      children: days
+          .map((day) => Center(child: Text(day, style: AppTheme.bodyMedium)))
+          .toList(),
+    );
+  }
+
+  Widget yearPicker(List<String> years, DateTime currentDate) {
+    return CupertinoPicker(
+      itemExtent: 40,
+      backgroundColor: CupertinoColors.systemGrey5,
+      onSelectedItemChanged: (index) => setState(
+        () => _tempSelectedDate = DateTime(
+          int.parse(years[index]),
+          currentDate.month,
+          currentDate.day,
+        ),
+      ),
+      children: years
+          .map((year) => Center(child: Text(year, style: AppTheme.bodyMedium)))
+          .toList(),
     );
   }
 

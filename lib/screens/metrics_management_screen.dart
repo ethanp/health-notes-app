@@ -72,7 +72,7 @@ class _MetricsManagementScreenState
       ),
       child: SafeArea(
         child: metricsAsync.when(
-          data: (metrics) => _buildMetricsList(metrics),
+          data: (metrics) => metricsList(metrics),
           loading: () => const Center(child: CupertinoActivityIndicator()),
           error: (error, stack) => Center(
             child: Column(
@@ -108,7 +108,7 @@ class _MetricsManagementScreenState
     );
   }
 
-  Widget _buildMetricsList(List<CheckInMetric> metrics) {
+  Widget metricsList(List<CheckInMetric> metrics) {
     if (metrics.isEmpty) {
       return Center(
         child: Column(
@@ -143,67 +143,80 @@ class _MetricsManagementScreenState
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       itemCount: metrics.length,
-      itemBuilder: (context, index) {
-        final metric = metrics[index];
-        return _buildMetricTile(metric, index);
-      },
+      itemBuilder: (context, index) => metricTile(metrics[index]),
     );
   }
 
-  Widget _buildMetricTile(CheckInMetric metric, int index) {
+  Widget metricTile(CheckInMetric metric) {
     return Container(
       key: ValueKey(metric.id),
       margin: const EdgeInsets.only(bottom: 6),
       child: EnhancedUIComponents.card(
         child: CupertinoListTile(
           padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 12, 10),
-          leading: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: metric.color.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(metric.icon, color: metric.color, size: 16),
-          ),
-          title: Text(
-            metric.name,
-            style: CupertinoTheme.of(
-              context,
-            ).textTheme.textStyle.copyWith(fontWeight: FontWeight.w600),
-          ),
-          subtitle: Text(
-            metric.type.description,
-            style: CupertinoTheme.of(
-              context,
-            ).textTheme.textStyle.copyWith(color: CupertinoColors.systemGrey),
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CupertinoButton(
-                padding: EdgeInsets.zero,
-                onPressed: () => _showEditMetricDialog(context, metric),
-                child: const Icon(
-                  CupertinoIcons.pencil,
-                  size: 18,
-                  color: CupertinoColors.systemBlue,
-                ),
-              ),
-              const SizedBox(width: 6),
-              CupertinoButton(
-                padding: EdgeInsets.zero,
-                onPressed: () => _showDeleteMetricDialog(context, metric),
-                child: const Icon(
-                  CupertinoIcons.delete,
-                  size: 18,
-                  color: CupertinoColors.systemRed,
-                ),
-              ),
-            ],
-          ),
+          leading: metricIcon(metric),
+          title: metricTitle(metric),
+          subtitle: metricSubtitle(metric),
+          trailing: metricActions(metric),
         ),
       ),
+    );
+  }
+
+  Widget metricIcon(CheckInMetric metric) {
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        color: metric.color.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Icon(metric.icon, color: metric.color, size: 16),
+    );
+  }
+
+  Widget metricTitle(CheckInMetric metric) {
+    return Text(
+      metric.name,
+      style: CupertinoTheme.of(
+        context,
+      ).textTheme.textStyle.copyWith(fontWeight: FontWeight.w600),
+    );
+  }
+
+  Widget metricSubtitle(CheckInMetric metric) {
+    return Text(
+      metric.type.description,
+      style: CupertinoTheme.of(
+        context,
+      ).textTheme.textStyle.copyWith(color: CupertinoColors.systemGrey),
+    );
+  }
+
+  Widget metricActions(CheckInMetric metric) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => _showEditMetricDialog(context, metric),
+          child: const Icon(
+            CupertinoIcons.pencil,
+            size: 18,
+            color: CupertinoColors.systemBlue,
+          ),
+        ),
+        const SizedBox(width: 6),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => _showDeleteMetricDialog(context, metric),
+          child: const Icon(
+            CupertinoIcons.delete,
+            size: 18,
+            color: CupertinoColors.systemRed,
+          ),
+        ),
+      ],
     );
   }
 
