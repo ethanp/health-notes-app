@@ -8,6 +8,7 @@ import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/screens/symptom_trends_screen.dart';
+import 'package:health_notes/screens/drug_trends_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/widgets/check_in_trends_chart.dart';
@@ -164,7 +165,9 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
           const SizedBox(height: 12),
           ...sortedTrends
               .take(3)
-              .map((entry) => statRow(entry.key, entry.value, 'times')),
+              .map(
+                (entry) => clickableStatRow(entry.key, entry.value, 'times'),
+              ),
         ],
       ),
     );
@@ -297,11 +300,25 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Most Used Drugs', style: AppTheme.labelLarge),
+          Row(
+            children: [
+              Expanded(
+                child: Text('Most Used Drugs', style: AppTheme.labelLarge),
+              ),
+              Text(
+                'Tap to view trends',
+                style: AppTheme.bodySmall.copyWith(
+                  color: CupertinoColors.systemGrey,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 12),
           ...sortedDrugs
               .take(5)
-              .map((entry) => statRow(entry.key, entry.value, 'times')),
+              .map(
+                (entry) => clickableDrugRow(entry.key, entry.value, 'times'),
+              ),
         ],
       ),
     );
@@ -330,6 +347,76 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
                     statRow(formatMonth(entry.key), entry.value, 'notes'),
               ),
         ],
+      ),
+    );
+  }
+
+  Widget clickableStatRow(String label, int value, String unit) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.of(context).push(
+              CupertinoPageRoute(
+                builder: (context) => SymptomTrendsScreen(symptomName: label),
+              ),
+            );
+          },
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(child: Text(label, style: AppTheme.bodyMedium)),
+                Text(
+                  '$value $unit',
+                  style: AppTheme.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: CupertinoColors.systemBlue,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget clickableDrugRow(String drugName, int value, String unit) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.of(context).push(
+              CupertinoPageRoute(
+                builder: (context) => DrugTrendsScreen(drugName: drugName),
+              ),
+            );
+          },
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(child: Text(drugName, style: AppTheme.bodyMedium)),
+                Text(
+                  '$value $unit',
+                  style: AppTheme.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: CupertinoColors.systemBlue,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

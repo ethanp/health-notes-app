@@ -14,25 +14,16 @@ class HealthNoteFormFields extends ConsumerStatefulWidget {
   final HealthNote? note;
   final bool isEditable;
   final Function(DateTime)? onDateTimeChanged;
-  final Function(String)? onSymptomsChanged;
   final Function(String)? onNotesChanged;
   final Function(List<DrugDose>)? onDrugDosesChanged;
-  final VoidCallback? onAddDrugDose;
-  final Function(int)? onRemoveDrugDose;
-  final Function(int, {String? name, double? dosage, String? unit})?
-  onUpdateDrugDose;
 
   const HealthNoteFormFields({
     super.key,
     this.note,
     required this.isEditable,
     this.onDateTimeChanged,
-    this.onSymptomsChanged,
     this.onNotesChanged,
     this.onDrugDosesChanged,
-    this.onAddDrugDose,
-    this.onRemoveDrugDose,
-    this.onUpdateDrugDose,
   });
 
   @override
@@ -47,7 +38,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
   late List<Symptom> _symptoms;
   Map<int, DrugDoseControllers> _drugDoseControllers = {};
   Map<int, SymptomControllers> _symptomControllers = {};
-  Set<String> _usedSuggestions = {};
+  final Set<String> _usedSuggestions = {};
 
   @override
   void initState() {

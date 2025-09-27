@@ -251,7 +251,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
         minY: 0,
         maxY: 10,
         backgroundColor: AppTheme.backgroundPrimary.withValues(alpha: 0.02),
-        lineBarsData: _buildLineBarsData(metrics, metricData, sortedDates),
+        lineBarsData: lineBarsData(metrics, metricData, sortedDates),
         lineTouchData: chartTouchData(metrics),
       ),
       duration: Duration.zero,
@@ -399,7 +399,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     );
   }
 
-  List<LineChartBarData> _buildLineBarsData(
+  List<LineChartBarData> lineBarsData(
     List<String> metrics,
     Map<String, List<CheckIn>> metricData,
     List<DateTime> sortedDates,
@@ -417,7 +417,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
 
           final color = metricObj.color;
           final metricCheckIns = metricData[metric]!;
-          final spots = _buildSpots(metricCheckIns, sortedDates);
+          final spots = chartSpots(metricCheckIns, sortedDates);
 
           return LineChartBarData(
             spots: spots,
@@ -437,7 +437,10 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
         .toList();
   }
 
-  List<FlSpot> _buildSpots(List<CheckIn> metricCheckIns, List<DateTime> sortedDates) {
+  List<FlSpot> chartSpots(
+    List<CheckIn> metricCheckIns,
+    List<DateTime> sortedDates,
+  ) {
     final spots = <FlSpot>[];
     for (int i = 0; i < sortedDates.length; i++) {
       final date = sortedDates[i];

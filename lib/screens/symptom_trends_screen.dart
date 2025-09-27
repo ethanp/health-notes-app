@@ -5,6 +5,7 @@ import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/activity_calendar.dart';
 import 'package:intl/intl.dart';
 
 class SymptomTrendsScreen extends ConsumerStatefulWidget {
@@ -103,169 +104,10 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
   }
 
   Widget activityChart(Map<DateTime, int> activityData) {
-    return Container(
-      decoration: AppTheme.primaryCard,
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('${widget.symptomName} Activity', style: AppTheme.headlineSmall),
-          const SizedBox(height: 8),
-          Text(
-            'Color intensity indicates symptom severity. Translucent days show no recorded activity.',
-            style: AppTheme.bodySmall.copyWith(
-              color: CupertinoColors.systemGrey,
-            ),
-          ),
-          const SizedBox(height: 16),
-          severityLegend(),
-          const SizedBox(height: 16),
-          activityGrid(activityData),
-        ],
-      ),
-    );
-  }
-
-  Widget activityGrid(Map<DateTime, int> activityData) {
-    final now = DateTime.now();
-    final monthsToShow = 12; // Show last 12 months
-
-    final months = <Widget>[];
-
-    for (int monthOffset = 0; monthOffset < monthsToShow; monthOffset++) {
-      final monthDate = DateTime(now.year, now.month - monthOffset, 1);
-      final monthName = DateFormat('MMM yyyy').format(monthDate);
-      final daysInMonth = DateTime(monthDate.year, monthDate.month + 1, 0).day;
-
-      bool monthHasActivity = false;
-      for (int day = 1; day <= daysInMonth; day++) {
-        final date = DateTime(monthDate.year, monthDate.month, day);
-        if (activityData.containsKey(date) && activityData[date]! > 0) {
-          monthHasActivity = true;
-          break;
-        }
-      }
-
-      if (!monthHasActivity) continue;
-
-      final monthWeeks = <Widget>[];
-      final firstDayOfMonth = DateTime(monthDate.year, monthDate.month, 1);
-      final firstWeekday = firstDayOfMonth.weekday; // 1 = Monday, 7 = Sunday
-
-      final totalDays = firstWeekday - 1 + daysInMonth; // Include padding days
-      final weeksInMonth = (totalDays / 7).ceil();
-
-      for (int week = 0; week < weeksInMonth; week++) {
-        final weekDays = <Widget>[];
-
-        for (int day = 0; day < 7; day++) {
-          final dayOffset = week * 7 + day - (firstWeekday - 1);
-          final isInMonth = dayOffset >= 0 && dayOffset < daysInMonth;
-
-          if (isInMonth) {
-            final date = DateTime(
-              monthDate.year,
-              monthDate.month,
-              dayOffset + 1,
-            );
-            final severity = activityData[date] ?? 0;
-            final color = _severityColor(severity);
-
-            weekDays.add(
-              GestureDetector(
-                onTap: () => _showDateInfo(context, date, severity),
-                child: Container(
-                  width: 30,
-                  height: 30,
-                  margin: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    color: severity > 0
-                        ? color
-                        : AppTheme.backgroundPrimary.withValues(
-                            alpha: 0.3,
-                          ), // More translucent for inactive days
-                    borderRadius: BorderRadius.circular(3),
-                    border: Border.all(color: _gridCellBorderColor(severity)),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${date.day}',
-                      style: _gridCellTextStyle(severity),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          } else {
-            weekDays.add(
-              Container(width: 30, height: 30, margin: const EdgeInsets.all(2)),
-            );
-          }
-        }
-
-        monthWeeks.add(Row(mainAxisSize: MainAxisSize.min, children: weekDays));
-      }
-
-      months.add(
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8, left: 4),
-              child: Text(
-                monthName,
-                style: AppTheme.bodySmall.copyWith(
-                  color: CupertinoColors.systemGrey,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            ...monthWeeks,
-            const SizedBox(height: 16),
-          ],
-        ),
-      );
-    }
-
-    if (months.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: Column(
-            children: [
-              Icon(
-                CupertinoIcons.calendar,
-                size: 48,
-                color: CupertinoColors.systemGrey.withValues(alpha: 0.5),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'No activity data available',
-                style: AppTheme.bodyMedium.copyWith(
-                  color: CupertinoColors.systemGrey,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Start recording symptoms to see trends',
-                style: AppTheme.bodySmall.copyWith(
-                  color: CupertinoColors.systemGrey.withValues(alpha: 0.7),
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: months,
-      ),
+    return SeverityActivityCalendar(
+      itemName: widget.symptomName,
+      activityData: activityData,
+      onDateTap: _showDateInfo,
     );
   }
 
@@ -286,58 +128,6 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
       saturation / 100,
       lightness / 100,
     ).toColor();
-  }
-
-  Widget severityLegend() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Severity Levels:',
-          style: AppTheme.bodyMedium.copyWith(
-            fontWeight: FontWeight.w600,
-            color: CupertinoColors.white,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 12,
-          runSpacing: 8,
-          children: [
-            legendItem(0, 'No Activity'),
-            for (int i = 1; i <= 10; i++) legendItem(i, '$i'),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget legendItem(int severity, String label) {
-    final isInactive = severity == 0;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 26,
-          height: 26,
-          decoration: BoxDecoration(
-            color: _severityColor(severity),
-            borderRadius: BorderRadius.circular(3),
-            border: Border.all(color: _legendBorderColor(isInactive), width: 1),
-          ),
-        ),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: AppTheme.bodySmall.copyWith(
-            color: isInactive
-                ? AppTheme.textQuaternary.withValues(alpha: 0.6)
-                : CupertinoColors.white,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
   }
 
   Widget searchSection() {
@@ -587,15 +377,15 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
           children: [
             const SizedBox(height: 16),
             if (symptom.minorComponent.isNotEmpty) ...[
-              _buildInfoRow('Type', symptom.minorComponent),
+              infoRow('Type', symptom.minorComponent),
               const SizedBox(height: 12),
             ],
             if (symptom.additionalNotes.isNotEmpty) ...[
-              _buildInfoRow('Notes', symptom.additionalNotes),
+              infoRow('Notes', symptom.additionalNotes),
               const SizedBox(height: 12),
             ],
             if (noteForDate.notes.isNotEmpty) ...[
-              _buildInfoRow('General Notes', noteForDate.notes),
+              infoRow('General Notes', noteForDate.notes),
               const SizedBox(height: 12),
             ],
             Container(
@@ -653,7 +443,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget infoRow(String label, String value) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -823,27 +613,5 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
         ],
       ),
     );
-  }
-
-  Color _gridCellBorderColor(int severity) {
-    return severity > 0
-        ? CupertinoColors.systemGrey4.withValues(alpha: 0.5)
-        : AppTheme.backgroundPrimary.withValues(alpha: 0.2);
-  }
-
-  TextStyle _gridCellTextStyle(int severity) {
-    return AppTheme.bodySmall.copyWith(
-      color: severity > 0
-          ? CupertinoColors.white
-          : AppTheme.textQuaternary.withValues(alpha: 0.6),
-      fontWeight: FontWeight.w600,
-      fontSize: 12,
-    );
-  }
-
-  Color _legendBorderColor(bool isInactive) {
-    return isInactive
-        ? AppTheme.backgroundPrimary.withValues(alpha: 0.2)
-        : CupertinoColors.systemGrey4.withValues(alpha: 0.5);
   }
 }
