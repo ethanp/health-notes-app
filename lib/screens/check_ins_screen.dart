@@ -23,44 +23,37 @@ class CheckInsScreen extends ConsumerStatefulWidget {
 
 class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
     with TickerProviderStateMixin {
-  final Set<String> _expandedGroups = <String>{};
+  final Set<String> _expandedGroups = {};
   final Map<String, AnimationController> _animationControllers = {};
 
   void _toggleGroupExpansion(CheckInGroup group) {
     setState(() {
-      final groupKey =
-          '${group.representativeCheckIn.id}_${group.representativeCheckIn.dateTime.millisecondsSinceEpoch}';
-
-      if (!_animationControllers.containsKey(groupKey)) {
-        _animationControllers[groupKey] = AnimationController(
+      if (!_animationControllers.containsKey(group.key)) {
+        _animationControllers[group.key] = AnimationController(
           duration: const Duration(milliseconds: 400),
           vsync: this,
         );
       }
 
-      final controller = _animationControllers[groupKey]!;
+      final animation = _animationControllers[group.key]!;
 
-      if (_expandedGroups.contains(groupKey)) {
-        controller.reverse();
-        _expandedGroups.remove(groupKey);
+      if (_expandedGroups.contains(group.key)) {
+        animation.reverse();
+        _expandedGroups.remove(group.key);
       } else {
-        controller.forward();
-        _expandedGroups.add(groupKey);
+        animation.forward();
+        _expandedGroups.add(group.key);
       }
     });
   }
 
   bool _isGroupExpanded(CheckInGroup group) {
-    final groupKey =
-        '${group.representativeCheckIn.id}_${group.representativeCheckIn.dateTime.millisecondsSinceEpoch}';
-    return _expandedGroups.contains(groupKey);
+    return _expandedGroups.contains(group.key);
   }
 
   @override
   void dispose() {
-    for (final controller in _animationControllers.values) {
-      controller.dispose();
-    }
+    _animationControllers.values.forEach((c) => c.dispose());
     _animationControllers.clear();
     super.dispose();
   }
@@ -103,8 +96,8 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
         child: checkInsAsync.when(
           data: (checkIns) => userMetricsAsync.when(
             data: (userMetrics) => checkIns.isEmpty
-                ? buildEmptyState()
-                : buildCheckInsList(checkIns, userMetrics),
+                ? emptyState()
+                : checkInsList(checkIns, userMetrics),
             loading: () => EnhancedUIComponents.loadingIndicator(
               message: 'Loading metrics...',
             ),
@@ -125,7 +118,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
     );
   }
 
-  Widget buildEmptyState() {
+  Widget emptyState() {
     return EnhancedUIComponents.emptyState(
       title: 'No check-ins yet',
       message: 'Tap the + button to add your first check-in',
@@ -138,10 +131,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
     );
   }
 
-  Widget buildCheckInsList(
-    List<CheckIn> checkIns,
-    List<CheckInMetric> userMetrics,
-  ) {
+  Widget checkInsList(List<CheckIn> checkIns, List<CheckInMetric> userMetrics) {
     final groupedCheckIns = CheckInGrouping.groupCheckIns(
       checkIns,
       userMetrics.length,
@@ -152,200 +142,205 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
         ref.invalidate(checkInsNotifierProvider);
       },
       items: groupedCheckIns,
-      itemBuilder: (group) {
-        final isExpanded = _isGroupExpanded(group);
+      itemBuilder: (group) => checkInGroupItem(group, userMetrics),
+    );
+  }
 
-        return Dismissible(
-          key: Key(
-            'group_${group.representativeCheckIn.id}_${group.representativeCheckIn.dateTime.millisecondsSinceEpoch}',
-          ),
-          direction: DismissDirection.endToStart,
-          background: Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              color: AppTheme.destructive,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-            ),
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.only(right: AppTheme.spacingL),
-            child: const Icon(
-              CupertinoIcons.delete,
-              color: CupertinoColors.white,
-              size: 24,
-            ),
-          ),
-          confirmDismiss: (direction) async {
-            return await showDeleteGroupConfirmation(group);
-          },
-          onDismissed: (direction) {
-            deleteCheckInGroup(group);
-          },
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: AppTheme.primaryCard,
-            child: Column(
-              children: [
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => _toggleGroupExpansion(group),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                DateFormat(
-                                  'EEEE, MMMM d',
-                                ).format(group.representativeCheckIn.dateTime),
-                                style: AppTheme.labelLarge.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                DateFormat(
-                                  'h:mm a',
-                                ).format(group.representativeCheckIn.dateTime),
-                                style: AppTheme.bodySmall.copyWith(
-                                  color: AppTheme.textTertiary,
-                                ),
-                              ),
-                            ],
+  Widget checkInGroupItem(CheckInGroup group, List<CheckInMetric> userMetrics) {
+    final isExpanded = _isGroupExpanded(group);
+
+    return Dismissible(
+      key: Key('group_${group.key}'),
+      direction: DismissDirection.endToStart,
+      background: dismissBackground(),
+      confirmDismiss: (direction) => showDeleteGroupConfirmation(group),
+      onDismissed: (direction) => deleteCheckInGroup(group),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: AppTheme.primaryCard,
+        child: Column(
+          children: [
+            groupHeader(group, userMetrics, isExpanded),
+            expandedContent(group, userMetrics),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget groupHeader(
+    CheckInGroup group,
+    List<CheckInMetric> userMetrics,
+    bool isExpanded,
+  ) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => _toggleGroupExpansion(group),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Expanded(child: groupDateInfo(group)),
+            groupCountIndicator(group, userMetrics),
+            const SizedBox(width: 8),
+            expansionIcon(isExpanded),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget groupDateInfo(CheckInGroup group) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          DateFormat(
+            'EEEE, MMMM d',
+          ).format(group.representativeCheckIn.dateTime),
+          style: AppTheme.labelLarge.copyWith(fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          DateFormat('h:mm a').format(group.representativeCheckIn.dateTime),
+          style: AppTheme.bodySmall.copyWith(color: AppTheme.textTertiary),
+        ),
+      ],
+    );
+  }
+
+  Widget expansionIcon(bool isExpanded) {
+    return AnimatedRotation(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+      turns: isExpanded ? 0.5 : 0.0,
+      child: const Icon(
+        CupertinoIcons.chevron_down,
+        color: CupertinoColors.systemGrey,
+        size: 16,
+      ),
+    );
+  }
+
+  Widget expandedContent(CheckInGroup group, List<CheckInMetric> userMetrics) {
+    return Builder(
+      builder: (context) {
+        final controller = _animationControllers[group.key];
+
+        if (controller == null) {
+          return const SizedBox.shrink();
+        }
+
+        return ClipRect(
+          child: AnimatedBuilder(
+            animation: controller,
+            builder: (context, child) {
+              return Align(
+                alignment: Alignment.topCenter,
+                heightFactor: controller.value,
+                child: controller.value > 0
+                    ? Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Divider(height: 1),
+                          ...group.checkIns.map(
+                            (checkIn) => checkInItem(checkIn, userMetrics),
                           ),
-                        ),
-
-                        buildGroupCountIndicator(group, userMetrics),
-
-                        const SizedBox(width: 8),
-
-                        AnimatedRotation(
-                          duration: const Duration(milliseconds: 400),
-                          curve: Curves.easeInOut,
-                          turns: isExpanded ? 0.5 : 0.0,
-                          child: const Icon(
-                            CupertinoIcons.chevron_down,
-                            color: CupertinoColors.systemGrey,
-                            size: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                Builder(
-                  builder: (context) {
-                    final groupKey =
-                        '${group.representativeCheckIn.id}_${group.representativeCheckIn.dateTime.millisecondsSinceEpoch}';
-                    final controller = _animationControllers[groupKey];
-
-                    if (controller == null) {
-                      return const SizedBox.shrink();
-                    }
-
-                    return ClipRect(
-                      child: AnimatedBuilder(
-                        animation: controller,
-                        builder: (context, child) {
-                          return Align(
-                            alignment: Alignment.topCenter,
-                            heightFactor: controller.value,
-                            child: controller.value > 0
-                                ? Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Divider(height: 1),
-                                      ...group.checkIns.map(
-                                        (checkIn) => buildCheckInItem(
-                                          checkIn,
-                                          userMetrics,
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                : const SizedBox.shrink(),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+              );
+            },
           ),
         );
       },
     );
   }
 
-  Widget buildGroupCountIndicator(
+  Container dismissBackground() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: AppTheme.destructive,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+      ),
+      alignment: Alignment.centerRight,
+      padding: const EdgeInsets.only(right: AppTheme.spacingL),
+      child: const Icon(
+        CupertinoIcons.delete,
+        color: CupertinoColors.white,
+        size: 24,
+      ),
+    );
+  }
+
+  Widget groupCountIndicator(
     CheckInGroup group,
     List<CheckInMetric> userMetrics,
   ) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            color: AppTheme.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: AppTheme.primary.withValues(alpha: 0.2),
-              width: 1,
-            ),
-          ),
-          child: Icon(
-            group.isMultiMetric
-                ? CupertinoIcons.list_bullet
-                : userMetrics
-                      .firstWhere(
-                        (m) => m.name == group.representativeCheckIn.metricName,
-                        orElse: () => throw Exception(
-                          'Metric not found: ${group.representativeCheckIn.metricName}',
-                        ),
-                      )
-                      .icon,
-            size: 14,
-            color: group.isMultiMetric
-                ? AppTheme.primary
-                : userMetrics
-                      .firstWhere(
-                        (m) => m.name == group.representativeCheckIn.metricName,
-                        orElse: () => throw Exception(
-                          'Metric not found: ${group.representativeCheckIn.metricName}',
-                        ),
-                      )
-                      .color,
-          ),
-        ),
-
+        metricIcon(group, userMetrics),
         const SizedBox(width: 6),
-
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          decoration: BoxDecoration(
-            color: group.proportionColor,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            '${group.checkIns.length}',
-            style: AppTheme.bodySmall.copyWith(
-              color: CupertinoColors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 10,
-            ),
-          ),
-        ),
+        countBadge(group),
       ],
     );
   }
 
-  Widget buildCheckInItem(CheckIn checkIn, List<CheckInMetric> userMetrics) {
+  Widget metricIcon(CheckInGroup group, List<CheckInMetric> userMetrics) {
+    final metric = _getMetricForGroup(group, userMetrics);
+
+    return Container(
+      width: 28,
+      height: 28,
+      decoration: BoxDecoration(
+        color: AppTheme.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: AppTheme.primary.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: Icon(
+        group.isMultiMetric ? CupertinoIcons.list_bullet : metric.icon,
+        size: 14,
+        color: group.isMultiMetric ? AppTheme.primary : metric.color,
+      ),
+    );
+  }
+
+  Widget countBadge(CheckInGroup group) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: group.proportionColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        '${group.checkIns.length}',
+        style: AppTheme.bodySmall.copyWith(
+          color: CupertinoColors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 10,
+        ),
+      ),
+    );
+  }
+
+  CheckInMetric _getMetricForGroup(
+    CheckInGroup group,
+    List<CheckInMetric> userMetrics,
+  ) {
+    return userMetrics.firstWhere(
+      (m) => m.name == group.representativeCheckIn.metricName,
+      orElse: () => throw Exception(
+        'Metric not found: ${group.representativeCheckIn.metricName}',
+      ),
+    );
+  }
+
+  Widget checkInItem(CheckIn checkIn, List<CheckInMetric> userMetrics) {
     final metric = userMetrics.firstWhere(
       (m) => m.name == checkIn.metricName,
       orElse: () => throw Exception('Metric not found: ${checkIn.metricName}'),
@@ -354,19 +349,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
     return Dismissible(
       key: Key(checkIn.id),
       direction: DismissDirection.endToStart,
-      background: Container(
-        decoration: BoxDecoration(
-          color: AppTheme.destructive,
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        ),
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: AppTheme.spacingL),
-        child: const Icon(
-          CupertinoIcons.delete,
-          color: CupertinoColors.white,
-          size: 24,
-        ),
-      ),
+      background: deleteBackground(),
       confirmDismiss: (direction) async {
         return await showDeleteConfirmation(checkIn);
       },
@@ -380,70 +363,11 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: metric.color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(
-                    color: metric.color.withValues(alpha: 0.2),
-                    width: 1,
-                  ),
-                ),
-                child: Icon(metric.icon, size: 18, color: metric.color),
-              ),
-
+              metricIconContainer(metric),
               const SizedBox(width: 12),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      checkIn.metricName,
-                      style: AppTheme.labelLarge.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    EnhancedUIComponents.statusIndicator(
-                      text: '${checkIn.rating}/10',
-                      color: metric.getRatingColor(checkIn.rating),
-                    ),
-                  ],
-                ),
-              ),
-
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: metric.getRatingColor(checkIn.rating),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: metric
-                          .getRatingColor(checkIn.rating)
-                          .withValues(alpha: 0.3),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Text(
-                  '${checkIn.rating}',
-                  style: AppTheme.bodySmall.copyWith(
-                    color: CupertinoColors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-
+              Expanded(child: metricInfo(checkIn, metric)),
+              ratingBadge(checkIn, metric),
               const SizedBox(width: 8),
-
               const Icon(
                 CupertinoIcons.chevron_right,
                 color: CupertinoColors.systemGrey,
@@ -451,6 +375,79 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget deleteBackground() {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.destructive,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+      ),
+      alignment: Alignment.centerRight,
+      padding: const EdgeInsets.only(right: AppTheme.spacingL),
+      child: const Icon(
+        CupertinoIcons.delete,
+        color: CupertinoColors.white,
+        size: 24,
+      ),
+    );
+  }
+
+  Widget metricIconContainer(CheckInMetric metric) {
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        color: metric.color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: metric.color.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: Icon(metric.icon, size: 18, color: metric.color),
+    );
+  }
+
+  Widget metricInfo(CheckIn checkIn, CheckInMetric metric) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          checkIn.metricName,
+          style: AppTheme.labelLarge.copyWith(fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 2),
+        EnhancedUIComponents.statusIndicator(
+          text: '${checkIn.rating}/10',
+          color: metric.getRatingColor(checkIn.rating),
+        ),
+      ],
+    );
+  }
+
+  Widget ratingBadge(CheckIn checkIn, CheckInMetric metric) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: metric.getRatingColor(checkIn.rating),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: metric.getRatingColor(checkIn.rating).withValues(alpha: 0.3),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Text(
+        '${checkIn.rating}',
+        style: AppTheme.bodySmall.copyWith(
+          color: CupertinoColors.white,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );

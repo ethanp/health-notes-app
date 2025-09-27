@@ -101,4 +101,8 @@ class CheckInGroup {
       return CupertinoColors.systemRed;
     }
   }
+
+  /// Returns a unique key for this group based on representative check-in
+  String get key =>
+      '${representativeCheckIn.id}_${representativeCheckIn.dateTime.millisecondsSinceEpoch}';
 }

@@ -52,8 +52,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       ),
       child: SafeArea(
         child: healthNotesAsync.when(
-          data: (notes) =>
-              notes.isEmpty ? buildEmptyState() : buildTrendsContent(notes),
+          data: (notes) => notes.isEmpty ? emptyState() : trendsContent(notes),
           loading: () => EnhancedUIComponents.loadingIndicator(
             message: 'Loading your health trends...',
           ),
@@ -64,7 +63,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     );
   }
 
-  Widget buildEmptyState() {
+  Widget emptyState() {
     return EnhancedUIComponents.emptyState(
       title: 'No data for trends yet',
       message: 'Add some health notes to see analytics',
@@ -72,7 +71,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     );
   }
 
-  Widget buildTrendsContent(List<HealthNote> notes) {
+  Widget trendsContent(List<HealthNote> notes) {
     final symptomStats = _analyzeSymptomFrequency(notes);
     final drugStats = _analyzeDrugUsage(notes);
     final monthlyStats = _analyzeMonthlyTrends(notes);
@@ -99,20 +98,20 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
                   padding: const EdgeInsets.all(16),
                   sliver: SliverList(
                     delegate: SliverChildListDelegate([
-                      buildSectionHeader('Check-in Trends'),
-                      buildCheckInTrendsSection(checkIns, userMetrics),
+                      sectionHeader('Check-in Trends'),
+                      checkInTrendsSection(checkIns, userMetrics),
                       const SizedBox(height: 20),
-                      buildSectionHeader('Recent Symptom Trends'),
-                      buildRecentSymptomTrendsCard(recentSymptomTrends),
+                      sectionHeader('Recent Symptom Trends'),
+                      recentSymptomTrendsCard(recentSymptomTrends),
                       const SizedBox(height: 20),
-                      buildSectionHeader('All Symptoms'),
-                      buildSearchableSymptomsTable(symptomStats),
+                      sectionHeader('All Symptoms'),
+                      searchableSymptomsTable(symptomStats),
                       const SizedBox(height: 20),
-                      buildSectionHeader('Drug Usage'),
-                      buildDrugUsageCard(drugStats),
+                      sectionHeader('Drug Usage'),
+                      drugUsageCard(drugStats),
                       const SizedBox(height: 20),
-                      buildSectionHeader('Monthly Trends'),
-                      buildMonthlyTrendsCard(monthlyStats),
+                      sectionHeader('Monthly Trends'),
+                      monthlyTrendsCard(monthlyStats),
                     ]),
                   ),
                 ),
@@ -142,13 +141,13 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     );
   }
 
-  Widget buildSectionHeader(String title) {
+  Widget sectionHeader(String title) {
     return EnhancedUIComponents.sectionHeader(title: title);
   }
 
-  Widget buildRecentSymptomTrendsCard(Map<String, int> recentTrends) {
+  Widget recentSymptomTrendsCard(Map<String, int> recentTrends) {
     if (recentTrends.isEmpty) {
-      return buildEmptyCard('No recent symptoms recorded');
+      return emptyCard('No recent symptoms recorded');
     }
 
     final sortedTrends = recentTrends.entries.toList()
@@ -164,15 +163,15 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
           const SizedBox(height: 12),
           ...sortedTrends
               .take(3)
-              .map((entry) => buildStatRow(entry.key, entry.value, 'times')),
+              .map((entry) => statRow(entry.key, entry.value, 'times')),
         ],
       ),
     );
   }
 
-  Widget buildSearchableSymptomsTable(Map<String, int> symptomStats) {
+  Widget searchableSymptomsTable(Map<String, int> symptomStats) {
     if (symptomStats.isEmpty) {
-      return buildEmptyCard('No symptoms recorded yet');
+      return emptyCard('No symptoms recorded yet');
     }
 
     final filteredSymptoms = _filterSymptoms(symptomStats);
@@ -225,14 +224,14 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
             )
           else
             ...sortedSymptoms.map(
-              (entry) => buildSymptomRow(entry.key, entry.value),
+              (entry) => symptomRow(entry.key, entry.value),
             ),
         ],
       ),
     );
   }
 
-  Widget buildSymptomRow(String symptomName, int frequency) {
+  Widget symptomRow(String symptomName, int frequency) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       child: Material(
@@ -283,9 +282,9 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     );
   }
 
-  Widget buildDrugUsageCard(Map<String, int> drugStats) {
+  Widget drugUsageCard(Map<String, int> drugStats) {
     if (drugStats.isEmpty) {
-      return buildEmptyCard('No drugs recorded yet');
+      return emptyCard('No drugs recorded yet');
     }
 
     final sortedDrugs = drugStats.entries.toList()
@@ -301,15 +300,15 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
           const SizedBox(height: 12),
           ...sortedDrugs
               .take(5)
-              .map((entry) => buildStatRow(entry.key, entry.value, 'times')),
+              .map((entry) => statRow(entry.key, entry.value, 'times')),
         ],
       ),
     );
   }
 
-  Widget buildMonthlyTrendsCard(Map<String, int> monthlyStats) {
+  Widget monthlyTrendsCard(Map<String, int> monthlyStats) {
     if (monthlyStats.isEmpty) {
-      return buildEmptyCard('No monthly data available');
+      return emptyCard('No monthly data available');
     }
 
     final sortedMonths = monthlyStats.entries.toList()
@@ -327,14 +326,14 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
               .take(6)
               .map(
                 (entry) =>
-                    buildStatRow(formatMonth(entry.key), entry.value, 'notes'),
+                    statRow(formatMonth(entry.key), entry.value, 'notes'),
               ),
         ],
       ),
     );
   }
 
-  Widget buildStatRow(String label, int value, String unit) {
+  Widget statRow(String label, int value, String unit) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -353,7 +352,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     );
   }
 
-  Widget buildEmptyCard(String message) {
+  Widget emptyCard(String message) {
     return Container(
       decoration: AppTheme.primaryCard,
       padding: const EdgeInsets.all(16),
@@ -456,12 +455,12 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     );
   }
 
-  Widget buildCheckInTrendsSection(
+  Widget checkInTrendsSection(
     List<CheckIn> checkIns,
     List<CheckInMetric> userMetrics,
   ) {
     if (checkIns.isEmpty) {
-      return buildEmptyCard('No check-in data available');
+      return emptyCard('No check-in data available');
     }
 
     return CheckInTrendsChart(checkIns: checkIns, userMetrics: userMetrics);

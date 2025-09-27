@@ -9,47 +9,54 @@ class CompactSyncStatusWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isConnected = ref.watch(connectivityStatusProvider);
-    final isSyncing = ref.watch(syncNotifierProvider);
+    if (!ref.watch(connectivityStatusProvider)) {
+      return const Icon(
+        CupertinoIcons.wifi_slash,
+        size: 16,
+        color: CupertinoColors.systemRed,
+      );
+    }
+    if (ref.watch(syncNotifierProvider)) {
+      return const CupertinoActivityIndicator(radius: 8);
+    }
 
     return StreamBuilder<String?>(
       stream: OfflineRepository.syncErrorStream,
       builder: (context, errorSnapshot) {
         final String? syncError = errorSnapshot.data;
-
-        return StreamBuilder<bool>(
-          stream: OfflineRepository.syncStatusStream,
-          builder: (context, syncSnapshot) {
-            final bool syncInProgress = syncSnapshot.data ?? false;
-
-            if (!isConnected) {
-              return const Icon(
-                CupertinoIcons.wifi_slash,
-                size: 16,
-                color: CupertinoColors.systemRed,
-              );
-            }
-
-            if (syncError != null && syncError.isNotEmpty) {
-              return const Icon(
-                CupertinoIcons.exclamationmark_triangle_fill,
-                size: 16,
-                color: CupertinoColors.systemOrange,
-              );
-            }
-
-            if (syncInProgress || isSyncing) {
-              return const CupertinoActivityIndicator(radius: 8);
-            }
-
-            return const Icon(
-              CupertinoIcons.checkmark_circle_fill,
+        if (syncError != null && syncError.isNotEmpty) {
+          return GestureDetector(
+            onTap: () => _showSyncErrorDialog(context, syncError),
+            child: const Icon(
+              CupertinoIcons.exclamationmark_triangle_fill,
               size: 16,
-              color: CupertinoColors.systemGreen,
-            );
-          },
+              color: CupertinoColors.systemOrange,
+            ),
+          );
+        }
+
+        return const Icon(
+          CupertinoIcons.checkmark_circle_fill,
+          size: 16,
+          color: CupertinoColors.systemGreen,
         );
       },
+    );
+  }
+
+  void _showSyncErrorDialog(BuildContext context, String errorMessage) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Sync Error'),
+        content: Text(errorMessage),
+        actions: [
+          CupertinoDialogAction(
+            child: const Text('OK'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
     );
   }
 }

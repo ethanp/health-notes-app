@@ -146,19 +146,19 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       padding: const EdgeInsets.all(16),
       children: [
         const SizedBox(height: 20),
-        buildDateTimeSection(),
+        dateTimeSection(),
         const SizedBox(height: 20),
-        buildSymptomsSection(),
+        symptomsSection(),
         const SizedBox(height: 16),
-        buildDrugDosesSection(),
+        drugDosesSection(),
         const SizedBox(height: 16),
-        buildNotesSection(),
+        notesSection(),
         const SizedBox(height: 40),
       ],
     );
   }
 
-  Widget buildDateTimeSection() {
+  Widget dateTimeSection() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: AppTheme.primaryCard,
@@ -203,7 +203,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     );
   }
 
-  Widget buildSymptomsSection() {
+  Widget symptomsSection() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -276,7 +276,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
             ..._symptoms.asMap().entries.map((entry) {
               final index = entry.key;
               final symptom = entry.value;
-              return buildEditableSymptomItem(
+              return editableSymptomItem(
                 index: index,
                 symptom: symptom,
                 controllers: _symptomControllers[index]!,
@@ -287,7 +287,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     );
   }
 
-  Widget buildDrugDosesSection() {
+  Widget drugDosesSection() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -342,7 +342,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
             ..._drugDoses.asMap().entries.map((entry) {
               final index = entry.key;
               final dose = entry.value;
-              return buildEditableDrugDoseItem(
+              return editableDrugDoseItem(
                 index: index,
                 dose: dose,
                 controllers: _drugDoseControllers[index]!,
@@ -353,7 +353,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     );
   }
 
-  Widget buildEditableDrugDoseItem({
+  Widget editableDrugDoseItem({
     required int index,
     required DrugDose dose,
     required DrugDoseControllers controllers,
@@ -421,7 +421,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     );
   }
 
-  Widget buildNotesSection() {
+  Widget notesSection() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -529,7 +529,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     });
   }
 
-  Widget buildSymptomSuggestions() {
+  Widget symptomSuggestions() {
     return Consumer(
       builder: (context, ref, child) {
         final suggestionsAsync = ref.watch(symptomSuggestionsProvider);
@@ -590,7 +590,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     );
   }
 
-  Widget buildEditableSymptomItem({
+  Widget editableSymptomItem({
     required int index,
     required Symptom symptom,
     required SymptomControllers controllers,
@@ -602,7 +602,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (index == 0 && widget.note == null) buildSymptomSuggestions(),
+          if (index == 0 && widget.note == null) symptomSuggestions(),
           const SizedBox(height: 8),
           Row(
             children: [

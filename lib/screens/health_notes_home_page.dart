@@ -136,7 +136,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
         child: groupedNotesAsync.when(
           data: (groupedNotes) => groupedNotes.isEmpty
               ? emptyTable()
-              : buildFilteredContent(groupedNotes),
+              : filteredContent(groupedNotes),
           loading: () => EnhancedUIComponents.loadingIndicator(
             message: 'Loading your health notes...',
           ),
@@ -147,7 +147,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
     );
   }
 
-  Widget buildFilteredContent(List<GroupedHealthNotes> groupedNotes) {
+  Widget filteredContent(List<GroupedHealthNotes> groupedNotes) {
     final allNotes = groupedNotes.expand((group) => group.notes).toList();
     final filteredNotes = filterNotes(allNotes);
     final hasActiveFilters =
@@ -162,19 +162,19 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
       ).animate(_slideAnimation),
       child: Column(
         children: [
-          buildSearchBar(),
-          if (hasActiveFilters) buildFilterChips(allNotes),
+          searchBar(),
+          if (hasActiveFilters) filterChips(allNotes),
           Expanded(
             child: filteredNotes.isEmpty
-                ? buildNoResultsMessage(hasActiveFilters)
-                : buildGroupedTable(groupedNotes, filteredNotes),
+                ? noResultsMessage(hasActiveFilters)
+                : groupedTable(groupedNotes, filteredNotes),
           ),
         ],
       ),
     );
   }
 
-  Widget buildSearchBar() {
+  Widget searchBar() {
     return Container(
       margin: const EdgeInsets.all(AppTheme.spacingM),
       child: Row(
@@ -221,7 +221,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
     );
   }
 
-  Widget buildFilterChips(List<HealthNote> notes) {
+  Widget filterChips(List<HealthNote> notes) {
     return Container(
       height: 50,
       margin: const EdgeInsets.symmetric(horizontal: AppTheme.spacingM),
@@ -229,25 +229,25 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
         scrollDirection: Axis.horizontal,
         children: [
           if (_selectedDate != null)
-            buildFilterChip(
+            filterChip(
               'Date: ${DateFormat('M/d/yyyy').format(_selectedDate!)}',
               () => setState(() => _selectedDate = null),
             ),
           if (_selectedDrug != null)
-            buildFilterChip(
+            filterChip(
               'Drug: $_selectedDrug',
               () => setState(() => _selectedDrug = null),
             ),
           if (_searchQuery.isNotEmpty ||
               _selectedDate != null ||
               _selectedDrug != null)
-            buildFilterChip('Clear All', clearFilters, isClearAll: true),
+            filterChip('Clear All', clearFilters, isClearAll: true),
         ],
       ),
     );
   }
 
-  Widget buildFilterChip(
+  Widget filterChip(
     String label,
     VoidCallback onTap, {
     bool isClearAll = false,
@@ -262,7 +262,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
     );
   }
 
-  Widget buildNoResultsMessage(bool hasActiveFilters) {
+  Widget noResultsMessage(bool hasActiveFilters) {
     if (hasActiveFilters) {
       return EnhancedUIComponents.emptyState(
         title: 'No matches found',
@@ -313,7 +313,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
     );
   }
 
-  Widget buildGroupedTable(
+  Widget groupedTable(
     List<GroupedHealthNotes> groupedNotes,
     List<HealthNote> filteredNotes,
   ) {
@@ -330,27 +330,32 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
         await ref.read(healthNotesNotifierProvider.notifier).refreshNotes();
       },
       items: visibleGroups,
-      itemBuilder: (group) {
-        final visibleNotes = group.notes
-            .where((note) => filteredNoteIds.contains(note.id))
-            .toList();
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            EnhancedUIComponents.sectionHeader(
-              title: _formatGroupDate(group.date),
-              subtitle:
-                  '${visibleNotes.length} note${visibleNotes.length == 1 ? '' : 's'}',
-            ),
-            ...visibleNotes.map((note) => buildNoteCard(note)),
-          ],
-        );
-      },
+      itemBuilder: (group) => groupedNotesSection(group, filteredNoteIds),
     );
   }
 
-  Widget buildNoteCard(HealthNote note) {
+  Widget groupedNotesSection(
+    GroupedHealthNotes group,
+    Set<String> filteredNoteIds,
+  ) {
+    final visibleNotes = group.notes
+        .where((note) => filteredNoteIds.contains(note.id))
+        .toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        EnhancedUIComponents.sectionHeader(
+          title: _formatGroupDate(group.date),
+          subtitle:
+              '${visibleNotes.length} note${visibleNotes.length == 1 ? '' : 's'}',
+        ),
+        ...visibleNotes.map((note) => noteCard(note)),
+      ],
+    );
+  }
+
+  Widget noteCard(HealthNote note) {
     return Dismissible(
       key: Key(note.id),
       direction: DismissDirection.endToStart,

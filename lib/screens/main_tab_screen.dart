@@ -20,48 +20,39 @@ class MainTabScreen extends ConsumerStatefulWidget {
 class _MainTabScreenState extends ConsumerState<MainTabScreen>
     with TickerProviderStateMixin {
   int currentTabIndex = 0;
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
+  late AnimationController _fadeInController;
+  late Animation<double> _fadeInAnimation;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
+    _fadeInController = AnimationController(
       duration: AppTheme.animationMedium,
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _fadeInAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
-        parent: _animationController,
+        parent: _fadeInController,
         curve: AppTheme.animationCurve,
       ),
     );
-    _animationController.forward();
+    _fadeInController.forward();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => _postLoginSetup());
-  }
-
-  Future<void> _postLoginSetup() async {
-    try {
-      final user = await ref.read(currentUserProvider.future);
-      if (user != null) {
-        await OfflineRepository.forceSyncAllData(user.id);
+    // Force sync when app first loads.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final user = await ref.read(currentUserProvider.future);
+        if (user != null) await OfflineRepository.forceSyncAllData(user.id);
+      } catch (e) {
+        // Sync failed - not critical for app startup
       }
-    } catch (e) {
-      // Sync failed - not critical for app startup
-    }
+    });
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _fadeInController.dispose();
     super.dispose();
-  }
-
-  void _onTabChanged(int index) {
-    setState(() => currentTabIndex = index);
-    _animationController.reset();
-    _animationController.forward();
   }
 
   @override
@@ -70,7 +61,11 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen>
       child: CupertinoTabScaffold(
         tabBar: CupertinoTabBar(
           currentIndex: currentTabIndex,
-          onTap: _onTabChanged,
+          onTap: (int index) {
+            setState(() => currentTabIndex = index);
+            _fadeInController.reset();
+            _fadeInController.forward();
+          },
           backgroundColor: Colors.transparent,
           activeColor: AppTheme.primary,
           inactiveColor: AppTheme.textTertiary,
@@ -82,32 +77,32 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen>
           ),
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.doc_text),
-              label: 'Notes',
+              icon: Icon(CupertinoIcons.chart_bar),
+              label: 'Trends',
             ),
             BottomNavigationBarItem(
               icon: Icon(CupertinoIcons.chart_bar_alt_fill),
               label: 'Check-ins',
             ),
             BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.wrench),
-              label: 'My Tools',
+              icon: Icon(CupertinoIcons.doc_text),
+              label: 'Notes',
             ),
             BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.chart_bar),
-              label: 'Trends',
+              icon: Icon(CupertinoIcons.wrench),
+              label: 'My Tools',
             ),
           ],
         ),
         tabBuilder: (context, index) => CupertinoTabView(
           builder: (context) => FadeTransition(
-            opacity: _fadeAnimation,
+            opacity: _fadeInAnimation,
             child: switch (index) {
-              0 => const HealthNotesHomePage(),
+              0 => const TrendsScreen(),
               1 => const CheckInsScreen(),
-              2 => const MyToolsScreen(),
-              3 => const TrendsScreen(),
-              _ => const HealthNotesHomePage(),
+              2 => const HealthNotesHomePage(),
+              3 => const MyToolsScreen(),
+              _ => const TrendsScreen(),
             },
           ),
         ),
