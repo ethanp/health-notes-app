@@ -139,7 +139,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
           data: (groupedNotes) => groupedNotes.isEmpty
               ? emptyTable()
               : filteredContent(groupedNotes),
-          loading: () => EnhancedUIComponents.loadingIndicator(
+          loading: () => const SyncStatusWidget.loading(
             message: 'Loading your health notes...',
           ),
           error: (error, stack) =>

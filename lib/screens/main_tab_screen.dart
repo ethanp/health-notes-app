@@ -1,12 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:health_notes/providers/auth_provider.dart';
 import 'package:health_notes/screens/check_ins_screen.dart';
 import 'package:health_notes/screens/health_notes_home_page.dart';
 import 'package:health_notes/screens/my_tools_screen.dart';
 import 'package:health_notes/screens/trends_screen.dart';
-import 'package:health_notes/services/offline_repository.dart';
+import 'package:health_notes/providers/sync_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
@@ -38,11 +37,10 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen>
     );
     _fadeInController.forward();
 
-    // Force sync when app first loads.
+    // Force sync when app first loads, and ensure providers refresh after sync.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
-        final user = await ref.read(currentUserProvider.future);
-        if (user != null) await OfflineRepository.forceSyncAllData(user.id);
+        await ref.read(syncNotifierProvider.notifier).forceSyncAllData();
       } catch (e) {
         // Sync failed - not critical for app startup
       }

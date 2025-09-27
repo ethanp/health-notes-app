@@ -8,6 +8,7 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
+import 'package:health_notes/widgets/sync_status_widget.dart';
 
 class MyToolsScreen extends ConsumerStatefulWidget {
   const MyToolsScreen();
@@ -39,7 +40,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
         child: categoriesAsync.when(
           data: (categories) =>
               categories.isEmpty ? emptyState() : categoriesList(categories),
-          loading: () => EnhancedUIComponents.loadingIndicator(
+          loading: () => const SyncStatusWidget.loading(
             message: 'Loading your health tools...',
           ),
           error: (error, stack) =>

@@ -170,7 +170,7 @@ class IPhoneDeployment(DeploymentBase):
         """Install the app to a specific device"""
         self.print_info(f"Installing to iPhone (ID: {device_id})...")
         
-        returncode, _, stderr = self.run_command([
+        returncode = self.run_command_streaming([
             "flutter", "install", "--release", "-d", device_id
         ], check=False)
         
@@ -219,7 +219,7 @@ class IPhoneDeployment(DeploymentBase):
             self.print_info("Installing to iPhone...")
             print("Please select your iPhone when prompted:")
             
-            returncode, _, stderr = self.run_command(["flutter", "install", "--release"], check=False)
+            returncode = self.run_command_streaming(["flutter", "install", "--release"], check=False)
             if returncode == 0:
                 self.print_success("Deployment complete! 🎉")
                 print(dedent("""

@@ -13,6 +13,7 @@ import 'package:health_notes/utils/check_in_grouping.dart';
 import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
+import 'package:health_notes/widgets/sync_status_widget.dart';
 import 'package:intl/intl.dart';
 
 class CheckInsScreen extends ConsumerStatefulWidget {
@@ -99,9 +100,8 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
             data: (userMetrics) => checkIns.isEmpty
                 ? emptyState()
                 : checkInsList(checkIns, userMetrics),
-            loading: () => EnhancedUIComponents.loadingIndicator(
-              message: 'Loading metrics...',
-            ),
+            loading: () =>
+                const SyncStatusWidget.loading(message: 'Loading metrics...'),
             error: (error, stack) => Center(
               child: Text(
                 'Error loading metrics: $error',
@@ -109,7 +109,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
               ),
             ),
           ),
-          loading: () => EnhancedUIComponents.loadingIndicator(
+          loading: () => const SyncStatusWidget.loading(
             message: 'Loading your check-ins...',
           ),
           error: (error, stack) =>

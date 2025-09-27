@@ -5,6 +5,7 @@ import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/health_note_form_fields.dart';
+import 'package:health_notes/widgets/sync_status_widget.dart';
 
 class HealthNoteViewScreen extends ConsumerStatefulWidget {
   final HealthNote note;
@@ -75,9 +76,8 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
 
         return HealthNoteFormFields(note: updatedNote, isEditable: false);
       },
-      loading: () => EnhancedUIComponents.loadingIndicator(
-        message: 'Loading note data...',
-      ),
+      loading: () =>
+          const SyncStatusWidget.loading(message: 'Loading note data...'),
       error: (error, stack) => Center(
         child: Text('Error loading note: $error', style: AppTheme.error),
       ),

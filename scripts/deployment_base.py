@@ -70,6 +70,18 @@ class DeploymentBase(ABC):
         except subprocess.CalledProcessError as e:
             return e.returncode, e.stdout, e.stderr
     
+    def run_command_streaming(self, command: List[str], check: bool = False) -> int:
+        """Run a command with real-time output streaming"""
+        try:
+            # Don't capture output - let it stream directly to terminal
+            result = subprocess.run(
+                command,
+                check=check
+            )
+            return result.returncode
+        except subprocess.CalledProcessError as e:
+            return e.returncode
+    
     def check_flutter_available(self) -> bool:
         """Check if Flutter is available"""
         returncode, _, _ = self.run_command(["flutter", "--version"], check=False)
@@ -240,37 +252,37 @@ class DeploymentBase(ABC):
         
         if rebuild_needed:
             self.print_info("🧹 Cleaning previous build...")
-            returncode, _, stderr = self.run_command(["flutter", "clean"], check=False)
+            returncode = self.run_command_streaming(["flutter", "clean"], check=False)
             if returncode != 0:
-                self.print_error(f"Failed to clean: {stderr}")
+                self.print_error("Failed to clean")
                 return False
             
             self.print_info("📦 Getting dependencies...")
-            returncode, _, stderr = self.run_command(["flutter", "pub", "get"], check=False)
+            returncode = self.run_command_streaming(["flutter", "pub", "get"], check=False)
             if returncode != 0:
-                self.print_error(f"Failed to get dependencies: {stderr}")
+                self.print_error("Failed to get dependencies")
                 return False
             
             self.print_info("🔨 Generating code...")
-            returncode, _, stderr = self.run_command([
+            returncode = self.run_command_streaming([
                 "flutter", "packages", "pub", "run", "build_runner", "build", "--delete-conflicting-outputs"
             ], check=False)
             if returncode != 0:
-                self.print_error(f"Failed to generate code: {stderr}")
+                self.print_error("Failed to generate code")
                 return False
             
             self.print_info(f"🏗️  Building iOS {self.build_type} version...")
-            returncode, _, stderr = self.run_command([
+            returncode = self.run_command_streaming([
                 "flutter", "build", "ios", f"--{self.build_type}", "--no-tree-shake-icons"
             ], check=False)
             if returncode != 0:
-                self.print_error(f"Failed to build iOS: {stderr}")
+                self.print_error("Failed to build iOS")
                 return False
         else:
             self.print_info("📦 Getting dependencies (no rebuild needed)...")
-            returncode, _, stderr = self.run_command(["flutter", "pub", "get"], check=False)
+            returncode = self.run_command_streaming(["flutter", "pub", "get"], check=False)
             if returncode != 0:
-                self.print_error(f"Failed to get dependencies: {stderr}")
+                self.print_error("Failed to get dependencies")
                 return False
         
         return True

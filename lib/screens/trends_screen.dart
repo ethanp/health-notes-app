@@ -7,12 +7,14 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
+import 'package:health_notes/providers/sync_provider.dart';
 import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/screens/drug_trends_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/widgets/check_in_trends_chart.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/sync_status_widget.dart';
 import 'package:health_notes/services/text_normalizer.dart';
 import 'package:intl/intl.dart';
 
@@ -42,6 +44,8 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   @override
   Widget build(BuildContext context) {
     final healthNotesAsync = ref.watch(healthNotesNotifierProvider);
+    final checkInsAsync = ref.watch(checkInsNotifierProvider);
+    final userMetricsAsync = ref.watch(checkInMetricsNotifierProvider);
 
     return CupertinoPageScaffold(
       navigationBar: EnhancedUIComponents.navigationBar(
@@ -51,95 +55,130 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
           onPressed: () => AuthUtils.showSignOutDialog(context),
           child: const Icon(CupertinoIcons.person_circle),
         ),
+        trailing: const CompactSyncStatusWidget(),
       ),
       child: SafeArea(
         child: healthNotesAsync.when(
-          data: (notes) => notes.isEmpty ? emptyState() : trendsContent(notes),
-          loading: () => EnhancedUIComponents.loadingIndicator(
+          data: (notes) => checkInsAsync.when(
+            data: (checkIns) => userMetricsAsync.when(
+              data: (userMetrics) =>
+                  _shouldShowEmptyState(notes, checkIns, userMetrics)
+                  ? emptyState()
+                  : trendsContent(notes, checkIns, userMetrics),
+              loading: () => notes.isEmpty
+                  ? const SyncStatusWidget.loading(
+                      message: 'Loading metrics...',
+                    )
+                  : trendsContent(notes, checkIns, []),
+              error: (error, stack) => notes.isEmpty
+                  ? SyncStatusWidget.error(
+                      errorMessage: 'Error loading metrics: $error',
+                      onRetry: () =>
+                          ref.invalidate(checkInMetricsNotifierProvider),
+                    )
+                  : trendsContent(notes, checkIns, []),
+            ),
+            loading: () => notes.isEmpty
+                ? const SyncStatusWidget.loading(
+                    message: 'Loading check-ins...',
+                  )
+                : userMetricsAsync.when(
+                    data: (userMetrics) =>
+                        trendsContent(notes, [], userMetrics),
+                    loading: () => trendsContent(notes, [], []),
+                    error: (error, stack) => trendsContent(notes, [], []),
+                  ),
+            error: (error, stack) => notes.isEmpty
+                ? SyncStatusWidget.error(
+                    errorMessage: 'Error loading check-ins: $error',
+                    onRetry: () => ref.invalidate(checkInsNotifierProvider),
+                  )
+                : userMetricsAsync.when(
+                    data: (userMetrics) =>
+                        trendsContent(notes, [], userMetrics),
+                    loading: () => trendsContent(notes, [], []),
+                    error: (error, stack) => trendsContent(notes, [], []),
+                  ),
+          ),
+          loading: () => const SyncStatusWidget.loading(
             message: 'Loading your health trends...',
           ),
-          error: (error, stack) =>
-              Center(child: Text('Error: $error', style: AppTheme.error)),
+          error: (error, stack) => SyncStatusWidget.error(
+            errorMessage: 'Error: $error',
+            onRetry: () => ref.invalidate(healthNotesNotifierProvider),
+          ),
         ),
       ),
     );
   }
 
+  bool _shouldShowEmptyState(
+    List<HealthNote> notes,
+    List<CheckIn> checkIns,
+    List<CheckInMetric> userMetrics,
+  ) {
+    return notes.isEmpty && checkIns.isEmpty;
+  }
+
   Widget emptyState() {
-    return EnhancedUIComponents.emptyState(
-      title: 'No data for trends yet',
-      message: 'Add some health notes to see analytics',
-      icon: CupertinoIcons.chart_bar,
+    return CustomScrollView(
+      slivers: [
+        CupertinoSliverRefreshControl(
+          onRefresh: () async {
+            await ref.read(syncNotifierProvider.notifier).syncAllData();
+          },
+        ),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: EnhancedUIComponents.emptyState(
+            title: 'No data for trends yet',
+            message: 'Add some health notes to see analytics',
+            icon: CupertinoIcons.chart_bar,
+          ),
+        ),
+      ],
     );
   }
 
-  Widget trendsContent(List<HealthNote> notes) {
+  Widget trendsContent(
+    List<HealthNote> notes,
+    List<CheckIn> checkIns,
+    List<CheckInMetric> userMetrics,
+  ) {
     final symptomStats = _analyzeSymptomFrequency(notes);
     final drugStats = _analyzeDrugUsage(notes);
     final monthlyStats = _analyzeMonthlyTrends(notes);
     final recentSymptomTrends = _analyzeRecentSymptomTrends(notes);
 
-    return Consumer(
-      builder: (context, ref, child) {
-        final checkInsAsync = ref.watch(checkInsNotifierProvider);
-        final userMetricsAsync = ref.watch(checkInMetricsNotifierProvider);
-
-        return checkInsAsync.when(
-          data: (checkIns) => userMetricsAsync.when(
-            data: (userMetrics) => CustomScrollView(
-              slivers: [
-                CupertinoSliverRefreshControl(
-                  onRefresh: () async {
-                    await ref
-                        .read(healthNotesNotifierProvider.notifier)
-                        .refreshNotes();
-                    await ref.read(checkInsNotifierProvider.notifier).refresh();
-                  },
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.all(16),
-                  sliver: SliverList(
-                    delegate: SliverChildListDelegate([
-                      sectionHeader('Check-in Trends'),
-                      checkInTrendsSection(checkIns, userMetrics),
-                      const SizedBox(height: 20),
-                      sectionHeader('Recent Symptom Trends'),
-                      recentSymptomTrendsCard(recentSymptomTrends),
-                      const SizedBox(height: 20),
-                      sectionHeader('All Symptoms'),
-                      searchableSymptomsTable(symptomStats),
-                      const SizedBox(height: 20),
-                      sectionHeader('Drug Usage'),
-                      drugUsageCard(drugStats),
-                      const SizedBox(height: 20),
-                      sectionHeader('Monthly Trends'),
-                      monthlyTrendsCard(monthlyStats),
-                    ]),
-                  ),
-                ),
-              ],
-            ),
-            loading: () => EnhancedUIComponents.loadingIndicator(
-              message: 'Loading metrics...',
-            ),
-            error: (error, stack) => Center(
-              child: Text(
-                'Error loading metrics: $error',
-                style: AppTheme.error,
-              ),
-            ),
+    return CustomScrollView(
+      slivers: [
+        CupertinoSliverRefreshControl(
+          onRefresh: () async {
+            await ref.read(syncNotifierProvider.notifier).syncAllData();
+          },
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.all(16),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              sectionHeader('Check-in Trends'),
+              checkInTrendsSection(checkIns, userMetrics),
+              const SizedBox(height: 20),
+              sectionHeader('Recent Symptom Trends'),
+              recentSymptomTrendsCard(recentSymptomTrends),
+              const SizedBox(height: 20),
+              sectionHeader('All Symptoms'),
+              searchableSymptomsTable(symptomStats),
+              const SizedBox(height: 20),
+              sectionHeader('Drug Usage'),
+              drugUsageCard(drugStats),
+              const SizedBox(height: 20),
+              sectionHeader('Monthly Trends'),
+              monthlyTrendsCard(monthlyStats),
+            ]),
           ),
-          loading: () => EnhancedUIComponents.loadingIndicator(
-            message: 'Loading check-in data...',
-          ),
-          error: (error, stack) => Center(
-            child: Text(
-              'Error loading check-ins: $error',
-              style: AppTheme.error,
-            ),
-          ),
-        );
-      },
+        ),
+      ],
     );
   }
 
@@ -538,6 +577,15 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     List<CheckIn> checkIns,
     List<CheckInMetric> userMetrics,
   ) {
+    final checkInsAsync = ref.watch(checkInsNotifierProvider);
+    final userMetricsAsync = ref.watch(checkInMetricsNotifierProvider);
+
+    if (checkInsAsync.isLoading || userMetricsAsync.isLoading) {
+      return const SyncStatusWidget.section(
+        message: 'Loading check-in trends...',
+      );
+    }
+
     if (checkIns.isEmpty) {
       return emptyCard('No check-in data available');
     }
