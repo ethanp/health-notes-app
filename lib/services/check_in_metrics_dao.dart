@@ -1,6 +1,7 @@
-import 'package:sqflite/sqflite.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/services/local_database.dart';
+import 'package:health_notes/services/text_normalizer.dart';
+import 'package:sqflite/sqflite.dart';
 
 /// Data Access Object for Check-In Metrics
 class CheckInMetricsDao {
@@ -70,7 +71,8 @@ class CheckInMetricsDao {
     );
   }
 
-  /// Soft delete a check-in metric
+  /// Soft delete a check-in metric. We use soft-delete so that existing
+  /// CheckIns with the metric can still show correctly.
   static Future<void> deleteCheckInMetric(String id) async {
     final db = await LocalDatabase.database;
     final now = DateTime.now().toIso8601String();
@@ -132,7 +134,7 @@ class CheckInMetricsDao {
     String? excludeId,
   }) async {
     final db = await LocalDatabase.database;
-    final normalizedName = name.trim().toLowerCase();
+    final normalizedName = MetricNameNormalizer.normalize(name);
     final whereClause = excludeId != null
         ? 'user_id = ? AND LOWER(TRIM(name)) = ? AND id != ? AND is_deleted = 0'
         : 'user_id = ? AND LOWER(TRIM(name)) = ? AND is_deleted = 0';

@@ -261,9 +261,9 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
         children: [
           Text('Your Ratings', style: AppTheme.headlineSmall),
           const SizedBox(height: 16),
-          ..._selectedMetrics.entries
-              .map((entry) => selectedMetricCard(entry, userMetrics))
-              .toList(),
+          ..._selectedMetrics.entries.map(
+            (entry) => selectedMetricCard(entry, userMetrics),
+          ),
         ],
       ),
     );

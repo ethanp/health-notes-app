@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:intl/intl.dart';
 
@@ -478,13 +479,13 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
         (s) => s.majorComponent == widget.symptomName,
       );
 
-      return symptom.minorComponent.toLowerCase().contains(
-            _searchQuery.toLowerCase(),
+      return SymptomNormalizer.matchesSearch(
+            symptom.majorComponent,
+            symptom.minorComponent,
+            symptom.additionalNotes,
+            _searchQuery,
           ) ||
-          symptom.additionalNotes.toLowerCase().contains(
-            _searchQuery.toLowerCase(),
-          ) ||
-          note.notes.toLowerCase().contains(_searchQuery.toLowerCase());
+          CaseInsensitiveNormalizer().contains(note.notes, _searchQuery);
     }).toList();
   }
 

@@ -1,5 +1,6 @@
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
+import 'package:health_notes/services/text_normalizer.dart';
 
 class SymptomSuggestion {
   final String majorComponent;
@@ -17,11 +18,16 @@ class SymptomSuggestion {
       identical(this, other) ||
       other is SymptomSuggestion &&
           runtimeType == other.runtimeType &&
-          majorComponent == other.majorComponent &&
-          minorComponent == other.minorComponent;
+          SymptomNormalizer.areEqual(
+            majorComponent,
+            minorComponent,
+            other.majorComponent,
+            other.minorComponent,
+          );
 
   @override
-  int get hashCode => majorComponent.hashCode ^ minorComponent.hashCode;
+  int get hashCode =>
+      SymptomNormalizer.generateKey(majorComponent, minorComponent).hashCode;
 
   @override
   String toString() {
@@ -49,7 +55,10 @@ class SymptomSuggestionsService {
 
     for (final note in sortedNotes) {
       for (final symptom in note.validSymptoms) {
-        final key = '${symptom.majorComponent}|${symptom.minorComponent}';
+        final key = SymptomNormalizer.generateKey(
+          symptom.majorComponent,
+          symptom.minorComponent,
+        );
 
         if (!suggestionsMap.containsKey(key) &&
             (symptom.majorComponent.isNotEmpty ||

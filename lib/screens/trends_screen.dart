@@ -12,6 +12,7 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/widgets/check_in_trends_chart.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/services/text_normalizer.dart';
 import 'package:intl/intl.dart';
 
 class TrendsScreen extends ConsumerStatefulWidget {
@@ -392,27 +393,21 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   }
 
   Map<String, int> _analyzeSymptomFrequency(List<HealthNote> notes) {
-    return notes
-        .where((note) => note.hasSymptoms)
-        .expand((note) => note.validSymptoms.map((s) => s.majorComponent))
-        .where((symptom) => symptom.isNotEmpty)
-        .fold<Map<String, int>>(
-          {},
-          (map, symptom) =>
-              map..update(symptom, (count) => count + 1, ifAbsent: () => 1),
-        );
+    return CaseInsensitiveAggregator.aggregateStrings(
+      notes
+          .where((note) => note.hasSymptoms)
+          .expand((note) => note.validSymptoms.map((s) => s.majorComponent))
+          .where((symptom) => symptom.isNotEmpty),
+    );
   }
 
   Map<String, int> _analyzeDrugUsage(List<HealthNote> notes) {
-    return notes
-        .expand((note) => note.drugDoses)
-        .map((drug) => drug.name)
-        .where((name) => name.isNotEmpty)
-        .fold<Map<String, int>>(
-          {},
-          (map, drugName) =>
-              map..update(drugName, (count) => count + 1, ifAbsent: () => 1),
-        );
+    return CaseInsensitiveAggregator.aggregateStrings(
+      notes
+          .expand((note) => note.drugDoses)
+          .map((drug) => drug.name)
+          .where((name) => name.isNotEmpty),
+    );
   }
 
   Map<String, int> _analyzeMonthlyTrends(List<HealthNote> notes) {
@@ -431,26 +426,23 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   Map<String, int> _analyzeRecentSymptomTrends(List<HealthNote> notes) {
     final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
 
-    return notes
-        .where(
-          (note) => note.dateTime.isAfter(thirtyDaysAgo) && note.hasSymptoms,
-        )
-        .expand((note) => note.validSymptoms.map((s) => s.majorComponent))
-        .where((symptom) => symptom.isNotEmpty)
-        .fold<Map<String, int>>(
-          {},
-          (map, symptom) =>
-              map..update(symptom, (count) => count + 1, ifAbsent: () => 1),
-        );
+    return CaseInsensitiveAggregator.aggregateStrings(
+      notes
+          .where(
+            (note) => note.dateTime.isAfter(thirtyDaysAgo) && note.hasSymptoms,
+          )
+          .expand((note) => note.validSymptoms.map((s) => s.majorComponent))
+          .where((symptom) => symptom.isNotEmpty),
+    );
   }
 
   Map<String, int> _filterSymptoms(Map<String, int> allSymptoms) {
     if (_symptomSearchQuery.isEmpty) return allSymptoms;
 
+    final normalizer = CaseInsensitiveNormalizer();
     return Map.fromEntries(
       allSymptoms.entries.where(
-        (entry) =>
-            entry.key.toLowerCase().contains(_symptomSearchQuery.toLowerCase()),
+        (entry) => normalizer.contains(entry.key, _symptomSearchQuery),
       ),
     );
   }

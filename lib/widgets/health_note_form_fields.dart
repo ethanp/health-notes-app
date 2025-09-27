@@ -5,6 +5,7 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/providers/symptom_suggestions_provider.dart';
 import 'package:health_notes/services/symptom_suggestions_service.dart';
+import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:intl/intl.dart';
@@ -46,6 +47,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
   late List<Symptom> _symptoms;
   Map<int, DrugDoseControllers> _drugDoseControllers = {};
   Map<int, SymptomControllers> _symptomControllers = {};
+  Set<String> _usedSuggestions = {};
 
   @override
   void initState() {
@@ -110,6 +112,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
 
     _drugDoseControllers.clear();
     _symptomControllers.clear();
+    _usedSuggestions.clear();
 
     if (widget.note != null) {
       final note = widget.note!;
@@ -130,6 +133,17 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     _symptomControllers = _symptoms.asMap().map(
       (key, value) => MapEntry(key, SymptomControllers(value)),
     );
+
+    for (final symptom in _symptoms) {
+      if (symptom.majorComponent.isNotEmpty ||
+          symptom.minorComponent.isNotEmpty) {
+        final key = SymptomNormalizer.generateKey(
+          symptom.majorComponent,
+          symptom.minorComponent,
+        );
+        _usedSuggestions.add(key);
+      }
+    }
   }
 
   @override
@@ -540,11 +554,26 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
 
   void removeSymptom(int index) {
     setState(() {
-      if (_symptomControllers.containsKey(index)) {
-        _symptomControllers[index]!.dispose();
-        _symptomControllers.remove(index);
+      final symptom = _symptoms[index];
+      if (symptom.majorComponent.isNotEmpty ||
+          symptom.minorComponent.isNotEmpty) {
+        final key = SymptomNormalizer.generateKey(
+          symptom.majorComponent,
+          symptom.minorComponent,
+        );
+        _usedSuggestions.remove(key);
       }
+
+      _symptomControllers.values.forEach(
+        (controllers) => controllers.dispose(),
+      );
+      _symptomControllers.clear();
+
       _symptoms.removeAt(index);
+
+      _symptomControllers = _symptoms.asMap().map(
+        (key, value) => MapEntry(key, SymptomControllers(value)),
+      );
     });
   }
 
@@ -557,23 +586,58 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
   }) {
     setState(() {
       final currentSymptom = _symptoms[index];
-      _symptoms[index] = Symptom(
+      final oldKey = SymptomNormalizer.generateKey(
+        currentSymptom.majorComponent,
+        currentSymptom.minorComponent,
+      );
+
+      final newSymptom = Symptom(
         severityLevel: severityLevel ?? currentSymptom.severityLevel,
         majorComponent: majorComponent ?? currentSymptom.majorComponent,
         minorComponent: minorComponent ?? currentSymptom.minorComponent,
         additionalNotes: additionalNotes ?? currentSymptom.additionalNotes,
       );
+
+      _symptoms[index] = newSymptom;
+
+      if (oldKey.isNotEmpty && oldKey != '|') {
+        _usedSuggestions.remove(oldKey);
+      }
+
+      if (newSymptom.majorComponent.isNotEmpty ||
+          newSymptom.minorComponent.isNotEmpty) {
+        final newKey = SymptomNormalizer.generateKey(
+          newSymptom.majorComponent,
+          newSymptom.minorComponent,
+        );
+        _usedSuggestions.add(newKey);
+      }
     });
   }
 
-  Widget symptomSuggestions() {
+  Widget symptomSuggestions(int index) {
+    final symptom = _symptoms[index];
+
+    if (symptom.majorComponent.isNotEmpty ||
+        symptom.minorComponent.isNotEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return Consumer(
       builder: (context, ref, child) {
         final suggestionsAsync = ref.watch(symptomSuggestionsProvider);
 
         return suggestionsAsync.when(
           data: (suggestions) {
-            if (suggestions.isEmpty) return const SizedBox.shrink();
+            final availableSuggestions = suggestions.where((suggestion) {
+              final suggestionKey = SymptomNormalizer.generateKey(
+                suggestion.majorComponent,
+                suggestion.minorComponent,
+              );
+              return !_usedSuggestions.contains(suggestionKey);
+            }).toList();
+
+            if (availableSuggestions.isEmpty) return const SizedBox.shrink();
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -588,7 +652,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: suggestions.map((suggestion) {
+                  children: availableSuggestions.map((suggestion) {
                     return CupertinoButton(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
@@ -601,11 +665,16 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
                             SymptomSuggestionsService.createSymptomFromSuggestion(
                               suggestion,
                             );
+                        final suggestionKey = SymptomNormalizer.generateKey(
+                          suggestion.majorComponent,
+                          suggestion.minorComponent,
+                        );
                         setState(() {
-                          _symptoms[0] = newSymptom;
-                          _symptomControllers[0] = SymptomControllers(
+                          _symptoms[index] = newSymptom;
+                          _symptomControllers[index] = SymptomControllers(
                             newSymptom,
                           );
+                          _usedSuggestions.add(suggestionKey);
                         });
                       },
                       child: Text(
@@ -639,7 +708,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (index == 0 && widget.note == null) symptomSuggestions(),
+          if (widget.isEditable) symptomSuggestions(index),
           const SizedBox(height: 8),
           Row(
             children: [

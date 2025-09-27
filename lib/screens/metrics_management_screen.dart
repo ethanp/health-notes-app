@@ -148,6 +148,7 @@ class _MetricsManagementScreenState
   }
 
   Widget metricTile(CheckInMetric metric) {
+    // ignore: avoid_unnecessary_containers
     return Container(
       key: ValueKey(metric.id),
       margin: const EdgeInsets.only(bottom: 6),

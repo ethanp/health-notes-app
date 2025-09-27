@@ -10,6 +10,7 @@ import 'package:health_notes/screens/metrics_management_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/utils/check_in_grouping.dart';
+import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
 import 'package:intl/intl.dart';
@@ -332,19 +333,35 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
     CheckInGroup group,
     List<CheckInMetric> userMetrics,
   ) {
-    return userMetrics.firstWhere(
-      (m) => m.name == group.representativeCheckIn.metricName,
-      orElse: () => throw Exception(
-        'Metric not found: ${group.representativeCheckIn.metricName}',
-      ),
-    );
+    try {
+      return userMetrics.firstWhere(
+        (m) => MetricNameNormalizer.areEqual(
+          m.name,
+          group.representativeCheckIn.metricName,
+        ),
+      );
+    } catch (e) {
+      return CheckInMetric.create(
+        userId: '',
+        name: '${group.representativeCheckIn.metricName} (Deleted)',
+        type: MetricType.higherIsBetter,
+      );
+    }
   }
 
   Widget checkInItem(CheckIn checkIn, List<CheckInMetric> userMetrics) {
-    final metric = userMetrics.firstWhere(
-      (m) => m.name == checkIn.metricName,
-      orElse: () => throw Exception('Metric not found: ${checkIn.metricName}'),
-    );
+    CheckInMetric metric;
+    try {
+      metric = userMetrics.firstWhere(
+        (m) => MetricNameNormalizer.areEqual(m.name, checkIn.metricName),
+      );
+    } catch (e) {
+      metric = CheckInMetric.create(
+        userId: '',
+        name: '${checkIn.metricName} (Deleted)',
+        type: MetricType.higherIsBetter,
+      );
+    }
 
     return Dismissible(
       key: Key(checkIn.id),
