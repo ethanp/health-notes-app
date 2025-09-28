@@ -96,14 +96,12 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                   const SizedBox(height: 16),
                   Text(
                     'Failed to load metrics',
-                    style: CupertinoTheme.of(
-                      context,
-                    ).textTheme.navTitleTextStyle,
+                    style: AppTypography.navTitleTextStyle,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     error.toString(),
-                    style: CupertinoTheme.of(context).textTheme.textStyle,
+                    style: AppTypography.baseTextStyle,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
@@ -136,12 +134,12 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
             const SizedBox(height: 16),
             Text(
               'No metrics available',
-              style: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
+              style: AppTypography.navTitleTextStyle,
             ),
             const SizedBox(height: 8),
             Text(
               'Add some metrics to start tracking your health',
-              style: CupertinoTheme.of(context).textTheme.textStyle,
+              style: AppTypography.baseTextStyle,
               textAlign: TextAlign.center,
             ),
           ],

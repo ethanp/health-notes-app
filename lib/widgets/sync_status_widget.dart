@@ -274,9 +274,7 @@ class SyncStatusWidget extends ConsumerWidget {
           Expanded(
             child: Text(
               message ?? 'Loading...',
-              style: AppTypography.bodyMedium.copyWith(
-                color: CupertinoColors.systemGrey,
-              ),
+              style: AppTypography.bodyMediumSystemGrey,
             ),
           ),
         ],
@@ -322,9 +320,7 @@ class SyncStatusWidget extends ConsumerWidget {
               const SizedBox(height: AppSpacing.s),
               Text(
                 errorMessage!,
-                style: AppTypography.bodyMedium.copyWith(
-                  color: CupertinoColors.systemGrey,
-                ),
+                style: AppTypography.bodyMediumSystemGrey,
                 textAlign: TextAlign.center,
               ),
             ],

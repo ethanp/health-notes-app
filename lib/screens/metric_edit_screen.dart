@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/providers/check_in_metrics_provider.dart';
+import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
 class MetricEditScreen extends ConsumerStatefulWidget {
@@ -115,7 +116,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
             ).textTheme.textStyle.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
-          ...MetricType.values.map((type) => typeOption(type)),
+          ...MetricType.values.map(typeOption),
         ],
       ),
     );
@@ -171,26 +172,26 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
                   children: [
                     Text(
                       _getMetricTypeDisplayName(type),
-                      style: CupertinoTheme.of(context).textTheme.textStyle
-                          .copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: isSelected
-                                ? CupertinoColors.systemBlue
-                                : CupertinoColors.white,
-                          ),
+                      style: isSelected
+                          ? AppTypography.bodyMediumSemiboldBlue
+                          : AppTypography.bodyMediumWhite,
                     ),
                     const SizedBox(height: 2),
                     Text(
                       type.description,
-                      style: CupertinoTheme.of(context).textTheme.textStyle
-                          .copyWith(
-                            color: isSelected
-                                ? CupertinoColors.systemBlue.withValues(
-                                    alpha: 0.8,
-                                  )
-                                : CupertinoColors.white.withValues(alpha: 0.7),
-                            fontSize: 12,
-                          ),
+                      style: isSelected
+                          ? AppTypography.bodySmall.copyWith(
+                              color: CupertinoColors.systemBlue.withValues(
+                                alpha: 0.8,
+                              ),
+                              fontSize: 12,
+                            )
+                          : AppTypography.bodySmall.copyWith(
+                              color: CupertinoColors.white.withValues(
+                                alpha: 0.7,
+                              ),
+                              fontSize: 12,
+                            ),
                     ),
                   ],
                 ),
@@ -217,9 +218,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
           Wrap(
             spacing: 12,
             runSpacing: 12,
-            children: MetricColorPalette.colors
-                .map((color) => colorOption(color))
-                .toList(),
+            children: MetricColorPalette.colors.map(colorOption).toList(),
           ),
         ],
       ),
@@ -270,9 +269,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
           Wrap(
             spacing: 12,
             runSpacing: 12,
-            children: MetricIconPalette.icons
-                .map((icon) => iconOption(icon))
-                .toList(),
+            children: MetricIconPalette.icons.map(iconOption).toList(),
           ),
         ],
       ),

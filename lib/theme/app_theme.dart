@@ -135,9 +135,70 @@ class AppTypography {
     letterSpacing: 0.1,
   );
 
-  // Hierarchical text style variations
+  // Navigation and system UI
+  static TextStyle get navTitleTextStyle => const TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+    height: 1.3,
+    letterSpacing: 0.1,
+  );
+
+  static TextStyle get baseTextStyle => const TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.normal,
+    color: AppColors.textPrimary,
+    height: 1.5,
+    letterSpacing: 0.1,
+  );
+
+  // System UI color variants (commonly used)
+  static TextStyle get bodySmallSystemGrey =>
+      bodySmall.copyWith(color: CupertinoColors.systemGrey);
+
+  static TextStyle get bodyMediumSystemGrey =>
+      bodyMedium.copyWith(color: CupertinoColors.systemGrey);
+
+  static TextStyle get bodySmallSystemGreySemibold =>
+      bodySmallSystemGrey.copyWith(fontWeight: FontWeight.w600);
+
+  static TextStyle get bodyMediumSystemGreySemibold =>
+      bodyMediumSystemGrey.copyWith(fontWeight: FontWeight.w600);
+
+  // White text variants (for dark backgrounds)
+  static TextStyle get bodySmallWhite =>
+      bodySmall.copyWith(color: CupertinoColors.white);
+
+  static TextStyle get bodyMediumWhite =>
+      bodyMedium.copyWith(color: CupertinoColors.white);
+
+  static TextStyle get bodyMediumWhiteSemibold =>
+      bodyMediumWhite.copyWith(fontWeight: FontWeight.w600);
+
   static TextStyle get headlineSmallWhite =>
-      headlineSmall.copyWith(color: CupertinoColors.white, fontSize: 18);
+      headlineSmall.copyWith(color: CupertinoColors.white);
+
+  // Tertiary color variants (muted text)
+  static TextStyle get bodySmallTertiary =>
+      bodySmall.copyWith(color: AppColors.textTertiary);
+
+  static TextStyle get bodyMediumTertiary =>
+      bodyMedium.copyWith(color: AppColors.textTertiary);
+
+  // Semibold weight variants
+  static TextStyle get bodyMediumSemibold =>
+      bodyMedium.copyWith(fontWeight: FontWeight.w600);
+
+  static TextStyle get bodyMediumSemiboldBlue =>
+      bodyMediumSemibold.copyWith(color: CupertinoColors.systemBlue);
+
+  // Bold variants
+  static TextStyle get bodySmallWhiteBold =>
+      bodySmallWhite.copyWith(fontWeight: FontWeight.bold);
+
+  // Additional essential variants (commonly used)
+  static TextStyle get bodyLargeSecondary =>
+      bodyLarge.copyWith(color: AppColors.textSecondary);
 
   static TextStyle get bodyMediumPrimary =>
       bodyMedium.copyWith(color: AppColors.textPrimary);
@@ -145,65 +206,20 @@ class AppTypography {
   static TextStyle get bodySmallSecondary =>
       bodySmall.copyWith(color: AppColors.textSecondary);
 
-  static TextStyle get bodySmallTertiary =>
-      bodySmall.copyWith(color: AppColors.textTertiary);
+  static TextStyle get bodySmallPrimary =>
+      bodySmall.copyWith(color: AppColors.textPrimary);
 
   static TextStyle get labelLargePrimary =>
       labelLarge.copyWith(color: AppColors.textPrimary);
 
-  static TextStyle get bodyLargePrimary =>
-      bodyLarge.copyWith(color: AppColors.textPrimary);
-
-  static TextStyle get captionQuaternary =>
-      caption.copyWith(color: AppColors.textQuaternary);
-
-  static TextStyle get labelMediumPrimary =>
-      labelMedium.copyWith(color: AppColors.textPrimary);
-
-  static TextStyle get bodyMediumSecondary =>
-      bodyMedium.copyWith(color: AppColors.textSecondary);
-
-  static TextStyle get bodyMediumTertiary =>
-      bodyMedium.copyWith(color: AppColors.textTertiary);
-
   static TextStyle get labelMediumWhite =>
       labelMedium.copyWith(color: CupertinoColors.white);
 
-  static TextStyle get bodySmallWhite =>
-      bodySmall.copyWith(color: CupertinoColors.white);
+  static TextStyle get labelMediumSecondary =>
+      labelMedium.copyWith(color: AppColors.textSecondary);
 
-  static TextStyle get bodySmallSystemGrey =>
-      bodySmall.copyWith(color: CupertinoColors.systemGrey);
-
-  static TextStyle get bodyMediumSemibold =>
-      bodyMedium.copyWith(fontWeight: FontWeight.w600);
-
-  static TextStyle get bodySmallPrimary =>
-      bodySmall.copyWith(color: AppColors.textPrimary);
-
-  static TextStyle get bodyMediumQuaternary =>
-      bodyMedium.copyWith(color: AppColors.textQuaternary);
-
-  static TextStyle get labelSmallWhite =>
-      labelSmall.copyWith(color: CupertinoColors.white);
-
-  static TextStyle get labelLargeWhite =>
-      labelLarge.copyWith(color: CupertinoColors.white);
-
-  static TextStyle get bodySmallSystemGreySemibold =>
-      bodySmallSystemGrey.copyWith(fontWeight: FontWeight.w500);
-
-  static TextStyle get bodyMediumWhiteSemibold =>
-      bodyMediumWhite.copyWith(fontWeight: FontWeight.w600);
-
-  static TextStyle get buttonPrimaryBold =>
-      buttonPrimary.copyWith(fontWeight: FontWeight.bold);
-
-  static TextStyle get buttonPrimaryBoldSmall =>
-      buttonPrimaryBold.copyWith(fontSize: 10);
-
-  static TextStyle get bodySmallWhiteBold =>
-      bodySmallWhite.copyWith(fontWeight: FontWeight.bold);
+  static TextStyle get labelMediumSystemGreySemibold =>
+      bodyMediumSystemGrey.copyWith(fontWeight: FontWeight.w600, fontSize: 14);
 
   static TextStyle get bodySmallGreenSmall =>
       bodySmall.copyWith(color: CupertinoColors.systemGreen, fontSize: 10);
@@ -217,43 +233,33 @@ class AppTypography {
   static TextStyle get bodySmallSecondarySmall =>
       bodySmallSecondary.copyWith(fontSize: 9);
 
-  static TextStyle get bodyMediumSystemGrey =>
-      bodyMedium.copyWith(color: CupertinoColors.systemGrey);
-
-  static TextStyle get labelMediumSecondary =>
-      labelMedium.copyWith(color: AppColors.textSecondary);
-
-  static TextStyle get bodyLargeSecondary =>
-      bodyLarge.copyWith(color: AppColors.textSecondary);
-
   static TextStyle get bodyMediumPrimarySemibold => bodyMedium.copyWith(
     fontWeight: FontWeight.w600,
     color: AppColors.primary,
   );
 
-  static TextStyle get labelMediumSystemGreySemibold => labelMedium.copyWith(
-    fontWeight: FontWeight.w600,
-    color: CupertinoColors.systemGrey,
-  );
-
-  static TextStyle get bodyMediumWhite =>
-      bodyMedium.copyWith(color: CupertinoColors.white);
-
   static TextStyle get labelLargeWhiteSemibold =>
-      labelLargeWhite.copyWith(fontWeight: FontWeight.w600);
+      bodyMediumWhite.copyWith(fontWeight: FontWeight.w600, fontSize: 16);
 
-  static TextStyle get labelSmallSeverityColor =>
-      labelSmall.copyWith(fontWeight: FontWeight.w600);
+  // Button bold variants
+  static TextStyle get buttonPrimaryBold =>
+      buttonPrimary.copyWith(fontWeight: FontWeight.bold);
 
-  static TextStyle get bodyMediumSemiboldBlue =>
-      bodyMediumSemibold.copyWith(color: CupertinoColors.systemBlue);
+  static TextStyle get buttonPrimaryBoldSmall =>
+      buttonPrimaryBold.copyWith(fontSize: 10);
 
-  // Additional styles that were referenced but not in the original hierarchy
+  // Additional hierarchy variants
   static TextStyle get headlineSmallPrimary =>
       headlineSmall.copyWith(color: AppColors.textPrimary);
 
-  static TextStyle get bodyMediumSystemGreySemibold =>
-      bodyMediumSystemGrey.copyWith(fontWeight: FontWeight.w500);
+  static TextStyle get bodyLargePrimary =>
+      bodyLarge.copyWith(color: AppColors.textPrimary);
+
+  static TextStyle get bodyMediumSecondary =>
+      bodyMedium.copyWith(color: AppColors.textSecondary);
+
+  static TextStyle get captionQuaternary =>
+      caption.copyWith(color: AppColors.textQuaternary);
 }
 
 /// Spacing system for consistent layout

@@ -38,20 +38,6 @@ class MainScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return CupertinoApp(
       title: 'Health Notes',
-      theme: const CupertinoThemeData(
-        brightness: Brightness.dark,
-        primaryColor: Color(0xFF6B73FF), // AppColors.primary
-        scaffoldBackgroundColor: Color(
-          0xFF1A1B2E,
-        ), // AppColors.backgroundPrimary
-        barBackgroundColor: Color(0xFF252A3A), // AppColors.backgroundSecondary
-        textTheme: CupertinoTextThemeData(
-          primaryColor: Color(0xFF6B73FF), // AppColors.primary
-          textStyle: TextStyle(
-            color: Color(0xFFF8FAFC),
-          ), // AppColors.textPrimary
-        ),
-      ),
       debugShowCheckedModeBanner: false,
       home: ref
           .watch(isAuthenticatedProvider)

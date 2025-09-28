@@ -6,6 +6,7 @@ import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/providers/sync_provider.dart';
 import 'package:health_notes/screens/metric_edit_screen.dart';
 import 'package:health_notes/services/offline_repository.dart';
+import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 
@@ -86,12 +87,12 @@ class _MetricsManagementScreenState
                 const SizedBox(height: 16),
                 Text(
                   'Failed to load metrics',
-                  style: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
+                  style: AppTypography.navTitleTextStyle,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   error.toString(),
-                  style: CupertinoTheme.of(context).textTheme.textStyle,
+                  style: AppTypography.baseTextStyle,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
@@ -120,14 +121,11 @@ class _MetricsManagementScreenState
               color: CupertinoColors.systemGrey,
             ),
             const SizedBox(height: 16),
-            Text(
-              'No metrics yet',
-              style: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
-            ),
+            Text('No metrics yet', style: AppTypography.navTitleTextStyle),
             const SizedBox(height: 8),
             Text(
               'Add your first metric to start tracking your health',
-              style: CupertinoTheme.of(context).textTheme.textStyle,
+              style: AppTypography.baseTextStyle,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),

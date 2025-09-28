@@ -217,7 +217,7 @@ class ActivityCalendar<T> extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               'Start recording data to see trends',
-              style: AppTypography.bodySmallSystemGrey.copyWith(
+              style: AppTypography.bodySmall.copyWith(
                 color: CupertinoColors.systemGrey.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
@@ -364,7 +364,7 @@ class SeverityActivityCalendar extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           label,
-          style: AppTypography.bodySmallWhite.copyWith(
+          style: AppTypography.bodySmall.copyWith(
             color: CupertinoColors.white.withValues(alpha: 0.8),
           ),
         ),
@@ -515,7 +515,7 @@ class CheckInsActivityCalendar extends StatelessWidget {
       case 3:
         return const Color(0xFFA5D6A7); // Medium light green
       case 4:
-        return const Color(0xFF81C784); // Medium green
+        return AppColors.success;
       case 5:
         return const Color(0xFF66BB6A); // Strong green
       default: // 6+
@@ -574,7 +574,7 @@ class CheckInsActivityCalendar extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: AppTypography.bodySmallWhite.copyWith(
+          style: AppTypography.bodySmall.copyWith(
             color: CupertinoColors.white.withValues(alpha: 0.9),
             fontSize: 11,
             fontWeight: FontWeight.w500,

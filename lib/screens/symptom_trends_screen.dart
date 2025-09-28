@@ -578,12 +578,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      note.notes,
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: CupertinoColors.white,
-                      ),
-                    ),
+                    Text(note.notes, style: AppTypography.bodyMediumWhite),
                   ],
                 ),
               ),
