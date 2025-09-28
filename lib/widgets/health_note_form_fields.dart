@@ -5,13 +5,13 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/models/applied_tool.dart';
 import 'package:health_notes/models/health_tool.dart';
-import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/providers/symptom_suggestions_provider.dart';
 import 'package:health_notes/services/symptom_suggestions_service.dart';
 import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/applied_tool_picker_sheet.dart';
 import 'package:intl/intl.dart';
 
 class HealthNoteFormFields extends ConsumerStatefulWidget {
@@ -474,190 +474,15 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
   }
 
   void showToolPicker() {
-    final searchController = TextEditingController();
     showCupertinoModalPopup(
       context: context,
-      builder: (context) {
-        return Align(
-          alignment: Alignment.bottomCenter,
-          child: FractionallySizedBox(
-            heightFactor: 0.7,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(AppRadius.extraLarge),
-                topRight: Radius.circular(AppRadius.extraLarge),
-              ),
-              child: Container(
-                color: AppColors.backgroundSecondary,
-                child: StatefulBuilder(
-                  builder: (context, setSheetState) {
-                    return SafeArea(
-                      top: false,
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 8),
-                          Container(
-                            width: 40,
-                            height: 4,
-                            decoration: BoxDecoration(
-                              color: AppColors.backgroundQuinary,
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.m,
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'Select a tool',
-                                    style: AppTypography.headlineSmall,
-                                  ),
-                                ),
-                                CupertinoButton(
-                                  padding: EdgeInsets.zero,
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: const Icon(CupertinoIcons.xmark),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.m,
-                            ),
-                            child: EnhancedUIComponents.searchField(
-                              controller: searchController,
-                              placeholder: 'Search tools',
-                              onChanged: (_) => setSheetState(() {}),
-                              showSuffix: searchController.text.isNotEmpty,
-                              onSuffixTap: () {
-                                searchController.clear();
-                                setSheetState(() {});
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.s),
-                          Expanded(
-                            child: Consumer(
-                              builder: (context, ref, _) {
-                                final toolsAsync = ref.watch(
-                                  healthToolsNotifierProvider,
-                                );
-                                return toolsAsync.when(
-                                  data: (tools) {
-                                    final q = searchController.text
-                                        .trim()
-                                        .toLowerCase();
-                                    final filtered = q.isEmpty
-                                        ? tools
-                                        : tools
-                                              .where(
-                                                (t) => t.name
-                                                    .toLowerCase()
-                                                    .contains(q),
-                                              )
-                                              .toList();
-                                    if (filtered.isEmpty) {
-                                      return EnhancedUIComponents.emptyState(
-                                        title: 'No tools found',
-                                        message:
-                                            'Try a different search or add tools in My Tools',
-                                        icon: CupertinoIcons.search,
-                                      );
-                                    }
-                                    return ListView.separated(
-                                      padding: const EdgeInsets.all(
-                                        AppSpacing.m,
-                                      ),
-                                      itemBuilder: (context, i) {
-                                        final t = filtered[i];
-                                        final isAlreadySelected = _appliedTools
-                                            .any((at) => at.toolId == t.id);
-                                        return GestureDetector(
-                                          onTap: () {
-                                            if (!isAlreadySelected) {
-                                              addAppliedToolFromHealthTool(t);
-                                            }
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: Container(
-                                            padding: const EdgeInsets.all(14),
-                                            decoration: AppComponents
-                                                .primaryCardWithBorder,
-                                            child: Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        t.name,
-                                                        style: AppTypography
-                                                            .labelLarge,
-                                                      ),
-                                                      const SizedBox(
-                                                        height: AppSpacing.xs,
-                                                      ),
-                                                      Text(
-                                                        t.description,
-                                                        style: AppTypography
-                                                            .bodySmallSecondary,
-                                                        maxLines: 2,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                const SizedBox(
-                                                  width: AppSpacing.m,
-                                                ),
-                                                if (isAlreadySelected)
-                                                  Text(
-                                                    'Selected',
-                                                    style: AppTypography
-                                                        .bodySmallSystemGreySemibold,
-                                                  ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      separatorBuilder: (_, __) =>
-                                          const SizedBox(height: AppSpacing.s),
-                                      itemCount: filtered.length,
-                                    );
-                                  },
-                                  loading: () =>
-                                      EnhancedUIComponents.loadingIndicator(
-                                        message: 'Loading tools...',
-                                      ),
-                                  error: (e, st) => Center(
-                                    child: Text(
-                                      'Error: $e',
-                                      style: AppTypography.error,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
-        );
-      },
+      builder: (context) => AppliedToolPickerSheet(
+        appliedTools: _appliedTools,
+        onSelect: (t) {
+          addAppliedToolFromHealthTool(t);
+          Navigator.of(context).pop();
+        },
+      ),
     );
   }
 
