@@ -278,22 +278,7 @@ class _HealthToolCategoryFormState
     });
 
     try {
-      final category =
-          widget.category?.copyWith(
-            name: _nameController.text.trim(),
-            description: _descriptionController.text.trim(),
-            iconName: _selectedIcon,
-            colorHex: _selectedColor,
-          ) ??
-          HealthToolCategory(
-            id: '', // Will be set by the provider
-            name: _nameController.text.trim(),
-            description: _descriptionController.text.trim(),
-            iconName: _selectedIcon,
-            colorHex: _selectedColor,
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-          );
+      final category = _composeCategory();
 
       if (widget.category != null) {
         await ref
@@ -332,5 +317,26 @@ class _HealthToolCategoryFormState
         });
       }
     }
+  }
+
+  HealthToolCategory _composeCategory() {
+    final base = widget.category;
+    if (base != null) {
+      return base.copyWith(
+        name: _nameController.text.trim(),
+        description: _descriptionController.text.trim(),
+        iconName: _selectedIcon,
+        colorHex: _selectedColor,
+      );
+    }
+    return HealthToolCategory(
+      id: '',
+      name: _nameController.text.trim(),
+      description: _descriptionController.text.trim(),
+      iconName: _selectedIcon,
+      colorHex: _selectedColor,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
   }
 }

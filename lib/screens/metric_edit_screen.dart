@@ -58,22 +58,24 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
               : Text(widget.metric == null ? 'Add' : 'Save'),
         ),
       ),
-      child: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              nameSection(),
-              const SizedBox(height: 24),
-              typeSection(),
-              const SizedBox(height: 24),
-              colorSection(),
-              const SizedBox(height: 24),
-              iconSection(),
-            ],
-          ),
-        ),
+      child: SafeArea(child: metricEditForm()),
+    );
+  }
+
+  Widget metricEditForm() {
+    return Form(
+      key: _formKey,
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          nameSection(),
+          const SizedBox(height: 24),
+          typeSection(),
+          const SizedBox(height: 24),
+          colorSection(),
+          const SizedBox(height: 24),
+          iconSection(),
+        ],
       ),
     );
   }

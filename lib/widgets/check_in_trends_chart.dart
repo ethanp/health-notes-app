@@ -47,22 +47,40 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.checkIns.isEmpty) {
-      return Container(
-        height: 450,
-        decoration: AppComponents.primaryCard,
-        child: Center(
-          child: Text(
-            'No check-in data available',
-            style: AppTypography.bodyMediumTertiary,
-          ),
+    if (widget.checkIns.isEmpty) return emptyChartContainer();
+
+    final metrics = _sortedMetricNames();
+    return trendsChartContainer(
+      header: Text('Trends', style: AppTypography.headlineSmall),
+      indicator: improvementZonesIndicator(),
+      charts: splitCharts(metrics),
+    );
+  }
+
+  Widget emptyChartContainer() {
+    return Container(
+      height: 450,
+      decoration: AppComponents.primaryCard,
+      child: Center(
+        child: Text(
+          'No check-in data available',
+          style: AppTypography.bodyMediumTertiary,
         ),
-      );
-    }
+      ),
+    );
+  }
 
-    final metrics = widget.checkIns.map((c) => c.metricName).toSet().toList()
-      ..sort(); // Sort alphabetically
+  List<String> _sortedMetricNames() {
+    final metrics = widget.checkIns.map((c) => c.metricName).toSet().toList();
+    metrics.sort();
+    return metrics;
+  }
 
+  Widget trendsChartContainer({
+    required Widget header,
+    required Widget indicator,
+    required Widget charts,
+  }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: AppComponents.primaryCard.copyWith(
@@ -77,11 +95,11 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Trends', style: AppTypography.headlineSmall),
+          header,
           const SizedBox(height: 16),
-          improvementZonesIndicator(),
+          indicator,
           const SizedBox(height: 12),
-          splitCharts(metrics),
+          charts,
         ],
       ),
     );

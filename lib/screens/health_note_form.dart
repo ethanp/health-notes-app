@@ -84,41 +84,12 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
       final formFieldsState = _formFieldsKey.currentState;
       if (formFieldsState == null) return;
 
-      final updatedNote =
-          widget.note?.copyWith(
-            dateTime: formFieldsState.currentDateTime,
-            symptomsList: formFieldsState.currentSymptoms,
-            drugDoses: formFieldsState.currentDrugDoses,
-            notes: formFieldsState.currentNotes.trim(),
-          ) ??
-          HealthNote(
-            id: '', // Will be set by the provider
-            dateTime: formFieldsState.currentDateTime,
-            symptomsList: formFieldsState.currentSymptoms,
-            drugDoses: formFieldsState.currentDrugDoses,
-            notes: formFieldsState.currentNotes.trim(),
-            createdAt: DateTime.now(),
-          );
+      final updatedNote = _composeUpdatedNote(formFieldsState);
 
       if (widget.note != null) {
-        await ref
-            .read(healthNotesNotifierProvider.notifier)
-            .updateNote(
-              id: widget.note!.id,
-              dateTime: updatedNote.dateTime,
-              symptomsList: updatedNote.validSymptoms,
-              drugDoses: updatedNote.validDrugDoses,
-              notes: updatedNote.notes,
-            );
+        await _persistExistingNote(updatedNote);
       } else {
-        await ref
-            .read(healthNotesNotifierProvider.notifier)
-            .addNote(
-              dateTime: updatedNote.dateTime,
-              symptomsList: updatedNote.validSymptoms,
-              drugDoses: updatedNote.validDrugDoses,
-              notes: updatedNote.notes,
-            );
+        await _persistNewNote(updatedNote);
       }
 
       if (mounted) {
@@ -143,5 +114,49 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
         });
       }
     }
+  }
+
+  HealthNote _composeUpdatedNote(HealthNoteFormFieldsState formFieldsState) {
+    final base = widget.note;
+    if (base != null) {
+      return base.copyWith(
+        dateTime: formFieldsState.currentDateTime,
+        symptomsList: formFieldsState.currentSymptoms,
+        drugDoses: formFieldsState.currentDrugDoses,
+        notes: formFieldsState.currentNotes.trim(),
+      );
+    }
+
+    return HealthNote(
+      id: '',
+      dateTime: formFieldsState.currentDateTime,
+      symptomsList: formFieldsState.currentSymptoms,
+      drugDoses: formFieldsState.currentDrugDoses,
+      notes: formFieldsState.currentNotes.trim(),
+      createdAt: DateTime.now(),
+    );
+  }
+
+  Future<void> _persistExistingNote(HealthNote updatedNote) async {
+    await ref
+        .read(healthNotesNotifierProvider.notifier)
+        .updateNote(
+          id: widget.note!.id,
+          dateTime: updatedNote.dateTime,
+          symptomsList: updatedNote.validSymptoms,
+          drugDoses: updatedNote.validDrugDoses,
+          notes: updatedNote.notes,
+        );
+  }
+
+  Future<void> _persistNewNote(HealthNote updatedNote) async {
+    await ref
+        .read(healthNotesNotifierProvider.notifier)
+        .addNote(
+          dateTime: updatedNote.dateTime,
+          symptomsList: updatedNote.validSymptoms,
+          drugDoses: updatedNote.validDrugDoses,
+          notes: updatedNote.notes,
+        );
   }
 }

@@ -31,10 +31,7 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen>
       vsync: this,
     );
     _fadeInAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _fadeInController,
-        curve: AppAnimation.curve,
-      ),
+      CurvedAnimation(parent: _fadeInController, curve: AppAnimation.curve),
     );
     _fadeInController.forward();
 
@@ -58,53 +55,61 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen>
   Widget build(BuildContext context) {
     return EnhancedUIComponents.animatedGradientBackground(
       child: CupertinoTabScaffold(
-        tabBar: CupertinoTabBar(
-          currentIndex: currentTabIndex,
-          onTap: (int index) {
-            setState(() => currentTabIndex = index);
-            _fadeInController.reset();
-            _fadeInController.forward();
-          },
-          backgroundColor: Colors.transparent,
-          activeColor: AppColors.primary,
-          inactiveColor: AppColors.textTertiary,
-          border: Border(
-            top: BorderSide(
-              color: AppColors.backgroundQuaternary.withValues(alpha: 0.3),
-              width: 0.5,
-            ),
-          ),
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.chart_bar),
-              label: 'Trends',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.chart_bar_alt_fill),
-              label: 'Check-ins',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.doc_text),
-              label: 'Notes',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.wrench),
-              label: 'My Tools',
-            ),
-          ],
+        tabBar: mainTabBar(),
+        tabBuilder: (context, index) => tabView(index),
+      ),
+    );
+  }
+
+  CupertinoTabBar mainTabBar() {
+    return CupertinoTabBar(
+      currentIndex: currentTabIndex,
+      onTap: (int index) {
+        setState(() => currentTabIndex = index);
+        _fadeInController.reset();
+        _fadeInController.forward();
+      },
+      backgroundColor: Colors.transparent,
+      activeColor: AppColors.primary,
+      inactiveColor: AppColors.textTertiary,
+      border: Border(
+        top: BorderSide(
+          color: AppColors.backgroundQuaternary.withValues(alpha: 0.3),
+          width: 0.5,
         ),
-        tabBuilder: (context, index) => CupertinoTabView(
-          builder: (context) => FadeTransition(
-            opacity: _fadeInAnimation,
-            child: switch (index) {
-              0 => const TrendsScreen(),
-              1 => const CheckInsScreen(),
-              2 => const HealthNotesHomePage(),
-              3 => const MyToolsScreen(),
-              _ => const TrendsScreen(),
-            },
-          ),
+      ),
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.chart_bar),
+          label: 'Trends',
         ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.chart_bar_alt_fill),
+          label: 'Check-ins',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.doc_text),
+          label: 'Notes',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(CupertinoIcons.wrench),
+          label: 'My Tools',
+        ),
+      ],
+    );
+  }
+
+  Widget tabView(int index) {
+    return CupertinoTabView(
+      builder: (context) => FadeTransition(
+        opacity: _fadeInAnimation,
+        child: switch (index) {
+          0 => const TrendsScreen(),
+          1 => const CheckInsScreen(),
+          2 => const HealthNotesHomePage(),
+          3 => const MyToolsScreen(),
+          _ => const TrendsScreen(),
+        },
       ),
     );
   }

@@ -219,7 +219,7 @@ class AppTypography {
       labelMedium.copyWith(color: AppColors.textSecondary);
 
   static TextStyle get labelMediumSystemGreySemibold =>
-      bodyMediumSystemGrey.copyWith(fontWeight: FontWeight.w600, fontSize: 14);
+      bodySmallSystemGrey.copyWith(fontWeight: FontWeight.w600);
 
   static TextStyle get bodySmallGreenSmall =>
       bodySmall.copyWith(color: CupertinoColors.systemGreen, fontSize: 10);
@@ -239,7 +239,7 @@ class AppTypography {
   );
 
   static TextStyle get labelLargeWhiteSemibold =>
-      bodyMediumWhite.copyWith(fontWeight: FontWeight.w600, fontSize: 16);
+      bodyMediumWhite.copyWith(fontWeight: FontWeight.w600);
 
   // Button bold variants
   static TextStyle get buttonPrimaryBold =>

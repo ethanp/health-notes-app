@@ -351,13 +351,16 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        EnhancedUIComponents.sectionHeader(
-          title: _formatGroupDate(group.date),
-          subtitle:
-              '${visibleNotes.length} note${visibleNotes.length == 1 ? '' : 's'}',
-        ),
+        groupHeader(group.date, visibleNotes.length),
         ...visibleNotes.map((note) => noteCard(note)),
       ],
+    );
+  }
+
+  Widget groupHeader(DateTime date, int count) {
+    return EnhancedUIComponents.sectionHeader(
+      title: _formatGroupDate(date),
+      subtitle: '$count note${count == 1 ? '' : 's'}',
     );
   }
 
@@ -407,19 +410,19 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   Widget noteContent(HealthNote note) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [Expanded(child: noteContentColumn(note))],
+    );
+  }
+
+  Widget noteContentColumn(HealthNote note) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (note.hasSymptoms) ...symptomDetails(note),
-              if (note.drugDoses.isNotEmpty) ...[
-                const SizedBox(height: AppSpacing.s),
-                ...note.drugDoses.map(medicationRow),
-              ],
-            ],
-          ),
-        ),
+        if (note.hasSymptoms) ...symptomDetails(note),
+        if (note.drugDoses.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.s),
+          ...note.drugDoses.map(medicationRow),
+        ],
       ],
     );
   }

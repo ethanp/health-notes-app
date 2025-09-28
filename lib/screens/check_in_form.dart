@@ -67,54 +67,63 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
               : Text(widget.saveButtonText),
         ),
       ),
-      child: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: userMetricsAsync.when(
-            data: (userMetrics) => ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                metricsGridSection(userMetrics),
-                if (_selectedMetrics.isNotEmpty) ...[
-                  const SizedBox(height: 16),
-                  selectedMetricsSection(userMetrics),
-                ],
-                const SizedBox(height: 16),
-                dateTimeSection(),
-              ],
-            ),
-            loading: () => const Center(child: CupertinoActivityIndicator()),
-            error: (error, stack) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    CupertinoIcons.exclamationmark_triangle,
-                    size: 48,
-                    color: CupertinoColors.systemRed,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Failed to load metrics',
-                    style: AppTypography.navTitleTextStyle,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    error.toString(),
-                    style: AppTypography.baseTextStyle,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  CupertinoButton.filled(
-                    onPressed: () =>
-                        ref.invalidate(checkInMetricsNotifierProvider),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            ),
+      child: SafeArea(child: checkInFormBody(userMetricsAsync)),
+    );
+  }
+
+  Widget checkInFormBody(AsyncValue<List<CheckInMetric>> userMetricsAsync) {
+    return Form(
+      key: _formKey,
+      child: userMetricsAsync.when(
+        data: (userMetrics) => checkInFormContent(userMetrics),
+        loading: () => const Center(child: CupertinoActivityIndicator()),
+        error: (error, stack) => metricsErrorState(error),
+      ),
+    );
+  }
+
+  Widget checkInFormContent(List<CheckInMetric> userMetrics) {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        metricsGridSection(userMetrics),
+        if (_selectedMetrics.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          selectedMetricsSection(userMetrics),
+        ],
+        const SizedBox(height: 16),
+        dateTimeSection(),
+      ],
+    );
+  }
+
+  Widget metricsErrorState(Object error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            CupertinoIcons.exclamationmark_triangle,
+            size: 48,
+            color: CupertinoColors.systemRed,
           ),
-        ),
+          const SizedBox(height: 16),
+          Text(
+            'Failed to load metrics',
+            style: AppTypography.navTitleTextStyle,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            error.toString(),
+            style: AppTypography.baseTextStyle,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          CupertinoButton.filled(
+            onPressed: () => ref.invalidate(checkInMetricsNotifierProvider),
+            child: const Text('Retry'),
+          ),
+        ],
       ),
     );
   }

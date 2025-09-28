@@ -691,68 +691,74 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
         children: [
           if (widget.isEditable) symptomSuggestions(index),
           const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: CupertinoTextField(
-                  controller: controllers.majorComponent,
-                  placeholder: 'Major component (e.g., headache)',
-                  placeholderStyle: AppTypography.inputPlaceholder,
-                  style: AppTypography.input,
-                  onChanged: (value) =>
-                      updateSymptom(index, majorComponent: value),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: CupertinoTextField(
-                  controller: controllers.minorComponent,
-                  placeholder: 'Minor component (e.g., right temple)',
-                  placeholderStyle: AppTypography.inputPlaceholder,
-                  style: AppTypography.input,
-                  onChanged: (value) =>
-                      updateSymptom(index, minorComponent: value),
-                ),
-              ),
-              const SizedBox(width: 8),
-              SizedBox(
-                width: 80,
-                child: CupertinoTextField(
-                  controller: controllers.severity,
-                  placeholder: '1-10',
-                  placeholderStyle: AppTypography.inputPlaceholder,
-                  style: AppTypography.input,
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    final severity = int.tryParse(value);
-                    if (severity != null && severity >= 1 && severity <= 10) {
-                      updateSymptom(index, severityLevel: severity);
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              CupertinoButton(
-                padding: EdgeInsets.zero,
-                onPressed: () => removeSymptom(index),
-                child: const Icon(
-                  CupertinoIcons.delete,
-                  color: CupertinoColors.destructiveRed,
-                ),
-              ),
-            ],
-          ),
+          editableSymptomRow(index, controllers),
           const SizedBox(height: 8),
-          CupertinoTextField(
-            controller: controllers.additionalNotes,
-            placeholder: 'Additional notes (optional)',
-            placeholderStyle: AppTypography.inputPlaceholder,
-            style: AppTypography.input,
-            maxLines: 2,
-            onChanged: (value) => updateSymptom(index, additionalNotes: value),
-          ),
+          editableSymptomNotes(index, controllers),
         ],
       ),
+    );
+  }
+
+  Widget editableSymptomRow(int index, SymptomControllers controllers) {
+    return Row(
+      children: [
+        Expanded(
+          child: CupertinoTextField(
+            controller: controllers.majorComponent,
+            placeholder: 'Major component (e.g., headache)',
+            placeholderStyle: AppTypography.inputPlaceholder,
+            style: AppTypography.input,
+            onChanged: (value) => updateSymptom(index, majorComponent: value),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: CupertinoTextField(
+            controller: controllers.minorComponent,
+            placeholder: 'Minor component (e.g., right temple)',
+            placeholderStyle: AppTypography.inputPlaceholder,
+            style: AppTypography.input,
+            onChanged: (value) => updateSymptom(index, minorComponent: value),
+          ),
+        ),
+        const SizedBox(width: 8),
+        SizedBox(
+          width: 80,
+          child: CupertinoTextField(
+            controller: controllers.severity,
+            placeholder: '1-10',
+            placeholderStyle: AppTypography.inputPlaceholder,
+            style: AppTypography.input,
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              final severity = int.tryParse(value);
+              if (severity != null && severity >= 1 && severity <= 10) {
+                updateSymptom(index, severityLevel: severity);
+              }
+            },
+          ),
+        ),
+        const SizedBox(width: 8),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => removeSymptom(index),
+          child: const Icon(
+            CupertinoIcons.delete,
+            color: CupertinoColors.destructiveRed,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget editableSymptomNotes(int index, SymptomControllers controllers) {
+    return CupertinoTextField(
+      controller: controllers.additionalNotes,
+      placeholder: 'Additional notes (optional)',
+      placeholderStyle: AppTypography.inputPlaceholder,
+      style: AppTypography.input,
+      maxLines: 2,
+      onChanged: (value) => updateSymptom(index, additionalNotes: value),
     );
   }
 }

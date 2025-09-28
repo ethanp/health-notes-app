@@ -203,18 +203,7 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text('Check-ins', style: AppTypography.bodyLargePrimary),
-        backgroundColor: AppColors.backgroundSecondary,
-        border: Border.all(
-          color: AppColors.textSecondary.withValues(alpha: 0.2),
-        ),
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => Navigator.of(context).pop(),
-          child: Icon(CupertinoIcons.back, color: AppColors.textSecondary),
-        ),
-      ),
+      navigationBar: headerNavigationBar(),
       child: SafeArea(
         child: Column(
           children: [
@@ -222,6 +211,19 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
             Expanded(child: checkInsList()),
           ],
         ),
+      ),
+    );
+  }
+
+  ObstructingPreferredSizeWidget headerNavigationBar() {
+    return CupertinoNavigationBar(
+      middle: Text('Check-ins', style: AppTypography.bodyLargePrimary),
+      backgroundColor: AppColors.backgroundSecondary,
+      border: Border.all(color: AppColors.textSecondary.withValues(alpha: 0.2)),
+      leading: CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: () => Navigator.of(context).pop(),
+        child: Icon(CupertinoIcons.back, color: AppColors.textSecondary),
       ),
     );
   }

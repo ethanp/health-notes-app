@@ -336,16 +336,8 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
       final formattedDate = DateFormat('EEEE, MMMM dd, yyyy').format(date);
       showCupertinoDialog(
         context: context,
-        builder: (BuildContext context) => CupertinoAlertDialog(
-          title: Text(formattedDate),
-          content: Text('No ${widget.drugName} was recorded on this date.'),
-          actions: [
-            CupertinoDialogAction(
-              child: const Text('OK'),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ],
-        ),
+        builder: (BuildContext context) =>
+            noDosageAlert(formattedDate, widget.drugName),
       );
       return;
     }
@@ -353,35 +345,14 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
     final healthNotesAsync = ref.read(healthNotesNotifierProvider);
     final notes = healthNotesAsync.value ?? [];
 
-    final notesForDate = notes.where((note) {
-      final noteDate = DateTime(
-        note.dateTime.year,
-        note.dateTime.month,
-        note.dateTime.day,
-      );
-      final targetDate = DateTime(date.year, date.month, date.day);
-      return noteDate.isAtSameMomentAs(targetDate) &&
-          note.drugDoses.any(
-            (drug) => _normalizer.areEqual(drug.name, widget.drugName),
-          );
-    }).toList();
+    final notesForDate = _findNotesForDateWithDrug(notes, date);
 
     if (notesForDate.isEmpty) {
       final formattedDate = DateFormat('EEEE, MMMM dd, yyyy').format(date);
       showCupertinoDialog(
         context: context,
-        builder: (BuildContext context) => CupertinoAlertDialog(
-          title: Text(formattedDate),
-          content: Text(
-            'You took ${dosage.toStringAsFixed(dosage.truncateToDouble() == dosage ? 0 : 1)}mg of ${widget.drugName} on this date.',
-          ),
-          actions: [
-            CupertinoDialogAction(
-              child: const Text('OK'),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ],
-        ),
+        builder: (BuildContext context) =>
+            dosageSummaryAlert(formattedDate, dosage, widget.drugName),
       );
       return;
     }
@@ -394,43 +365,97 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
 
     showCupertinoDialog(
       context: context,
-      builder: (BuildContext context) => CupertinoAlertDialog(
-        title: Text(formattedDate),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Total dosage: ${dosage.toStringAsFixed(dosage.truncateToDouble() == dosage ? 0 : 1)}mg',
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 16),
-            ...relevantDoses.map(
-              (dose) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  children: [
-                    Icon(
-                      CupertinoIcons.capsule,
-                      color: AppColors.primary,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        dose.fullDisplay,
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+      builder: (BuildContext context) =>
+          dosageDetailAlert(formattedDate, dosage, relevantDoses),
+    );
+  }
+
+  CupertinoAlertDialog noDosageAlert(String formattedDate, String drugName) {
+    return CupertinoAlertDialog(
+      title: Text(formattedDate),
+      content: Text('No $drugName was recorded on this date.'),
+      actions: [
+        CupertinoDialogAction(
+          child: const Text('OK'),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        actions: [
-          CupertinoDialogAction(
-            child: const Text('OK'),
-            onPressed: () => Navigator.of(context).pop(),
+      ],
+    );
+  }
+
+  List<HealthNote> _findNotesForDateWithDrug(
+    List<HealthNote> notes,
+    DateTime date,
+  ) {
+    return notes.where((note) {
+      final noteDate = DateTime(
+        note.dateTime.year,
+        note.dateTime.month,
+        note.dateTime.day,
+      );
+      final targetDate = DateTime(date.year, date.month, date.day);
+      return noteDate.isAtSameMomentAs(targetDate) &&
+          note.drugDoses.any(
+            (drug) => _normalizer.areEqual(drug.name, widget.drugName),
+          );
+    }).toList();
+  }
+
+  CupertinoAlertDialog dosageSummaryAlert(
+    String formattedDate,
+    double dosage,
+    String drugName,
+  ) {
+    return CupertinoAlertDialog(
+      title: Text(formattedDate),
+      content: Text(
+        'You took ${dosage.toStringAsFixed(dosage.truncateToDouble() == dosage ? 0 : 1)}mg of $drugName on this date.',
+      ),
+      actions: [
+        CupertinoDialogAction(
+          child: const Text('OK'),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ],
+    );
+  }
+
+  CupertinoAlertDialog dosageDetailAlert(
+    String formattedDate,
+    double dosage,
+    List<DrugDose> relevantDoses,
+  ) {
+    return CupertinoAlertDialog(
+      title: Text(formattedDate),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Total dosage: ${dosage.toStringAsFixed(dosage.truncateToDouble() == dosage ? 0 : 1)}mg',
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 16),
+          ...relevantDoses.map((dose) => doseRow(dose)),
+        ],
+      ),
+      actions: [
+        CupertinoDialogAction(
+          child: const Text('OK'),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ],
+    );
+  }
+
+  Widget doseRow(DrugDose dose) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Icon(CupertinoIcons.capsule, color: AppColors.primary, size: 16),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(dose.fullDisplay, style: const TextStyle(fontSize: 14)),
           ),
         ],
       ),

@@ -25,86 +25,95 @@ class _MetricsManagementScreenState
     final metricsAsync = ref.watch(checkInMetricsNotifierProvider);
 
     return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.navigationBar(
-        title: 'Manage Metrics',
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Done'),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const CompactSyncStatusWidget(),
-            const SizedBox(width: 8),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: () async {
-                await ref
-                    .read(syncNotifierProvider.notifier)
-                    .forceSyncAllData();
-              },
-              child: const Icon(CupertinoIcons.arrow_2_circlepath),
-            ),
-            const SizedBox(width: 6),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: () async {
-                final user = await ref.read(currentUserProvider.future);
-                final userId = user?.id;
-                if (userId != null) {
-                  await OfflineRepository.resyncAllCheckInMetrics(userId);
-                  await OfflineRepository.pushLocalOnly();
-                  await ref
-                      .read(syncNotifierProvider.notifier)
-                      .forceSyncAllData();
-                }
-              },
-              child: const Icon(CupertinoIcons.arrow_up_arrow_down_circle),
-            ),
-            const SizedBox(width: 6),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: () => _showAddMetricDialog(context),
-              child: const Icon(CupertinoIcons.add),
-            ),
-          ],
-        ),
+      navigationBar: managementNavigationBar(),
+      child: SafeArea(child: metricsBody(metricsAsync)),
+    );
+  }
+
+  ObstructingPreferredSizeWidget managementNavigationBar() {
+    return EnhancedUIComponents.navigationBar(
+      title: 'Manage Metrics',
+      leading: CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: () => Navigator.of(context).pop(),
+        child: const Text('Done'),
       ),
-      child: SafeArea(
-        child: metricsAsync.when(
-          data: (metrics) => metricsList(metrics),
-          loading: () => const Center(child: CupertinoActivityIndicator()),
-          error: (error, stack) => Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  CupertinoIcons.exclamationmark_triangle,
-                  size: 48,
-                  color: CupertinoColors.systemRed,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Failed to load metrics',
-                  style: AppTypography.navTitleTextStyle,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  error.toString(),
-                  style: AppTypography.baseTextStyle,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                CupertinoButton.filled(
-                  onPressed: () =>
-                      ref.invalidate(checkInMetricsNotifierProvider),
-                  child: const Text('Retry'),
-                ),
-              ],
-            ),
-          ),
+      trailing: managementActions(),
+    );
+  }
+
+  Widget managementActions() {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const CompactSyncStatusWidget(),
+        const SizedBox(width: 8),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () async {
+            await ref.read(syncNotifierProvider.notifier).forceSyncAllData();
+          },
+          child: const Icon(CupertinoIcons.arrow_2_circlepath),
         ),
+        const SizedBox(width: 6),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () async {
+            final user = await ref.read(currentUserProvider.future);
+            final userId = user?.id;
+            if (userId != null) {
+              await OfflineRepository.resyncAllCheckInMetrics(userId);
+              await OfflineRepository.pushLocalOnly();
+              await ref.read(syncNotifierProvider.notifier).forceSyncAllData();
+            }
+          },
+          child: const Icon(CupertinoIcons.arrow_up_arrow_down_circle),
+        ),
+        const SizedBox(width: 6),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => _showAddMetricDialog(context),
+          child: const Icon(CupertinoIcons.add),
+        ),
+      ],
+    );
+  }
+
+  Widget metricsBody(AsyncValue<List<CheckInMetric>> metricsAsync) {
+    return metricsAsync.when(
+      data: (metrics) => metricsList(metrics),
+      loading: () => const Center(child: CupertinoActivityIndicator()),
+      error: (error, stack) => metricsError(error),
+    );
+  }
+
+  Widget metricsError(Object error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            CupertinoIcons.exclamationmark_triangle,
+            size: 48,
+            color: CupertinoColors.systemRed,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Failed to load metrics',
+            style: AppTypography.navTitleTextStyle,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            error.toString(),
+            style: AppTypography.baseTextStyle,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          CupertinoButton.filled(
+            onPressed: () => ref.invalidate(checkInMetricsNotifierProvider),
+            child: const Text('Retry'),
+          ),
+        ],
       ),
     );
   }

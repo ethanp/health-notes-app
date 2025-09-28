@@ -34,40 +34,40 @@ class _HealthToolCategoryScreenState
           child: const Icon(CupertinoIcons.add),
         ),
       ),
-      child: SafeArea(
-        child: Column(
-          children: [
-            // Category header
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: AppComponents.primaryCard,
-              margin: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.category.description,
-                    style: AppTypography.bodyMedium,
-                  ),
-                ],
-              ),
-            ),
-            // Tools list
-            Expanded(
-              child: toolsAsync.when(
-                data: (tools) =>
-                    tools.isEmpty ? emptyState() : toolsList(tools),
-                loading: () => EnhancedUIComponents.loadingIndicator(
-                  message: 'Loading tools...',
-                ),
-                error: (error, stack) => Center(
-                  child: Text('Error: $error', style: AppTypography.error),
-                ),
-              ),
-            ),
-          ],
-        ),
+      child: SafeArea(child: categoryBody(toolsAsync)),
+    );
+  }
+
+  Widget categoryBody(AsyncValue<List<HealthTool>> toolsAsync) {
+    return Column(
+      children: [
+        categoryHeader(),
+        Expanded(child: toolsListSection(toolsAsync)),
+      ],
+    );
+  }
+
+  Widget categoryHeader() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: AppComponents.primaryCard,
+      margin: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(widget.category.description, style: AppTypography.bodyMedium),
+        ],
       ),
+    );
+  }
+
+  Widget toolsListSection(AsyncValue<List<HealthTool>> toolsAsync) {
+    return toolsAsync.when(
+      data: (tools) => tools.isEmpty ? emptyState() : toolsList(tools),
+      loading: () =>
+          EnhancedUIComponents.loadingIndicator(message: 'Loading tools...'),
+      error: (error, stack) =>
+          Center(child: Text('Error: $error', style: AppTypography.error)),
     );
   }
 

@@ -47,64 +47,87 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     final userMetricsAsync = ref.watch(checkInMetricsNotifierProvider);
 
     return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.navigationBar(
-        title: 'Trends',
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => AuthUtils.showSignOutDialog(context),
-          child: const Icon(CupertinoIcons.person_circle),
-        ),
-        trailing: const CompactSyncStatusWidget(),
-      ),
+      navigationBar: trendsNavigationBar(),
       child: SafeArea(
-        child: healthNotesAsync.when(
-          data: (notes) => checkInsAsync.when(
-            data: (checkIns) => userMetricsAsync.when(
-              data: (userMetrics) => _shouldShowEmptyState(notes, checkIns)
-                  ? emptyState()
-                  : trendsContent(notes, checkIns),
-              loading: () => notes.isEmpty
-                  ? const SyncStatusWidget.loading(
-                      message: 'Loading metrics...',
-                    )
-                  : trendsContent(notes, checkIns),
-              error: (error, stack) => notes.isEmpty
-                  ? SyncStatusWidget.error(
-                      errorMessage: 'Error loading metrics: $error',
-                      onRetry: () =>
-                          ref.invalidate(checkInMetricsNotifierProvider),
-                    )
-                  : trendsContent(notes, checkIns),
-            ),
-            loading: () => notes.isEmpty
-                ? const SyncStatusWidget.loading(
-                    message: 'Loading check-ins...',
-                  )
-                : userMetricsAsync.when(
-                    data: (userMetrics) => trendsContent(notes, []),
-                    loading: () => trendsContent(notes, []),
-                    error: (error, stack) => trendsContent(notes, []),
-                  ),
-            error: (error, stack) => notes.isEmpty
-                ? SyncStatusWidget.error(
-                    errorMessage: 'Error loading check-ins: $error',
-                    onRetry: () => ref.invalidate(checkInsNotifierProvider),
-                  )
-                : userMetricsAsync.when(
-                    data: (userMetrics) => trendsContent(notes, []),
-                    loading: () => trendsContent(notes, []),
-                    error: (error, stack) => trendsContent(notes, []),
-                  ),
-          ),
-          loading: () => const SyncStatusWidget.loading(
-            message: 'Loading your health trends...',
-          ),
-          error: (error, stack) => SyncStatusWidget.error(
-            errorMessage: 'Error: $error',
-            onRetry: () => ref.invalidate(healthNotesNotifierProvider),
-          ),
-        ),
+        child: trendsBody(healthNotesAsync, checkInsAsync, userMetricsAsync),
       ),
+    );
+  }
+
+  ObstructingPreferredSizeWidget trendsNavigationBar() {
+    return EnhancedUIComponents.navigationBar(
+      title: 'Trends',
+      leading: CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: () => AuthUtils.showSignOutDialog(context),
+        child: const Icon(CupertinoIcons.person_circle),
+      ),
+      trailing: const CompactSyncStatusWidget(),
+    );
+  }
+
+  Widget trendsBody(
+    AsyncValue<List<HealthNote>> healthNotesAsync,
+    AsyncValue<List<CheckIn>> checkInsAsync,
+    AsyncValue userMetricsAsync,
+  ) {
+    return healthNotesAsync.when(
+      data: (notes) => notesLayer(notes, checkInsAsync, userMetricsAsync),
+      loading: () => const SyncStatusWidget.loading(
+        message: 'Loading your health trends...',
+      ),
+      error: (error, stack) => SyncStatusWidget.error(
+        errorMessage: 'Error: $error',
+        onRetry: () => ref.invalidate(healthNotesNotifierProvider),
+      ),
+    );
+  }
+
+  Widget notesLayer(
+    List<HealthNote> notes,
+    AsyncValue<List<CheckIn>> checkInsAsync,
+    AsyncValue userMetricsAsync,
+  ) {
+    return checkInsAsync.when(
+      data: (checkIns) => metricsLayer(notes, checkIns, userMetricsAsync),
+      loading: () => notes.isEmpty
+          ? const SyncStatusWidget.loading(message: 'Loading check-ins...')
+          : userMetricsAsync.when(
+              data: (_) => trendsContent(notes, []),
+              loading: () => trendsContent(notes, []),
+              error: (error, stack) => trendsContent(notes, []),
+            ),
+      error: (error, stack) => notes.isEmpty
+          ? SyncStatusWidget.error(
+              errorMessage: 'Error loading check-ins: $error',
+              onRetry: () => ref.invalidate(checkInsNotifierProvider),
+            )
+          : userMetricsAsync.when(
+              data: (_) => trendsContent(notes, []),
+              loading: () => trendsContent(notes, []),
+              error: (error, stack) => trendsContent(notes, []),
+            ),
+    );
+  }
+
+  Widget metricsLayer(
+    List<HealthNote> notes,
+    List<CheckIn> checkIns,
+    AsyncValue userMetricsAsync,
+  ) {
+    return userMetricsAsync.when(
+      data: (_) => _shouldShowEmptyState(notes, checkIns)
+          ? emptyState()
+          : trendsContent(notes, checkIns),
+      loading: () => notes.isEmpty
+          ? const SyncStatusWidget.loading(message: 'Loading metrics...')
+          : trendsContent(notes, checkIns),
+      error: (error, stack) => notes.isEmpty
+          ? SyncStatusWidget.error(
+              errorMessage: 'Error loading metrics: $error',
+              onRetry: () => ref.invalidate(checkInMetricsNotifierProvider),
+            )
+          : trendsContent(notes, checkIns),
     );
   }
 
@@ -207,52 +230,68 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     final sortedSymptoms = filteredSymptoms.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
+    return symptomsTableContainer(
+      header: symptomsTableHeader(filteredSymptoms.length),
+      searchField: symptomsSearchField(),
+      body: symptomsTableBody(sortedSymptoms),
+    );
+  }
+
+  Widget symptomsTableContainer({
+    required Widget header,
+    required Widget searchField,
+    required Widget body,
+  }) {
     return Container(
       decoration: AppComponents.primaryCard,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'All Symptoms (${filteredSymptoms.length})',
-                  style: AppTypography.labelLarge,
-                ),
-              ),
-              Text(
-                'Tap to view trends',
-                style: AppTypography.bodySmallSystemGrey,
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          EnhancedUIComponents.searchField(
-            controller: _symptomSearchController,
-            placeholder: 'Search symptoms...',
-            onChanged: (query) {
-              setState(() {
-                _symptomSearchQuery = query;
-              });
-            },
-          ),
-          const SizedBox(height: 12),
-          if (sortedSymptoms.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                'No symptoms match your search',
-                style: AppTypography.bodyMediumSystemGrey,
-                textAlign: TextAlign.center,
-              ),
-            )
-          else
-            ...sortedSymptoms.map(
-              (entry) => symptomRow(entry.key, entry.value),
-            ),
-        ],
+        children: [header, const SizedBox(height: 12), searchField, body],
       ),
+    );
+  }
+
+  Widget symptomsTableHeader(int count) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text('All Symptoms ($count)', style: AppTypography.labelLarge),
+        ),
+        Text('Tap to view trends', style: AppTypography.bodySmallSystemGrey),
+      ],
+    );
+  }
+
+  Widget symptomsSearchField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        EnhancedUIComponents.searchField(
+          controller: _symptomSearchController,
+          placeholder: 'Search symptoms...',
+          onChanged: (query) => setState(() => _symptomSearchQuery = query),
+        ),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+
+  Widget symptomsTableBody(List<MapEntry<String, int>> sortedSymptoms) {
+    if (sortedSymptoms.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(16),
+        child: Text(
+          'No symptoms match your search',
+          style: AppTypography.bodyMediumSystemGrey,
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+    return Column(
+      children: sortedSymptoms
+          .map((entry) => symptomRow(entry.key, entry.value))
+          .toList(),
     );
   }
 

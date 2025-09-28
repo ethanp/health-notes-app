@@ -23,25 +23,26 @@ class CompactSyncStatusWidget extends ConsumerWidget {
 
     return StreamBuilder<String?>(
       stream: OfflineRepository.syncErrorStream,
-      builder: (context, errorSnapshot) {
-        final String? syncError = errorSnapshot.data;
-        if (syncError != null && syncError.isNotEmpty) {
-          return GestureDetector(
-            onTap: () => _showSyncErrorDialog(context, syncError),
-            child: const Icon(
-              CupertinoIcons.exclamationmark_triangle_fill,
-              size: 16,
-              color: CupertinoColors.systemOrange,
-            ),
-          );
-        }
+      builder: (context, errorSnapshot) =>
+          _compactStatusIcon(context, errorSnapshot.data),
+    );
+  }
 
-        return const Icon(
-          CupertinoIcons.checkmark_circle_fill,
+  Widget _compactStatusIcon(BuildContext context, String? syncError) {
+    if (syncError != null && syncError.isNotEmpty) {
+      return GestureDetector(
+        onTap: () => _showSyncErrorDialog(context, syncError),
+        child: const Icon(
+          CupertinoIcons.exclamationmark_triangle_fill,
           size: 16,
-          color: CupertinoColors.systemGreen,
-        );
-      },
+          color: CupertinoColors.systemOrange,
+        ),
+      );
+    }
+    return const Icon(
+      CupertinoIcons.checkmark_circle_fill,
+      size: 16,
+      color: CupertinoColors.systemGreen,
     );
   }
 
@@ -169,81 +170,7 @@ class SyncStatusWidget extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (!isConnected) ...[
-                  const Icon(
-                    CupertinoIcons.wifi_slash,
-                    size: 48,
-                    color: CupertinoColors.systemRed,
-                  ),
-                  const SizedBox(height: AppSpacing.m),
-                  Text(
-                    'No internet connection',
-                    style: AppTypography.headlineSmall,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: AppSpacing.s),
-                  Text(
-                    'Data will sync when connection is restored',
-                    style: AppTypography.bodyMediumSystemGrey,
-                    textAlign: TextAlign.center,
-                  ),
-                ] else if (syncError != null && syncError.isNotEmpty) ...[
-                  const Icon(
-                    CupertinoIcons.exclamationmark_triangle_fill,
-                    size: 48,
-                    color: CupertinoColors.systemOrange,
-                  ),
-                  const SizedBox(height: AppSpacing.m),
-                  Text(
-                    'Sync Error',
-                    style: AppTypography.headlineSmall,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: AppSpacing.s),
-                  Text(
-                    syncError,
-                    style: AppTypography.bodyMediumSystemGrey,
-                    textAlign: TextAlign.center,
-                  ),
-                  if (onRetry != null) ...[
-                    const SizedBox(height: AppSpacing.m),
-                    CupertinoButton.filled(
-                      onPressed: onRetry,
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ] else if (isSyncing) ...[
-                  const CupertinoActivityIndicator(
-                    radius: 24,
-                    color: AppColors.primary,
-                  ),
-                  const SizedBox(height: AppSpacing.m),
-                  Text(
-                    'Syncing data...',
-                    style: AppTypography.headlineSmall,
-                    textAlign: TextAlign.center,
-                  ),
-                  if (message != null) ...[
-                    const SizedBox(height: AppSpacing.s),
-                    Text(
-                      message!,
-                      style: AppTypography.bodyMediumSystemGrey,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ] else ...[
-                  const Icon(
-                    CupertinoIcons.checkmark_circle_fill,
-                    size: 48,
-                    color: CupertinoColors.systemGreen,
-                  ),
-                  const SizedBox(height: AppSpacing.m),
-                  Text(
-                    'Data in sync',
-                    style: AppTypography.headlineSmall,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+                ..._syncingStateContent(isConnected, isSyncing, syncError),
                 if (child != null) ...[
                   const SizedBox(height: AppSpacing.m),
                   child!,
@@ -254,6 +181,97 @@ class SyncStatusWidget extends ConsumerWidget {
         );
       },
     );
+  }
+
+  List<Widget> _syncingStateContent(
+    bool isConnected,
+    bool isSyncing,
+    String? syncError,
+  ) {
+    if (!isConnected) {
+      return [
+        const Icon(
+          CupertinoIcons.wifi_slash,
+          size: 48,
+          color: CupertinoColors.systemRed,
+        ),
+        const SizedBox(height: AppSpacing.m),
+        Text(
+          'No internet connection',
+          style: AppTypography.headlineSmall,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: AppSpacing.s),
+        Text(
+          'Data will sync when connection is restored',
+          style: AppTypography.bodyMediumSystemGrey,
+          textAlign: TextAlign.center,
+        ),
+      ];
+    }
+
+    if (syncError != null && syncError.isNotEmpty) {
+      return [
+        const Icon(
+          CupertinoIcons.exclamationmark_triangle_fill,
+          size: 48,
+          color: CupertinoColors.systemOrange,
+        ),
+        const SizedBox(height: AppSpacing.m),
+        Text(
+          'Sync Error',
+          style: AppTypography.headlineSmall,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: AppSpacing.s),
+        Text(
+          syncError,
+          style: AppTypography.bodyMediumSystemGrey,
+          textAlign: TextAlign.center,
+        ),
+        if (onRetry != null) ...[
+          const SizedBox(height: AppSpacing.m),
+          CupertinoButton.filled(
+            onPressed: onRetry,
+            child: const Text('Retry'),
+          ),
+        ],
+      ];
+    }
+
+    if (isSyncing) {
+      return [
+        const CupertinoActivityIndicator(radius: 24, color: AppColors.primary),
+        const SizedBox(height: AppSpacing.m),
+        Text(
+          'Syncing data...',
+          style: AppTypography.headlineSmall,
+          textAlign: TextAlign.center,
+        ),
+        if (message != null) ...[
+          const SizedBox(height: AppSpacing.s),
+          Text(
+            message!,
+            style: AppTypography.bodyMediumSystemGrey,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ];
+    }
+
+    return [
+      const Icon(
+        CupertinoIcons.checkmark_circle_fill,
+        size: 48,
+        color: CupertinoColors.systemGreen,
+      ),
+      const SizedBox(height: AppSpacing.m),
+      Text(
+        'Data in sync',
+        style: AppTypography.headlineSmall,
+        textAlign: TextAlign.center,
+      ),
+    ];
   }
 
   Widget _buildSectionLoadingState() {

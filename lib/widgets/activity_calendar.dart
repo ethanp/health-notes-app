@@ -532,23 +532,20 @@ class CheckInsActivityCalendar extends StatelessWidget {
           style: AppTypography.bodyMediumWhiteSemibold,
         ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            _checkInsLegendItem(0, 'None'),
-            const SizedBox(width: 16),
-            _checkInsLegendItem(1, '1'),
-            const SizedBox(width: 12),
-            _checkInsLegendItem(2, '2'),
-            const SizedBox(width: 12),
-            _checkInsLegendItem(3, '3'),
-            const SizedBox(width: 12),
-            _checkInsLegendItem(4, '4'),
-            const SizedBox(width: 12),
-            _checkInsLegendItem(5, '5'),
-            const SizedBox(width: 12),
-            _checkInsLegendItem(6, '6+'),
-          ],
+        checkInsLegendRow(),
+      ],
+    );
+  }
+
+  Widget checkInsLegendRow() {
+    return Row(
+      children: [
+        _checkInsLegendItem(0, 'None'),
+        const SizedBox(width: 16),
+        ...[1, 2, 3, 4, 5].expand(
+          (n) => [_checkInsLegendItem(n, '$n'), const SizedBox(width: 12)],
         ),
+        _checkInsLegendItem(6, '6+'),
       ],
     );
   }

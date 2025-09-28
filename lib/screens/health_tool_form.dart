@@ -225,20 +225,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
     });
 
     try {
-      final tool =
-          widget.tool?.copyWith(
-            name: _nameController.text.trim(),
-            description: _descriptionController.text.trim(),
-            categoryId: _selectedCategoryId,
-          ) ??
-          HealthTool(
-            id: '', // Will be set by the provider
-            name: _nameController.text.trim(),
-            description: _descriptionController.text.trim(),
-            categoryId: _selectedCategoryId,
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-          );
+      final tool = _composeTool();
 
       if (widget.tool != null) {
         await ref.read(healthToolsNotifierProvider.notifier).updateTool(tool);
@@ -273,5 +260,24 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
         });
       }
     }
+  }
+
+  HealthTool _composeTool() {
+    final base = widget.tool;
+    if (base != null) {
+      return base.copyWith(
+        name: _nameController.text.trim(),
+        description: _descriptionController.text.trim(),
+        categoryId: _selectedCategoryId,
+      );
+    }
+    return HealthTool(
+      id: '',
+      name: _nameController.text.trim(),
+      description: _descriptionController.text.trim(),
+      categoryId: _selectedCategoryId,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
   }
 }
