@@ -5,7 +5,6 @@ import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
-
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
 class CheckInForm extends ConsumerStatefulWidget {
@@ -75,11 +74,21 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     return Form(
       key: _formKey,
       child: userMetricsAsync.when(
-        data: (userMetrics) => checkInFormContent(userMetrics),
+        data: (List<CheckInMetric> userMetrics) {
+          prefillMetrics(userMetrics);
+          return checkInFormContent(userMetrics);
+        },
         loading: () => const Center(child: CupertinoActivityIndicator()),
         error: (error, stack) => metricsErrorState(error),
       ),
     );
+  }
+
+  /// If it's a new CheckIn, all metrics should be enabled by default.
+  void prefillMetrics(List<CheckInMetric> userMetrics) {
+    if (_selectedMetrics.isEmpty && widget.checkIn == null) {
+      userMetrics.forEach((m) => _selectedMetrics[m.name] = 5);
+    }
   }
 
   Widget checkInFormContent(List<CheckInMetric> userMetrics) {
@@ -171,10 +180,10 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.2,
+              crossAxisCount: 4,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              childAspectRatio: 1.3,
             ),
             itemCount: userMetrics.length,
             itemBuilder: (context, index) => metricGridItem(userMetrics[index]),
@@ -208,48 +217,40 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                 boxShadow: [
                   BoxShadow(
                     color: metric.color.withValues(alpha: 0.3),
-                    blurRadius: 8,
+                    blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
                 ],
               )
             : AppComponents.filterChip,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
+          alignment: Alignment.center,
           children: [
-            Icon(
-              metric.icon,
-              size: 24,
-              color: isSelected ? CupertinoColors.white : metric.color,
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  metric.icon,
+                  size: 18,
+                  color: isSelected ? CupertinoColors.white : metric.color,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  metric.name,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: isSelected ? CupertinoColors.white : metric.color,
+                    fontWeight: FontWeight.w500,
+                    height: 1.0,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              metric.name,
-              style: AppTypography.bodySmall.copyWith(
-                color: isSelected ? CupertinoColors.white : metric.color,
-                fontWeight: FontWeight.w500,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (isSelected) ratingBadge(rating),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget ratingBadge(int rating) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 4),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        decoration: BoxDecoration(
-          color: CupertinoColors.white.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text('$rating', style: AppTypography.bodySmallWhiteBold),
       ),
     );
   }
@@ -399,7 +400,8 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
         final metricName = entry.key;
         final rating = entry.value;
         final checkIn = CheckIn(
-          id: '', // Will be set by the provider
+          id: '',
+          // Will be set by the provider
           metricName: metricName,
           rating: rating,
           dateTime: _selectedDateTime,
