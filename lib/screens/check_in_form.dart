@@ -74,10 +74,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     return Form(
       key: _formKey,
       child: userMetricsAsync.when(
-        data: (List<CheckInMetric> userMetrics) {
-          prefillMetrics(userMetrics);
-          return checkInFormContent(userMetrics);
-        },
+        data: checkInFormContent,
         loading: () => const Center(child: CupertinoActivityIndicator()),
         error: (error, stack) => metricsErrorState(error),
       ),
@@ -92,16 +89,40 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   }
 
   Widget checkInFormContent(List<CheckInMetric> userMetrics) {
+    if (userMetrics.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: AppComponents.primaryCard,
+        child: Column(
+          children: [
+            const Icon(
+              CupertinoIcons.chart_bar,
+              size: 48,
+              color: CupertinoColors.systemGrey,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No metrics available',
+              style: AppTypography.navTitleTextStyle,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Add some metrics to start tracking your health',
+              style: AppTypography.baseTextStyle,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+    prefillMetrics(userMetrics);
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        metricsSelectionSection(userMetrics),
-        if (_selectedMetrics.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          metricSlidersSection(userMetrics),
-        ],
         const SizedBox(height: 16),
         dateTimeSection(),
+        const SizedBox(height: 16),
+        metricSlidersSection(userMetrics),
       ],
     );
   }
@@ -133,124 +154,6 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
             child: const Text('Retry'),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget metricsSelectionSection(List<CheckInMetric> userMetrics) {
-    if (userMetrics.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: AppComponents.primaryCard,
-        child: Column(
-          children: [
-            const Icon(
-              CupertinoIcons.chart_bar,
-              size: 48,
-              color: CupertinoColors.systemGrey,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No metrics available',
-              style: AppTypography.navTitleTextStyle,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Add some metrics to start tracking your health',
-              style: AppTypography.baseTextStyle,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppComponents.primaryCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          EnhancedUIComponents.sectionHeader(
-            title: 'Add Metrics',
-            subtitle: '${_selectedMetrics.length} selected',
-          ),
-          const SizedBox(height: 16),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-              childAspectRatio: 1.3,
-            ),
-            itemCount: userMetrics.length,
-            itemBuilder: (context, index) => metricGridItem(userMetrics[index]),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget metricGridItem(CheckInMetric metric) {
-    final isSelected = _selectedMetrics.containsKey(metric.name);
-    final rating = _selectedMetrics[metric.name] ?? 5;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          if (isSelected) {
-            _selectedMetrics.remove(metric.name);
-          } else {
-            _selectedMetrics[metric.name] = rating;
-          }
-        });
-      },
-      child: Container(
-        decoration: isSelected
-            ? BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [metric.color, metric.color.withValues(alpha: 0.8)],
-                ),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: metric.color.withValues(alpha: 0.3),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              )
-            : AppComponents.filterChip,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  metric.icon,
-                  size: 18,
-                  color: isSelected ? CupertinoColors.white : metric.color,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  metric.name,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: isSelected ? CupertinoColors.white : metric.color,
-                    fontWeight: FontWeight.w500,
-                    height: 1.0,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ],
-        ),
       ),
     );
   }
