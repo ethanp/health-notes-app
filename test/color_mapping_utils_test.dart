@@ -30,18 +30,18 @@ void main() {
       expect(color.blue, lessThan(100));
     });
 
-    test('lowerIsBetterColor uses direct mapping', () {
+    test('lowerIsBetterColor uses inverted mapping', () {
       final lowColor = ColorMappingUtils.lowerIsBetterColor(1);
       final highColor = ColorMappingUtils.lowerIsBetterColor(10);
-      expect(lowColor.red, greaterThan(200));
-      expect(highColor.green, greaterThan(180));
-    });
-
-    test('higherIsBetterColor uses inverted mapping', () {
-      final lowColor = ColorMappingUtils.higherIsBetterColor(1);
-      final highColor = ColorMappingUtils.higherIsBetterColor(10);
       expect(lowColor.green, greaterThan(180)); // 1 = good = green
       expect(highColor.red, greaterThan(200)); // 10 = bad = red
+    });
+
+    test('higherIsBetterColor uses direct mapping', () {
+      final lowColor = ColorMappingUtils.higherIsBetterColor(1);
+      final highColor = ColorMappingUtils.higherIsBetterColor(10);
+      expect(lowColor.red, greaterThan(200)); // 1 = bad = red
+      expect(highColor.green, greaterThan(180)); // 10 = good = green
     });
 
     test('middleIsBestColor peaks at middle values', () {

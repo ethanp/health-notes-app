@@ -169,7 +169,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
           const SizedBox(width: 6),
           Expanded(
             child: Text(
-              'Green zones: 0-3 (Lower is Better), 4-7 (Middle is Best), 8-10 (Higher is Better)',
+              'Green zones: 1-3 (Lower is Better), 4-7 (Middle is Best), 8-10 (Higher is Better)',
               style: AppTypography.bodySmallGreenSmall,
             ),
           ),

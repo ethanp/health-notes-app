@@ -78,10 +78,7 @@ void main() {
         ),
       );
 
-      // Should show the chart title
       expect(find.text('Trends'), findsOneWidget);
-
-      // Should show legend items for both metrics
       expect(find.text('Energy Level'), findsOneWidget);
       expect(find.text('Mood'), findsOneWidget);
     });
@@ -123,10 +120,7 @@ void main() {
         ),
       );
 
-      // Should show the chart title
       expect(find.text('Trends'), findsOneWidget);
-
-      // Should show legend item for the single metric
       expect(find.text('Pain Level'), findsOneWidget);
     });
 
@@ -161,24 +155,18 @@ void main() {
         ),
       );
 
-      // Initially both metrics should be visible
       expect(find.text('Energy Level'), findsOneWidget);
       expect(find.text('Mood'), findsOneWidget);
 
-      // Tap on Energy Level legend chip
       await tester.tap(find.text('Energy Level'));
       await tester.pump();
 
-      // The Energy Level text should still be visible (legend remains)
-      // but the line should be hidden from the chart
       expect(find.text('Energy Level'), findsOneWidget);
       expect(find.text('Mood'), findsOneWidget);
 
-      // Tap again to show it
       await tester.tap(find.text('Energy Level'));
       await tester.pump();
 
-      // Both should be visible again
       expect(find.text('Energy Level'), findsOneWidget);
       expect(find.text('Mood'), findsOneWidget);
     });
@@ -213,14 +201,11 @@ void main() {
         ),
       );
 
-      // Verify the legend chip is tappable
       expect(find.byType(GestureDetector), findsOneWidget);
 
-      // Tap the legend chip
       await tester.tap(find.text('Pain Level'));
       await tester.pump();
 
-      // Should still be visible (legend remains even when hidden)
       expect(find.text('Pain Level'), findsOneWidget);
     });
   });

@@ -2,21 +2,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in.dart';
-import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/providers/sync_provider.dart';
-import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/screens/drug_trends_screen.dart';
+import 'package:health_notes/screens/symptom_trends_screen.dart';
+import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/theme/app_theme.dart';
-
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/widgets/check_in_trends_chart.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
-import 'package:health_notes/services/text_normalizer.dart';
 import 'package:intl/intl.dart';
 
 class TrendsScreen extends ConsumerStatefulWidget {
@@ -62,32 +60,30 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
         child: healthNotesAsync.when(
           data: (notes) => checkInsAsync.when(
             data: (checkIns) => userMetricsAsync.when(
-              data: (userMetrics) =>
-                  _shouldShowEmptyState(notes, checkIns, userMetrics)
+              data: (userMetrics) => _shouldShowEmptyState(notes, checkIns)
                   ? emptyState()
-                  : trendsContent(notes, checkIns, userMetrics),
+                  : trendsContent(notes, checkIns),
               loading: () => notes.isEmpty
                   ? const SyncStatusWidget.loading(
                       message: 'Loading metrics...',
                     )
-                  : trendsContent(notes, checkIns, []),
+                  : trendsContent(notes, checkIns),
               error: (error, stack) => notes.isEmpty
                   ? SyncStatusWidget.error(
                       errorMessage: 'Error loading metrics: $error',
                       onRetry: () =>
                           ref.invalidate(checkInMetricsNotifierProvider),
                     )
-                  : trendsContent(notes, checkIns, []),
+                  : trendsContent(notes, checkIns),
             ),
             loading: () => notes.isEmpty
                 ? const SyncStatusWidget.loading(
                     message: 'Loading check-ins...',
                   )
                 : userMetricsAsync.when(
-                    data: (userMetrics) =>
-                        trendsContent(notes, [], userMetrics),
-                    loading: () => trendsContent(notes, [], []),
-                    error: (error, stack) => trendsContent(notes, [], []),
+                    data: (userMetrics) => trendsContent(notes, []),
+                    loading: () => trendsContent(notes, []),
+                    error: (error, stack) => trendsContent(notes, []),
                   ),
             error: (error, stack) => notes.isEmpty
                 ? SyncStatusWidget.error(
@@ -95,10 +91,9 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
                     onRetry: () => ref.invalidate(checkInsNotifierProvider),
                   )
                 : userMetricsAsync.when(
-                    data: (userMetrics) =>
-                        trendsContent(notes, [], userMetrics),
-                    loading: () => trendsContent(notes, [], []),
-                    error: (error, stack) => trendsContent(notes, [], []),
+                    data: (userMetrics) => trendsContent(notes, []),
+                    loading: () => trendsContent(notes, []),
+                    error: (error, stack) => trendsContent(notes, []),
                   ),
           ),
           loading: () => const SyncStatusWidget.loading(
@@ -113,11 +108,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     );
   }
 
-  bool _shouldShowEmptyState(
-    List<HealthNote> notes,
-    List<CheckIn> checkIns,
-    List<CheckInMetric> userMetrics,
-  ) {
+  bool _shouldShowEmptyState(List<HealthNote> notes, List<CheckIn> checkIns) {
     return notes.isEmpty && checkIns.isEmpty;
   }
 
@@ -125,9 +116,8 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     return CustomScrollView(
       slivers: [
         CupertinoSliverRefreshControl(
-          onRefresh: () async {
-            await ref.read(syncNotifierProvider.notifier).syncAllData();
-          },
+          onRefresh: () =>
+              ref.read(syncNotifierProvider.notifier).syncAllData(),
         ),
         SliverFillRemaining(
           hasScrollBody: false,
@@ -141,11 +131,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     );
   }
 
-  Widget trendsContent(
-    List<HealthNote> notes,
-    List<CheckIn> checkIns,
-    List<CheckInMetric> userMetrics,
-  ) {
+  Widget trendsContent(List<HealthNote> notes, List<CheckIn> checkIns) {
     final symptomStats = _analyzeSymptomFrequency(notes);
     final drugStats = _analyzeDrugUsage(notes);
     final monthlyStats = _analyzeMonthlyTrends(notes);
@@ -154,16 +140,15 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     return CustomScrollView(
       slivers: [
         CupertinoSliverRefreshControl(
-          onRefresh: () async {
-            await ref.read(syncNotifierProvider.notifier).syncAllData();
-          },
+          onRefresh: () =>
+              ref.read(syncNotifierProvider.notifier).syncAllData(),
         ),
         SliverPadding(
           padding: const EdgeInsets.all(16),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               sectionHeader('Check-in Trends'),
-              checkInTrendsSection(checkIns, userMetrics),
+              checkInTrendsSection(checkIns),
               const SizedBox(height: 20),
               sectionHeader('Recent Symptom Trends'),
               recentSymptomTrendsCard(recentSymptomTrends),
@@ -488,9 +473,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
         final month = int.parse(parts[1]);
         return DateFormat('MMMM yyyy').format(DateTime(year, month));
       }
-    } catch (e) {
-      // Invalid date format - return original key
-    }
+    } catch (e) {}
     return monthKey;
   }
 
@@ -549,23 +532,22 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     );
   }
 
-  Widget checkInTrendsSection(
-    List<CheckIn> checkIns,
-    List<CheckInMetric> userMetrics,
-  ) {
-    final checkInsAsync = ref.watch(checkInsNotifierProvider);
+  Widget checkInTrendsSection(List<CheckIn> checkIns) {
     final userMetricsAsync = ref.watch(checkInMetricsNotifierProvider);
 
-    if (checkInsAsync.isLoading || userMetricsAsync.isLoading) {
-      return const SyncStatusWidget.section(
-        message: 'Loading check-in trends...',
-      );
-    }
-
-    if (checkIns.isEmpty) {
-      return emptyCard('No check-in data available');
-    }
-
-    return CheckInTrendsChart(checkIns: checkIns, userMetrics: userMetrics);
+    return userMetricsAsync.when(
+      data: (userMetrics) {
+        if (checkIns.isEmpty) {
+          return emptyCard('No check-in data available');
+        }
+        return CheckInTrendsChart(checkIns: checkIns, userMetrics: userMetrics);
+      },
+      loading: () =>
+          const SyncStatusWidget.section(message: 'Loading check-in trends...'),
+      error: (error, stack) => SyncStatusWidget.error(
+        errorMessage: 'Error loading metrics: $error',
+        onRetry: () => ref.invalidate(checkInMetricsNotifierProvider),
+      ),
+    );
   }
 }

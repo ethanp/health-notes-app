@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:health_notes/services/offline_repository.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthService {
   static final AuthService _instance = AuthService._internal();
@@ -42,8 +42,6 @@ class AuthService {
       // Sync failed - not critical for auth flow
     }
   }
-
-  void loginStatusDidChange(GoogleSignInAuthenticationEvent? authEvent) {}
 
   static void onGoogleAuthEvent(
     GoogleSignInAuthenticationEvent? authEvent,
