@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
+import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/theme/app_theme.dart';
@@ -195,7 +196,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     );
   }
 
-  Widget noteCardHeader(HealthNote note, dynamic symptom) {
+  Widget noteCardHeader(HealthNote note, Symptom symptom) {
     return Row(
       children: [
         Expanded(
@@ -209,7 +210,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     );
   }
 
-  Widget noteCardDetails(dynamic symptom) {
+  Widget noteCardDetails(Symptom symptom) {
     final hasMinor = symptom.minorComponent.isNotEmpty;
     final hasAdditional = symptom.additionalNotes.isNotEmpty;
 
@@ -332,28 +333,25 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
 
     final healthNotesAsync = ref.read(healthNotesNotifierProvider);
     final notes = healthNotesAsync.value ?? [];
-
+    final formattedDate = DateFormat('EEEE, MMMM dd, yyyy').format(date);
     final noteForDate = findNoteForDate(notes, date);
 
     if (noteForDate == null) {
-      final formattedDate = DateFormat('EEEE, MMMM dd, yyyy').format(date);
-      final severityText = _getSeverityDescription(severity);
-
       showCupertinoDialog(
         context: context,
-        builder: (BuildContext context) =>
-            dateInfoNoNoteAlert(formattedDate, severity, severityText),
+        builder: (context) => dateInfoNoNoteAlert(
+          formattedDate,
+          severity,
+          _getSeverityDescription(severity),
+        ),
       );
       return;
     }
 
-    final formattedDate = DateFormat('EEEE, MMMM dd, yyyy').format(date);
-
     showCupertinoDialog(
       context: context,
       barrierDismissible: true,
-      builder: (BuildContext context) =>
-          dateInfoAlert(formattedDate, severity, noteForDate),
+      builder: (context) => dateInfoAlert(formattedDate, severity, noteForDate),
     );
   }
 
@@ -466,7 +464,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     );
   }
 
-  Widget dateInfoContent(HealthNote note, dynamic symptom, int severity) {
+  Widget dateInfoContent(HealthNote note, Symptom symptom, int severity) {
     return Column(
       children: [
         const SizedBox(height: 16),
@@ -593,7 +591,8 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     );
   }
 
-  Widget symptomSummaryCard(dynamic symptom) {
+  Widget symptomSummaryCard(Symptom symptom) {
+    final Color severityColor = _severityColor(symptom.severityLevel);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -618,20 +617,16 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _severityColor(
-                    symptom.severityLevel,
-                  ).withValues(alpha: 0.2),
+                  color: severityColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: _severityColor(
-                      symptom.severityLevel,
-                    ).withValues(alpha: 0.4),
+                    color: severityColor.withValues(alpha: 0.4),
                   ),
                 ),
                 child: Text(
                   'Level ${symptom.severityLevel}',
                   style: AppTypography.labelSmall.copyWith(
-                    color: _severityColor(symptom.severityLevel),
+                    color: severityColor,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

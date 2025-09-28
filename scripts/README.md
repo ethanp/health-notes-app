@@ -13,16 +13,15 @@ The deployment scripts use a shared base class architecture for better code orga
 ## Scripts
 
 ### 🚀 `deploy_to_iphone.py` (Recommended)
-**Python-based iPhone deployment script with advanced device detection and error handling.**
+**Python-based iPhone deployment script with a simplified, reliable flow.**
 
 **Features:**
-- ✅ Smart USB device detection
-- ✅ VPN interference detection and handling
-- ✅ iPhone trust status checking
-- ✅ Better error messages and troubleshooting
-- ✅ Colored terminal output
-- ✅ Reliable device ID extraction
-- ✅ **Intelligent build caching** - Skips rebuilds when no changes detected
+- ✅ Detects a single connected iPhone and installs directly
+- ✅ Falls back to Flutter’s interactive device selector when needed
+- ✅ Clean, colored output (via shared base)
+- ✅ **Intelligent build caching** – skips rebuilds when no changes detected
+- ✅ Warns when a VPN is likely active (wireless deploy may fail)
+- ✅ Ignores iOS simulators; use `deploy_to_simulator.py` instead
 
 **Usage:**
 ```bash
@@ -105,10 +104,11 @@ The cache files now store both file hashes and deployment timestamps:
 ## Troubleshooting
 
 ### VPN Issues
-If you have a VPN running, it may interfere with wireless device connections. The Python script will:
-1. Detect VPN automatically
-2. Provide options to work around VPN issues
-3. Recommend USB connection (which bypasses VPN)
+If you have a VPN running, it may interfere with wireless device connections.
+- The script will issue a warning when a VPN is likely active
+- Prefer USB connection for reliable installs
+- If you prefer wireless, ensure both devices are on the same Wi‑Fi
+- Consider disabling VPN or configuring split‑tunneling
 
 ### Device Trust Issues
 If your iPhone is connected but not recognized:

@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """
-Health Notes - iPhone Deployment Script
-This script builds and installs the latest version of the app to your connected iPhone
+Health Notes - iPhone Deployment Script (Simplified)
+
+A lean, reliable installer for deploying the app to a real iPhone.
+Focuses on:
+- Single responsibility: discover device(s) and install
+- Clear, minimal flow with small helpers
+- Delegates heavy lifting (build, checks, caching) to DeploymentBase
 """
 
-import sys
 import os
-import subprocess
-import json
-import hashlib
-import time
-from typing import List, Dict, Tuple
+import sys
+from typing import List, Dict
 from textwrap import dedent
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -18,233 +19,128 @@ from deployment_base import DeploymentBase
 
 
 class IPhoneDeployment(DeploymentBase):
-    """iPhone deployment implementation"""
-    
+    """iPhone deployment with minimal branching and clear steps."""
+
     def __init__(self):
         super().__init__("iPhone", "release")
-    
-    def check_vpn(self) -> bool:
-        """Check if VPN is active"""
-        returncode, stdout, _ = self.run_command(["ifconfig"], check=False)
-        if returncode == 0 and "utun" in stdout:
-            return True
-        
-        returncode, stdout, _ = self.run_command(["pgrep", "-f", "openvpn|vpn|tunnel"], check=False)
-        if returncode == 0:
-            return True
-        
-        returncode, stdout, _ = self.run_command(["networksetup", "-listallnetworkservices"], check=False)
-        if returncode == 0 and "VPN" in stdout:
-            return True
-        
-        return False
-    
-    def parse_flutter_devices(self) -> Tuple[List[Dict], List[Dict]]:
-        """Parse Flutter devices output and return USB and wireless devices"""
-        returncode, stdout, stderr = self.run_command(["flutter", "devices"], check=False)
-        
-        if returncode != 0:
-            self.print_error(f"Failed to get devices: {stderr}")
-            return [], []
-        
-        lines = stdout.split('\n')
-        usb_devices = []
-        wireless_devices = []
-        
-        for line in lines:
-            line = line.strip()
-            
-            if not line or line.startswith("Found") or line.startswith("Run"):
-                continue
-            
-            if "•" in line and ("mobile" in line or "ios" in line):
-                parts = [p.strip() for p in line.split("•")]
-                if len(parts) >= 3:
-                    name = parts[0].strip()
-                    device_id = parts[1].strip()
-                    platform = parts[2].strip()
-                    
-                    is_wireless = "wireless" in line.lower()
-                    
-                    device_info = {
-                        "name": name,
-                        "id": device_id,
-                        "platform": platform,
-                        "is_wireless": is_wireless
-                    }
-                    
-                    if is_wireless:
-                        wireless_devices.append(device_info)
-                    else:
-                        usb_devices.append(device_info)
-        
-        return usb_devices, wireless_devices
-    
-    def check_iphone_trust_status(self) -> str:
-        """Check if iPhone is connected but not trusted"""
-        returncode, stdout, _ = self.run_command(["system_profiler", "SPUSBDataType"], check=False)
-        if returncode != 0 or "iPhone" not in stdout:
-            return "not_connected"
-        
-        usb_devices, _ = self.parse_flutter_devices()
-        ios_usb_devices = [d for d in usb_devices if "ios" in d["platform"].lower()]
-        
-        if ios_usb_devices:
-            return "usb_connected"
-        else:
-            return "usb_connected_not_trusted"
-    
-    def get_user_choice(self, prompt: str, options: List[str]) -> str:
-        """Get user choice from a list of options"""
-        print(f"\n{prompt}")
-        for i, option in enumerate(options, 1):
-            print(f"{i}) {option}")
-        
-        while True:
-            try:
-                choice = input(f"\nEnter your choice (1-{len(options)}): ").strip()
-                choice_num = int(choice)
-                if 1 <= choice_num <= len(options):
-                    return options[choice_num - 1]
-            except ValueError:
-                pass
-            print(f"Please enter a number between 1 and {len(options)}")
-    
-    def handle_vpn_warning(self) -> bool:
-        """Handle VPN detection and get user choice"""
-        self.print_warning("VPN Detected - This may interfere with wireless device connections")
-        print("=" * 64)
-        print(dedent("""
-            VPNs can block local network discovery needed for wireless iPhone deployment.
-            However, USB connections work fine with VPN.
 
-            Solutions:
-            1. 🔌 Disconnect VPN temporarily and try again
-            2. 🔗 Connect iPhone via USB cable (recommended with VPN)
-            3. 🌐 Add your local network to VPN split tunneling (if supported)
-            4. 📱 Use iOS Simulator instead"""))
-        
-        options = [
-            "Continue with wireless deployment (may fail)",
-            "Build for USB deployment (connect iPhone via cable)",
-            "Deploy to iOS Simulator instead",
-            "Exit and fix VPN settings"
-        ]
-        
-        choice = self.get_user_choice("Would you like to:", options)
-        
-        if "wireless" in choice:
+    # ----- Device Discovery -----
+    def _vpn_active(self) -> bool:
+        """Heuristic check for active VPN (best-effort, non-intrusive)."""
+        # utun interfaces are commonly present when a VPN is active
+        code, out, _ = self.run_command(["ifconfig"], check=False)
+        if code == 0 and "utun" in (out or ""):
             return True
-        elif "USB" in choice:
-            input("Please connect your iPhone via USB cable before continuing. Press Enter when ready...")
-            return True
-        elif "Simulator" in choice:
-            print("Switching to iOS Simulator deployment...")
-            self.run_command(["./scripts/deploy_to_simulator.py"])
-            return False
-        else:
-            print("Exiting. Please disable VPN or configure split tunneling and try again.")
-            return False
-    
-    def handle_trust_issue(self) -> bool:
-        """Handle iPhone trust issue"""
-        self.print_warning("iPhone Connected but Not Trusted")
-        print("=" * 35)
-        print(dedent("""
-            Your iPhone is connected via USB, but Flutter cannot access it.
-            This usually means the iPhone needs to be trusted.
 
-            Please:
-            1. Unlock your iPhone
-            2. Look for a 'Trust This Computer?' dialog on your iPhone
-            3. Tap 'Trust' and enter your iPhone passcode
-            4. If no dialog appears, go to Settings > General > VPN & Device Management
-               and tap 'Trust' next to your Mac"""))
-        
-        input("\nPress Enter when you've trusted your Mac...")
-        
-        print("\nRechecking device connection...")
-        return True
-    
-    def install_to_device(self, device_id: str) -> bool:
-        """Install the app to a specific device"""
-        self.print_info(f"Installing to iPhone (ID: {device_id})...")
-        
-        returncode = self.run_command_streaming([
-            "flutter", "install", "--release", "-d", device_id
+        # Look for common VPN client processes
+        code, out, _ = self.run_command([
+            "pgrep", "-f",
+            "openvpn|wireguard|tailscale|zerotier|expressvpn|nordvpn|protonvpn|anyconnect|cisco|tunnel"
         ], check=False)
-        
-        if returncode == 0:
-            self.print_success("Deployment complete! 🎉")
-            print(dedent("""
-                Your Health Notes app has been updated on your iPhone.
-                You can now disconnect your phone and use the app anywhere."""))
+        if code == 0 and (out or "").strip():
             return True
-        else:
-            self.print_error("Installation failed!")
-            print(dedent("""
-                Troubleshooting tips:
-                1. Make sure your iPhone is unlocked
-                2. Check that you've trusted your Mac on your iPhone
-                3. Ensure Developer Mode is enabled on your iPhone"""))
+
+        # System network connections listing (may show Connected VPNs)
+        code, out, _ = self.run_command(["scutil", "--nc", "list"], check=False)
+        if code == 0 and "Connected" in (out or ""):
+            return True
+
+        return False
+
+    def _list_ios_devices(self) -> List[Dict[str, str]]:
+        """Return a list of PHYSICAL iOS devices from `flutter devices` output.
+
+        Output example line:
+        "Ethan’s iPhone • 00008030-... • ios • iOS 17.5"
+        """
+        code, stdout, stderr = self.run_command(["flutter", "devices"], check=False)
+        if code != 0:
+            self.print_error(f"Failed to list devices: {stderr}")
+            return []
+
+        devices: List[Dict[str, str]] = []
+        for line in stdout.splitlines():
+            if "•" not in line:
+                continue
+            parts = [p.strip() for p in line.split("•")]
+            if len(parts) < 3:
+                continue
+            name, device_id, platform = parts[0], parts[1], parts[2]
+            lower_line = line.lower()
+            lower_platform = platform.lower()
+
+            # Skip simulators explicitly
+            if "simulator" in lower_line or "com.apple.coresimulator" in lower_platform:
+                continue
+
+            # Keep only physical iOS devices (USB or wireless)
+            if "ios" in lower_platform or "mobile" in lower_platform:
+                devices.append({"name": name, "id": device_id})
+        return devices
+
+    def _simulators_present(self) -> bool:
+        """Return True if any iOS simulators are listed by Flutter."""
+        code, stdout, _ = self.run_command(["flutter", "devices"], check=False)
+        if code != 0:
             return False
-    
-    def deploy(self) -> bool:
-        """Deploy the app to iPhone"""
-        self.print_info("Checking for connected devices...")
-        print()
-        
-        usb_devices, wireless_devices = self.parse_flutter_devices()
-        vpn_active = self.check_vpn()
-        
-        returncode, stdout, _ = self.run_command(["flutter", "devices"], check=False)
-        print(stdout)
-        
-        trust_status = self.check_iphone_trust_status()
-        if trust_status == "usb_connected_not_trusted":
-            if not self.handle_trust_issue():
-                return False
-            usb_devices, wireless_devices = self.parse_flutter_devices()
-            returncode, stdout, _ = self.run_command(["flutter", "devices"], check=False)
-            print(stdout)
-        
-        if vpn_active and not usb_devices and wireless_devices:
-            if not self.handle_vpn_warning():
-                return False
-        
-        if usb_devices:
-            device_id = usb_devices[0]["id"]
-            return self.install_to_device(device_id)
-        else:
-            self.print_info("Installing to iPhone...")
-            print("Please select your iPhone when prompted:")
-            
-            returncode = self.run_command_streaming(["flutter", "install", "--release"], check=False)
-            if returncode == 0:
-                self.print_success("Deployment complete! 🎉")
-                print(dedent("""
-                    Your Health Notes app has been updated on your iPhone.
-                    You can now disconnect your phone and use the app anywhere."""))
+        for line in stdout.splitlines():
+            if "ios" in line.lower() and "simulator" in line.lower():
                 return True
-            else:
-                self.print_error("Installation failed!")
-                print(dedent("""
-                    Troubleshooting tips:
-                    1. Make sure your iPhone is unlocked
-                    2. Check that you've trusted your Mac on your iPhone
-                    3. Try connecting your iPhone via USB cable
-                    4. Ensure Developer Mode is enabled on your iPhone
-                    5. Check that both devices are on the same WiFi network"""))
-                if vpn_active:
-                    print(dedent("""
-                        6. 🔌 Try disabling VPN temporarily
-                        7. 🌐 Configure VPN split tunneling to exclude local network"""))
-                print("\nThe app has been built successfully. You can manually install it from Xcode.")
+        return False
+
+    # ----- Installation -----
+    def _install_interactive(self) -> bool:
+        self.print_info("Installing to iPhone (interactive selection)...")
+        code = self.run_command_streaming(["flutter", "install", "--release"], check=False)
+        if code == 0:
+            self._print_success_note()
+            return True
+        self.print_error("Installation failed.")
+        return False
+
+    def _install_to_device(self, device_id: str) -> bool:
+        self.print_info(f"Installing to iPhone: -d {device_id}")
+        code = self.run_command_streaming(["flutter", "install", "--release", "-d", device_id], check=False)
+        if code == 0:
+            self._print_success_note()
+            return True
+        self.print_error("Installation failed.")
+        return False
+
+    def _print_success_note(self):
+        self.print_success("Deployment complete! 🎉")
+        print(dedent(
+            """
+            Your Health Notes app has been updated on your iPhone.
+            You can now disconnect your phone and use the app anywhere.
+            """
+        ))
+
+    # ----- Orchestration -----
+    def deploy(self) -> bool:
+        """Discover devices and install with the simplest possible logic."""
+        if self._vpn_active():
+            self.print_warning("VPN likely active — wireless install may fail. Prefer USB.")
+
+        self.print_info("Checking for iOS devices...")
+        devices = self._list_ios_devices()
+
+        if len(devices) == 1:
+            return self._install_to_device(devices[0]["id"])
+
+        if not devices:
+            if self._simulators_present():
+                self.print_warning("Only iOS simulators detected. Use scripts/deploy_to_simulator.py for simulator.")
                 return False
+            self.print_warning("No physical iPhone detected. Flutter may still prompt if one appears.")
+            return self._install_interactive()
+
+        # Multiple physical devices: let Flutter prompt to choose
+        self.print_info("Multiple iPhones detected. Select one in the prompt.")
+        return self._install_interactive()
 
 
 def main():
-    """Main function"""
     deployment = IPhoneDeployment()
     deployment.main()
 

@@ -1,0 +1,94 @@
+### Cursor Rules for Health Notes (Flutter/Dart)
+
+- **Scope**: These rules apply to this repository when using Cursor’s AI features.
+
+- **Assistant behavior**:
+  - Do not include comments in generated code.
+  - Prefer concise, skimmable answers with essential context only.
+
+- **Dart/Flutter language preferences**:
+  - Use Dart getters for Metric attributes instead of method forms (e.g., `displayName` over `getDisplayName()`).
+  - Prefer Dart’s switch expression syntax when practical; use classic switch statements only when multiple statements are needed.
+  - Inline trivial `buildXxx` helpers that only return a constructor; avoid extracting such methods.
+  - Use `forEach` for controller disposal when the return value is not used; avoid `map(...).toList()` for side effects.
+
+- **Widget construction patterns**:
+  - Replace static factory helpers with real widgets and instantiate via constructors.
+  - Specifically, avoid static factories like `enhancedCard`, `enhancedButton`, and `enhancedSearchField`; prefer dedicated widget classes instead.
+
+- **UI styling conventions**:
+  - Unselected options in the UI should use white text on a grey background, consistent with the app’s styling.
+
+- **Quality bar**:
+  - Keep changes lint-clean and type-safe; match existing formatting and style.
+
+- **Operational notes**:
+  - Prefer inlining simple returns rather than adding indirection without benefit.
+  - Favor clear, readable names over abbreviations; avoid single-letter identifiers.
+
+- **State management**:
+  - Use Riverpod with `@riverpod` codegen (`riverpod_annotation`) for providers and notifiers.
+  - Prefer `ref.watch(...).when(...)` for async UI; use `ref.read` for imperative calls.
+  - Invalidate providers after mutations using `ref.invalidate(...)` or `ref.invalidateSelf()`.
+
+- **Models and serialization**:
+  - Use Freezed and `json_serializable` for all models; maintain `toJson`/`fromJson`.
+  - Prefer immutable data and explicit `required` fields; avoid nullable where possible.
+
+- **Data access and sync**:
+  - Route persistence through DAO classes; no direct DB/Supabase calls from widgets.
+  - Queue writes through `SyncService.queueForSync` and let background sync push/pull.
+  - Use `OfflineRepository.syncAllData` in refresh flows; avoid duplicative network logic in UI.
+
+- **Theming and UI**:
+  - Use Cupertino widgets and `AppColors`, `AppTypography`, `AppSpacing`, `AppRadius` from `theme/app_theme.dart`.
+  - Avoid ad-hoc colors; pull from `AppColors`. For loading, prefer centralized components.
+  - Keep unselected options styled as white text on grey backgrounds.
+
+- **Navigation and screens**:
+  - Top-level app is `CupertinoApp` with dark theme; maintain consistency.
+  - Build screens as `ConsumerWidget`/`ConsumerStatefulWidget` as needed; avoid global state.
+
+- **Testing**:
+  - Add widget and service tests under `test/`; use `testWidgets` for UI.
+  - Keep tests deterministic and avoid network; mock DAOs/services when practical.
+
+- **Error handling**:
+  - Throw explicit exceptions for auth-required paths; surface user-friendly errors in UI.
+  - Prefer early returns and guard clauses over deep nesting.
+
+- **Naming conventions**:
+  - Files: screens end with `_screen.dart`, forms with `_form.dart`, providers with `_provider.dart`.
+  - Types: Riverpod notifiers end with `Notifier`; models are singular nouns.
+  - Providers: lowerCamelCase ending in `Provider` (e.g., `isAuthenticatedProvider`). Families use `XxxFamily` only when needed.
+
+- **Provider conventions**:
+  - Use `@riverpod` for both class-based and function providers; include `part 'x.g.dart'`.
+  - Async UI uses `ref.watch(provider).when(...)`. Imperative flows use `ref.read(provider.notifier)`.
+  - Prefer computed/select providers to minimize rebuilds instead of passing large objects down the tree.
+  - Use `.future` only when awaiting in imperative contexts; avoid mixing `.future` with UI `when`.
+
+- **Screens and forms**:
+  - Build screens as `ConsumerWidget` or `ConsumerStatefulWidget` only when local state is needed.
+  - Forms: keep `TextEditingController`s in state and dispose via `controllers.forEach((c) => c.dispose())`.
+  - Submit actions call notifier methods; on success, invalidate relevant providers and pop.
+  - Validation: surface inline errors using `AppTypography.error` and Cupertino inputs.
+
+- **Lists and details**:
+  - Use `ref.watch(...).when(...)` to load lists; show centralized loading component.
+  - Use `ListView.builder` for large lists; provide stable `Key`s for list items.
+  - Pull-to-refresh should invalidate providers and trigger `OfflineRepository.syncAllData`.
+
+- **Performance and rebuilds**:
+  - Use `const` constructors and constants where possible.
+  - Split large widgets into smaller ones that watch specific providers to reduce rebuild scope.
+  - Avoid heavy work in `build`; precompute via providers or callbacks.
+
+- **DAOs and migrations**:
+  - All database access is isolated in DAO classes; UI and providers call DAOs only.
+  - Write incremental, idempotent migrations; prefer background/off-main-isolate operations for heavy tasks.
+  - After schema changes, add a one-time backfill in DAOs and verify via tests.
+
+- **Static UI helpers**:
+  - Migrate static UI helpers under `widgets/` into dedicated widget classes; prefer constructors over static factories.
+  - New code should not introduce new static factories like `enhancedCard`, `enhancedButton`, `enhancedSearchField`.
