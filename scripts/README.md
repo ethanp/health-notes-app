@@ -22,6 +22,7 @@ The deployment scripts use a shared base class architecture for better code orga
 - ✅ **Intelligent build caching** – skips rebuilds when no changes detected
 - ✅ Warns when a VPN is likely active (wireless deploy may fail)
 - ✅ Ignores iOS simulators; use `deploy_to_simulator.py` instead
+- 🚫 Requires exactly one physical iPhone connected; otherwise fails fast
 
 **Usage:**
 ```bash

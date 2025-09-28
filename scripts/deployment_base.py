@@ -4,15 +4,13 @@ Health Notes - Deployment Base Class
 Common functionality shared between iPhone and Simulator deployment scripts
 """
 
-import subprocess
-import sys
-import os
 import hashlib
 import json
+import os
+import subprocess
 import time
-from typing import Optional, List, Dict, Tuple
-from pathlib import Path
 from abc import ABC, abstractmethod
+from typing import List, Tuple
 
 
 class Colors:
@@ -195,8 +193,8 @@ class DeploymentBase(ABC):
         except IOError:
             self.print_warning("Could not save deployment timestamp")
     
-    def check_if_deployment_needed(self) -> bool:
-        """Check if deployment is needed based on file changes since last deployment"""
+    def check_if_deployment_needed(self) -> None:
+        """Check if deployment is needed based on file changes since last deployment."""
         self.print_info("Checking if deployment is needed...")
         
         directories_to_check = [
@@ -226,15 +224,15 @@ class DeploymentBase(ABC):
             try:
                 with open(self.hash_file, 'r') as f:
                     stored_data = json.load(f)
-                
+
                 stored_hashes = stored_data.get('hashes', {})
                 last_deploy_time = stored_data.get('last_deploy_time')
-                
+
                 if current_hashes == stored_hashes:
                     if last_deploy_time:
                         self.print_success("No changes detected since last deployment - skipping deployment")
                         print(f"Last deployment: {last_deploy_time}")
-                        return False
+                        raise SystemExit(0)
                     else:
                         self.print_info("No changes detected, but no deployment timestamp found - proceeding with deployment")
                 else:
@@ -243,82 +241,62 @@ class DeploymentBase(ABC):
                 self.print_info("Could not read previous deployment data - proceeding with deployment")
         else:
             self.print_info("No previous deployment data found - proceeding with deployment")
-        
-        return True
-    
-    def build_app(self) -> bool:
-        """Build the Flutter app"""
+
+    def build_app(self) -> None:
+        """Build the Flutter app."""
         rebuild_needed = self.check_if_rebuild_needed()
-        
+
         if rebuild_needed:
             self.print_info("🧹 Cleaning previous build...")
             returncode = self.run_command_streaming(["flutter", "clean"], check=False)
             if returncode != 0:
-                self.print_error("Failed to clean")
-                return False
-            
+                raise RuntimeError("Failed to clean previous build artifacts.")
+
             self.print_info("📦 Getting dependencies...")
             returncode = self.run_command_streaming(["flutter", "pub", "get"], check=False)
             if returncode != 0:
-                self.print_error("Failed to get dependencies")
-                return False
-            
+                raise RuntimeError("Failed to fetch Flutter dependencies.")
+
             self.print_info("🔨 Generating code...")
             returncode = self.run_command_streaming([
                 "flutter", "packages", "pub", "run", "build_runner", "build", "--delete-conflicting-outputs"
             ], check=False)
             if returncode != 0:
-                self.print_error("Failed to generate code")
-                return False
-            
+                raise RuntimeError("Failed to run build_runner code generation.")
+
             self.print_info(f"🏗️  Building iOS {self.build_type} version...")
             returncode = self.run_command_streaming([
                 "flutter", "build", "ios", f"--{self.build_type}", "--no-tree-shake-icons"
             ], check=False)
             if returncode != 0:
-                self.print_error("Failed to build iOS")
-                return False
+                raise RuntimeError("Failed to build the iOS target.")
         else:
             self.print_info("📦 Getting dependencies (no rebuild needed)...")
             returncode = self.run_command_streaming(["flutter", "pub", "get"], check=False)
             if returncode != 0:
-                self.print_error("Failed to get dependencies")
-                return False
-        
-        return True
-    
-    def check_prerequisites(self) -> bool:
-        """Check if all prerequisites are met"""
+                raise RuntimeError("Failed to fetch Flutter dependencies.")
+
+    def check_prerequisites(self) -> None:
+        """Check if all prerequisites are met."""
         if not self.check_flutter_available():
-            self.print_error("Flutter is not installed or not in PATH")
-            return False
-        
+            raise RuntimeError("Flutter is not installed or not in PATH.")
+
         if not self.check_project_directory():
-            self.print_error("pubspec.yaml not found. Please run this script from the project root directory.")
-            return False
-        
-        return True
-    
+            raise RuntimeError("pubspec.yaml not found. Please run this script from the project "
+                               "root directory.")
+
     @abstractmethod
-    def deploy(self) -> bool:
-        """Deploy the app - must be implemented by subclasses"""
+    def deploy(self) -> None:
+        """Deploy the app - must be implemented by subclasses."""
         pass
-    
+
     def main(self):
-        """Main deployment function"""
+        """Main deployment function."""
         self.print_header(f"Health Notes - {self.script_name} Deployment Script")
         
-        if not self.check_prerequisites():
-            sys.exit(1)
-        
-        if not self.check_if_deployment_needed():
-            self.print_success("Deployment skipped - no changes detected since last deployment")
-            return
-        
-        if not self.build_app():
-            sys.exit(1)
-        
-        if not self.deploy():
-            sys.exit(1)
+        self.check_prerequisites()
+        self.check_if_deployment_needed()
+        self.build_app()
+        self.deploy()
         
         self.record_deployment_timestamp()

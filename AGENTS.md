@@ -1,6 +1,6 @@
-### Cursor Rules for Health Notes (Flutter/Dart)
+## Health Notes Agent Guidelines
 
-- **Scope**: These rules apply to this repository when using Cursor’s AI features.
+- **Scope**: These rules apply to this repository when using automated coding assistants.
 
 - **Assistant behavior**:
   - Do not include comments in generated code.
@@ -25,6 +25,7 @@
 - **Operational notes**:
   - Prefer inlining simple returns rather than adding indirection without benefit.
   - Favor clear, readable names over abbreviations; avoid single-letter identifiers.
+  - Deployment scripts should raise exceptions on failure rather than returning booleans; let errors surface. In particular, `check_prerequisites`, `check_if_deployment_needed`, `build_app`, and `deploy` must signal stop conditions by throwing.
 
 - **State management**:
   - Use Riverpod with `@riverpod` codegen (`riverpod_annotation`) for providers and notifiers.

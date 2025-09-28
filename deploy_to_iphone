@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 # Health Notes - iPhone Deployment Wrapper
-# This script runs the Python deployment script
+# This script runs the Python deployment script without triggering bash-specific login hooks
 
-# Get the directory where this script is located
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+set -eu
 
-# Run the Python deployment script
-python3 "$SCRIPT_DIR/scripts/deploy_to_iphone.py" "$@"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+exec python3 "$SCRIPT_DIR/scripts/deploy_to_iphone.py" "$@"

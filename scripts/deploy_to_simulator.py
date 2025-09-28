@@ -19,40 +19,34 @@ class SimulatorDeployment(DeploymentBase):
     def __init__(self):
         super().__init__("Simulator", "debug")
     
-    def start_simulator(self) -> bool:
-        """Start the iOS Simulator"""
+    def start_simulator(self) -> None:
+        """Start the iOS Simulator."""
         self.print_info("Starting iOS Simulator...")
         
         returncode, _, stderr = self.run_command(["open", "-a", "Simulator"], check=False)
         if returncode != 0:
-            self.print_error(f"Failed to start simulator: {stderr}")
-            return False
+            raise RuntimeError(f"Failed to start simulator: {stderr.strip()}")
         
         print("Waiting for simulator to start...")
         time.sleep(3)
-        return True
     
-    def install_to_simulator(self) -> bool:
-        """Install the app to the iOS Simulator"""
+    def install_to_simulator(self) -> None:
+        """Install the app to the iOS Simulator."""
         self.print_info("Installing to iOS Simulator...")
         
         returncode, _, stderr = self.run_command(["flutter", "install"], check=False)
-        if returncode == 0:
-            self.print_success("Deployment complete! 🎉")
-            print(dedent("""
-                Your Health Notes app has been installed on the iOS Simulator.
-                The simulator should now be running with your app."""))
-            return True
-        else:
-            self.print_error(f"Installation failed: {stderr}")
-            return False
-    
-    def deploy(self) -> bool:
-        """Deploy the app to iOS Simulator"""
-        if not self.start_simulator():
-            return False
+        if returncode != 0:
+            raise RuntimeError(f"Installation failed: {stderr.strip()}")
         
-        return self.install_to_simulator()
+        self.print_success("Deployment complete! 🎉")
+        print(dedent("""
+            Your Health Notes app has been installed on the iOS Simulator.
+            The simulator should now be running with your app."""))
+    
+    def deploy(self) -> None:
+        """Deploy the app to iOS Simulator."""
+        self.start_simulator()
+        self.install_to_simulator()
 
 
 def main():
