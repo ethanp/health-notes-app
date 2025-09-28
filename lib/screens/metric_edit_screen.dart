@@ -180,18 +180,8 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
                     Text(
                       type.description,
                       style: isSelected
-                          ? AppTypography.bodySmall.copyWith(
-                              color: CupertinoColors.systemBlue.withValues(
-                                alpha: 0.8,
-                              ),
-                              fontSize: 12,
-                            )
-                          : AppTypography.bodySmall.copyWith(
-                              color: CupertinoColors.white.withValues(
-                                alpha: 0.7,
-                              ),
-                              fontSize: 12,
-                            ),
+                          ? AppTypography.metricTypeSelected
+                          : AppTypography.metricTypeUnselected,
                     ),
                   ],
                 ),

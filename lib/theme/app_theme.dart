@@ -260,6 +260,17 @@ class AppTypography {
 
   static TextStyle get captionQuaternary =>
       caption.copyWith(color: AppColors.textQuaternary);
+
+  // Metric type selection styles
+  static TextStyle get metricTypeSelected => bodySmall.copyWith(
+    color: CupertinoColors.systemBlue.withValues(alpha: 0.8),
+    fontSize: 12,
+  );
+
+  static TextStyle get metricTypeUnselected => bodySmall.copyWith(
+    color: CupertinoColors.white.withValues(alpha: 0.7),
+    fontSize: 12,
+  );
 }
 
 /// Spacing system for consistent layout
