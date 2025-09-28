@@ -95,10 +95,10 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        metricsGridSection(userMetrics),
+        metricsSelectionSection(userMetrics),
         if (_selectedMetrics.isNotEmpty) ...[
           const SizedBox(height: 16),
-          selectedMetricsSection(userMetrics),
+          metricSlidersSection(userMetrics),
         ],
         const SizedBox(height: 16),
         dateTimeSection(),
@@ -137,7 +137,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     );
   }
 
-  Widget metricsGridSection(List<CheckInMetric> userMetrics) {
+  Widget metricsSelectionSection(List<CheckInMetric> userMetrics) {
     if (userMetrics.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(16),
@@ -255,7 +255,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     );
   }
 
-  Widget selectedMetricsSection(List<CheckInMetric> userMetrics) {
+  Widget metricSlidersSection(List<CheckInMetric> userMetrics) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: AppComponents.primaryCard,
@@ -265,14 +265,14 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
           Text('Your Ratings', style: AppTypography.headlineSmall),
           const SizedBox(height: 16),
           ..._selectedMetrics.entries.map(
-            (entry) => selectedMetricCard(entry, userMetrics),
+            (entry) => metricRatingSelector(entry, userMetrics),
           ),
         ],
       ),
     );
   }
 
-  Widget selectedMetricCard(
+  Widget metricRatingSelector(
     MapEntry<String, int> entry,
     List<CheckInMetric> userMetrics,
   ) {
@@ -283,39 +283,34 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
       orElse: () => throw Exception('Metric not found: $metricName'),
     );
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(metric.icon, size: 20, color: AppColors.textPrimary),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(metric.name, style: AppTypography.labelLarge),
-              ),
-              CupertinoButton(
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  setState(() {
-                    _selectedMetrics.remove(metricName);
-                  });
-                },
-                child: const Icon(
-                  CupertinoIcons.xmark_circle_fill,
-                  color: CupertinoColors.systemRed,
-                  size: 20,
-                ),
-              ),
-            ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        sliderMetadata(metric, rating, metricName),
+        ratingSliderRow(metricName, rating),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+
+  Widget sliderMetadata(CheckInMetric metric, int rating, String metricName) {
+    return Row(
+      children: [
+        _ratingPill(metric, rating),
+        const SizedBox(width: 16),
+        Icon(metric.icon, size: 20, color: AppColors.textPrimary),
+        const SizedBox(width: 12),
+        Expanded(child: Text(metric.name, style: AppTypography.labelLarge)),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => setState(() => _selectedMetrics.remove(metricName)),
+          child: Icon(
+            CupertinoIcons.xmark_circle_fill,
+            color: CupertinoColors.systemRed.color.withValues(alpha: .7),
+            size: 20,
           ),
-          const SizedBox(height: 8),
-          ratingSliderRow(metricName, rating),
-          const SizedBox(height: 8),
-          ratingSummary(metric, rating),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -329,11 +324,8 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
             min: 1,
             max: 10,
             divisions: 9,
-            onChanged: (value) {
-              setState(() {
-                _selectedMetrics[metricName] = value.round();
-              });
-            },
+            onChanged: (value) =>
+                setState(() => _selectedMetrics[metricName] = value.round()),
           ),
         ),
         Text('10', style: AppTypography.bodySmallTertiary),
@@ -341,21 +333,23 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     );
   }
 
-  Widget ratingSummary(CheckInMetric metric, int rating) {
+  Widget _ratingPill(CheckInMetric metric, int rating) {
     final ratingColor = metric.type.getRatingColor(rating);
-
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: ratingColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          '$rating',
-          style: AppTypography.headlineMedium.copyWith(
-            color: ratingColor,
-            fontWeight: FontWeight.bold,
+    return SizedBox(
+      width: 40,
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: ratingColor.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Text(
+            '$rating',
+            style: AppTypography.bodySmall.copyWith(
+              color: ratingColor,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ),
@@ -391,24 +385,22 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   Future<void> saveCheckIn() async {
     if (!_formKey.currentState!.validate() || _selectedMetrics.isEmpty) return;
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
       for (final entry in _selectedMetrics.entries) {
-        final metricName = entry.key;
-        final rating = entry.value;
-        final checkIn = CheckIn(
-          id: '',
-          // Will be set by the provider
-          metricName: metricName,
-          rating: rating,
-          dateTime: _selectedDateTime,
-          createdAt: DateTime.now(),
-        );
-
-        await ref.read(checkInsNotifierProvider.notifier).addCheckIn(checkIn);
+        await ref
+            .read(checkInsNotifierProvider.notifier)
+            .addCheckIn(
+              CheckIn(
+                // Will be set by the provider
+                id: '',
+                metricName: entry.key,
+                rating: entry.value,
+                dateTime: _selectedDateTime,
+                createdAt: DateTime.now(),
+              ),
+            );
       }
 
       if (mounted) {
@@ -427,9 +419,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
       }
     } finally {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
       }
     }
   }
