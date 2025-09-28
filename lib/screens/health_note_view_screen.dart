@@ -113,6 +113,7 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
             dateTime: formFieldsState.currentDateTime,
             symptomsList: formFieldsState.currentSymptoms,
             drugDoses: formFieldsState.currentDrugDoses,
+            appliedTools: formFieldsState.currentAppliedTools,
             notes: formFieldsState.currentNotes.trim(),
           );
 
@@ -127,7 +128,10 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
           context: context,
           builder: (context) => CupertinoAlertDialog(
             title: Text('Error', style: AppTypography.headlineSmall),
-            content: Text('Failed to update note: $e', style: AppTypography.error),
+            content: Text(
+              'Failed to update note: $e',
+              style: AppTypography.error,
+            ),
             actions: [
               CupertinoDialogAction(
                 child: Text('OK', style: AppTypography.buttonSecondary),

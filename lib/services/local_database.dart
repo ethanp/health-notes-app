@@ -5,7 +5,7 @@ import 'package:path/path.dart';
 /// Local SQLite database service for offline storage
 class LocalDatabase {
   static const String _databaseName = 'health_notes.db';
-  static const int _databaseVersion = 3;
+  static const int _databaseVersion = 4;
 
   static Database? _database;
 
@@ -38,6 +38,7 @@ class LocalDatabase {
         symptoms_list TEXT NOT NULL,
         drug_doses TEXT NOT NULL,
         notes TEXT NOT NULL,
+        applied_tools TEXT NOT NULL DEFAULT '[]',
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         synced_at TEXT,
@@ -196,6 +197,18 @@ class LocalDatabase {
         );
         await db.execute(
           'CREATE INDEX idx_check_in_metrics_sync_status ON check_in_metrics(sync_status)',
+        );
+      }
+    }
+
+    if (oldVersion < 4) {
+      final columns = await db.rawQuery("PRAGMA table_info('health_notes')");
+      final hasAppliedTools = columns.any(
+        (row) => (row['name'] as String?) == 'applied_tools',
+      );
+      if (!hasAppliedTools) {
+        await db.execute(
+          "ALTER TABLE health_notes ADD COLUMN applied_tools TEXT NOT NULL DEFAULT '[]'",
         );
       }
     }

@@ -123,6 +123,7 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
         dateTime: formFieldsState.currentDateTime,
         symptomsList: formFieldsState.currentSymptoms,
         drugDoses: formFieldsState.currentDrugDoses,
+        appliedTools: formFieldsState.currentAppliedTools,
         notes: formFieldsState.currentNotes.trim(),
       );
     }
@@ -132,6 +133,7 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
       dateTime: formFieldsState.currentDateTime,
       symptomsList: formFieldsState.currentSymptoms,
       drugDoses: formFieldsState.currentDrugDoses,
+      appliedTools: formFieldsState.currentAppliedTools,
       notes: formFieldsState.currentNotes.trim(),
       createdAt: DateTime.now(),
     );
@@ -145,6 +147,7 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
           dateTime: updatedNote.dateTime,
           symptomsList: updatedNote.validSymptoms,
           drugDoses: updatedNote.validDrugDoses,
+          appliedTools: updatedNote.appliedTools,
           notes: updatedNote.notes,
         );
   }
@@ -156,6 +159,7 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
           dateTime: updatedNote.dateTime,
           symptomsList: updatedNote.validSymptoms,
           drugDoses: updatedNote.validDrugDoses,
+          appliedTools: updatedNote.appliedTools,
           notes: updatedNote.notes,
         );
   }

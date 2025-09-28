@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
+import 'package:health_notes/models/applied_tool.dart';
+import 'package:health_notes/models/health_tool.dart';
+import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/providers/symptom_suggestions_provider.dart';
 import 'package:health_notes/services/symptom_suggestions_service.dart';
 import 'package:health_notes/services/text_normalizer.dart';
@@ -37,8 +40,10 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
   late DateTime _selectedDateTime;
   late List<DrugDose> _drugDoses;
   late List<Symptom> _symptoms;
+  late List<AppliedTool> _appliedTools;
   Map<int, DrugDoseControllers> _drugDoseControllers = {};
   Map<int, SymptomControllers> _symptomControllers = {};
+  Map<int, TextEditingController> _appliedToolNoteControllers = {};
   final Set<String> _usedSuggestions = {};
 
   @override
@@ -112,11 +117,13 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       _selectedDateTime = note.dateTime;
       _drugDoses = List.from(note.drugDoses);
       _symptoms = List.from(note.symptomsList);
+      _appliedTools = List.from(note.appliedTools);
     } else {
       _notesController = TextEditingController();
       _selectedDateTime = DateTime.now();
       _drugDoses = <DrugDose>[];
       _symptoms = <Symptom>[];
+      _appliedTools = <AppliedTool>[];
     }
 
     _drugDoseControllers = _drugDoses.asMap().map(
@@ -124,6 +131,10 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     );
     _symptomControllers = _symptoms.asMap().map(
       (key, value) => MapEntry(key, SymptomControllers(value)),
+    );
+
+    _appliedToolNoteControllers = _appliedTools.asMap().map(
+      (key, value) => MapEntry(key, TextEditingController(text: value.note)),
     );
 
     for (final symptom in _symptoms) {
@@ -143,6 +154,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     _notesController?.dispose();
     _drugDoseControllers.values.forEach((controllers) => controllers.dispose());
     _symptomControllers.values.forEach((controllers) => controllers.dispose());
+    _appliedToolNoteControllers.values.forEach((c) => c.dispose());
     super.dispose();
   }
 
@@ -157,6 +169,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
         symptomsSection(),
         const SizedBox(height: 16),
         drugDosesSection(),
+        const SizedBox(height: 16),
+        appliedToolsSection(),
         const SizedBox(height: 16),
         notesSection(),
         const SizedBox(height: 40),
@@ -324,6 +338,357 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
         ],
       ),
     );
+  }
+
+  Widget appliedToolsSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: widget.isEditable
+          ? AppComponents.inputField
+          : AppComponents.primaryCard,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          appliedToolsHeader(),
+          const SizedBox(height: 8),
+          appliedToolsContent(),
+        ],
+      ),
+    );
+  }
+
+  Widget appliedToolsHeader() {
+    return EnhancedUIComponents.sectionHeader(
+      title: 'Applied Tools',
+      trailing: widget.isEditable
+          ? CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: showToolPicker,
+              child: const Icon(CupertinoIcons.add),
+            )
+          : null,
+    );
+  }
+
+  Widget appliedToolsContent() {
+    if (_appliedTools.isEmpty) {
+      return Text('No tools applied', style: AppTypography.bodyMedium);
+    }
+
+    if (!widget.isEditable) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: _appliedTools.map(readOnlyAppliedToolItem).toList(),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: _appliedTools.asMap().entries.map((entry) {
+        final index = entry.key;
+        final tool = entry.value;
+        final controller = _appliedToolNoteControllers[index]!;
+        return editableAppliedToolItem(
+          index: index,
+          tool: tool,
+          noteController: controller,
+        );
+      }).toList(),
+    );
+  }
+
+  Widget readOnlyAppliedToolItem(AppliedTool tool) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(tool.toolName, style: AppTypography.labelLarge),
+              ),
+            ],
+          ),
+          if (tool.note.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Text(tool.note, style: AppTypography.bodyMediumSecondary),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget editableAppliedToolItem({
+    required int index,
+    required AppliedTool tool,
+    required TextEditingController noteController,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: AppComponents.primaryCard,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(tool.toolName, style: AppTypography.labelLarge),
+              ),
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: () => removeAppliedTool(index),
+                child: const Icon(
+                  CupertinoIcons.delete,
+                  color: AppColors.destructive,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          CupertinoTextField(
+            controller: noteController,
+            placeholder: 'Note for this tool (optional)',
+            placeholderStyle: AppTypography.inputPlaceholder,
+            style: AppTypography.input,
+            maxLines: 2,
+            onChanged: (value) => updateAppliedToolNote(index, value),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void showToolPicker() {
+    final searchController = TextEditingController();
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) {
+        return Align(
+          alignment: Alignment.bottomCenter,
+          child: FractionallySizedBox(
+            heightFactor: 0.7,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(AppRadius.extraLarge),
+                topRight: Radius.circular(AppRadius.extraLarge),
+              ),
+              child: Container(
+                color: AppColors.backgroundSecondary,
+                child: StatefulBuilder(
+                  builder: (context, setSheetState) {
+                    return SafeArea(
+                      top: false,
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 8),
+                          Container(
+                            width: 40,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: AppColors.backgroundQuinary,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.m,
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Select a tool',
+                                    style: AppTypography.headlineSmall,
+                                  ),
+                                ),
+                                CupertinoButton(
+                                  padding: EdgeInsets.zero,
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Icon(CupertinoIcons.xmark),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.m,
+                            ),
+                            child: EnhancedUIComponents.searchField(
+                              controller: searchController,
+                              placeholder: 'Search tools',
+                              onChanged: (_) => setSheetState(() {}),
+                              showSuffix: searchController.text.isNotEmpty,
+                              onSuffixTap: () {
+                                searchController.clear();
+                                setSheetState(() {});
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.s),
+                          Expanded(
+                            child: Consumer(
+                              builder: (context, ref, _) {
+                                final toolsAsync = ref.watch(
+                                  healthToolsNotifierProvider,
+                                );
+                                return toolsAsync.when(
+                                  data: (tools) {
+                                    final q = searchController.text
+                                        .trim()
+                                        .toLowerCase();
+                                    final filtered = q.isEmpty
+                                        ? tools
+                                        : tools
+                                              .where(
+                                                (t) => t.name
+                                                    .toLowerCase()
+                                                    .contains(q),
+                                              )
+                                              .toList();
+                                    if (filtered.isEmpty) {
+                                      return EnhancedUIComponents.emptyState(
+                                        title: 'No tools found',
+                                        message:
+                                            'Try a different search or add tools in My Tools',
+                                        icon: CupertinoIcons.search,
+                                      );
+                                    }
+                                    return ListView.separated(
+                                      padding: const EdgeInsets.all(
+                                        AppSpacing.m,
+                                      ),
+                                      itemBuilder: (context, i) {
+                                        final t = filtered[i];
+                                        final isAlreadySelected = _appliedTools
+                                            .any((at) => at.toolId == t.id);
+                                        return GestureDetector(
+                                          onTap: () {
+                                            if (!isAlreadySelected) {
+                                              addAppliedToolFromHealthTool(t);
+                                            }
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.all(14),
+                                            decoration: AppComponents
+                                                .primaryCardWithBorder,
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        t.name,
+                                                        style: AppTypography
+                                                            .labelLarge,
+                                                      ),
+                                                      const SizedBox(
+                                                        height: AppSpacing.xs,
+                                                      ),
+                                                      Text(
+                                                        t.description,
+                                                        style: AppTypography
+                                                            .bodySmallSecondary,
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  width: AppSpacing.m,
+                                                ),
+                                                if (isAlreadySelected)
+                                                  Text(
+                                                    'Selected',
+                                                    style: AppTypography
+                                                        .bodySmallSystemGreySemibold,
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      separatorBuilder: (_, __) =>
+                                          const SizedBox(height: AppSpacing.s),
+                                      itemCount: filtered.length,
+                                    );
+                                  },
+                                  loading: () =>
+                                      EnhancedUIComponents.loadingIndicator(
+                                        message: 'Loading tools...',
+                                      ),
+                                  error: (e, st) => Center(
+                                    child: Text(
+                                      'Error: $e',
+                                      style: AppTypography.error,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void addAppliedToolFromHealthTool(HealthTool t) {
+    setState(() {
+      _appliedTools.add(AppliedTool(toolId: t.id, toolName: t.name, note: ''));
+      _appliedToolNoteControllers[_appliedTools.length - 1] =
+          TextEditingController(text: '');
+    });
+  }
+
+  void removeAppliedTool(int index) {
+    setState(() {
+      _appliedToolNoteControllers[index]?.dispose();
+      _appliedToolNoteControllers.remove(index);
+      _appliedTools.removeAt(index);
+      _appliedToolNoteControllers = _appliedTools.asMap().map(
+        (key, value) => MapEntry(
+          key,
+          _appliedToolNoteControllers[key] ??
+              TextEditingController(text: value.note),
+        ),
+      );
+    });
+  }
+
+  void updateAppliedToolNote(int index, String value) {
+    setState(() {
+      final current = _appliedTools[index];
+      _appliedTools[index] = current.copyWith(note: value);
+    });
   }
 
   Widget drugDosesHeader() {
@@ -494,6 +859,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
   List<Symptom> get currentSymptoms => _symptoms;
   String get currentNotes => _notesController?.text ?? '';
   List<DrugDose> get currentDrugDoses => _drugDoses;
+  List<AppliedTool> get currentAppliedTools => _appliedTools;
 
   void addDrugDose() {
     setState(() {
@@ -508,11 +874,14 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
 
   void removeDrugDose(int index) {
     setState(() {
-      if (_drugDoseControllers.containsKey(index)) {
-        _drugDoseControllers[index]!.dispose();
-        _drugDoseControllers.remove(index);
-      }
+      _drugDoseControllers.values.forEach(
+        (controllers) => controllers.dispose(),
+      );
+      _drugDoseControllers.clear();
       _drugDoses.removeAt(index);
+      _drugDoseControllers = _drugDoses.asMap().map(
+        (key, value) => MapEntry(key, DrugDoseControllers(value)),
+      );
     });
     widget.onDrugDosesChanged?.call(_drugDoses);
   }

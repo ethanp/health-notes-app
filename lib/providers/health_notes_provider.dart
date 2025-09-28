@@ -4,6 +4,7 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/grouped_health_notes.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/symptom.dart';
+import 'package:health_notes/models/applied_tool.dart';
 import 'package:health_notes/services/health_notes_dao.dart';
 import 'package:health_notes/services/offline_repository.dart';
 import 'package:health_notes/providers/auth_provider.dart';
@@ -28,6 +29,7 @@ class HealthNotesNotifier extends _$HealthNotesNotifier {
     required DateTime dateTime,
     required List<Symptom> symptomsList,
     required List<DrugDose> drugDoses,
+    List<AppliedTool> appliedTools = const [],
     required String notes,
   }) async {
     final user = await ref.read(currentUserProvider.future);
@@ -40,6 +42,7 @@ class HealthNotesNotifier extends _$HealthNotesNotifier {
       dateTime: dateTime,
       symptomsList: symptomsList,
       drugDoses: drugDoses,
+      appliedTools: appliedTools,
       notes: notes,
       createdAt: DateTime.now(),
     );
@@ -66,6 +69,7 @@ class HealthNotesNotifier extends _$HealthNotesNotifier {
     required DateTime dateTime,
     required List<Symptom> symptomsList,
     required List<DrugDose> drugDoses,
+    List<AppliedTool> appliedTools = const [],
     required String notes,
   }) async {
     final existingNote = await HealthNotesDao.getNoteById(id);
@@ -75,6 +79,9 @@ class HealthNotesNotifier extends _$HealthNotesNotifier {
       dateTime: dateTime,
       symptomsList: symptomsList,
       drugDoses: drugDoses,
+      appliedTools: appliedTools.isEmpty
+          ? existingNote.appliedTools
+          : appliedTools,
       notes: notes,
     );
 

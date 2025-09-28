@@ -81,49 +81,48 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     );
   }
 
-  /// If it's a new CheckIn, all metrics should be enabled by default.
-  void prefillMetrics(List<CheckInMetric> userMetrics) {
+  Widget checkInFormContent(List<CheckInMetric> userMetrics) {
+    if (userMetrics.isEmpty) return noMetricsAvailable();
+
     if (_selectedMetrics.isEmpty && widget.checkIn == null) {
+      // All metrics start with a default rating of "5".
       userMetrics.forEach((m) => _selectedMetrics[m.name] = 5);
     }
-  }
 
-  Widget checkInFormContent(List<CheckInMetric> userMetrics) {
-    if (userMetrics.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: AppComponents.primaryCard,
-        child: Column(
-          children: [
-            const Icon(
-              CupertinoIcons.chart_bar,
-              size: 48,
-              color: CupertinoColors.systemGrey,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No metrics available',
-              style: AppTypography.navTitleTextStyle,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Add some metrics to start tracking your health',
-              style: AppTypography.baseTextStyle,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      );
-    }
-    prefillMetrics(userMetrics);
     return ListView(
       padding: const EdgeInsets.all(16),
-      children: [
-        const SizedBox(height: 16),
-        dateTimeSection(),
-        const SizedBox(height: 16),
-        metricSlidersSection(userMetrics),
-      ],
+      children: [dateTimeSection(), metricSlidersSection(userMetrics)]
+          .map(
+            (section) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: section,
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  Widget noMetricsAvailable() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: AppComponents.primaryCard,
+      child: Column(
+        children: [
+          const Icon(
+            CupertinoIcons.chart_bar,
+            size: 48,
+            color: CupertinoColors.systemGrey,
+          ),
+          const SizedBox(height: 16),
+          Text('No metrics available', style: AppTypography.navTitleTextStyle),
+          const SizedBox(height: 8),
+          Text(
+            'Add some metrics to start tracking your health',
+            style: AppTypography.baseTextStyle,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 

@@ -423,6 +423,10 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
           const SizedBox(height: AppSpacing.s),
           ...note.drugDoses.map(medicationRow),
         ],
+        if (note.appliedTools.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.s),
+          appliedToolsRow(note),
+        ],
       ],
     );
   }
@@ -509,6 +513,38 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget appliedToolsRow(HealthNote note) {
+    final toolNames = note.appliedTools.map((t) => t.toolName).toList();
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.xs),
+      child: Wrap(
+        spacing: AppSpacing.s,
+        runSpacing: AppSpacing.s,
+        children: toolNames.map((name) {
+          return Container(
+            decoration: AppComponents.filterChip,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.m,
+              vertical: AppSpacing.s,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  CupertinoIcons.wrench,
+                  size: 14,
+                  color: AppColors.primary,
+                ),
+                const SizedBox(width: AppSpacing.s),
+                Text(name, style: AppTypography.labelMedium),
+              ],
+            ),
+          );
+        }).toList(),
       ),
     );
   }

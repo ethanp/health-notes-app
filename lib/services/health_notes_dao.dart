@@ -3,6 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/models/drug_dose.dart';
+import 'package:health_notes/models/applied_tool.dart';
 import 'package:health_notes/services/local_database.dart';
 
 /// Data Access Object for Health Notes
@@ -49,6 +50,9 @@ class HealthNotesDao {
         note.symptomsList.map((s) => s.toJson()).toList(),
       ),
       'drug_doses': jsonEncode(note.drugDoses.map((d) => d.toJson()).toList()),
+      'applied_tools': jsonEncode(
+        note.appliedTools.map((t) => t.toJson()).toList(),
+      ),
       'notes': note.notes,
       'created_at': note.createdAt.toIso8601String(),
       'updated_at': now,
@@ -70,6 +74,9 @@ class HealthNotesDao {
         ),
         'drug_doses': jsonEncode(
           note.drugDoses.map((d) => d.toJson()).toList(),
+        ),
+        'applied_tools': jsonEncode(
+          note.appliedTools.map((t) => t.toJson()).toList(),
         ),
         'notes': note.notes,
         'updated_at': now,
@@ -143,6 +150,9 @@ class HealthNotesDao {
             'date_time': serverData['date_time'],
             'symptoms_list': jsonEncode(serverData['symptoms_list']),
             'drug_doses': jsonEncode(serverData['drug_doses']),
+            'applied_tools': jsonEncode(
+              (serverData['applied_tools'] ?? []) as Object,
+            ),
             'notes': serverData['notes'],
             'updated_at':
                 serverData['updated_at'] ?? serverData['created_at'] ?? now,
@@ -160,6 +170,9 @@ class HealthNotesDao {
         'date_time': serverData['date_time'],
         'symptoms_list': jsonEncode(serverData['symptoms_list']),
         'drug_doses': jsonEncode(serverData['drug_doses']),
+        'applied_tools': jsonEncode(
+          (serverData['applied_tools'] ?? []) as Object,
+        ),
         'notes': serverData['notes'],
         'created_at': serverData['created_at'],
         'updated_at':
@@ -181,8 +194,24 @@ class HealthNotesDao {
       drugDoses: (jsonDecode(map['drug_doses']) as List)
           .map((json) => DrugDose.fromJson(json))
           .toList(),
+      appliedTools: _parseAppliedTools(map['applied_tools']),
       notes: map['notes'],
       createdAt: DateTime.parse(map['created_at']),
     );
+  }
+
+  static List<AppliedTool> _parseAppliedTools(dynamic raw) {
+    try {
+      if (raw == null) return const [];
+      final decoded = raw is String ? jsonDecode(raw) : raw;
+      if (decoded is List) {
+        return decoded
+            .map((e) => AppliedTool.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+      return const [];
+    } catch (_) {
+      return const [];
+    }
   }
 }

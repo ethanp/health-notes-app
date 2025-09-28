@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/symptom.dart';
+import 'package:health_notes/models/applied_tool.dart';
 
 part 'health_note.freezed.dart';
 part 'health_note.g.dart';
@@ -12,6 +13,7 @@ abstract class HealthNote with _$HealthNote {
     @JsonKey(name: 'date_time') required DateTime dateTime,
     @JsonKey(name: 'symptoms_list') @Default([]) List<Symptom> symptomsList,
     @JsonKey(name: 'drug_doses') @Default([]) List<DrugDose> drugDoses,
+    @JsonKey(name: 'applied_tools') @Default([]) List<AppliedTool> appliedTools,
     @Default('') String notes,
     @JsonKey(name: 'created_at') required DateTime createdAt,
   }) = _HealthNote;
@@ -27,7 +29,10 @@ extension HealthNoteExtensions on HealthNote {
 
   bool get hasDrugDoses => drugDoses.isNotEmpty;
 
-  bool get isEmpty => !hasSymptoms && !hasNotes && !hasDrugDoses;
+  bool get hasAppliedTools => appliedTools.isNotEmpty;
+
+  bool get isEmpty =>
+      !hasSymptoms && !hasNotes && !hasDrugDoses && !hasAppliedTools;
 
   List<DrugDose> get validDrugDoses =>
       drugDoses.where((dose) => dose.name.isNotEmpty).toList();
@@ -41,6 +46,7 @@ extension HealthNoteExtensions on HealthNote {
     DateTime? dateTime,
     List<Symptom>? symptomsList,
     List<DrugDose>? drugDoses,
+    List<AppliedTool>? appliedTools,
     String? notes,
     DateTime? createdAt,
   }) {
@@ -49,6 +55,7 @@ extension HealthNoteExtensions on HealthNote {
       dateTime: dateTime ?? this.dateTime,
       symptomsList: symptomsList ?? this.symptomsList,
       drugDoses: drugDoses ?? this.drugDoses,
+      appliedTools: appliedTools ?? this.appliedTools,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -61,6 +68,7 @@ extension HealthNoteExtensions on HealthNote {
           .map((symptom) => symptom.toJson())
           .toList(),
       'drug_doses': validDrugDoses.map((dose) => dose.toJson()).toList(),
+      'applied_tools': appliedTools.map((t) => t.toJson()).toList(),
       'notes': notes,
     };
   }

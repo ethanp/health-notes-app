@@ -74,6 +74,7 @@ The offline-first system consists of several key components:
 #### Push (Local → Server)
 - Processes queued operations
 - Sends local changes to Supabase
+- Includes `applied_tools` JSON array (default []) when present
 - Handles authentication and error cases
 - Retries failed operations up to 3 times
 
@@ -95,6 +96,7 @@ CREATE TABLE health_notes (
   date_time TEXT NOT NULL,
   symptoms_list TEXT NOT NULL,
   drug_doses TEXT NOT NULL,
+  applied_tools TEXT NOT NULL,
   notes TEXT NOT NULL,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
@@ -156,6 +158,10 @@ await OfflineRepository.addHealthNote(
   dateTime: DateTime.now(),
   symptomsList: [symptom1, symptom2],
   drugDoses: [dose1, dose2],
+  appliedTools: [
+    AppliedTool(toolId: tool1.id, toolName: tool1.name, note: '15 min'),
+    AppliedTool(toolId: tool2.id, toolName: tool2.name, note: ''),
+  ],
   notes: "Feeling better today",
 );
 ```
