@@ -1,7 +1,6 @@
-import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in_metric.dart';
+import 'package:health_notes/constants/chart_constants.dart';
 
 /// Utility class for color mapping based on metric semantics
 class ColorMappingUtils {
@@ -48,15 +47,17 @@ class ColorMappingUtils {
     switch (type) {
       case MetricType.lowerIsBetter:
         return [
-          CupertinoColors.systemGreen.withValues(alpha: 0.1),
-          CupertinoColors.systemYellow.withValues(alpha: 0.1),
           CupertinoColors.systemRed.withValues(alpha: 0.1),
+          CupertinoColors.systemYellow.withValues(alpha: 0.1),
+          CupertinoColors.systemGreen.withValues(alpha: 0.1),
+          CupertinoColors.systemGreen.withValues(alpha: 0.1), // Extend into label area
         ];
       case MetricType.higherIsBetter:
         return [
-          CupertinoColors.systemRed.withValues(alpha: 0.1),
-          CupertinoColors.systemYellow.withValues(alpha: 0.1),
           CupertinoColors.systemGreen.withValues(alpha: 0.1),
+          CupertinoColors.systemYellow.withValues(alpha: 0.1),
+          CupertinoColors.systemRed.withValues(alpha: 0.1),
+          CupertinoColors.systemRed.withValues(alpha: 0.1), // Extend into label area
         ];
       case MetricType.middleIsBest:
         return [
@@ -65,18 +66,33 @@ class ColorMappingUtils {
           CupertinoColors.systemGreen.withValues(alpha: 0.1),
           CupertinoColors.systemYellow.withValues(alpha: 0.08),
           CupertinoColors.systemRed.withValues(alpha: 0.1),
+          CupertinoColors.systemRed.withValues(alpha: 0.1), // Extend into label area
         ];
     }
   }
 
   /// Creates gradient stops for the background gradient
+  /// Stops are adjusted to account for the bottom axis label area
+  /// Uses shared chart dimension constants
   static List<double> getBackgroundGradientStops(MetricType type) {
     switch (type) {
       case MetricType.lowerIsBetter:
       case MetricType.higherIsBetter:
-        return [0.0, 0.5, 1.0];
+        return [
+          0.0,
+          0.5 * kChartPlotAreaRatio,      // Middle of plot area
+          1.0 * kChartPlotAreaRatio,      // Bottom of plot area
+          1.0,                             // Extend final color to bottom of container
+        ];
       case MetricType.middleIsBest:
-        return [0.0, 0.25, 0.5, 0.75, 1.0];
+        return [
+          0.0,
+          0.25 * kChartPlotAreaRatio,
+          0.5 * kChartPlotAreaRatio,
+          0.75 * kChartPlotAreaRatio,
+          1.0 * kChartPlotAreaRatio,      // Bottom of plot area
+          1.0,                             // Extend final color to bottom of container
+        ];
     }
   }
 }

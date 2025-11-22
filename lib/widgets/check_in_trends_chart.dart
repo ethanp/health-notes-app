@@ -5,6 +5,7 @@ import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/color_mapping_utils.dart';
+import 'package:health_notes/constants/chart_constants.dart';
 
 import 'package:intl/intl.dart';
 
@@ -235,7 +236,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
         const SizedBox(height: 6),
         legendForType(type, typeMetrics),
         const SizedBox(height: 6),
-        SizedBox(height: 100, child: singleChart(typeMetrics, type)),
+        SizedBox(height: kChartTotalHeight, child: singleChart(typeMetrics, type)),
         const SizedBox(height: 12),
       ],
     );
@@ -353,7 +354,13 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
   FlTitlesData chartTitlesData(List<DateTime> sortedDates) {
     return FlTitlesData(
       show: true,
-      rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      rightTitles: AxisTitles(
+        sideTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 16,
+          getTitlesWidget: (value, meta) => const Text(''),
+        ),
+      ),
       topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
       bottomTitles: bottomTitles(sortedDates),
       leftTitles: leftTitles(),
@@ -361,11 +368,14 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
   }
 
   AxisTitles bottomTitles(List<DateTime> sortedDates) {
+    // Calculate dynamic interval to show ~6 labels max
+    final interval = (sortedDates.length / 6).ceilToDouble().clamp(1.0, double.infinity);
+
     return AxisTitles(
       sideTitles: SideTitles(
         showTitles: true,
-        reservedSize: 18,
-        interval: 1,
+        reservedSize: kChartBottomAxisReservedSize,
+        interval: interval,
         getTitlesWidget: (double value, TitleMeta meta) {
           if (value.toInt() >= 0 && value.toInt() < sortedDates.length) {
             final date = sortedDates[value.toInt()];

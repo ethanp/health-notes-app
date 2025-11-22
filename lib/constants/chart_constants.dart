@@ -1,0 +1,14 @@
+/// Chart dimension constants used across trend visualizations
+/// These values control the layout and rendering of chart components
+
+// Chart plot area height (excludes axis labels)
+const double kChartPlotHeight = 100.0;
+
+// Reserved space for bottom X-axis labels
+const double kChartBottomAxisReservedSize = 24.0;
+
+// Total chart container height (plot + bottom labels)
+const double kChartTotalHeight = kChartPlotHeight + kChartBottomAxisReservedSize;
+
+// Ratio of plot area to total container height
+const double kChartPlotAreaRatio = kChartPlotHeight / kChartTotalHeight;
