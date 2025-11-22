@@ -1,190 +1,126 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
+import 'package:health_notes/screens/trends/base_trends_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
 import 'package:health_notes/utils/severity_utils.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/spacing.dart';
 import 'package:health_notes/widgets/symptom_note_card.dart';
 import 'package:health_notes/widgets/trends_components.dart';
 
-class SymptomTrendsScreen extends ConsumerStatefulWidget {
+class SymptomTrendsScreen extends BaseTrendsScreen {
   final String symptomName;
 
-  const SymptomTrendsScreen({super.key, required this.symptomName});
+  const SymptomTrendsScreen({required this.symptomName})
+    : super(itemName: symptomName);
 
   @override
-  ConsumerState<SymptomTrendsScreen> createState() =>
+  BaseTrendsState<SymptomTrendsScreen, int> createState() =>
       _SymptomTrendsScreenState();
 }
 
-class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
-  late TextEditingController _searchController;
-  String _searchQuery = '';
+class _SymptomTrendsScreenState
+    extends BaseTrendsState<SymptomTrendsScreen, int> {
+  @override
+  String get itemNoun => 'symptom';
 
   @override
-  void initState() {
-    super.initState();
-    _searchController = TextEditingController();
+  Future<void> onRefresh() async {
+    await ref.read(healthNotesNotifierProvider.notifier).refreshNotes();
   }
 
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  List<HealthNote> filterSourceNotes(List<HealthNote> notes) {
+    return NoteFilterUtils.bySymptom(notes, widget.symptomName);
   }
 
   @override
-  Widget build(BuildContext context) {
-    final healthNotesAsync = ref.watch(healthNotesNotifierProvider);
-
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text('${widget.symptomName} Trends'),
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Icon(CupertinoIcons.back),
-        ),
-      ),
-      child: SafeArea(
-        child: healthNotesAsync.when(
-          data: (notes) => symptomTrendsContent(notes),
-          loading: () => EnhancedUIComponents.loadingIndicator(
-            message: 'Loading symptom trends...',
-          ),
-          error: (error, stack) =>
-              Center(child: Text('Error: $error', style: AppTypography.error)),
-        ),
-      ),
-    );
-  }
-
-  Widget symptomTrendsContent(List<HealthNote> notes) {
-    final symptomNotes = NoteFilterUtils.bySymptom(notes, widget.symptomName);
-
-    if (symptomNotes.isEmpty) {
-      return EnhancedUIComponents.emptyState(
-        title: 'No data for ${widget.symptomName}',
-        message: 'No health notes with this symptom have been recorded yet',
-        icon: CupertinoIcons.exclamationmark_triangle,
-      );
-    }
-
-    final sortedSymptomNotes = NoteFilterUtils.sortByDateDescending(
-      symptomNotes,
-    );
-    final activityData = TrendsActivityDataGenerator.generateSeverityData(
-      notes: symptomNotes,
+  Map<DateTime, int> buildActivityData(List<HealthNote> notes) {
+    return TrendsActivityDataGenerator.generateSeverityData(
+      notes: notes,
       symptomName: widget.symptomName,
     );
-    final filteredNotes = _searchQuery.isEmpty
-        ? sortedSymptomNotes
-        : NoteFilterUtils.sortByDateDescending(
-            NoteFilterUtils.bySearchQuery(sortedSymptomNotes, _searchQuery),
-          );
-
-    return CustomScrollView(
-      slivers: [
-        CupertinoSliverRefreshControl(
-          onRefresh: () async {
-            await ref.read(healthNotesNotifierProvider.notifier).refreshNotes();
-          },
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.all(16),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              activityChart(activityData),
-              VSpace.of(20),
-              searchSection(),
-              VSpace.of(20),
-              symptomNotesList(filteredNotes),
-            ]),
-          ),
-        ),
-      ],
-    );
   }
 
-  Widget activityChart(Map<DateTime, int> activityData) {
+  @override
+  Widget buildActivityContent(
+    Map<DateTime, int> activityData,
+    List<HealthNote> notes,
+  ) {
     return SeverityActivityCalendar(
       itemName: widget.symptomName,
       activityData: activityData,
-      onDateTap: _showDateInfo,
+      onDateTap: (context, date, severity) =>
+          handleDateTap(context, date, severity, notes),
+    );
+  }
+
+  @override
+  List<Widget> buildNotesContent(List<HealthNote> notes) {
+    return notes
+        .map(
+          (note) =>
+              SymptomNoteCard(note: note, symptomName: widget.symptomName),
+        )
+        .toList();
+  }
+
+  @override
+  List<HealthNote> notesForDate(List<HealthNote> notes, DateTime date) {
+    final targetDate = AppDateUtils.dateOnly(date);
+    return notes
+        .where(
+          (note) =>
+              AppDateUtils.dateOnly(note.dateTime).isAtSameMomentAs(targetDate),
+        )
+        .toList();
+  }
+
+  @override
+  CupertinoAlertDialog buildNoActivityDialog(
+    BuildContext dialogContext,
+    DateTime date,
+  ) {
+    return noSymptomsAlert(dialogContext, AppDateUtils.formatLongDate(date));
+  }
+
+  @override
+  CupertinoAlertDialog buildValueOnlyDialog(
+    BuildContext dialogContext,
+    DateTime date,
+    int severity,
+    List<HealthNote> scopedNotes,
+  ) {
+    return dateInfoNoNoteAlert(
+      dialogContext,
+      AppDateUtils.formatLongDate(date),
+      severity,
+      SeverityUtils.descriptionForSeverity(severity),
+    );
+  }
+
+  @override
+  CupertinoAlertDialog buildDetailDialog(
+    BuildContext dialogContext,
+    DateTime date,
+    int severity,
+    List<HealthNote> relevantNotes,
+  ) {
+    final note = relevantNotes.first;
+    return dateInfoAlert(
+      dialogContext,
+      AppDateUtils.formatLongDate(date),
+      severity,
+      note,
     );
   }
 
   Color _severityColor(int severity) {
     return SeverityUtils.colorForSeverity(severity);
-  }
-
-  Widget searchSection() {
-    return EnhancedUIComponents.searchField(
-      controller: _searchController,
-      placeholder: 'Search notes for ${widget.symptomName}...',
-      onChanged: (query) => setState(() => _searchQuery = query),
-    );
-  }
-
-  Widget symptomNotesList(List<HealthNote> filteredNotes) {
-    return filteredNotes.isEmpty
-        ? const NoMatchingNotesState()
-        : notesSection(filteredNotes);
-  }
-
-  Widget notesSection(List<HealthNote> notes) {
-    return NotesSection(
-      noteCount: notes.length,
-      noteCards: notes
-          .map(
-            (note) =>
-                SymptomNoteCard(note: note, symptomName: widget.symptomName),
-          )
-          .toList(),
-    );
-  }
-
-  void _showDateInfo(BuildContext context, DateTime date, int severity) {
-    if (severity == 0) {
-      final formattedDate = AppDateUtils.formatLongDate(date);
-      showCupertinoDialog(
-        context: context,
-        builder: (dialogContext) =>
-            noSymptomsAlert(dialogContext, formattedDate),
-      );
-      return;
-    }
-
-    final healthNotesAsync = ref.read(healthNotesNotifierProvider);
-    final notes = healthNotesAsync.value ?? [];
-    final formattedDate = AppDateUtils.formatLongDate(date);
-    final noteForDate = findNoteForDate(notes, date);
-
-    if (noteForDate == null) {
-      showCupertinoDialog(
-        context: context,
-        builder: (dialogContext) => dateInfoNoNoteAlert(
-          dialogContext,
-          formattedDate,
-          severity,
-          SeverityUtils.descriptionForSeverity(severity),
-        ),
-      );
-      return;
-    }
-
-    showCupertinoDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (dialogContext) =>
-          dateInfoAlert(dialogContext, formattedDate, severity, noteForDate),
-    );
   }
 
   CupertinoAlertDialog noSymptomsAlert(
@@ -223,15 +159,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     );
   }
 
-  HealthNote? findNoteForDate(List<HealthNote> notes, DateTime date) {
-    final targetDate = AppDateUtils.dateOnly(date);
-    return notes.where((note) {
-      final noteDate = AppDateUtils.dateOnly(note.dateTime);
-      return noteDate.isAtSameMomentAs(targetDate);
-    }).firstOrNull;
-  }
-
-  Widget dateInfoAlert(
+  CupertinoAlertDialog dateInfoAlert(
     BuildContext dialogContext,
     String formattedDate,
     int severity,
