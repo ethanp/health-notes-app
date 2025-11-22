@@ -1,24 +1,22 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:health_notes/constants/chart_constants.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/check_in_metric.dart';
+import 'package:health_notes/models/date_range_filter.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/color_mapping_utils.dart';
-import 'package:health_notes/constants/chart_constants.dart';
-
 import 'package:intl/intl.dart';
 
 class CheckInTrendsChart extends StatefulWidget {
   final List<CheckIn> checkIns;
   final List<CheckInMetric> userMetrics;
-  final int maxDataPoints;
 
   const CheckInTrendsChart({
     super.key,
     required this.checkIns,
     required this.userMetrics,
-    this.maxDataPoints = 30,
   });
 
   @override
@@ -27,6 +25,7 @@ class CheckInTrendsChart extends StatefulWidget {
 
 class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
   final Set<String> _hiddenMetrics = <String>{};
+  DateRangeFilter _selectedDateRange = DateRangeFilter.sixtyDays;
 
   void _toggleMetric(String metric) {
     setState(() {
@@ -53,6 +52,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     final metrics = _sortedMetricNames();
     return trendsChartContainer(
       header: Text('Trends', style: AppTypography.headlineSmall),
+      dateRangeSelector: dateRangeSelector(),
       indicator: improvementZonesIndicator(),
       charts: splitCharts(metrics),
     );
@@ -79,6 +79,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
 
   Widget trendsChartContainer({
     required Widget header,
+    required Widget dateRangeSelector,
     required Widget indicator,
     required Widget charts,
   }) {
@@ -98,6 +99,8 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
         children: [
           header,
           const SizedBox(height: 16),
+          dateRangeSelector,
+          const SizedBox(height: 12),
           indicator,
           const SizedBox(height: 12),
           charts,
@@ -236,7 +239,10 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
         const SizedBox(height: 6),
         legendForType(type, typeMetrics),
         const SizedBox(height: 6),
-        SizedBox(height: kChartTotalHeight, child: singleChart(typeMetrics, type)),
+        SizedBox(
+          height: kChartTotalHeight,
+          child: singleChart(typeMetrics, type),
+        ),
         const SizedBox(height: 12),
       ],
     );
@@ -289,21 +295,16 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
 
   Map<String, List<CheckIn>> _prepareMetricData(List<String> metrics) {
     final metricData = <String, List<CheckIn>>{};
+    final filteredCheckIns = _filterCheckInsByDateRange();
 
     for (final metric in metrics) {
       final metricCheckIns =
-          widget.checkIns
+          filteredCheckIns
               .where((checkIn) => checkIn.metricName == metric)
               .toList()
             ..sort((a, b) => a.dateTime.compareTo(b.dateTime));
 
-      if (metricCheckIns.length > widget.maxDataPoints) {
-        metricData[metric] = metricCheckIns.sublist(
-          metricCheckIns.length - widget.maxDataPoints,
-        );
-      } else {
-        metricData[metric] = metricCheckIns;
-      }
+      metricData[metric] = metricCheckIns;
     }
     return metricData;
   }
@@ -323,10 +324,6 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     }
 
     final sortedDates = allDates.toList()..sort();
-
-    if (sortedDates.length > widget.maxDataPoints) {
-      sortedDates.removeRange(0, sortedDates.length - widget.maxDataPoints);
-    }
     return sortedDates;
   }
 
@@ -354,6 +351,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
   FlTitlesData chartTitlesData(List<DateTime> sortedDates) {
     return FlTitlesData(
       show: true,
+      // We show empty right titles to add padding to the right of the last data point.
       rightTitles: AxisTitles(
         sideTitles: SideTitles(
           showTitles: true,
@@ -369,7 +367,10 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
 
   AxisTitles bottomTitles(List<DateTime> sortedDates) {
     // Calculate dynamic interval to show ~6 labels max
-    final interval = (sortedDates.length / 6).ceilToDouble().clamp(1.0, double.infinity);
+    final interval = (sortedDates.length / 6).ceilToDouble().clamp(
+      1.0,
+      double.infinity,
+    );
 
     return AxisTitles(
       sideTitles: SideTitles(
@@ -540,5 +541,52 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
         },
       ),
     );
+  }
+
+  Widget dateRangeSelector() {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundTertiary,
+        borderRadius: BorderRadius.circular(AppRadius.small),
+      ),
+      child: CupertinoSegmentedControl<DateRangeFilter>(
+        groupValue: _selectedDateRange,
+        padding: const EdgeInsets.all(2),
+        borderColor: AppColors.backgroundQuaternary,
+        selectedColor: AppColors.primary,
+        unselectedColor: Colors.transparent,
+        pressedColor: AppColors.primary.withValues(alpha: 0.4),
+        onValueChanged: (value) {
+          setState(() {
+            _selectedDateRange = value;
+          });
+        },
+        children: {
+          for (final filter in DateRangeFilter.values)
+            filter: _buildSegment(filter),
+        },
+      ),
+    );
+  }
+
+  Widget _buildSegment(DateRangeFilter filter) {
+    final isSelected = _selectedDateRange == filter;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Text(
+        filter.label,
+        style: AppTypography.bodySmall.copyWith(
+          color: isSelected ? CupertinoColors.white : AppColors.textSecondary,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+        ),
+      ),
+    );
+  }
+
+  List<CheckIn> _filterCheckInsByDateRange() {
+    return widget.checkIns
+        .where((checkIn) => _selectedDateRange.includesDate(checkIn.dateTime))
+        .toList();
   }
 }
