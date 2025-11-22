@@ -194,7 +194,8 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
 
     showCupertinoDialog(
       context: context,
-      builder: (BuildContext context) => dosageDetailAlert(
+      builder: (dialogContext) => dosageDetailAlert(
+        dialogContext,
         AppDateUtils.formatLongDate(note.dateTime),
         totalDosage,
         relevantDoses,
@@ -214,8 +215,8 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
       final formattedDate = AppDateUtils.formatLongDate(date);
       showCupertinoDialog(
         context: context,
-        builder: (BuildContext context) =>
-            noDosageAlert(formattedDate, widget.drugName),
+        builder: (dialogContext) =>
+            noDosageAlert(dialogContext, formattedDate, widget.drugName),
       );
       return;
     }
@@ -229,7 +230,8 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
       final formattedDate = AppDateUtils.formatLongDate(date);
       showCupertinoDialog(
         context: context,
-        builder: (BuildContext context) => dosageSummaryAlert(
+        builder: (dialogContext) => dosageSummaryAlert(
+          dialogContext,
           formattedDate,
           dosage,
           widget.drugName,
@@ -247,19 +249,27 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
 
     showCupertinoDialog(
       context: context,
-      builder: (BuildContext context) =>
-          dosageDetailAlert(formattedDate, dosage, relevantDoses),
+      builder: (dialogContext) => dosageDetailAlert(
+        dialogContext,
+        formattedDate,
+        dosage,
+        relevantDoses,
+      ),
     );
   }
 
-  CupertinoAlertDialog noDosageAlert(String formattedDate, String drugName) {
+  CupertinoAlertDialog noDosageAlert(
+    BuildContext dialogContext,
+    String formattedDate,
+    String drugName,
+  ) {
     return CupertinoAlertDialog(
       title: Text(formattedDate),
       content: Text('No $drugName was recorded on this date.'),
       actions: [
         CupertinoDialogAction(
           child: const Text('OK'),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(dialogContext).pop(),
         ),
       ],
     );
@@ -280,6 +290,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
   }
 
   CupertinoAlertDialog dosageSummaryAlert(
+    BuildContext dialogContext,
     String formattedDate,
     double dosage,
     String drugName,
@@ -293,13 +304,14 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
       actions: [
         CupertinoDialogAction(
           child: const Text('OK'),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(dialogContext).pop(),
         ),
       ],
     );
   }
 
   CupertinoAlertDialog dosageDetailAlert(
+    BuildContext dialogContext,
     String formattedDate,
     double dosage,
     List<DrugDose> relevantDoses,
@@ -321,7 +333,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
       actions: [
         CupertinoDialogAction(
           child: const Text('OK'),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(dialogContext).pop(),
         ),
       ],
     );

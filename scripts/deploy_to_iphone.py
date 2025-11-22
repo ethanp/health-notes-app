@@ -11,7 +11,7 @@ Focuses on:
 
 import os
 import sys
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from deployment_base import DeploymentBase
@@ -24,11 +24,6 @@ class IPhoneDeployment(DeploymentBase):
         super().__init__("iPhone", "release")
 
     # ----- Device Discovery -----
-    def _read_command(self, command: List[str]) -> Optional[str]:
-        """Run a command and return stdout when successful."""
-        code, stdout, _ = self.run_command(command, check=False)
-        return stdout or "" if code == 0 else None
-
     def _list_ios_devices(self) -> List[Dict[str, str]]:
         """Return a list of PHYSICAL iOS devices from `flutter devices` output.
 
@@ -57,26 +52,6 @@ class IPhoneDeployment(DeploymentBase):
             # Keep only physical iOS devices (USB or wireless)
             if "ios" in lower_platform or "mobile" in lower_platform:
                 devices.append({"name": name, "id": device_id})
-        return devices
-
-    # ----- Installation -----
-    def _install_to_device(self, device_id: str) -> None:
-        self.print_info(f"Installing to iPhone: -d {device_id}")
-        code = self.run_command_streaming(["flutter", "install", "--release", "-d", device_id],
-                                          check=False)
-
-        if code != 0:
-            raise RuntimeError("Installation failed. See flutter install output above for details.")
-
-        self.print_success("Deployment complete! 🎉")
-
-    # ----- Orchestration -----
-    def deploy(self) -> None:
-        """Discover devices and install with the simplest possible logic."""
-        self.print_warning("VPN detection does not work. Disable any active VPN to prevent "
-                           "deployment from stalling indefinitely after the build completes.")
-        self.print_info("Checking for iOS devices...")
-        devices = self._list_ios_devices()
 
         if len(devices) != 1:
             if not devices:
@@ -90,6 +65,25 @@ class IPhoneDeployment(DeploymentBase):
                 f"Detected devices:\n{device_list}"
             )
 
+        return devices
+
+    # ----- Installation -----
+    def _install_to_device(self, device_id: str) -> None:
+        self.print_info(f"Installing to iPhone: -d {device_id}")
+        code = self.run_command_streaming(["flutter", "install", "--release", "-d", device_id],
+                                          check=False)
+        if code != 0:
+            raise RuntimeError("Installation failed. See flutter install output above for details.")
+
+        self.print_success("Deployment complete! 🎉")
+
+    # ----- Orchestration -----
+    def deploy(self) -> None:
+        """Discover devices and install with the simplest possible logic."""
+        self.print_warning("Disable any active VPN to prevent deployment from stalling indefinitely"
+                           " after the build completes.")
+        self.print_info("Checking for iOS devices...")
+        devices = self._list_ios_devices()
         self._install_to_device(devices[0]["id"])
 
 
