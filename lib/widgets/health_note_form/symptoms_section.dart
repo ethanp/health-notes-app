@@ -8,6 +8,7 @@ import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
+import 'package:health_notes/widgets/spacing.dart';
 
 class SymptomsSection extends ConsumerWidget {
   final bool isEditable;
@@ -48,11 +49,7 @@ class SymptomsSection extends ConsumerWidget {
           : AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _header(),
-          const SizedBox(height: 8),
-          _content(context, ref),
-        ],
+        children: [_header(), VSpace.s, _content(context, ref)],
       ),
     );
   }
@@ -119,7 +116,7 @@ class SymptomsSection extends ConsumerWidget {
                     shape: BoxShape.circle,
                   ),
                 ),
-                const SizedBox(width: 12),
+                HSpace.of(12),
                 Expanded(
                   child: Text(
                     symptom.fullDescription,
@@ -133,7 +130,7 @@ class SymptomsSection extends ConsumerWidget {
               ],
             ),
             if (symptom.additionalNotes.isNotEmpty) ...[
-              const SizedBox(height: 8),
+              VSpace.s,
               Padding(
                 padding: const EdgeInsets.only(left: 20),
                 child: Text(
@@ -162,9 +159,9 @@ class SymptomsSection extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (isEditable) _suggestions(ref, index),
-          const SizedBox(height: 8),
+          VSpace.s,
           _editableRow(index, controllers),
-          const SizedBox(height: 8),
+          VSpace.s,
           _editableNotes(index, controllers),
         ],
       ),
@@ -197,7 +194,7 @@ class SymptomsSection extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Recent symptoms:', style: AppTypography.labelMediumSecondary),
-            const SizedBox(height: 8),
+            VSpace.s,
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -247,7 +244,7 @@ class SymptomsSection extends ConsumerWidget {
             onChanged: (value) => onUpdate(index, majorComponent: value),
           ),
         ),
-        const SizedBox(width: 8),
+        HSpace.s,
         Expanded(
           child: CupertinoTextField(
             controller: controllers.minorComponent,
@@ -257,7 +254,7 @@ class SymptomsSection extends ConsumerWidget {
             onChanged: (value) => onUpdate(index, minorComponent: value),
           ),
         ),
-        const SizedBox(width: 8),
+        HSpace.s,
         SizedBox(
           width: 80,
           child: CupertinoTextField(
@@ -274,7 +271,7 @@ class SymptomsSection extends ConsumerWidget {
             },
           ),
         ),
-        const SizedBox(width: 8),
+        HSpace.s,
         CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () => onRemove(index),

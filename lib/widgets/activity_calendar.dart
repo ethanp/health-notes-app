@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/theme/app_theme.dart';
-
-import 'package:intl/intl.dart';
+import 'package:health_notes/utils/date_utils.dart';
+import 'package:health_notes/utils/severity_utils.dart';
+import 'package:health_notes/widgets/spacing.dart';
 
 typedef ActivityDataExtractor<T> = Map<DateTime, T> Function();
 typedef ColorCalculator<T> = Color Function(T value);
@@ -42,11 +43,11 @@ class ActivityCalendar<T> extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: AppTypography.headlineSmall),
-          const SizedBox(height: 8),
+          VSpace.s,
           Text(subtitle, style: AppTypography.bodySmallSystemGrey),
-          const SizedBox(height: 16),
+          VSpace.m,
           legendBuilder(),
-          const SizedBox(height: 16),
+          VSpace.m,
           activityGrid(context),
         ],
       ),
@@ -64,7 +65,7 @@ class ActivityCalendar<T> extends StatelessWidget {
 
       if (!monthHasActivity(monthDate, daysInMonth)) continue;
 
-      final monthName = DateFormat('MMM yyyy').format(monthDate);
+      final monthName = AppDateUtils.formatMonthYear(monthDate);
       months.add(monthWidget(context, monthDate, monthName, daysInMonth));
     }
 
@@ -92,7 +93,7 @@ class ActivityCalendar<T> extends StatelessWidget {
       children: [
         monthHeader(monthName),
         ...weekRows(context, monthDate, daysInMonth),
-        const SizedBox(height: 16),
+        VSpace.m,
       ],
     );
   }
@@ -209,12 +210,12 @@ class ActivityCalendar<T> extends StatelessWidget {
               size: 48,
               color: CupertinoColors.systemGrey.withValues(alpha: 0.5),
             ),
-            const SizedBox(height: 16),
+            VSpace.m,
             Text(
               'No activity data available',
               style: AppTypography.bodyMediumSystemGreySemibold,
             ),
-            const SizedBox(height: 8),
+            VSpace.s,
             Text(
               'Start recording data to see trends',
               style: AppTypography.bodySmall.copyWith(
@@ -297,32 +298,7 @@ class SeverityActivityCalendar extends StatelessWidget {
   }
 
   Color _severityColor(int severity) {
-    if (severity == 0)
-      return AppColors.backgroundPrimary.withValues(alpha: 0.3);
-
-    final normalizedSeverity = (severity / 10.0).clamp(
-      0.0,
-      1.0,
-    ); // Normalize and clamp to 0.0-1.0
-    final hue = (120 - (normalizedSeverity * 120)).clamp(
-      0.0,
-      360.0,
-    ); // Ensure hue is in valid range
-    final saturation = (30 + (normalizedSeverity * 60)).clamp(
-      0.0,
-      100.0,
-    ); // Ensure saturation is valid
-    final lightness = (85 - (normalizedSeverity * 50)).clamp(
-      0.0,
-      100.0,
-    ); // Ensure lightness is valid
-
-    return HSLColor.fromAHSL(
-      1.0,
-      hue,
-      saturation / 100,
-      lightness / 100,
-    ).toColor();
+    return SeverityUtils.colorForSeverity(severity);
   }
 
   Widget severityLegend() {
@@ -330,7 +306,7 @@ class SeverityActivityCalendar extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Severity Levels:', style: AppTypography.bodyMediumWhiteSemibold),
-        const SizedBox(height: 8),
+        VSpace.s,
         Wrap(
           spacing: 12,
           runSpacing: 8,
@@ -361,7 +337,7 @@ class SeverityActivityCalendar extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 4),
+        HSpace.xs,
         Text(
           label,
           style: AppTypography.bodySmall.copyWith(
@@ -408,8 +384,9 @@ class DosageActivityCalendar extends StatelessWidget {
   }
 
   Color _dosageColor(double dosage, double maxDosage) {
-    if (dosage == 0.0)
+    if (dosage == 0.0) {
       return AppColors.backgroundPrimary.withValues(alpha: 0.3);
+    }
     if (maxDosage == 0.0) return AppColors.primary.withValues(alpha: 0.1);
 
     final intensity = dosage / maxDosage;
@@ -425,7 +402,7 @@ class DosageActivityCalendar extends StatelessWidget {
     return Row(
       children: [
         Text('Less', style: AppTypography.bodySmallSystemGrey),
-        const SizedBox(width: 8),
+        HSpace.s,
         ...List.generate(5, (index) {
           final intensity = (index + 1) / 5.0;
           final baseColor = AppColors.primary;
@@ -443,7 +420,7 @@ class DosageActivityCalendar extends StatelessWidget {
             ),
           );
         }),
-        const SizedBox(width: 8),
+        HSpace.s,
         Text('More', style: AppTypography.bodySmallSystemGrey),
         const Spacer(),
         if (maxDosage > 0)
@@ -509,17 +486,17 @@ class CheckInsActivityCalendar extends StatelessWidget {
 
     switch (count) {
       case 1:
-        return const Color(0xFFE8F5E8); // Very light green
+        return AppColors.activityNone;
       case 2:
-        return const Color(0xFFC8E6C9); // Light green
+        return AppColors.activityLight;
       case 3:
-        return const Color(0xFFA5D6A7); // Medium light green
+        return AppColors.activityMedium;
       case 4:
         return AppColors.success;
       case 5:
-        return const Color(0xFF66BB6A); // Strong green
+        return AppColors.activityStrong;
       default: // 6+
-        return const Color(0xFF4CAF50); // Deep green (best)
+        return AppColors.activityDeep;
     }
   }
 
@@ -531,7 +508,7 @@ class CheckInsActivityCalendar extends StatelessWidget {
           'Daily Check-in Count:',
           style: AppTypography.bodyMediumWhiteSemibold,
         ),
-        const SizedBox(height: 12),
+        VSpace.of(12),
         checkInsLegendRow(),
       ],
     );
@@ -541,10 +518,14 @@ class CheckInsActivityCalendar extends StatelessWidget {
     return Row(
       children: [
         _checkInsLegendItem(0, 'None'),
-        const SizedBox(width: 16),
-        ...[1, 2, 3, 4, 5].expand(
-          (n) => [_checkInsLegendItem(n, '$n'), const SizedBox(width: 12)],
-        ),
+        HSpace.m,
+        ...[
+          1,
+          2,
+          3,
+          4,
+          5,
+        ].expand((n) => [_checkInsLegendItem(n, '$n'), HSpace.of(12)]),
         _checkInsLegendItem(6, '6+'),
       ],
     );
@@ -568,7 +549,7 @@ class CheckInsActivityCalendar extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 4),
+        VSpace.xs,
         Text(
           label,
           style: AppTypography.bodySmall.copyWith(

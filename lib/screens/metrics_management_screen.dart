@@ -8,6 +8,7 @@ import 'package:health_notes/screens/metric_edit_screen.dart';
 import 'package:health_notes/services/offline_repository.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/spacing.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 
 class MetricsManagementScreen extends ConsumerStatefulWidget {
@@ -47,7 +48,7 @@ class _MetricsManagementScreenState
       mainAxisSize: MainAxisSize.min,
       children: [
         const CompactSyncStatusWidget(),
-        const SizedBox(width: 8),
+        HSpace.s,
         CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () async {
@@ -55,7 +56,7 @@ class _MetricsManagementScreenState
           },
           child: const Icon(CupertinoIcons.arrow_2_circlepath),
         ),
-        const SizedBox(width: 6),
+        HSpace.of(6),
         CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () async {
@@ -69,7 +70,7 @@ class _MetricsManagementScreenState
           },
           child: const Icon(CupertinoIcons.arrow_up_arrow_down_circle),
         ),
-        const SizedBox(width: 6),
+        HSpace.of(6),
         CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () => _showAddMetricDialog(context),
@@ -97,18 +98,18 @@ class _MetricsManagementScreenState
             size: 48,
             color: CupertinoColors.systemRed,
           ),
-          const SizedBox(height: 16),
+          VSpace.m,
           Text(
             'Failed to load metrics',
             style: AppTypography.navTitleTextStyle,
           ),
-          const SizedBox(height: 8),
+          VSpace.s,
           Text(
             error.toString(),
             style: AppTypography.baseTextStyle,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 16),
+          VSpace.m,
           CupertinoButton.filled(
             onPressed: () => ref.invalidate(checkInMetricsNotifierProvider),
             child: const Text('Retry'),
@@ -129,15 +130,15 @@ class _MetricsManagementScreenState
               size: 64,
               color: CupertinoColors.systemGrey,
             ),
-            const SizedBox(height: 16),
+            VSpace.m,
             Text('No metrics yet', style: AppTypography.navTitleTextStyle),
-            const SizedBox(height: 8),
+            VSpace.s,
             Text(
               'Add your first metric to start tracking your health',
               style: AppTypography.baseTextStyle,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            VSpace.l,
             CupertinoButton.filled(
               onPressed: () => _showAddMetricDialog(context),
               child: const Text('Add Metric'),
@@ -214,7 +215,7 @@ class _MetricsManagementScreenState
             color: CupertinoColors.systemBlue,
           ),
         ),
-        const SizedBox(width: 6),
+        HSpace.of(6),
         CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () => _showDeleteMetricDialog(context, metric),

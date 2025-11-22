@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
-
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/spacing.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen();
@@ -62,11 +62,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               introIcon(),
-              const SizedBox(height: AppSpacing.xl),
+              VSpace.xl,
               introTextBlock(),
-              const SizedBox(height: AppSpacing.xxl),
+              VSpace.xxl,
               signInButtonSection(),
-              const SizedBox(height: AppSpacing.m),
+              VSpace.m,
               privacyMessage(),
             ],
           ),
@@ -112,13 +112,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
               textAlign: TextAlign.center,
               style: AppTypography.headlineLarge,
             ),
-            const SizedBox(height: AppSpacing.s),
+            VSpace.s,
             Text(
               'Your personal health companion',
               textAlign: TextAlign.center,
               style: AppTypography.bodyLargeSecondary,
             ),
-            const SizedBox(height: AppSpacing.l),
+            VSpace.l,
             Text(
               'Track symptoms, medications, and insights to better understand your health patterns',
               textAlign: TextAlign.center,

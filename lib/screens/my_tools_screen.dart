@@ -9,6 +9,7 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
+import 'package:health_notes/widgets/spacing.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 
 class MyToolsScreen extends ConsumerStatefulWidget {
@@ -87,7 +88,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
           child: Row(
             children: [
               categoryIcon(category),
-              const SizedBox(width: 16),
+              HSpace.m,
               Expanded(child: categoryDetails(category)),
               const Icon(
                 CupertinoIcons.chevron_right,
@@ -160,7 +161,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(category.name, style: AppTypography.labelLarge),
-        const SizedBox(height: 4),
+        VSpace.xs,
         Text(
           category.description,
           style: AppTypography.bodyMediumTertiary,

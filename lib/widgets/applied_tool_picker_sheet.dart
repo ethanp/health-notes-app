@@ -4,6 +4,7 @@ import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/spacing.dart';
 
 class AppliedToolPickerSheet extends ConsumerStatefulWidget {
   final List<dynamic> appliedTools;
@@ -71,12 +72,12 @@ class _AppliedToolPickerSheetState
   Widget sheetContent() {
     return Column(
       children: [
-        const SizedBox(height: 8),
+        VSpace.s,
         grabber(),
-        const SizedBox(height: 12),
+        VSpace.of(12),
         headerRow(),
         paddingHorizontal(searchField()),
-        const SizedBox(height: AppSpacing.s),
+        VSpace.s,
         Expanded(child: toolsList()),
       ],
     );
@@ -143,7 +144,7 @@ class _AppliedToolPickerSheetState
         return ListView.separated(
           padding: const EdgeInsets.all(AppSpacing.m),
           itemCount: filtered.length,
-          separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.s),
+          separatorBuilder: (_, __) => VSpace.s,
           itemBuilder: (context, i) {
             final t = filtered[i];
             final isSelected = widget.appliedTools.any(
@@ -173,7 +174,7 @@ class _AppliedToolPickerSheetState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(tool.name, style: AppTypography.labelLarge),
-                  const SizedBox(height: AppSpacing.xs),
+                  VSpace.xs,
                   Text(
                     tool.description,
                     style: AppTypography.bodySmallSecondary,
@@ -183,7 +184,7 @@ class _AppliedToolPickerSheetState
                 ],
               ),
             ),
-            const SizedBox(width: AppSpacing.m),
+            HSpace.m,
             if (isSelected)
               Text(
                 'Selected',

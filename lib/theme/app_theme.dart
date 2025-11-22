@@ -3,37 +3,40 @@ import 'package:flutter/cupertino.dart';
 /// Core color palette for the Health Notes app
 /// Following professional UI/UX patterns with semantic color naming
 class AppColors {
-  // Primary Brand Colors
+  // Primary colors
   static const Color primary = Color(0xFF6B73FF); // Warm purple-blue
   static const Color primaryLight = Color(0xFF8B93FF);
   static const Color primaryDark = Color(0xFF4A52E0);
 
-  // Secondary Colors
+  // Secondary colors
   static const Color secondary = Color(0xFF64B5F6); // Calming blue
   static const Color accent = Color(0xFF81C784); // Soothing green
   static const Color accentWarm = Color(0xFFFFB74D); // Warm orange
 
-  // Semantic Colors
+  // Status colors
   static const Color destructive = Color(0xFFE57373); // Softer red
   static const Color success = Color(0xFF81C784); // Calming green
   static const Color warning = Color(0xFFFFB74D); // Warm orange
 
-  // Background Colors (elevation hierarchy)
+  // Background colors
   static const Color backgroundPrimary = Color(0xFF1A1B2E); // Deep blue-grey
-  static const Color backgroundSecondary = Color(
-    0xFF252A3A,
-  ); // Warmer secondary
+  static const Color backgroundSecondary = Color(0xFF252A3A); // Warmer secondary
   static const Color backgroundTertiary = Color(0xFF2F3542); // Elevated surface
-  static const Color backgroundQuaternary = Color(
-    0xFF3A4151,
-  ); // Higher elevation
+  static const Color backgroundQuaternary = Color(0xFF3A4151); // Higher elevation
   static const Color backgroundQuinary = Color(0xFF4A5568); // Highest elevation
 
-  // Text Colors (readability hierarchy)
+  // Text colors
   static const Color textPrimary = Color(0xFFF8FAFC); // Almost white
   static const Color textSecondary = Color(0xFFE2E8F0); // Soft white
   static const Color textTertiary = Color(0xFFCBD5E1); // Muted white
   static const Color textQuaternary = Color(0xFF94A3B8); // Very muted
+
+  // Activity intensity colors (for calendars and visualizations)
+  static const Color activityNone = Color(0xFFE8F5E8); // Very light green
+  static const Color activityLight = Color(0xFFC8E6C9); // Light green
+  static const Color activityMedium = Color(0xFFA5D6A7); // Medium light green
+  static const Color activityStrong = Color(0xFF66BB6A); // Strong green
+  static const Color activityDeep = Color(0xFF4CAF50); // Deep green
 }
 
 /// Typography system for consistent text styling

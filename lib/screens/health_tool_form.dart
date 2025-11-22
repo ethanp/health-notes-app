@@ -4,8 +4,8 @@ import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/models/health_tool_category.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
-
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/spacing.dart';
 
 class HealthToolForm extends ConsumerStatefulWidget {
   final HealthTool? tool;
@@ -77,9 +77,9 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
             padding: const EdgeInsets.all(16),
             children: [
               nameSection(),
-              const SizedBox(height: 16),
+              VSpace.m,
               descriptionSection(),
-              const SizedBox(height: 16),
+              VSpace.m,
               categorySection(categoriesAsync),
             ],
           ),
@@ -96,7 +96,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Tool Name', style: AppTypography.headlineSmall),
-          const SizedBox(height: 16),
+          VSpace.m,
           CupertinoTextField(
             controller: _nameController,
             placeholder: 'Enter tool name',
@@ -117,12 +117,12 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Description', style: AppTypography.headlineSmall),
-          const SizedBox(height: 8),
+          VSpace.s,
           Text(
             'Describe what this tool is and how to use it',
             style: AppTypography.bodyMediumTertiary,
           ),
-          const SizedBox(height: 16),
+          VSpace.m,
           CupertinoTextField(
             controller: _descriptionController,
             placeholder: 'Enter detailed description...',
@@ -145,7 +145,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Category', style: AppTypography.headlineSmall),
-          const SizedBox(height: 16),
+          VSpace.m,
           categoriesAsync.when(
             data: (categories) => categoryContent(categories),
             loading: () => EnhancedUIComponents.loadingIndicator(
@@ -189,7 +189,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
             color: AppColors.primary,
             size: 20,
           ),
-          const SizedBox(width: 8),
+          HSpace.s,
           Text(category.name, style: AppTypography.bodyMedium),
         ],
       ),

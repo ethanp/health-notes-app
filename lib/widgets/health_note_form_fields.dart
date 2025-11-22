@@ -13,6 +13,7 @@ import 'package:health_notes/widgets/health_note_form/general_notes_section.dart
 import 'package:health_notes/widgets/health_note_form/medications_section.dart';
 import 'package:health_notes/widgets/health_note_form/symptoms_section.dart';
 import 'package:health_notes/providers/medication_recommendations_provider.dart';
+import 'package:health_notes/widgets/spacing.dart';
 
 class HealthNoteFormFields extends ConsumerStatefulWidget {
   final HealthNote? note;
@@ -165,7 +166,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const SizedBox(height: 20),
+        VSpace.of(20),
         DateTimeSection(
           isEditable: widget.isEditable,
           selectedDateTime: _selectedDateTime,
@@ -174,7 +175,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
             widget.onDateTimeChanged?.call(newDateTime);
           },
         ),
-        const SizedBox(height: 20),
+        VSpace.of(20),
         SymptomsSection(
           isEditable: widget.isEditable,
           symptoms: _symptoms,
@@ -185,7 +186,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
           onUpdateFromSuggestion: updateSymptomFromSuggestion,
           onUpdate: updateSymptom,
         ),
-        const SizedBox(height: 16),
+        VSpace.m,
         MedicationsSection(
           isEditable: widget.isEditable,
           drugDoses: _drugDoses,
@@ -204,7 +205,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
           onRemove: removeDrugDose,
           onUpdate: updateDrugDose,
         ),
-        const SizedBox(height: 16),
+        VSpace.m,
         AppliedToolsSection(
           isEditable: widget.isEditable,
           appliedTools: _appliedTools,
@@ -213,13 +214,13 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
           onRemove: removeAppliedTool,
           onUpdateNote: updateAppliedToolNote,
         ),
-        const SizedBox(height: 16),
+        VSpace.m,
         GeneralNotesSection(
           isEditable: widget.isEditable,
           notesController: _notesController,
           onNotesChanged: widget.onNotesChanged,
         ),
-        const SizedBox(height: 40),
+        VSpace.of(40),
       ],
     );
   }

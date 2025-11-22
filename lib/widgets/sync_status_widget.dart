@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/providers/sync_provider.dart';
 import 'package:health_notes/services/offline_repository.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/spacing.dart';
 
 /// Compact sync status indicator for app bars
 class CompactSyncStatusWidget extends ConsumerWidget {
@@ -134,7 +135,7 @@ class SyncStatusWidget extends ConsumerWidget {
             ),
           ),
           if (message != null) ...[
-            const SizedBox(height: AppSpacing.m),
+            VSpace.m,
             Text(
               message!,
               style: AppTypography.bodyMedium,
@@ -171,10 +172,7 @@ class SyncStatusWidget extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ..._syncingStateContent(isConnected, isSyncing, syncError),
-                if (child != null) ...[
-                  const SizedBox(height: AppSpacing.m),
-                  child!,
-                ],
+                if (child != null) ...[VSpace.m, child!],
               ],
             ),
           ),
@@ -195,13 +193,13 @@ class SyncStatusWidget extends ConsumerWidget {
           size: 48,
           color: CupertinoColors.systemRed,
         ),
-        const SizedBox(height: AppSpacing.m),
+        VSpace.m,
         Text(
           'No internet connection',
           style: AppTypography.headlineSmall,
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: AppSpacing.s),
+        VSpace.s,
         Text(
           'Data will sync when connection is restored',
           style: AppTypography.bodyMediumSystemGrey,
@@ -217,20 +215,20 @@ class SyncStatusWidget extends ConsumerWidget {
           size: 48,
           color: CupertinoColors.systemOrange,
         ),
-        const SizedBox(height: AppSpacing.m),
+        VSpace.m,
         Text(
           'Sync Error',
           style: AppTypography.headlineSmall,
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: AppSpacing.s),
+        VSpace.s,
         Text(
           syncError,
           style: AppTypography.bodyMediumSystemGrey,
           textAlign: TextAlign.center,
         ),
         if (onRetry != null) ...[
-          const SizedBox(height: AppSpacing.m),
+          VSpace.m,
           CupertinoButton.filled(
             onPressed: onRetry,
             child: const Text('Retry'),
@@ -242,14 +240,14 @@ class SyncStatusWidget extends ConsumerWidget {
     if (isSyncing) {
       return [
         const CupertinoActivityIndicator(radius: 24, color: AppColors.primary),
-        const SizedBox(height: AppSpacing.m),
+        VSpace.m,
         Text(
           'Syncing data...',
           style: AppTypography.headlineSmall,
           textAlign: TextAlign.center,
         ),
         if (message != null) ...[
-          const SizedBox(height: AppSpacing.s),
+          VSpace.s,
           Text(
             message!,
             style: AppTypography.bodyMediumSystemGrey,
@@ -265,7 +263,7 @@ class SyncStatusWidget extends ConsumerWidget {
         size: 48,
         color: CupertinoColors.systemGreen,
       ),
-      const SizedBox(height: AppSpacing.m),
+      VSpace.m,
       Text(
         'Data in sync',
         style: AppTypography.headlineSmall,
@@ -288,7 +286,7 @@ class SyncStatusWidget extends ConsumerWidget {
       child: Row(
         children: [
           const CupertinoActivityIndicator(radius: 10),
-          const SizedBox(width: AppSpacing.m),
+          HSpace.m,
           Expanded(
             child: Text(
               message ?? 'Loading...',
@@ -328,14 +326,14 @@ class SyncStatusWidget extends ConsumerWidget {
               size: 48,
               color: CupertinoColors.systemRed,
             ),
-            const SizedBox(height: AppSpacing.m),
+            VSpace.m,
             Text(
               'Error',
               style: AppTypography.headlineSmall,
               textAlign: TextAlign.center,
             ),
             if (errorMessage != null) ...[
-              const SizedBox(height: AppSpacing.s),
+              VSpace.s,
               Text(
                 errorMessage!,
                 style: AppTypography.bodyMediumSystemGrey,
@@ -343,16 +341,13 @@ class SyncStatusWidget extends ConsumerWidget {
               ),
             ],
             if (onRetry != null) ...[
-              const SizedBox(height: AppSpacing.m),
+              VSpace.m,
               CupertinoButton.filled(
                 onPressed: onRetry,
                 child: const Text('Retry'),
               ),
             ],
-            if (child != null) ...[
-              const SizedBox(height: AppSpacing.m),
-              child!,
-            ],
+            if (child != null) ...[VSpace.m, child!],
           ],
         ),
       ),

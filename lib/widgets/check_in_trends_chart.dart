@@ -8,6 +8,7 @@ import 'package:health_notes/models/date_range_filter.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/color_mapping_utils.dart';
 import 'package:intl/intl.dart';
+import 'package:health_notes/widgets/spacing.dart';
 
 class CheckInTrendsChart extends StatefulWidget {
   final List<CheckIn> checkIns;
@@ -98,11 +99,11 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           header,
-          const SizedBox(height: 16),
+          VSpace.m,
           dateRangeSelector,
-          const SizedBox(height: 12),
+          VSpace.of(12),
           indicator,
-          const SizedBox(height: 12),
+          VSpace.of(12),
           charts,
         ],
       ),
@@ -147,7 +148,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
               size: 14,
               color: isHidden ? AppColors.textTertiary : color,
             ),
-            const SizedBox(width: 5),
+            HSpace.of(5),
             Text(
               metric,
               style: AppTypography.bodySmall.copyWith(
@@ -188,7 +189,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
             size: 14,
             color: CupertinoColors.systemGreen,
           ),
-          const SizedBox(width: 6),
+          HSpace.of(6),
           Expanded(
             child: Text(
               'Green zones: 1-3 (Lower is Better), 4-7 (Middle is Best), 8-10 (Higher is Better)',
@@ -236,14 +237,14 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
           _getTypeDisplayName(type),
           style: AppTypography.bodySmallSemiboldPrimary,
         ),
-        const SizedBox(height: 6),
+        VSpace.of(6),
         legendForType(type, typeMetrics),
-        const SizedBox(height: 6),
+        VSpace.of(6),
         SizedBox(
           height: kChartTotalHeight,
           child: singleChart(typeMetrics, type),
         ),
-        const SizedBox(height: 12),
+        VSpace.of(12),
       ],
     );
   }

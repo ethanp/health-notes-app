@@ -1,21 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/grouped_health_notes.dart';
 import 'package:health_notes/models/health_note.dart';
-import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/screens/filter_modal.dart';
 import 'package:health_notes/screens/health_note_form.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/services/search_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
-
 import 'package:health_notes/utils/auth_utils.dart';
-import 'package:health_notes/widgets/animated_welcome_card.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/health_note_card.dart';
+import 'package:health_notes/widgets/animated_welcome_card.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
+import 'package:health_notes/widgets/spacing.dart';
 import 'package:intl/intl.dart';
 
 class HealthNotesHomePage extends ConsumerStatefulWidget {
@@ -129,7 +128,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
           mainAxisSize: MainAxisSize.min,
           children: [
             const CompactSyncStatusWidget(),
-            const SizedBox(width: 8),
+            HSpace.s,
             CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: showAddNoteModal,
@@ -199,7 +198,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
               showSuffix: _searchQuery.isNotEmpty,
             ),
           ),
-          const SizedBox(width: AppSpacing.s),
+          HSpace.s,
           EnhancedUIComponents.button(
             text: '',
             onPressed: () => showFilterModal(),
@@ -371,19 +370,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
       background: noteDismissBackground(),
       confirmDismiss: (direction) async => await showDeleteConfirmation(note),
       onDismissed: (direction) => deleteNote(note.id),
-      child: EnhancedUIComponents.card(
-        onTap: () => navigateToView(note),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            noteContent(note),
-            if (note.notes.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.m),
-              noteSummary(note.notes),
-            ],
-          ],
-        ),
-      ),
+      child: HealthNoteCard(note: note, onTap: () => navigateToView(note)),
     );
   }
 
@@ -404,157 +391,6 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
         color: CupertinoColors.white,
         size: 30,
       ),
-    );
-  }
-
-  Widget noteContent(HealthNote note) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [Expanded(child: noteContentColumn(note))],
-    );
-  }
-
-  Widget noteContentColumn(HealthNote note) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (note.hasSymptoms) ...symptomDetails(note),
-        if (note.drugDoses.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.s),
-          ...note.drugDoses.map(medicationRow),
-        ],
-        if (note.appliedTools.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.s),
-          appliedToolsRow(note),
-        ],
-      ],
-    );
-  }
-
-  List<Widget> symptomDetails(HealthNote note) {
-    return note.validSymptoms.map((symptom) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            symptomHeader(note, symptom),
-            if (symptom.additionalNotes.isNotEmpty)
-              symptomAdditionalNotes(symptom),
-          ],
-        ),
-      );
-    }).toList();
-  }
-
-  Widget symptomHeader(HealthNote note, Symptom symptom) {
-    return Row(
-      children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: const BoxDecoration(
-            color: AppColors.primary,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: AppSpacing.s),
-        EnhancedUIComponents.statusIndicator(
-          text: '${symptom.severityLevel}/10',
-          color: AppColors.primary,
-        ),
-        const SizedBox(width: AppSpacing.s),
-        Expanded(
-          child: Text(
-            symptom.minorComponent.isNotEmpty
-                ? '${symptom.majorComponent} - ${symptom.minorComponent}'
-                : symptom.majorComponent,
-            style: AppTypography.labelLarge,
-          ),
-        ),
-        Text(
-          DateFormat('h:mm a').format(note.dateTime),
-          style: AppTypography.caption,
-        ),
-      ],
-    );
-  }
-
-  Widget symptomAdditionalNotes(Symptom symptom) {
-    return Padding(
-      padding: const EdgeInsets.only(left: AppSpacing.s + 8),
-      child: Text(
-        symptom.additionalNotes,
-        style: AppTypography.bodySmallSecondary,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  Widget medicationRow(DrugDose dose) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-      child: Row(
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: const BoxDecoration(
-              color: AppColors.accent,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.s),
-          Expanded(
-            child: Text(
-              '${dose.name} ${dose.dosage}',
-              style: AppTypography.labelMedium,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget appliedToolsRow(HealthNote note) {
-    final toolNames = note.appliedTools.map((t) => t.toolName).toList();
-    return Padding(
-      padding: const EdgeInsets.only(top: AppSpacing.xs),
-      child: Wrap(
-        spacing: AppSpacing.s,
-        runSpacing: AppSpacing.s,
-        children: toolNames.map((name) {
-          return Container(
-            decoration: AppComponents.filterChip,
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.m,
-              vertical: AppSpacing.s,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  CupertinoIcons.wrench,
-                  size: 14,
-                  color: AppColors.primary,
-                ),
-                const SizedBox(width: AppSpacing.s),
-                Text(name, style: AppTypography.labelMedium),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget noteSummary(String notes) {
-    return Text(
-      notes,
-      style: AppTypography.bodySmall,
-      maxLines: 3,
-      overflow: TextOverflow.ellipsis,
     );
   }
 

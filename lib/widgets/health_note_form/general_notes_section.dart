@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/spacing.dart';
 
 class GeneralNotesSection extends StatelessWidget {
   final bool isEditable;
@@ -23,7 +24,7 @@ class GeneralNotesSection extends StatelessWidget {
           : AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [_header(), const SizedBox(height: 8), _content()],
+        children: [_header(), VSpace.s, _content()],
       ),
     );
   }

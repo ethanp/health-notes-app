@@ -2,14 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/drug_dose.dart';
-import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
-
 import 'package:health_notes/services/text_normalizer.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/utils/date_utils.dart';
+import 'package:health_notes/utils/note_filter_utils.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
-import 'package:intl/intl.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/health_note_card.dart';
+import 'package:health_notes/widgets/trends_components.dart';
+import 'package:health_notes/widgets/spacing.dart';
 
 class DrugTrendsScreen extends ConsumerStatefulWidget {
   final String drugName;
@@ -64,13 +66,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
   }
 
   Widget drugTrendsContent(List<HealthNote> notes) {
-    final drugNotes = notes
-        .where(
-          (note) => note.drugDoses.any(
-            (drug) => _normalizer.areEqual(drug.name, widget.drugName),
-          ),
-        )
-        .toList();
+    final drugNotes = NoteFilterUtils.byDrug(notes, widget.drugName);
 
     if (drugNotes.isEmpty) {
       return EnhancedUIComponents.emptyState(
@@ -80,8 +76,17 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
       );
     }
 
-    final activityData = _generateActivityData(drugNotes);
-    final filteredNotes = _filterNotes(drugNotes);
+    final sortedDrugNotes = NoteFilterUtils.sortByDateDescending(drugNotes);
+    final activityData = TrendsActivityDataGenerator.generate<double>(
+      notes: sortedDrugNotes,
+      valueExtractor: (note) => _totalDosageForNote(note),
+      aggregator: (existing, newValue) => existing + newValue,
+    );
+    final filteredNotes = _searchQuery.isEmpty
+        ? sortedDrugNotes
+        : NoteFilterUtils.sortByDateDescending(
+            NoteFilterUtils.bySearchQuery(sortedDrugNotes, _searchQuery),
+          );
 
     return CustomScrollView(
       slivers: [
@@ -95,9 +100,9 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               activityChart(activityData),
-              const SizedBox(height: 20),
+              VSpace.of(20),
               searchSection(),
-              const SizedBox(height: 20),
+              VSpace.of(20),
               drugNotesList(filteredNotes),
             ]),
           ),
@@ -119,7 +124,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Search Notes', style: AppTypography.labelLarge),
-        const SizedBox(height: 12),
+        VSpace.of(12),
         EnhancedUIComponents.searchField(
           controller: _searchController,
           placeholder: 'Search notes containing ${widget.drugName}...',
@@ -134,194 +139,53 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
   }
 
   Widget drugNotesList(List<HealthNote> notes) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Health Notes (${notes.length})',
-              style: AppTypography.labelLarge,
-            ),
-            if (notes.isNotEmpty)
-              Text(
-                'Total doses: ${_calculateTotalDoses(notes)}',
-                style: AppTypography.bodySmallSystemGrey,
-              ),
-          ],
+    if (notes.isEmpty) {
+      return const NoMatchingNotesState();
+    }
+
+    return NotesSection(
+      noteCount: notes.length,
+      noteCards: [
+        Align(
+          alignment: Alignment.centerRight,
+          child: Text(
+            'Total doses: ${_calculateTotalDoses(notes)}',
+            style: AppTypography.bodySmallSystemGrey,
+          ),
         ),
-        const SizedBox(height: 12),
-        if (notes.isEmpty)
-          Container(
-            decoration: AppComponents.primaryCard,
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(
-                  CupertinoIcons.search,
-                  color: CupertinoColors.systemGrey,
-                  size: 20,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'No notes match your search criteria',
-                    style: AppTypography.bodyMediumSystemGrey,
-                  ),
-                ),
-              ],
-            ),
-          )
-        else
-          ...notes.map((note) => drugNoteCard(note)),
+        VSpace.of(12),
+        ...notes.map(
+          (note) =>
+              HealthNoteCard(note: note, onTap: () => _showNoteDetail(note)),
+        ),
       ],
     );
   }
 
-  Widget drugNoteCard(HealthNote note) {
-    final relevantDoses = note.drugDoses
+  List<DrugDose> _relevantDoses(HealthNote note) {
+    return note.drugDoses
         .where((drug) => _normalizer.areEqual(drug.name, widget.drugName))
         .toList();
+  }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: AppComponents.primaryCard,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            noteHeader(note.dateTime),
-            const SizedBox(height: 12),
-            ...relevantDoses.map(dosageContainer),
-            if (note.symptomsList.isNotEmpty) symptomsInfo(note.symptomsList),
-            if (note.notes.isNotEmpty) notesInfo(note.notes),
-          ],
-        ),
+  double _totalDosageForNote(HealthNote note) {
+    return _relevantDoses(
+      note,
+    ).map((dose) => dose.dosage).fold<double>(0, (sum, value) => sum + value);
+  }
+
+  void _showNoteDetail(HealthNote note) {
+    final relevantDoses = _relevantDoses(note);
+    final totalDosage = _totalDosageForNote(note);
+
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) => dosageDetailAlert(
+        AppDateUtils.formatLongDate(note.dateTime),
+        totalDosage,
+        relevantDoses,
       ),
     );
-  }
-
-  Widget noteHeader(DateTime dateTime) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          DateFormat('EEEE, MMMM dd, yyyy').format(dateTime),
-          style: AppTypography.labelMedium,
-        ),
-        Text(
-          DateFormat('h:mm a').format(dateTime),
-          style: AppTypography.bodySmallSystemGrey,
-        ),
-      ],
-    );
-  }
-
-  Widget dosageContainer(DrugDose dose) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(CupertinoIcons.capsule, color: AppColors.primary, size: 20),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              dose.fullDisplay,
-              style: AppTypography.bodyMediumSemibold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget symptomsInfo(List<Symptom> symptoms) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 8),
-        Text(
-          'Symptoms: ${symptoms.map((s) => s.fullDescription).join(', ')}',
-          style: AppTypography.bodySmallSystemGrey,
-        ),
-      ],
-    );
-  }
-
-  Widget notesInfo(String notes) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 8),
-        Text('Notes: $notes', style: AppTypography.bodySmallSystemGrey),
-      ],
-    );
-  }
-
-  Map<DateTime, double> _generateActivityData(List<HealthNote> notes) {
-    final activityMap = <DateTime, double>{};
-
-    for (final note in notes) {
-      final dateKey = DateTime(
-        note.dateTime.year,
-        note.dateTime.month,
-        note.dateTime.day,
-      );
-
-      final relevantDoses = note.drugDoses
-          .where((drug) => _normalizer.areEqual(drug.name, widget.drugName))
-          .toList();
-
-      if (relevantDoses.isNotEmpty) {
-        final totalDosage = relevantDoses
-            .map((dose) => dose.dosage)
-            .reduce((a, b) => a + b);
-
-        activityMap.update(
-          dateKey,
-          (existing) => existing + totalDosage,
-          ifAbsent: () => totalDosage,
-        );
-      }
-    }
-
-    return activityMap;
-  }
-
-  List<HealthNote> _filterNotes(List<HealthNote> notes) {
-    if (_searchQuery.isEmpty) {
-      return notes.reversed.toList();
-    }
-
-    final query = _searchQuery.toLowerCase();
-    return notes
-        .where(
-          (note) =>
-              _normalizer.contains(note.notes, query) ||
-              note.symptomsList.any(
-                (symptom) =>
-                    _normalizer.contains(symptom.majorComponent, query) ||
-                    _normalizer.contains(symptom.minorComponent, query) ||
-                    _normalizer.contains(symptom.additionalNotes, query),
-              ) ||
-              note.drugDoses.any(
-                (drug) => _normalizer.contains(drug.name, query),
-              ),
-        )
-        .toList()
-        .reversed
-        .toList();
   }
 
   int _calculateTotalDoses(List<HealthNote> notes) {
@@ -333,7 +197,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
 
   void _showDateInfo(BuildContext context, DateTime date, double dosage) {
     if (dosage == 0) {
-      final formattedDate = DateFormat('EEEE, MMMM dd, yyyy').format(date);
+      final formattedDate = AppDateUtils.formatLongDate(date);
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) =>
@@ -348,7 +212,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
     final notesForDate = _findNotesForDateWithDrug(notes, date);
 
     if (notesForDate.isEmpty) {
-      final formattedDate = DateFormat('EEEE, MMMM dd, yyyy').format(date);
+      final formattedDate = AppDateUtils.formatLongDate(date);
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) =>
@@ -357,7 +221,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
       return;
     }
 
-    final formattedDate = DateFormat('EEEE, MMMM dd, yyyy').format(date);
+    final formattedDate = AppDateUtils.formatLongDate(date);
     final relevantDoses = notesForDate
         .expand((note) => note.drugDoses)
         .where((drug) => _normalizer.areEqual(drug.name, widget.drugName))
@@ -387,18 +251,14 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
     List<HealthNote> notes,
     DateTime date,
   ) {
-    return notes.where((note) {
-      final noteDate = DateTime(
-        note.dateTime.year,
-        note.dateTime.month,
-        note.dateTime.day,
-      );
-      final targetDate = DateTime(date.year, date.month, date.day);
-      return noteDate.isAtSameMomentAs(targetDate) &&
-          note.drugDoses.any(
-            (drug) => _normalizer.areEqual(drug.name, widget.drugName),
-          );
-    }).toList();
+    final targetDate = AppDateUtils.dateOnly(date);
+    return notes
+        .where(
+          (note) =>
+              AppDateUtils.isSameDay(note.dateTime, targetDate) &&
+              _relevantDoses(note).isNotEmpty,
+        )
+        .toList();
   }
 
   CupertinoAlertDialog dosageSummaryAlert(
@@ -434,7 +294,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
             'Total dosage: ${dosage.toStringAsFixed(dosage.truncateToDouble() == dosage ? 0 : 1)}mg',
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 16),
+          VSpace.m,
           ...relevantDoses.map((dose) => doseRow(dose)),
         ],
       ),
@@ -453,7 +313,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
       child: Row(
         children: [
           Icon(CupertinoIcons.capsule, color: AppColors.primary, size: 16),
-          const SizedBox(width: 8),
+          HSpace.s,
           Expanded(
             child: Text(dose.fullDisplay, style: const TextStyle(fontSize: 14)),
           ),

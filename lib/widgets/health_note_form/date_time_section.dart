@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/spacing.dart';
+import 'package:intl/intl.dart';
 
 class DateTimeSection extends StatelessWidget {
   final bool isEditable;
@@ -23,7 +24,7 @@ class DateTimeSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Date & Time', style: AppTypography.headlineSmall),
-          const SizedBox(height: 16),
+          VSpace.m,
           if (isEditable)
             Container(
               height: 200,
@@ -43,7 +44,7 @@ class DateTimeSection extends StatelessWidget {
                   DateFormat('EEEE, MMMM d, yyyy').format(selectedDateTime),
                   style: AppTypography.headlineSmall,
                 ),
-                const SizedBox(height: 4),
+                VSpace.xs,
                 Text(
                   DateFormat('h:mm a').format(selectedDateTime),
                   style: AppTypography.bodyMediumTertiary,

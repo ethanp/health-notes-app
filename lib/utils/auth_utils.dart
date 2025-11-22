@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
-
 import 'package:health_notes/providers/user_profile_provider.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/spacing.dart';
 import 'package:health_notes/widgets/user_avatar_widget.dart';
 
 class AuthUtils {
@@ -21,18 +21,18 @@ class AuthUtils {
               contentWidget: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SizedBox(height: 8),
+                  VSpace.s,
                   UserAvatarWidget(
                     avatarUrl: userProfile?.avatarUrl,
                     fullName: userProfile?.fullName,
                     size: 60,
                   ),
-                  const SizedBox(height: 8),
+                  VSpace.s,
                   Text(
                     userProfile?.fullName ?? 'User',
                     style: AppTypography.bodyMediumSemibold,
                   ),
-                  const SizedBox(height: 16),
+                  VSpace.m,
                   Text(
                     'Are you sure you want to sign out?',
                     style: AppTypography.bodyMedium,
@@ -47,12 +47,12 @@ class AuthUtils {
             ),
             loading: () => AppAlertDialogs.custom(
               title: 'Sign Out',
-              contentWidget: const Column(
+              contentWidget: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CupertinoActivityIndicator(),
-                  SizedBox(height: 16),
-                  Text('Loading user information...'),
+                  const CupertinoActivityIndicator(),
+                  VSpace.m,
+                  const Text('Loading user information...'),
                 ],
               ),
               showCancelButton: true,

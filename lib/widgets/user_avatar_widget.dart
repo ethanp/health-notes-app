@@ -24,7 +24,7 @@ class UserAvatarWidget extends StatelessWidget {
 
   Widget avatarContent() {
     if (avatarUrl == null || avatarUrl!.isEmpty) {
-      return googleAvatar();
+      return defaultAvatar();
     }
 
     return Image.network(
@@ -39,13 +39,9 @@ class UserAvatarWidget extends StatelessWidget {
             }
           : null,
       errorBuilder: (context, error, stackTrace) {
-        return googleAvatar();
+        return defaultAvatar();
       },
     );
-  }
-
-  Widget googleAvatar() {
-    return defaultAvatar();
   }
 
   Widget defaultAvatar() {

@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:health_notes/theme/app_theme.dart';
-
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/spacing.dart';
 
 class AnimatedWelcomeCard extends StatefulWidget {
   final String title;
@@ -124,22 +124,19 @@ class _AnimatedWelcomeCardState extends State<AnimatedWelcomeCard>
                 );
               },
             ),
-            const SizedBox(height: AppSpacing.l),
+            VSpace.l,
             Text(
               widget.title,
               style: AppTypography.headlineMedium,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: AppSpacing.m),
+            VSpace.m,
             Text(
               widget.message,
               style: AppTypography.bodyMediumSecondary,
               textAlign: TextAlign.center,
             ),
-            if (widget.action != null) ...[
-              const SizedBox(height: AppSpacing.l),
-              widget.action!,
-            ],
+            if (widget.action != null) ...[VSpace.l, widget.action!],
           ],
         ),
       ),
@@ -227,16 +224,16 @@ class _AnimatedProgressCardState extends State<AnimatedProgressCard>
                   color: widget.progressColor ?? AppColors.primary,
                   size: 24,
                 ),
-                const SizedBox(width: AppSpacing.s),
+                HSpace.s,
               ],
               Expanded(
                 child: Text(widget.title, style: AppTypography.labelLarge),
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.s),
+          VSpace.s,
           Text(widget.message, style: AppTypography.bodySmallTertiary),
-          const SizedBox(height: AppSpacing.m),
+          VSpace.m,
           AnimatedBuilder(
             animation: _progressAnimation,
             builder: (context, child) {
@@ -258,7 +255,7 @@ class _AnimatedProgressCardState extends State<AnimatedProgressCard>
                       ),
                     ],
                   ),
-                  const SizedBox(height: AppSpacing.s),
+                  VSpace.s,
                   Container(
                     height: 8,
                     decoration: BoxDecoration(

@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/screens/check_in_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
-
-import 'package:intl/intl.dart';
+import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/utils/date_utils.dart';
 
 class CheckInDateDetailScreen extends StatefulWidget {
   final DateTime date;
@@ -51,19 +51,12 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
   }
 
   List<CheckIn> get filteredCheckIns {
-    return widget.allCheckIns.where((checkIn) {
-      final checkInDate = DateTime(
-        checkIn.dateTime.year,
-        checkIn.dateTime.month,
-        checkIn.dateTime.day,
-      );
-      final targetDate = DateTime(
-        widget.date.year,
-        widget.date.month,
-        widget.date.day,
-      );
-      return checkInDate.isAtSameMomentAs(targetDate);
-    }).toList();
+    final targetDate = AppDateUtils.dateOnly(widget.date);
+    return widget.allCheckIns
+        .where(
+          (checkIn) => AppDateUtils.isSameDay(checkIn.dateTime, targetDate),
+        )
+        .toList();
   }
 
   void showEditCheckInForm(CheckIn checkIn) {
@@ -94,7 +87,7 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            DateFormat('EEEE, MMMM dd, yyyy').format(widget.date),
+            AppDateUtils.formatLongDate(widget.date),
             style: AppTypography.headlineSmallPrimary,
           ),
           CupertinoButton(
@@ -131,9 +124,9 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
                     checkIn.metricName,
                     style: AppTypography.labelLargePrimary,
                   ),
-                  const SizedBox(height: 4),
+                  VSpace.xs,
                   Text(
-                    DateFormat('h:mm a').format(checkIn.dateTime),
+                    AppDateUtils.formatTime(checkIn.dateTime),
                     style: AppTypography.bodySmallSecondary,
                   ),
                 ],
@@ -183,12 +176,12 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
               size: 48,
               color: AppColors.textSecondary,
             ),
-            const SizedBox(height: 16),
+            VSpace.m,
             Text(
               'No check-ins for this date',
               style: AppTypography.bodyMediumPrimary,
             ),
-            const SizedBox(height: 8),
+            VSpace.s,
             Text(
               'Check-ins will appear here when you add them',
               style: AppTypography.bodySmallSecondary,

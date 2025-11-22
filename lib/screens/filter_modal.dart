@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
-
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/spacing.dart';
 import 'package:intl/intl.dart';
 
 class FilterModal extends StatefulWidget {
@@ -53,15 +53,12 @@ class _FilterModalState extends State<FilterModal> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            const SizedBox(height: 20),
+            VSpace.of(20),
             dateFilterSection(),
-            const SizedBox(height: 20),
+            VSpace.of(20),
             drugFilterSection(),
-            if (_isDatePickerVisible) ...[
-              const SizedBox(height: 20),
-              datePickerOverlay(),
-            ],
-            const SizedBox(height: 40),
+            if (_isDatePickerVisible) ...[VSpace.of(20), datePickerOverlay()],
+            VSpace.of(40),
           ],
         ),
       ),
@@ -76,14 +73,11 @@ class _FilterModalState extends State<FilterModal> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Filter by Date', style: AppTypography.headlineSmall),
-          const SizedBox(height: 16),
+          VSpace.m,
           Row(
             children: [
               Expanded(child: dateSelectorButton()),
-              if (_tempSelectedDate != null) ...[
-                const SizedBox(width: 8),
-                clearDateButton(),
-              ],
+              if (_tempSelectedDate != null) ...[HSpace.s, clearDateButton()],
             ],
           ),
         ],
@@ -133,7 +127,7 @@ class _FilterModalState extends State<FilterModal> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Filter by Drug', style: AppTypography.headlineSmall),
-          const SizedBox(height: 16),
+          VSpace.m,
           if (widget.availableDrugs.isEmpty)
             Text(
               'No drugs recorded yet',
@@ -180,7 +174,7 @@ class _FilterModalState extends State<FilterModal> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          VSpace.m,
           Container(
             height: 300,
             decoration: AppComponents.inputField,

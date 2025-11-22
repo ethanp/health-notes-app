@@ -6,6 +6,7 @@ import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/spacing.dart';
 
 class CheckInForm extends ConsumerStatefulWidget {
   final CheckIn? checkIn;
@@ -113,9 +114,9 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
             size: 48,
             color: CupertinoColors.systemGrey,
           ),
-          const SizedBox(height: 16),
+          VSpace.m,
           Text('No metrics available', style: AppTypography.navTitleTextStyle),
-          const SizedBox(height: 8),
+          VSpace.s,
           Text(
             'Add some metrics to start tracking your health',
             style: AppTypography.baseTextStyle,
@@ -136,18 +137,18 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
             size: 48,
             color: CupertinoColors.systemRed,
           ),
-          const SizedBox(height: 16),
+          VSpace.m,
           Text(
             'Failed to load metrics',
             style: AppTypography.navTitleTextStyle,
           ),
-          const SizedBox(height: 8),
+          VSpace.s,
           Text(
             error.toString(),
             style: AppTypography.baseTextStyle,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 16),
+          VSpace.m,
           CupertinoButton.filled(
             onPressed: () => ref.invalidate(checkInMetricsNotifierProvider),
             child: const Text('Retry'),
@@ -165,7 +166,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Your Ratings', style: AppTypography.headlineSmall),
-          const SizedBox(height: 16),
+          VSpace.m,
           ..._selectedMetrics.entries.map(
             (entry) => metricRatingSelector(entry, userMetrics),
           ),
@@ -190,7 +191,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
       children: [
         sliderMetadata(metric, rating, metricName),
         ratingSliderRow(metricName, rating),
-        const SizedBox(height: 12),
+        VSpace.of(12),
       ],
     );
   }
@@ -199,9 +200,9 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     return Row(
       children: [
         _ratingPill(metric, rating),
-        const SizedBox(width: 16),
+        HSpace.m,
         Icon(metric.icon, size: 20, color: AppColors.textPrimary),
-        const SizedBox(width: 12),
+        HSpace.of(12),
         Expanded(child: Text(metric.name, style: AppTypography.labelLarge)),
         CupertinoButton(
           padding: EdgeInsets.zero,
@@ -266,7 +267,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Date & Time', style: AppTypography.headlineSmall),
-          const SizedBox(height: 16),
+          VSpace.m,
           Container(
             height: 200,
             decoration: AppComponents.inputField,

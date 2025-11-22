@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_tool_category.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
-
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/spacing.dart';
 
 class HealthToolCategoryForm extends ConsumerStatefulWidget {
   final HealthToolCategory? category;
@@ -100,11 +100,11 @@ class _HealthToolCategoryFormState
             padding: const EdgeInsets.all(16),
             children: [
               nameSection(),
-              const SizedBox(height: 16),
+              VSpace.m,
               descriptionSection(),
-              const SizedBox(height: 16),
+              VSpace.m,
               iconSection(),
-              const SizedBox(height: 16),
+              VSpace.m,
               colorSection(),
             ],
           ),
@@ -121,7 +121,7 @@ class _HealthToolCategoryFormState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Category Name', style: AppTypography.headlineSmall),
-          const SizedBox(height: 16),
+          VSpace.m,
           CupertinoTextField(
             controller: _nameController,
             placeholder: 'Enter category name',
@@ -142,12 +142,12 @@ class _HealthToolCategoryFormState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Description', style: AppTypography.headlineSmall),
-          const SizedBox(height: 8),
+          VSpace.s,
           Text(
             'Describe what this category is for',
             style: AppTypography.bodyMediumTertiary,
           ),
-          const SizedBox(height: 16),
+          VSpace.m,
           CupertinoTextField(
             controller: _descriptionController,
             placeholder: 'Enter description...',
@@ -170,7 +170,7 @@ class _HealthToolCategoryFormState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Icon', style: AppTypography.headlineSmall),
-          const SizedBox(height: 16),
+          VSpace.m,
           iconChoices(),
         ],
       ),
@@ -220,7 +220,7 @@ class _HealthToolCategoryFormState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Color', style: AppTypography.headlineSmall),
-          const SizedBox(height: 16),
+          VSpace.m,
           colorChoices(),
         ],
       ),

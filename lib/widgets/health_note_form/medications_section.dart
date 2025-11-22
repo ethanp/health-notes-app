@@ -4,6 +4,7 @@ import 'package:health_notes/screens/drug_trends_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
+import 'package:health_notes/widgets/spacing.dart';
 
 class MedicationsSection extends StatelessWidget {
   final bool isEditable;
@@ -37,7 +38,7 @@ class MedicationsSection extends StatelessWidget {
           : AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [_header(), const SizedBox(height: 8), _content(context)],
+        children: [_header(), VSpace.s, _content(context)],
       ),
     );
   }
@@ -100,7 +101,7 @@ class MedicationsSection extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
             ),
-            const SizedBox(width: 12),
+            HSpace.of(12),
             Expanded(child: Text(dose.name, style: AppTypography.bodyMedium)),
             Text(dose.displayDosage, style: AppTypography.bodyMediumTertiary),
           ],
@@ -132,7 +133,7 @@ class MedicationsSection extends StatelessWidget {
                   onChanged: (value) => onUpdate(index, name: value),
                 ),
               ),
-              const SizedBox(width: 8),
+              HSpace.s,
               CupertinoButton(
                 padding: EdgeInsets.zero,
                 onPressed: () => onRemove(index),
@@ -143,7 +144,7 @@ class MedicationsSection extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          VSpace.s,
           Row(
             children: [
               Expanded(
@@ -159,7 +160,7 @@ class MedicationsSection extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(width: 8),
+              HSpace.s,
               SizedBox(
                 width: 80,
                 child: CupertinoTextField(
@@ -175,7 +176,7 @@ class MedicationsSection extends StatelessWidget {
           if (dose.name.isEmpty &&
               (recentRecommendations.isNotEmpty ||
                   commonRecommendations.isNotEmpty)) ...[
-            const SizedBox(height: 12),
+            VSpace.of(12),
             _recommendations(index),
           ],
         ],
@@ -195,7 +196,7 @@ class MedicationsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Suggested', style: AppTypography.labelSmallPrimary),
-        const SizedBox(height: 4),
+        VSpace.xs,
         Wrap(
           spacing: 8,
           runSpacing: 8,

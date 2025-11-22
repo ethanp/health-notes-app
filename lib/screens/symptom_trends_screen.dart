@@ -3,11 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
-import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/utils/date_utils.dart';
+import 'package:health_notes/utils/note_filter_utils.dart';
+import 'package:health_notes/utils/severity_utils.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
-import 'package:intl/intl.dart';
+import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/widgets/symptom_note_card.dart';
+import 'package:health_notes/widgets/trends_components.dart';
 
 class SymptomTrendsScreen extends ConsumerStatefulWidget {
   final String symptomName;
@@ -62,13 +66,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
   }
 
   Widget symptomTrendsContent(List<HealthNote> notes) {
-    final symptomNotes = notes
-        .where(
-          (note) => note.symptomsList.any(
-            (symptom) => symptom.majorComponent == widget.symptomName,
-          ),
-        )
-        .toList();
+    final symptomNotes = NoteFilterUtils.bySymptom(notes, widget.symptomName);
 
     if (symptomNotes.isEmpty) {
       return EnhancedUIComponents.emptyState(
@@ -78,8 +76,18 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
       );
     }
 
-    final activityData = _generateActivityData(symptomNotes);
-    final filteredNotes = _filterNotes(symptomNotes);
+    final sortedSymptomNotes = NoteFilterUtils.sortByDateDescending(
+      symptomNotes,
+    );
+    final activityData = TrendsActivityDataGenerator.generateSeverityData(
+      notes: symptomNotes,
+      symptomName: widget.symptomName,
+    );
+    final filteredNotes = _searchQuery.isEmpty
+        ? sortedSymptomNotes
+        : NoteFilterUtils.sortByDateDescending(
+            NoteFilterUtils.bySearchQuery(sortedSymptomNotes, _searchQuery),
+          );
 
     return CustomScrollView(
       slivers: [
@@ -93,9 +101,9 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               activityChart(activityData),
-              const SizedBox(height: 20),
+              VSpace.of(20),
               searchSection(),
-              const SizedBox(height: 20),
+              VSpace.of(20),
               symptomNotesList(filteredNotes),
             ]),
           ),
@@ -113,21 +121,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
   }
 
   Color _severityColor(int severity) {
-    if (severity == 0) {
-      return AppColors.backgroundPrimary.withValues(alpha: 0.3);
-    }
-
-    final normalizedSeverity = (severity / 10.0).clamp(0.0, 1.0);
-    final hue = (120 - (normalizedSeverity * 120)).clamp(0.0, 360.0);
-    final saturation = (30 + (normalizedSeverity * 60)).clamp(0.0, 100.0);
-    final lightness = (85 - (normalizedSeverity * 50)).clamp(0.0, 100.0);
-
-    return HSLColor.fromAHSL(
-      1.0,
-      hue,
-      saturation / 100,
-      lightness / 100,
-    ).toColor();
+    return SeverityUtils.colorForSeverity(severity);
   }
 
   Widget searchSection() {
@@ -138,192 +132,27 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     );
   }
 
-  Widget symptomNotesList(List<HealthNote> notes) {
-    if (notes.isEmpty) {
-      return EnhancedUIComponents.emptyState(
-        title: 'No matching notes',
-        message: 'Try adjusting your search terms',
-        icon: CupertinoIcons.search,
-      );
-    }
-
-    return notesSection(notes);
+  Widget symptomNotesList(List<HealthNote> filteredNotes) {
+    return filteredNotes.isEmpty
+        ? const NoMatchingNotesState()
+        : notesSection(filteredNotes);
   }
 
   Widget notesSection(List<HealthNote> notes) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Health Notes (${notes.length})',
-          style: AppTypography.headlineSmall,
-        ),
-        const SizedBox(height: 12),
-        ...notes.map((note) => noteCard(note)),
-      ],
+    return NotesSection(
+      noteCount: notes.length,
+      noteCards: notes
+          .map(
+            (note) =>
+                SymptomNoteCard(note: note, symptomName: widget.symptomName),
+          )
+          .toList(),
     );
-  }
-
-  Widget noteCard(HealthNote note) {
-    final symptom = note.symptomsList.firstWhere(
-      (s) => s.majorComponent == widget.symptomName,
-    );
-
-    return noteCardContainer(
-      header: noteCardHeader(note, symptom),
-      details: noteCardDetails(symptom),
-      generalNotes: noteGeneralNotes(note),
-    );
-  }
-
-  Widget noteCardContainer({
-    required Widget header,
-    Widget? details,
-    Widget? generalNotes,
-  }) {
-    return Container(
-      decoration: AppComponents.primaryCard,
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          header,
-          if (details != null) details,
-          if (generalNotes != null) generalNotes,
-        ],
-      ),
-    );
-  }
-
-  Widget noteCardHeader(HealthNote note, Symptom symptom) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            DateFormat('MMM dd, yyyy').format(note.dateTime),
-            style: AppTypography.labelLarge,
-          ),
-        ),
-        severityIndicator(symptom.severityLevel),
-      ],
-    );
-  }
-
-  Widget noteCardDetails(Symptom symptom) {
-    final hasMinor = symptom.minorComponent.isNotEmpty;
-    final hasAdditional = symptom.additionalNotes.isNotEmpty;
-
-    if (!hasMinor && !hasAdditional) return const SizedBox.shrink();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (hasMinor) ...[
-          const SizedBox(height: 8),
-          Text(
-            symptom.minorComponent,
-            style: AppTypography.bodyMediumSystemGrey,
-          ),
-        ],
-        if (hasAdditional) ...[
-          const SizedBox(height: 8),
-          Text(symptom.additionalNotes, style: AppTypography.bodyMedium),
-        ],
-      ],
-    );
-  }
-
-  Widget noteGeneralNotes(HealthNote note) {
-    if (note.notes.isEmpty) return const SizedBox.shrink();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: CupertinoColors.systemGrey6,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(note.notes, style: AppTypography.bodySmall),
-        ),
-      ],
-    );
-  }
-
-  Widget severityIndicator(int severity) {
-    final severityColor = _severityColor(severity);
-    final severityText = severity >= 1 && severity <= 10
-        ? severity.toString()
-        : 'Unknown';
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: severityColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: severityColor.withValues(alpha: 0.3)),
-      ),
-      child: Text(
-        severityText,
-        style: AppTypography.labelSmall.copyWith(color: severityColor),
-      ),
-    );
-  }
-
-  Map<DateTime, int> _generateActivityData(List<HealthNote> notes) {
-    final activityData = <DateTime, int>{};
-
-    for (final note in notes) {
-      final symptom = note.symptomsList.firstWhere(
-        (s) => s.majorComponent == widget.symptomName,
-      );
-
-      final dateKey = DateTime(
-        note.dateTime.year,
-        note.dateTime.month,
-        note.dateTime.day,
-      );
-
-      if (activityData.containsKey(dateKey)) {
-        final oldSeverity = activityData[dateKey]!;
-        final newSeverity = symptom.severityLevel;
-        activityData[dateKey] = oldSeverity > newSeverity
-            ? oldSeverity
-            : newSeverity;
-      } else {
-        activityData[dateKey] = symptom.severityLevel;
-      }
-    }
-
-    return activityData;
-  }
-
-  List<HealthNote> _filterNotes(List<HealthNote> notes) {
-    if (_searchQuery.isEmpty) return notes;
-
-    return notes.where((note) => _matchesNoteSearch(note)).toList();
-  }
-
-  bool _matchesNoteSearch(HealthNote note) {
-    final symptom = note.symptomsList.firstWhere(
-      (s) => s.majorComponent == widget.symptomName,
-    );
-
-    return SymptomNormalizer.matchesSearch(
-          symptom.majorComponent,
-          symptom.minorComponent,
-          symptom.additionalNotes,
-          _searchQuery,
-        ) ||
-        CaseInsensitiveNormalizer().contains(note.notes, _searchQuery);
   }
 
   void _showDateInfo(BuildContext context, DateTime date, int severity) {
     if (severity == 0) {
-      final formattedDate = DateFormat('EEEE, MMMM dd, yyyy').format(date);
+      final formattedDate = AppDateUtils.formatLongDate(date);
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) => noSymptomsAlert(formattedDate),
@@ -333,7 +162,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
 
     final healthNotesAsync = ref.read(healthNotesNotifierProvider);
     final notes = healthNotesAsync.value ?? [];
-    final formattedDate = DateFormat('EEEE, MMMM dd, yyyy').format(date);
+    final formattedDate = AppDateUtils.formatLongDate(date);
     final noteForDate = findNoteForDate(notes, date);
 
     if (noteForDate == null) {
@@ -342,7 +171,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
         builder: (context) => dateInfoNoNoteAlert(
           formattedDate,
           severity,
-          _getSeverityDescription(severity),
+          SeverityUtils.descriptionForSeverity(severity),
         ),
       );
       return;
@@ -388,19 +217,15 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
   }
 
   HealthNote? findNoteForDate(List<HealthNote> notes, DateTime date) {
+    final targetDate = AppDateUtils.dateOnly(date);
     return notes.where((note) {
-      final noteDate = DateTime(
-        note.dateTime.year,
-        note.dateTime.month,
-        note.dateTime.day,
-      );
-      final targetDate = DateTime(date.year, date.month, date.day);
+      final noteDate = AppDateUtils.dateOnly(note.dateTime);
       return noteDate.isAtSameMomentAs(targetDate);
     }).firstOrNull;
   }
 
   Widget dateInfoAlert(String formattedDate, int severity, HealthNote note) {
-    final severityText = _getSeverityDescription(severity);
+    final severityText = SeverityUtils.descriptionForSeverity(severity);
     final symptom = note.symptomsList.firstWhere(
       (s) => s.majorComponent == widget.symptomName,
     );
@@ -437,7 +262,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     return Column(
       children: [
         Text(formattedDate, style: AppTypography.headlineSmallWhite),
-        const SizedBox(height: 8),
+        VSpace.s,
         severityPill(severity, severityText),
       ],
     );
@@ -467,18 +292,18 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
   Widget dateInfoContent(HealthNote note, Symptom symptom, int severity) {
     return Column(
       children: [
-        const SizedBox(height: 16),
+        VSpace.m,
         if (symptom.minorComponent.isNotEmpty) ...[
           infoRow('Type', symptom.minorComponent),
-          const SizedBox(height: 12),
+          VSpace.of(12),
         ],
         if (symptom.additionalNotes.isNotEmpty) ...[
           infoRow('Notes', symptom.additionalNotes),
-          const SizedBox(height: 12),
+          VSpace.of(12),
         ],
         if (note.notes.isNotEmpty) ...[
           infoRow('General Notes', note.notes),
-          const SizedBox(height: 12),
+          VSpace.of(12),
         ],
         viewFullNoteRow(),
       ],
@@ -499,7 +324,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
       child: Row(
         children: [
           Icon(CupertinoIcons.doc_text, color: AppColors.primary, size: 20),
-          const SizedBox(width: 8),
+          HSpace.s,
           Expanded(
             child: Text(
               'View full health note',
@@ -539,22 +364,6 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     );
   }
 
-  String _getSeverityDescription(int severity) {
-    return switch (severity) {
-      1 => 'Very mild symptoms',
-      2 => 'Mild symptoms',
-      3 => 'Moderate symptoms',
-      4 => 'Moderately severe symptoms',
-      5 => 'Severe symptoms',
-      6 => 'Very severe symptoms',
-      7 => 'Extremely severe symptoms',
-      8 => 'Very extreme symptoms',
-      9 => 'Extremely intense symptoms',
-      10 => 'Maximum severity symptoms',
-      _ => 'Unknown severity',
-    };
-  }
-
   void _navigateToNoteDetail(HealthNote note) {
     showCupertinoDialog(
       context: context,
@@ -567,12 +376,9 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
       title: noteDetailTitle(note),
       content: Column(
         children: [
-          const SizedBox(height: 16),
+          VSpace.m,
           ...note.symptomsList.map((symptom) => symptomSummaryCard(symptom)),
-          if (note.notes.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            generalNotesCard(note),
-          ],
+          if (note.notes.isNotEmpty) ...[VSpace.m, generalNotesCard(note)],
         ],
       ),
       actions: [
@@ -586,7 +392,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
 
   Widget noteDetailTitle(HealthNote note) {
     return Text(
-      DateFormat('MMM dd, yyyy').format(note.dateTime),
+      AppDateUtils.formatShortDate(note.dateTime),
       style: AppTypography.headlineSmallWhite,
     );
   }
@@ -634,14 +440,14 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
             ],
           ),
           if (symptom.minorComponent.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            VSpace.s,
             Text(
               symptom.minorComponent,
               style: AppTypography.bodyMediumSystemGrey,
             ),
           ],
           if (symptom.additionalNotes.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            VSpace.s,
             Text(symptom.additionalNotes, style: AppTypography.bodyMediumWhite),
           ],
         ],
@@ -670,7 +476,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 8),
+          VSpace.s,
           Text(note.notes, style: AppTypography.bodyMediumWhite),
         ],
       ),

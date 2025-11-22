@@ -4,6 +4,7 @@ import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/spacing.dart';
 
 class MetricEditScreen extends ConsumerStatefulWidget {
   final CheckInMetric? metric;
@@ -69,11 +70,11 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           nameSection(),
-          const SizedBox(height: 24),
+          VSpace.l,
           typeSection(),
-          const SizedBox(height: 24),
+          VSpace.l,
           colorSection(),
-          const SizedBox(height: 24),
+          VSpace.l,
           iconSection(),
         ],
       ),
@@ -91,7 +92,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
               context,
             ).textTheme.textStyle.copyWith(fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 8),
+          VSpace.s,
           CupertinoTextField(
             controller: _nameController,
             placeholder: 'Enter metric name',
@@ -117,7 +118,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
               context,
             ).textTheme.textStyle.copyWith(fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 12),
+          VSpace.of(12),
           ...MetricType.values.map(typeOption),
         ],
       ),
@@ -167,7 +168,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
                     : CupertinoColors.systemGrey,
                 size: 20,
               ),
-              const SizedBox(width: 12),
+              HSpace.of(12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -178,7 +179,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
                           ? AppTypography.bodyMediumSemiboldBlue
                           : AppTypography.bodyMediumWhite,
                     ),
-                    const SizedBox(height: 2),
+                    VSpace.of(2),
                     Text(
                       type.description,
                       style: isSelected
@@ -206,7 +207,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
               context,
             ).textTheme.textStyle.copyWith(fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 12),
+          VSpace.of(12),
           Wrap(
             spacing: 12,
             runSpacing: 12,
@@ -257,7 +258,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
               context,
             ).textTheme.textStyle.copyWith(fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 12),
+          VSpace.of(12),
           Wrap(
             spacing: 12,
             runSpacing: 12,

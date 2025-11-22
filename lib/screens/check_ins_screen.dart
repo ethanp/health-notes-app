@@ -16,6 +16,7 @@ import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
+import 'package:health_notes/widgets/spacing.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 import 'package:intl/intl.dart';
 
@@ -88,7 +89,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
               ),
               child: const Icon(CupertinoIcons.settings),
             ),
-            const SizedBox(width: 8),
+            HSpace.s,
             CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: () => _showAddCheckInForm(),
@@ -202,7 +203,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
           children: [
             Expanded(child: groupDateInfo(group)),
             groupCountIndicator(group, userMetrics),
-            const SizedBox(width: 8),
+            HSpace.s,
             expansionIcon(isExpanded),
           ],
         ),
@@ -220,7 +221,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
           ).format(group.representativeCheckIn.dateTime),
           style: AppTypography.labelLargePrimary,
         ),
-        const SizedBox(height: 4),
+        VSpace.xs,
         Text(
           DateFormat('h:mm a').format(group.representativeCheckIn.dateTime),
           style: AppTypography.bodySmallTertiary,
@@ -302,7 +303,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
       mainAxisSize: MainAxisSize.min,
       children: [
         metricIcon(group, userMetrics),
-        const SizedBox(width: 6),
+        HSpace.of(6),
         countBadge(group),
       ],
     );
@@ -396,10 +397,10 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
           child: Row(
             children: [
               metricIconContainer(metric),
-              const SizedBox(width: 12),
+              HSpace.of(12),
               Expanded(child: metricInfo(checkIn, metric)),
               ratingBadge(checkIn, metric),
-              const SizedBox(width: 8),
+              HSpace.s,
               const Icon(
                 CupertinoIcons.chevron_right,
                 color: CupertinoColors.systemGrey,
@@ -449,7 +450,7 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(checkIn.metricName, style: AppTypography.labelMedium),
-        const SizedBox(height: 2),
+        VSpace.of(2),
         EnhancedUIComponents.statusIndicator(
           text: '${checkIn.rating}/10',
           color: metric.getRatingColor(checkIn.rating),

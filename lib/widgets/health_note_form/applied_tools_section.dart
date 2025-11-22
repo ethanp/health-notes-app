@@ -4,6 +4,7 @@ import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/applied_tool_picker_sheet.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/spacing.dart';
 
 class AppliedToolsSection extends StatelessWidget {
   final bool isEditable;
@@ -33,11 +34,7 @@ class AppliedToolsSection extends StatelessWidget {
           : AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _header(context),
-          const SizedBox(height: 8),
-          _content(),
-        ],
+        children: [_header(context), VSpace.s, _content()],
       ),
     );
   }
@@ -94,14 +91,14 @@ class AppliedToolsSection extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
               ),
-              const SizedBox(width: 12),
+              HSpace.of(12),
               Expanded(
                 child: Text(tool.toolName, style: AppTypography.labelLarge),
               ),
             ],
           ),
           if (tool.note.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            VSpace.s,
             Padding(
               padding: const EdgeInsets.only(left: 20),
               child: Text(tool.note, style: AppTypography.bodyMediumSecondary),
@@ -112,7 +109,11 @@ class AppliedToolsSection extends StatelessWidget {
     );
   }
 
-  Widget _editableItem(int index, AppliedTool tool, TextEditingController noteController) {
+  Widget _editableItem(
+    int index,
+    AppliedTool tool,
+    TextEditingController noteController,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -135,7 +136,7 @@ class AppliedToolsSection extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          VSpace.s,
           CupertinoTextField(
             controller: noteController,
             placeholder: 'Note for this tool (optional)',

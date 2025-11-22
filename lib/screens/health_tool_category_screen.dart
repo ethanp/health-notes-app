@@ -5,9 +5,9 @@ import 'package:health_notes/models/health_tool_category.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/screens/health_tool_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
-
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
+import 'package:health_notes/widgets/spacing.dart';
 
 class HealthToolCategoryScreen extends ConsumerStatefulWidget {
   final HealthToolCategory category;
@@ -106,11 +106,7 @@ class _HealthToolCategoryScreenState
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              toolHeader(tool),
-              const SizedBox(height: 8),
-              toolDescription(tool),
-            ],
+            children: [toolHeader(tool), VSpace.s, toolDescription(tool)],
           ),
         ),
       ),

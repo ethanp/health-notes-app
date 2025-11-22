@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/spacing.dart';
 
 class EnhancedUIComponents {
   static Widget animatedGradientBackground({
@@ -79,7 +80,7 @@ class EnhancedUIComponents {
                               : AppColors.primary,
                           size: 20,
                         ),
-                        const SizedBox(width: AppSpacing.s),
+                        HSpace.s,
                       ],
                       Text(
                         text,
@@ -173,10 +174,7 @@ class EnhancedUIComponents {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon != null) ...[
-            Icon(icon, color: color, size: 16),
-            const SizedBox(width: AppSpacing.s),
-          ],
+          if (icon != null) ...[Icon(icon, color: color, size: 16), HSpace.s],
           Text(text, style: AppTypography.labelSmall.copyWith(color: color)),
         ],
       ),
@@ -198,7 +196,7 @@ class EnhancedUIComponents {
               children: [
                 Text(title, style: AppTypography.headlineSmall),
                 if (subtitle != null) ...[
-                  const SizedBox(height: AppSpacing.xs),
+                  VSpace.xs,
                   Text(subtitle, style: AppTypography.bodySmall),
                 ],
               ],
@@ -238,23 +236,20 @@ class EnhancedUIComponents {
                 ),
                 child: Icon(icon, size: 48, color: AppColors.primary),
               ),
-              const SizedBox(height: AppSpacing.l),
+              VSpace.l,
             ],
             Text(
               title,
               style: AppTypography.headlineMedium,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: AppSpacing.m),
+            VSpace.m,
             Text(
               message,
               style: AppTypography.bodyMedium,
               textAlign: TextAlign.center,
             ),
-            if (action != null) ...[
-              const SizedBox(height: AppSpacing.l),
-              action,
-            ],
+            if (action != null) ...[VSpace.l, action],
           ],
         ),
       ),
@@ -285,7 +280,7 @@ class EnhancedUIComponents {
             ),
           ),
           if (message != null) ...[
-            const SizedBox(height: AppSpacing.m),
+            VSpace.m,
             Text(
               message,
               style: AppTypography.bodyMedium,
