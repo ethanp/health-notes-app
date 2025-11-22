@@ -155,7 +155,8 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
       final formattedDate = AppDateUtils.formatLongDate(date);
       showCupertinoDialog(
         context: context,
-        builder: (BuildContext context) => noSymptomsAlert(formattedDate),
+        builder: (dialogContext) =>
+            noSymptomsAlert(dialogContext, formattedDate),
       );
       return;
     }
@@ -168,7 +169,8 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     if (noteForDate == null) {
       showCupertinoDialog(
         context: context,
-        builder: (context) => dateInfoNoNoteAlert(
+        builder: (dialogContext) => dateInfoNoNoteAlert(
+          dialogContext,
           formattedDate,
           severity,
           SeverityUtils.descriptionForSeverity(severity),
@@ -180,24 +182,29 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     showCupertinoDialog(
       context: context,
       barrierDismissible: true,
-      builder: (context) => dateInfoAlert(formattedDate, severity, noteForDate),
+      builder: (dialogContext) =>
+          dateInfoAlert(dialogContext, formattedDate, severity, noteForDate),
     );
   }
 
-  CupertinoAlertDialog noSymptomsAlert(String formattedDate) {
+  CupertinoAlertDialog noSymptomsAlert(
+    BuildContext dialogContext,
+    String formattedDate,
+  ) {
     return CupertinoAlertDialog(
       title: Text(formattedDate),
       content: const Text('No symptoms were recorded on this date.'),
       actions: [
         CupertinoDialogAction(
           child: const Text('OK'),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(dialogContext).pop(),
         ),
       ],
     );
   }
 
   CupertinoAlertDialog dateInfoNoNoteAlert(
+    BuildContext dialogContext,
     String formattedDate,
     int severity,
     String severityText,
@@ -210,7 +217,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
       actions: [
         CupertinoDialogAction(
           child: const Text('OK'),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(dialogContext).pop(),
         ),
       ],
     );
@@ -224,7 +231,12 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     }).firstOrNull;
   }
 
-  Widget dateInfoAlert(String formattedDate, int severity, HealthNote note) {
+  Widget dateInfoAlert(
+    BuildContext dialogContext,
+    String formattedDate,
+    int severity,
+    HealthNote note,
+  ) {
     final severityText = SeverityUtils.descriptionForSeverity(severity);
     final symptom = note.symptomsList.firstWhere(
       (s) => s.majorComponent == widget.symptomName,
@@ -232,22 +244,23 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
 
     return CupertinoAlertDialog(
       title: dateInfoTitle(formattedDate, severity, severityText),
-      content: dateInfoContent(note, symptom, severity),
-      actions: dateInfoActions(note),
+      content: dateInfoContent(dialogContext, note, symptom, severity),
+      actions: dateInfoActions(dialogContext, note),
     );
   }
 
-  List<Widget> dateInfoActions(HealthNote note) {
+  List<Widget> dateInfoActions(BuildContext dialogContext, HealthNote note) {
     return [
       CupertinoDialogAction(
         child: const Text('Close'),
-        onPressed: () => Navigator.of(context).pop(),
+        onPressed: () => Navigator.of(dialogContext).pop(),
       ),
       CupertinoDialogAction(
         isDefaultAction: true,
         child: const Text('View Note'),
         onPressed: () {
-          Navigator.of(context).pop();
+          Navigator.of(dialogContext).pop();
+          if (!mounted) return;
           _navigateToNoteDetail(note);
         },
       ),
@@ -289,7 +302,12 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
     );
   }
 
-  Widget dateInfoContent(HealthNote note, Symptom symptom, int severity) {
+  Widget dateInfoContent(
+    BuildContext dialogContext,
+    HealthNote note,
+    Symptom symptom,
+    int severity,
+  ) {
     return Column(
       children: [
         VSpace.m,
@@ -301,43 +319,8 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
           infoRow('Notes', symptom.additionalNotes),
           VSpace.of(12),
         ],
-        if (note.notes.isNotEmpty) ...[
-          infoRow('General Notes', note.notes),
-          VSpace.of(12),
-        ],
-        viewFullNoteRow(),
+        if (note.notes.isNotEmpty) infoRow('General Notes', note.notes),
       ],
-    );
-  }
-
-  Widget viewFullNoteRow() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        gradient: AppComponents.cardGradient,
-        borderRadius: BorderRadius.circular(AppRadius.medium),
-        border: Border.all(
-          color: CupertinoColors.systemGrey4.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(CupertinoIcons.doc_text, color: AppColors.primary, size: 20),
-          HSpace.s,
-          Expanded(
-            child: Text(
-              'View full health note',
-              style: AppTypography.bodyMediumPrimarySemibold,
-            ),
-          ),
-          Icon(
-            CupertinoIcons.chevron_right,
-            color: AppColors.primary,
-            size: 16,
-          ),
-        ],
-      ),
     );
   }
 
@@ -367,11 +350,11 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
   void _navigateToNoteDetail(HealthNote note) {
     showCupertinoDialog(
       context: context,
-      builder: (BuildContext context) => noteDetailAlert(note),
+      builder: (dialogContext) => noteDetailAlert(dialogContext, note),
     );
   }
 
-  Widget noteDetailAlert(HealthNote note) {
+  Widget noteDetailAlert(BuildContext dialogContext, HealthNote note) {
     return CupertinoAlertDialog(
       title: noteDetailTitle(note),
       content: Column(
@@ -384,7 +367,7 @@ class _SymptomTrendsScreenState extends ConsumerState<SymptomTrendsScreen> {
       actions: [
         CupertinoDialogAction(
           child: const Text('Close'),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(dialogContext).pop(),
         ),
       ],
     );

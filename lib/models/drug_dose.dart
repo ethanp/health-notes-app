@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:health_notes/utils/number_formatter.dart';
 
 part 'drug_dose.freezed.dart';
 part 'drug_dose.g.dart';
@@ -21,8 +22,7 @@ extension DrugDoseExtensions on DrugDose {
   bool get isEmpty => name.isEmpty;
 
   String get displayName => name.isEmpty ? 'Unnamed medication' : name;
-  String get displayDosage =>
-      '${dosage.toStringAsFixed(dosage.truncateToDouble() == dosage ? 0 : 1)} $unit';
+  String get displayDosage => '${formatDecimalValue(dosage)}$unit';
   String get fullDisplay => '$displayName - $displayDosage';
 
   DrugDose copyWith({String? name, double? dosage, String? unit}) {

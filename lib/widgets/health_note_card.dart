@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/date_utils.dart';
+import 'package:health_notes/utils/number_formatter.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/spacing.dart';
 
@@ -90,7 +91,13 @@ class HealthNoteCard extends StatelessWidget {
         spacing: 6,
         runSpacing: 6,
         children: note.drugDoses
-            .map((drug) => _DrugChip(drugName: drug.name, dosage: drug.dosage))
+            .map(
+              (drug) => _DrugChip(
+                drugName: drug.name,
+                dosage: drug.dosage,
+                unit: drug.unit,
+              ),
+            )
             .toList(),
       ),
     );
@@ -159,8 +166,13 @@ class _SymptomChip extends StatelessWidget {
 class _DrugChip extends StatelessWidget {
   final String drugName;
   final double dosage;
+  final String unit;
 
-  const _DrugChip({required this.drugName, required this.dosage});
+  const _DrugChip({
+    required this.drugName,
+    required this.dosage,
+    required this.unit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +184,9 @@ class _DrugChip extends StatelessWidget {
         border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
       ),
       child: Text(
-        dosage > 0 ? '$drugName ($dosage)' : drugName,
+        dosage > 0
+            ? '$drugName (${formatDecimalValue(dosage)}$unit)'
+            : drugName,
         style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
       ),
     );

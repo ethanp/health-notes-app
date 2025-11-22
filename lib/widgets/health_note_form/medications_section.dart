@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/screens/drug_trends_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/utils/number_formatter.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
 import 'package:health_notes/widgets/spacing.dart';
@@ -217,14 +218,10 @@ class MedicationsSection extends StatelessWidget {
           dosage: recommendation.dosage,
           unit: recommendation.unit,
         );
-        // Update controllers
         controllers[index]?.name.text = recommendation.name;
-        // Let's format it nicely as per displayDosage logic but just the number
-        final dosageText =
-            recommendation.dosage.truncateToDouble() == recommendation.dosage
-            ? recommendation.dosage.toInt().toString()
-            : recommendation.dosage.toString();
-        controllers[index]?.dosage.text = dosageText;
+        controllers[index]?.dosage.text = formatDecimalValue(
+          recommendation.dosage,
+        );
         controllers[index]?.unit.text = recommendation.unit;
       },
       child: Container(

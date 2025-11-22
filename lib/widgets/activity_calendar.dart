@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/utils/number_formatter.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/severity_utils.dart';
 import 'package:health_notes/widgets/spacing.dart';
@@ -189,7 +190,7 @@ class ActivityCalendar<T> extends StatelessWidget {
     if (value is int) {
       return value.toString();
     } else if (value is double) {
-      return value.toStringAsFixed(value.truncateToDouble() == value ? 0 : 1);
+      return formatDecimalValue(value);
     } else {
       return value.toString();
     }
@@ -354,12 +355,14 @@ class DosageActivityCalendar extends StatelessWidget {
   final Map<DateTime, double> activityData;
   final void Function(BuildContext context, DateTime date, double dosage)
   onDateTap;
+  final String unit;
 
   const DosageActivityCalendar({
     super.key,
     required this.drugName,
     required this.activityData,
     required this.onDateTap,
+    required this.unit,
   });
 
   @override
@@ -374,11 +377,10 @@ class DosageActivityCalendar extends StatelessWidget {
           'Color intensity indicates dosage amount. Translucent days show no recorded doses.',
       activityData: activityData,
       colorCalculator: (dosage) => _dosageColor(dosage, maxDosage),
-      legendBuilder: () => dosageLegend(maxDosage),
+      legendBuilder: () => dosageLegend(maxDosage, unit),
       onDateTap: onDateTap,
-      activityDescriptor: (dosage) => dosage == 0.0
-          ? 'No doses'
-          : '${dosage.toStringAsFixed(dosage.truncateToDouble() == dosage ? 0 : 1)}mg',
+      activityDescriptor: (dosage) =>
+          dosage == 0.0 ? 'No doses' : '${formatDecimalValue(dosage)}$unit',
       emptyValue: 0.0,
     );
   }
@@ -398,7 +400,7 @@ class DosageActivityCalendar extends StatelessWidget {
     )!;
   }
 
-  Widget dosageLegend(double maxDosage) {
+  Widget dosageLegend(double maxDosage, String unit) {
     return Row(
       children: [
         Text('Less', style: AppTypography.bodySmallSystemGrey),
@@ -425,7 +427,7 @@ class DosageActivityCalendar extends StatelessWidget {
         const Spacer(),
         if (maxDosage > 0)
           Text(
-            'Max: ${maxDosage.toStringAsFixed(maxDosage.truncateToDouble() == maxDosage ? 0 : 1)}mg',
+            'Max: ${formatDecimalValue(maxDosage)}$unit',
             style: AppTypography.bodySmallSystemGrey,
           ),
       ],

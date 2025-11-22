@@ -4,6 +4,7 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/utils/number_formatter.dart';
 import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
@@ -82,6 +83,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
       valueExtractor: (note) => _totalDosageForNote(note),
       aggregator: (existing, newValue) => existing + newValue,
     );
+    final unit = _unitForDrug(sortedDrugNotes) ?? 'mg';
     final filteredNotes = _searchQuery.isEmpty
         ? sortedDrugNotes
         : NoteFilterUtils.sortByDateDescending(
@@ -99,7 +101,7 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
           padding: const EdgeInsets.all(16),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              activityChart(activityData),
+              activityChart(activityData, unit),
               VSpace.of(20),
               searchSection(),
               VSpace.of(20),
@@ -111,11 +113,12 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
     );
   }
 
-  Widget activityChart(Map<DateTime, double> activityData) {
+  Widget activityChart(Map<DateTime, double> activityData, String unit) {
     return DosageActivityCalendar(
       drugName: widget.drugName,
       activityData: activityData,
       onDateTap: _showDateInfo,
+      unit: unit,
     );
   }
 
@@ -174,6 +177,17 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
     ).map((dose) => dose.dosage).fold<double>(0, (sum, value) => sum + value);
   }
 
+  String? _unitForDrug(List<HealthNote> notes) {
+    for (final note in notes) {
+      for (final dose in note.drugDoses) {
+        if (_normalizer.areEqual(dose.name, widget.drugName)) {
+          return dose.unit;
+        }
+      }
+    }
+    return null;
+  }
+
   void _showNoteDetail(HealthNote note) {
     final relevantDoses = _relevantDoses(note);
     final totalDosage = _totalDosageForNote(note);
@@ -215,8 +229,12 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
       final formattedDate = AppDateUtils.formatLongDate(date);
       showCupertinoDialog(
         context: context,
-        builder: (BuildContext context) =>
-            dosageSummaryAlert(formattedDate, dosage, widget.drugName),
+        builder: (BuildContext context) => dosageSummaryAlert(
+          formattedDate,
+          dosage,
+          widget.drugName,
+          _unitForDrug(notes) ?? 'mg',
+        ),
       );
       return;
     }
@@ -265,11 +283,12 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
     String formattedDate,
     double dosage,
     String drugName,
+    String unit,
   ) {
     return CupertinoAlertDialog(
       title: Text(formattedDate),
       content: Text(
-        'You took ${dosage.toStringAsFixed(dosage.truncateToDouble() == dosage ? 0 : 1)}mg of $drugName on this date.',
+        'You took ${formatDecimalValue(dosage)}$unit of $drugName on this date.',
       ),
       actions: [
         CupertinoDialogAction(
@@ -285,13 +304,14 @@ class _DrugTrendsScreenState extends ConsumerState<DrugTrendsScreen> {
     double dosage,
     List<DrugDose> relevantDoses,
   ) {
+    final unit = relevantDoses.isNotEmpty ? relevantDoses.first.unit : 'mg';
     return CupertinoAlertDialog(
       title: Text(formattedDate),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Total dosage: ${dosage.toStringAsFixed(dosage.truncateToDouble() == dosage ? 0 : 1)}mg',
+            'Total dosage: ${formatDecimalValue(dosage)}$unit',
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           VSpace.m,

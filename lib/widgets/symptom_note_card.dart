@@ -82,12 +82,16 @@ class SymptomNoteCard extends StatelessWidget {
       children: [
         VSpace.s,
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: CupertinoColors.systemGrey6,
-            borderRadius: BorderRadius.circular(8),
+            color: AppColors.backgroundQuaternary,
+            borderRadius: BorderRadius.circular(AppRadius.small),
+            border: Border.all(
+              color: AppColors.backgroundQuinary.withValues(alpha: 0.4),
+              width: 1,
+            ),
           ),
-          child: Text(note.notes, style: AppTypography.bodySmall),
+          child: Text(note.notes, style: AppTypography.bodySmallWhite),
         ),
       ],
     );
