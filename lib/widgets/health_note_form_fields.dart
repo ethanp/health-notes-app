@@ -5,14 +5,14 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/models/applied_tool.dart';
 import 'package:health_notes/models/health_tool.dart';
-import 'package:health_notes/providers/symptom_suggestions_provider.dart';
-import 'package:health_notes/services/symptom_suggestions_service.dart';
 import 'package:health_notes/services/text_normalizer.dart';
-import 'package:health_notes/theme/app_theme.dart';
-
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
-import 'package:health_notes/widgets/applied_tool_picker_sheet.dart';
-import 'package:intl/intl.dart';
+import 'package:health_notes/widgets/health_note_form/applied_tools_section.dart';
+import 'package:health_notes/widgets/health_note_form/date_time_section.dart';
+import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
+import 'package:health_notes/widgets/health_note_form/general_notes_section.dart';
+import 'package:health_notes/widgets/health_note_form/medications_section.dart';
+import 'package:health_notes/widgets/health_note_form/symptoms_section.dart';
+import 'package:health_notes/providers/medication_recommendations_provider.dart';
 
 class HealthNoteFormFields extends ConsumerStatefulWidget {
   final HealthNote? note;
@@ -160,524 +160,68 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
 
   @override
   Widget build(BuildContext context) {
+    final recommendations = ref.watch(medicationRecommendationsProvider);
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         const SizedBox(height: 20),
-        dateTimeSection(),
+        DateTimeSection(
+          isEditable: widget.isEditable,
+          selectedDateTime: _selectedDateTime,
+          onDateTimeChanged: (newDateTime) {
+            setState(() => _selectedDateTime = newDateTime);
+            widget.onDateTimeChanged?.call(newDateTime);
+          },
+        ),
         const SizedBox(height: 20),
-        symptomsSection(),
+        SymptomsSection(
+          isEditable: widget.isEditable,
+          symptoms: _symptoms,
+          controllers: _symptomControllers,
+          usedSuggestions: _usedSuggestions,
+          onAdd: addSymptom,
+          onRemove: removeSymptom,
+          onUpdateFromSuggestion: updateSymptomFromSuggestion,
+          onUpdate: updateSymptom,
+        ),
         const SizedBox(height: 16),
-        drugDosesSection(),
+        MedicationsSection(
+          isEditable: widget.isEditable,
+          drugDoses: _drugDoses,
+          controllers: _drugDoseControllers,
+          recentRecommendations: recommendations.when(
+            data: (data) => data.recent,
+            loading: () => [],
+            error: (_, __) => [],
+          ),
+          commonRecommendations: recommendations.when(
+            data: (data) => data.common,
+            loading: () => [],
+            error: (_, __) => [],
+          ),
+          onAdd: addDrugDose,
+          onRemove: removeDrugDose,
+          onUpdate: updateDrugDose,
+        ),
         const SizedBox(height: 16),
-        appliedToolsSection(),
+        AppliedToolsSection(
+          isEditable: widget.isEditable,
+          appliedTools: _appliedTools,
+          noteControllers: _appliedToolNoteControllers,
+          onAdd: addAppliedToolFromHealthTool,
+          onRemove: removeAppliedTool,
+          onUpdateNote: updateAppliedToolNote,
+        ),
         const SizedBox(height: 16),
-        notesSection(),
+        GeneralNotesSection(
+          isEditable: widget.isEditable,
+          notesController: _notesController,
+          onNotesChanged: widget.onNotesChanged,
+        ),
         const SizedBox(height: 40),
       ],
     );
-  }
-
-  Widget dateTimeSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppComponents.primaryCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Date & Time', style: AppTypography.headlineSmall),
-          const SizedBox(height: 16),
-          if (widget.isEditable)
-            Container(
-              height: 200,
-              decoration: AppComponents.inputField,
-              child: CupertinoDatePicker(
-                mode: CupertinoDatePickerMode.dateAndTime,
-                initialDateTime: _selectedDateTime,
-                backgroundColor: AppColors.backgroundTertiary,
-                onDateTimeChanged: (DateTime newDateTime) {
-                  setState(() => _selectedDateTime = newDateTime);
-                  widget.onDateTimeChanged?.call(newDateTime);
-                },
-              ),
-            )
-          else
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  DateFormat('EEEE, MMMM d, yyyy').format(_selectedDateTime),
-                  style: AppTypography.headlineSmall,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  DateFormat('h:mm a').format(_selectedDateTime),
-                  style: AppTypography.bodyMediumTertiary,
-                ),
-              ],
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget symptomsSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: widget.isEditable
-          ? AppComponents.inputField
-          : AppComponents.primaryCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          symptomsHeader(),
-          const SizedBox(height: 8),
-          symptomsContent(),
-        ],
-      ),
-    );
-  }
-
-  Widget symptomsHeader() {
-    return EnhancedUIComponents.sectionHeader(
-      title: 'Symptoms',
-      trailing: widget.isEditable
-          ? CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: addSymptom,
-              child: const Icon(CupertinoIcons.add),
-            )
-          : null,
-    );
-  }
-
-  Widget symptomsContent() {
-    if (_symptoms.isEmpty) {
-      return Text('No symptoms recorded', style: AppTypography.bodyMedium);
-    }
-
-    if (!widget.isEditable) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: _symptoms.map(readOnlySymptomItem).toList(),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: _symptoms.asMap().entries.map((entry) {
-        final index = entry.key;
-        final symptom = entry.value;
-        return editableSymptomItem(
-          index: index,
-          symptom: symptom,
-          controllers: _symptomControllers[index]!,
-        );
-      }).toList(),
-    );
-  }
-
-  Widget readOnlySymptomItem(Symptom symptom) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  symptom.fullDescription,
-                  style: AppTypography.labelLarge,
-                ),
-              ),
-              EnhancedUIComponents.statusIndicator(
-                text: '${symptom.severityLevel}/10',
-                color: AppColors.primary,
-              ),
-            ],
-          ),
-          if (symptom.additionalNotes.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: Text(
-                symptom.additionalNotes,
-                style: AppTypography.bodyMediumSecondary,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget drugDosesSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: widget.isEditable
-          ? AppComponents.inputField
-          : AppComponents.primaryCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          drugDosesHeader(),
-          const SizedBox(height: 8),
-          drugDosesContent(),
-        ],
-      ),
-    );
-  }
-
-  Widget appliedToolsSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: widget.isEditable
-          ? AppComponents.inputField
-          : AppComponents.primaryCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          appliedToolsHeader(),
-          const SizedBox(height: 8),
-          appliedToolsContent(),
-        ],
-      ),
-    );
-  }
-
-  Widget appliedToolsHeader() {
-    return EnhancedUIComponents.sectionHeader(
-      title: 'Applied Tools',
-      trailing: widget.isEditable
-          ? CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: showToolPicker,
-              child: const Icon(CupertinoIcons.add),
-            )
-          : null,
-    );
-  }
-
-  Widget appliedToolsContent() {
-    if (_appliedTools.isEmpty) {
-      return Text('No tools applied', style: AppTypography.bodyMedium);
-    }
-
-    if (!widget.isEditable) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: _appliedTools.map(readOnlyAppliedToolItem).toList(),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: _appliedTools.asMap().entries.map((entry) {
-        final index = entry.key;
-        final tool = entry.value;
-        final controller = _appliedToolNoteControllers[index]!;
-        return editableAppliedToolItem(
-          index: index,
-          tool: tool,
-          noteController: controller,
-        );
-      }).toList(),
-    );
-  }
-
-  Widget readOnlyAppliedToolItem(AppliedTool tool) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(tool.toolName, style: AppTypography.labelLarge),
-              ),
-            ],
-          ),
-          if (tool.note.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: Text(tool.note, style: AppTypography.bodyMediumSecondary),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget editableAppliedToolItem({
-    required int index,
-    required AppliedTool tool,
-    required TextEditingController noteController,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: AppComponents.primaryCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(tool.toolName, style: AppTypography.labelLarge),
-              ),
-              CupertinoButton(
-                padding: EdgeInsets.zero,
-                onPressed: () => removeAppliedTool(index),
-                child: const Icon(
-                  CupertinoIcons.delete,
-                  color: AppColors.destructive,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          CupertinoTextField(
-            controller: noteController,
-            placeholder: 'Note for this tool (optional)',
-            placeholderStyle: AppTypography.inputPlaceholder,
-            style: AppTypography.input,
-            maxLines: 2,
-            onChanged: (value) => updateAppliedToolNote(index, value),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void showToolPicker() {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) => AppliedToolPickerSheet(
-        appliedTools: _appliedTools,
-        onSelect: (t) {
-          addAppliedToolFromHealthTool(t);
-          Navigator.of(context).pop();
-        },
-      ),
-    );
-  }
-
-  void addAppliedToolFromHealthTool(HealthTool t) {
-    setState(() {
-      _appliedTools.add(AppliedTool(toolId: t.id, toolName: t.name, note: ''));
-      _appliedToolNoteControllers[_appliedTools.length - 1] =
-          TextEditingController(text: '');
-    });
-  }
-
-  void removeAppliedTool(int index) {
-    setState(() {
-      _appliedToolNoteControllers[index]?.dispose();
-      _appliedToolNoteControllers.remove(index);
-      _appliedTools.removeAt(index);
-      _appliedToolNoteControllers = _appliedTools.asMap().map(
-        (key, value) => MapEntry(
-          key,
-          _appliedToolNoteControllers[key] ??
-              TextEditingController(text: value.note),
-        ),
-      );
-    });
-  }
-
-  void updateAppliedToolNote(int index, String value) {
-    setState(() {
-      final current = _appliedTools[index];
-      _appliedTools[index] = current.copyWith(note: value);
-    });
-  }
-
-  Widget drugDosesHeader() {
-    return EnhancedUIComponents.sectionHeader(
-      title: 'Medications',
-      trailing: widget.isEditable
-          ? CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: addDrugDose,
-              child: const Icon(CupertinoIcons.add),
-            )
-          : null,
-    );
-  }
-
-  Widget drugDosesContent() {
-    if (_drugDoses.isEmpty) {
-      return Text('No medications recorded', style: AppTypography.bodyMedium);
-    }
-
-    if (!widget.isEditable) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: _drugDoses.map(readOnlyDrugDoseItem).toList(),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: _drugDoses.asMap().entries.map((entry) {
-        final index = entry.key;
-        final dose = entry.value;
-        return editableDrugDoseItem(
-          index: index,
-          dose: dose,
-          controllers: _drugDoseControllers[index]!,
-        );
-      }).toList(),
-    );
-  }
-
-  Widget readOnlyDrugDoseItem(DrugDose dose) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(child: Text(dose.name, style: AppTypography.labelLarge)),
-          Text(dose.displayDosage, style: AppTypography.bodyMediumTertiary),
-        ],
-      ),
-    );
-  }
-
-  Widget editableDrugDoseItem({
-    required int index,
-    required DrugDose dose,
-    required DrugDoseControllers controllers,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: AppComponents.primaryCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: CupertinoTextField(
-                  controller: controllers.name,
-                  placeholder: 'Medication name',
-                  placeholderStyle: AppTypography.inputPlaceholder,
-                  style: AppTypography.input,
-                  onChanged: (value) => updateDrugDose(index, name: value),
-                ),
-              ),
-              const SizedBox(width: 8),
-              CupertinoButton(
-                padding: EdgeInsets.zero,
-                onPressed: () => removeDrugDose(index),
-                child: const Icon(
-                  CupertinoIcons.delete,
-                  color: AppColors.destructive,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: CupertinoTextField(
-                  controller: controllers.dosage,
-                  placeholder: 'Dosage',
-                  placeholderStyle: AppTypography.inputPlaceholder,
-                  style: AppTypography.input,
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    final dosage = double.tryParse(value) ?? 0.0;
-                    updateDrugDose(index, dosage: dosage);
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              SizedBox(
-                width: 80,
-                child: CupertinoTextField(
-                  controller: controllers.unit,
-                  placeholder: 'Unit',
-                  placeholderStyle: AppTypography.inputPlaceholder,
-                  style: AppTypography.input,
-                  onChanged: (value) => updateDrugDose(index, unit: value),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget notesSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: widget.isEditable
-          ? AppComponents.inputField
-          : AppComponents.primaryCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [notesHeader(), const SizedBox(height: 8), notesContent()],
-      ),
-    );
-  }
-
-  Widget notesHeader() {
-    return Text('Notes', style: AppTypography.labelLarge);
-  }
-
-  Widget notesContent() {
-    if (widget.isEditable) {
-      return CupertinoTextField(
-        controller: _notesController!,
-        placeholder: 'Additional Notes (optional)',
-        placeholderStyle: AppTypography.inputPlaceholder,
-        style: AppTypography.input,
-        maxLines: 4,
-        onChanged: widget.onNotesChanged,
-      );
-    }
-
-    final text = _notesController?.text.isNotEmpty == true
-        ? _notesController!.text
-        : 'No additional notes';
-    return Text(text, style: AppTypography.bodyMedium);
   }
 
   DateTime get currentDateTime => _selectedDateTime;
@@ -794,202 +338,45 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     });
   }
 
-  Widget symptomSuggestions(int index) {
-    final symptom = _symptoms[index];
-
-    if (symptom.majorComponent.isNotEmpty ||
-        symptom.minorComponent.isNotEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Consumer(
-      builder: (context, ref, child) {
-        final suggestionsAsync = ref.watch(symptomSuggestionsProvider);
-
-        return suggestionsAsync.when(
-          data: (suggestions) {
-            final availableSuggestions = suggestions.where((suggestion) {
-              final suggestionKey = SymptomNormalizer.generateKey(
-                suggestion.majorComponent,
-                suggestion.minorComponent,
-              );
-              return !_usedSuggestions.contains(suggestionKey);
-            }).toList();
-
-            if (availableSuggestions.isEmpty) return const SizedBox.shrink();
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Recent symptoms:',
-                  style: AppTypography.labelMediumSecondary,
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: availableSuggestions.map((suggestion) {
-                    return CupertinoButton(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      color: AppColors.backgroundSecondary,
-                      borderRadius: BorderRadius.circular(16),
-                      onPressed: () {
-                        final newSymptom =
-                            SymptomSuggestionsService.createSymptomFromSuggestion(
-                              suggestion,
-                            );
-                        final suggestionKey = SymptomNormalizer.generateKey(
-                          suggestion.majorComponent,
-                          suggestion.minorComponent,
-                        );
-                        setState(() {
-                          _symptoms[index] = newSymptom;
-                          _symptomControllers[index] = SymptomControllers(
-                            newSymptom,
-                          );
-                          _usedSuggestions.add(suggestionKey);
-                        });
-                      },
-                      child: Text(
-                        suggestion.toString(),
-                        style: AppTypography.bodySmallPrimary,
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
-            );
-          },
-          loading: () => const SizedBox.shrink(),
-          error: (error, stack) => const SizedBox.shrink(),
-        );
-      },
-    );
+  void updateSymptomFromSuggestion(
+    int index,
+    Symptom newSymptom,
+    String suggestionKey,
+  ) {
+    setState(() {
+      _symptoms[index] = newSymptom;
+      _symptomControllers[index] = SymptomControllers(newSymptom);
+      _usedSuggestions.add(suggestionKey);
+    });
   }
 
-  Widget editableSymptomItem({
-    required int index,
-    required Symptom symptom,
-    required SymptomControllers controllers,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: AppComponents.primaryCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (widget.isEditable) symptomSuggestions(index),
-          const SizedBox(height: 8),
-          editableSymptomRow(index, controllers),
-          const SizedBox(height: 8),
-          editableSymptomNotes(index, controllers),
-        ],
-      ),
-    );
+  void addAppliedToolFromHealthTool(HealthTool t) {
+    setState(() {
+      _appliedTools.add(AppliedTool(toolId: t.id, toolName: t.name, note: ''));
+      _appliedToolNoteControllers[_appliedTools.length - 1] =
+          TextEditingController(text: '');
+    });
   }
 
-  Widget editableSymptomRow(int index, SymptomControllers controllers) {
-    return Row(
-      children: [
-        Expanded(
-          child: CupertinoTextField(
-            controller: controllers.majorComponent,
-            placeholder: 'Major component (e.g., headache)',
-            placeholderStyle: AppTypography.inputPlaceholder,
-            style: AppTypography.input,
-            onChanged: (value) => updateSymptom(index, majorComponent: value),
-          ),
+  void removeAppliedTool(int index) {
+    setState(() {
+      _appliedToolNoteControllers[index]?.dispose();
+      _appliedToolNoteControllers.remove(index);
+      _appliedTools.removeAt(index);
+      _appliedToolNoteControllers = _appliedTools.asMap().map(
+        (key, value) => MapEntry(
+          key,
+          _appliedToolNoteControllers[key] ??
+              TextEditingController(text: value.note),
         ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: CupertinoTextField(
-            controller: controllers.minorComponent,
-            placeholder: 'Minor component (e.g., right temple)',
-            placeholderStyle: AppTypography.inputPlaceholder,
-            style: AppTypography.input,
-            onChanged: (value) => updateSymptom(index, minorComponent: value),
-          ),
-        ),
-        const SizedBox(width: 8),
-        SizedBox(
-          width: 80,
-          child: CupertinoTextField(
-            controller: controllers.severity,
-            placeholder: '1-10',
-            placeholderStyle: AppTypography.inputPlaceholder,
-            style: AppTypography.input,
-            keyboardType: TextInputType.number,
-            onChanged: (value) {
-              final severity = int.tryParse(value);
-              if (severity != null && severity >= 1 && severity <= 10) {
-                updateSymptom(index, severityLevel: severity);
-              }
-            },
-          ),
-        ),
-        const SizedBox(width: 8),
-        CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => removeSymptom(index),
-          child: const Icon(
-            CupertinoIcons.delete,
-            color: CupertinoColors.destructiveRed,
-          ),
-        ),
-      ],
-    );
+      );
+    });
   }
 
-  Widget editableSymptomNotes(int index, SymptomControllers controllers) {
-    return CupertinoTextField(
-      controller: controllers.additionalNotes,
-      placeholder: 'Additional notes (optional)',
-      placeholderStyle: AppTypography.inputPlaceholder,
-      style: AppTypography.input,
-      maxLines: 2,
-      onChanged: (value) => updateSymptom(index, additionalNotes: value),
-    );
-  }
-}
-
-class DrugDoseControllers {
-  final TextEditingController name;
-  final TextEditingController dosage;
-  final TextEditingController unit;
-
-  DrugDoseControllers(DrugDose dose)
-    : name = TextEditingController(text: dose.name),
-      dosage = TextEditingController(text: dose.dosage.toString()),
-      unit = TextEditingController(text: dose.unit);
-
-  void dispose() {
-    name.dispose();
-    dosage.dispose();
-    unit.dispose();
-  }
-}
-
-class SymptomControllers {
-  final TextEditingController majorComponent;
-  final TextEditingController minorComponent;
-  final TextEditingController severity;
-  final TextEditingController additionalNotes;
-
-  SymptomControllers(Symptom symptom)
-    : majorComponent = TextEditingController(text: symptom.majorComponent),
-      minorComponent = TextEditingController(text: symptom.minorComponent),
-      severity = TextEditingController(text: symptom.severityLevel.toString()),
-      additionalNotes = TextEditingController(text: symptom.additionalNotes);
-
-  void dispose() {
-    majorComponent.dispose();
-    minorComponent.dispose();
-    severity.dispose();
-    additionalNotes.dispose();
+  void updateAppliedToolNote(int index, String value) {
+    setState(() {
+      final current = _appliedTools[index];
+      _appliedTools[index] = current.copyWith(note: value);
+    });
   }
 }

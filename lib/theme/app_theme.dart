@@ -212,6 +212,8 @@ class AppTypography {
   static TextStyle get labelLargePrimary =>
       labelLarge.copyWith(color: AppColors.textPrimary);
 
+  static TextStyle get labelSmallPrimary => labelLarge.copyWith(fontSize: 12);
+
   static TextStyle get labelMediumWhite =>
       labelMedium.copyWith(color: CupertinoColors.white);
 
