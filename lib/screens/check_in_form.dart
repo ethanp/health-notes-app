@@ -291,19 +291,24 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     setState(() => _isLoading = true);
 
     try {
-      for (final entry in _selectedMetrics.entries) {
-        await ref
-            .read(checkInsNotifierProvider.notifier)
-            .addCheckIn(
-              CheckIn(
-                // Will be set by the provider
-                id: '',
-                metricName: entry.key,
-                rating: entry.value,
-                dateTime: _selectedDateTime,
-                createdAt: DateTime.now(),
-              ),
-            );
+      final notifier = ref.read(checkInsNotifierProvider.notifier);
+      if (widget.checkIn != null) {
+        final entry = _selectedMetrics.entries.first;
+        await notifier.updateCheckIn(widget.checkIn!.copyWith(
+          metricName: entry.key,
+          rating: entry.value,
+          dateTime: _selectedDateTime,
+        ));
+      } else {
+        for (final entry in _selectedMetrics.entries) {
+          await notifier.addCheckIn(CheckIn(
+            id: '',
+            metricName: entry.key,
+            rating: entry.value,
+            dateTime: _selectedDateTime,
+            createdAt: DateTime.now(),
+          ));
+        }
       }
 
       if (mounted) {

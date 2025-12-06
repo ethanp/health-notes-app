@@ -269,16 +269,35 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
       ),
       child: LineChart(
         LineChartData(
-          gridData: chartGridData(),
+          gridData: chartGridData(sortedDates),
           titlesData: chartTitlesData(sortedDates),
           borderData: chartBorderData(),
           minX: 0,
           maxX: (sortedDates.length - 1).toDouble(),
-          minY: 0,
+          minY: 1,
           maxY: 10,
           backgroundColor: Colors.transparent,
           lineBarsData: lineBarsData(metrics, metricData, sortedDates),
           lineTouchData: chartTouchData(metrics),
+          extraLinesData: ExtraLinesData(
+            horizontalLines: [
+              HorizontalLine(
+                y: 1,
+                color: CupertinoColors.white.withValues(alpha: 0.25),
+                strokeWidth: 1,
+              ),
+              HorizontalLine(
+                y: 5,
+                color: CupertinoColors.white.withValues(alpha: 0.25),
+                strokeWidth: 1,
+              ),
+              HorizontalLine(
+                y: 10,
+                color: CupertinoColors.white.withValues(alpha: 0.25),
+                strokeWidth: 1,
+              ),
+            ],
+          ),
         ),
         duration: Duration.zero,
       ),
@@ -328,22 +347,20 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     return sortedDates;
   }
 
-  FlGridData chartGridData() {
+  FlGridData chartGridData(List<DateTime> sortedDates) {
     return FlGridData(
       show: true,
+      drawHorizontalLine: false,
       drawVerticalLine: true,
-      horizontalInterval: 2,
       verticalInterval: 1,
-      getDrawingHorizontalLine: (value) {
-        return FlLine(
-          color: AppColors.backgroundQuaternary.withValues(alpha: 0.3),
-          strokeWidth: 0.5,
-        );
-      },
       getDrawingVerticalLine: (value) {
+        final idx = value.toInt();
+        if (idx < 0 || idx >= sortedDates.length) return FlLine(strokeWidth: 0);
+        final date = sortedDates[idx];
+        if (date.day != 1) return FlLine(strokeWidth: 0);
         return FlLine(
-          color: AppColors.backgroundQuaternary.withValues(alpha: 0.3),
-          strokeWidth: 0.5,
+          color: CupertinoColors.white.withValues(alpha: 0.2),
+          strokeWidth: 1,
         );
       },
     );
@@ -367,7 +384,6 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
   }
 
   AxisTitles bottomTitles(List<DateTime> sortedDates) {
-    // Calculate dynamic interval to show ~6 labels max
     final interval = (sortedDates.length / 6).ceilToDouble().clamp(
       1.0,
       double.infinity,
@@ -383,9 +399,12 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
             final date = sortedDates[value.toInt()];
             return SideTitleWidget(
               meta: meta,
+              space: 4,
               child: Text(
                 DateFormat('MMM d').format(date),
-                style: AppTypography.bodySmallSecondarySmall,
+                style: AppTypography.bodySmallSecondarySmall.copyWith(
+                  color: CupertinoColors.white.withValues(alpha: 0.7),
+                ),
               ),
             );
           }
@@ -399,14 +418,22 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     return AxisTitles(
       sideTitles: SideTitles(
         showTitles: true,
-        interval: 2,
+        interval: 1,
         getTitlesWidget: (double value, TitleMeta meta) {
-          return Text(
-            value.toInt().toString(),
-            style: AppTypography.bodySmallSecondarySmall,
+          final v = value.toInt();
+          if (v != 1 && v != 5 && v != 10) return const SizedBox.shrink();
+          return SideTitleWidget(
+            meta: meta,
+            space: 4,
+            child: Text(
+              '$v',
+              style: AppTypography.bodySmallSecondarySmall.copyWith(
+                color: CupertinoColors.white.withValues(alpha: 0.7),
+              ),
+            ),
           );
         },
-        reservedSize: 25,
+        reservedSize: 20,
       ),
     );
   }
@@ -415,7 +442,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     return FlBorderData(
       show: true,
       border: Border.all(
-        color: AppColors.backgroundQuaternary.withValues(alpha: 0.4),
+        color: CupertinoColors.white.withValues(alpha: 0.15),
         width: 0.5,
       ),
     );

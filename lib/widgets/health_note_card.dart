@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
+import 'package:health_notes/screens/drug_trends_screen.dart';
+import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/number_formatter.dart';
@@ -26,7 +28,7 @@ class HealthNoteCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(),
-            if (_hasContent()) ...[VSpace.of(12), _buildContent()],
+            if (_hasContent()) ...[VSpace.of(12), _buildContent(context)],
           ],
         ),
       ),
@@ -55,18 +57,18 @@ class HealthNoteCard extends StatelessWidget {
         note.notes.isNotEmpty;
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (note.hasSymptoms) _buildSymptoms(),
-        if (note.drugDoses.isNotEmpty) _buildDrugDoses(),
+        if (note.hasSymptoms) _buildSymptoms(context),
+        if (note.drugDoses.isNotEmpty) _buildDrugDoses(context),
         if (note.notes.isNotEmpty) _buildGeneralNotes(),
       ],
     );
   }
 
-  Widget _buildSymptoms() {
+  Widget _buildSymptoms(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Wrap(
@@ -77,6 +79,13 @@ class HealthNoteCard extends StatelessWidget {
               (symptom) => _SymptomChip(
                 symptomName: symptom.majorComponent,
                 severity: symptom.severityLevel,
+                onTap: () => Navigator.of(context).push(
+                  CupertinoPageRoute(
+                    builder: (_) => SymptomTrendsScreen(
+                      symptomName: symptom.majorComponent,
+                    ),
+                  ),
+                ),
               ),
             )
             .toList(),
@@ -84,7 +93,7 @@ class HealthNoteCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDrugDoses() {
+  Widget _buildDrugDoses(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Wrap(
@@ -96,6 +105,11 @@ class HealthNoteCard extends StatelessWidget {
                 drugName: drug.name,
                 dosage: drug.dosage,
                 unit: drug.unit,
+                onTap: () => Navigator.of(context).push(
+                  CupertinoPageRoute(
+                    builder: (_) => DrugTrendsScreen(drugName: drug.name),
+                  ),
+                ),
               ),
             )
             .toList(),
@@ -117,46 +131,54 @@ class HealthNoteCard extends StatelessWidget {
 class _SymptomChip extends StatelessWidget {
   final String symptomName;
   final int severity;
+  final VoidCallback onTap;
 
-  const _SymptomChip({required this.symptomName, required this.severity});
+  const _SymptomChip({
+    required this.symptomName,
+    required this.severity,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            symptomName,
-            style: AppTypography.bodySmall.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          if (severity > 0) ...[
-            HSpace.xs,
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              symptomName,
+              style: AppTypography.bodySmall.copyWith(
+                fontWeight: FontWeight.w600,
               ),
-              child: Text(
-                severity.toString(),
-                style: AppTypography.bodySmall.copyWith(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
+            ),
+            if (severity > 0) ...[
+              HSpace.xs,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  severity.toString(),
+                  style: AppTypography.bodySmall.copyWith(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -167,27 +189,32 @@ class _DrugChip extends StatelessWidget {
   final String drugName;
   final double dosage;
   final String unit;
+  final VoidCallback onTap;
 
   const _DrugChip({
     required this.drugName,
     required this.dosage,
     required this.unit,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.accent.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
-      ),
-      child: Text(
-        dosage > 0
-            ? '$drugName (${formatDecimalValue(dosage)}$unit)'
-            : drugName,
-        style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: AppColors.accent.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
+        ),
+        child: Text(
+          dosage > 0
+              ? '$drugName (${formatDecimalValue(dosage)}$unit)'
+              : drugName,
+          style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
+        ),
       ),
     );
   }

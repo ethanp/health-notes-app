@@ -1,17 +1,46 @@
+import 'dart:math' as Math;
+
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/utils/number_formatter.dart';
 import 'package:health_notes/utils/date_utils.dart';
+import 'package:health_notes/utils/number_formatter.dart';
 import 'package:health_notes/utils/severity_utils.dart';
 import 'package:health_notes/widgets/spacing.dart';
 
-typedef ActivityDataExtractor<T> = Map<DateTime, T> Function();
 typedef ColorCalculator<T> = Color Function(T value);
 typedef LegendBuilder<T> = Widget Function();
 typedef DateInfoCallback<T> =
     void Function(BuildContext context, DateTime date, T value);
 typedef ActivityDescriptor<T> = String Function(T value);
+
+typedef WeekStats = ({List<Widget> cells, int activeDays, num sum});
+
+class CalendarConstants {
+  static const double cellSize = 39;
+  static const double cellMargin = 2;
+  static const double summaryWidth = 55;
+  static const double daysBadgeWidth = 18;
+  static const double legendItemSize = 12;
+  static const double summaryFontSize = 10;
+  static const int daysPerWeek = 7;
+  static const int monthsToShow = 12;
+  static const double alphaMin = 0.15;
+  static const double alphaMax = 0.9;
+  static const double boldThreshold = 0.5;
+}
+
+Color intensityColor(
+  double intensity, {
+  double alphaMin = 0.15,
+  double alphaMax = 0.9,
+}) {
+  return Color.lerp(
+    AppColors.primary.withValues(alpha: alphaMin),
+    AppColors.primary.withValues(alpha: alphaMax),
+    intensity,
+  )!;
+}
 
 class ActivityCalendar<T> extends StatelessWidget {
   final String title;
@@ -56,21 +85,48 @@ class ActivityCalendar<T> extends StatelessWidget {
   }
 
   Widget activityGrid(BuildContext context) {
-    final now = DateTime.now();
-    final monthsToShow = 12;
-    final months = <Widget>[];
+    final globalMaxSum = computeGlobalMaxSum();
+    final months = buildActiveMonths(context, globalMaxSum);
+    return months.isEmpty ? emptyState() : monthsScrollView(months);
+  }
 
-    for (int monthOffset = monthsToShow - 1; monthOffset >= 0; monthOffset--) {
-      final monthDate = DateTime(now.year, now.month - monthOffset, 1);
-      final daysInMonth = DateTime(monthDate.year, monthDate.month + 1, 0).day;
+  num computeGlobalMaxSum() {
+    final weekSums = <int, num>{};
 
-      if (!monthHasActivity(monthDate, daysInMonth)) continue;
-
-      final monthName = AppDateUtils.formatMonthYear(monthDate);
-      months.add(monthWidget(context, monthDate, monthName, daysInMonth));
+    for (final entry in activityData.entries) {
+      if (entry.value == emptyValue || entry.value is! num) continue;
+      final v = (entry.value as num);
+      final weekKey = entry.key.year * 100 + weekOfYear(entry.key);
+      weekSums.update(weekKey, (sum) => sum + v, ifAbsent: () => v);
     }
 
-    return months.isEmpty ? emptyState() : monthsScrollView(context, months);
+    return weekSums.values.fold(0, Math.max);
+  }
+
+  int weekOfYear(DateTime date) {
+    final firstDayOfYear = DateTime(date.year, 1, 1);
+    final daysDiff = date.difference(firstDayOfYear).inDays;
+    return (daysDiff / 7).floor();
+  }
+
+  List<Widget> buildActiveMonths(BuildContext context, num globalMaxSum) {
+    final now = DateTime.now();
+    final months = <Widget>[];
+
+    for (
+      int offset = CalendarConstants.monthsToShow - 1;
+      offset >= 0;
+      offset--
+    ) {
+      final monthDate = DateTime(now.year, now.month - offset, 1);
+      final daysInMonth = DateTime(monthDate.year, monthDate.month + 1, 0).day;
+
+      if (monthHasActivity(monthDate, daysInMonth)) {
+        months.add(monthWidget(context, monthDate, daysInMonth, globalMaxSum));
+      }
+    }
+
+    return months;
   }
 
   bool monthHasActivity(DateTime monthDate, int daysInMonth) {
@@ -86,14 +142,14 @@ class ActivityCalendar<T> extends StatelessWidget {
   Widget monthWidget(
     BuildContext context,
     DateTime monthDate,
-    String monthName,
     int daysInMonth,
+    num globalMaxSum,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        monthHeader(monthName),
-        ...weekRows(context, monthDate, daysInMonth),
+        monthHeader(AppDateUtils.formatMonthYear(monthDate)),
+        ...buildWeekRows(context, monthDate, daysInMonth, globalMaxSum),
         VSpace.m,
       ],
     );
@@ -106,98 +162,212 @@ class ActivityCalendar<T> extends StatelessWidget {
     );
   }
 
-  List<Widget> weekRows(
+  List<Widget> buildWeekRows(
+    BuildContext context,
+    DateTime monthDate,
+    int daysInMonth,
+    num globalMaxSum,
+  ) {
+    return computeWeekStats(context, monthDate, daysInMonth)
+        .map(
+          (stat) =>
+              buildWeekRow(stat.cells, stat.activeDays, stat.sum, globalMaxSum),
+        )
+        .toList();
+  }
+
+  List<WeekStats> computeWeekStats(
     BuildContext context,
     DateTime monthDate,
     int daysInMonth,
   ) {
-    final weekRows = <Widget>[];
-    final firstDayOfMonth = DateTime(monthDate.year, monthDate.month, 1);
-    final firstWeekday = firstDayOfMonth.weekday;
+    final firstWeekday = DateTime(monthDate.year, monthDate.month, 1).weekday;
     final totalDays = firstWeekday - 1 + daysInMonth;
-    final weeksInMonth = (totalDays / 7).ceil();
+    final weeksInMonth = (totalDays / CalendarConstants.daysPerWeek).ceil();
 
-    for (int week = 0; week < weeksInMonth; week++) {
-      final weekDays = <Widget>[];
-
-      for (int day = 0; day < 7; day++) {
-        final dayOffset = week * 7 + day - (firstWeekday - 1);
-        final isInMonth = dayOffset >= 0 && dayOffset < daysInMonth;
-
-        if (isInMonth) {
-          final date = DateTime(monthDate.year, monthDate.month, dayOffset + 1);
-          weekDays.add(dayCell(context, date));
-        } else {
-          weekDays.add(emptyCell());
-        }
-      }
-
-      weekRows.add(
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: weekDays),
-      );
-    }
-
-    return weekRows;
+    return List.generate(
+      weeksInMonth,
+      (week) =>
+          buildWeekStat(context, monthDate, daysInMonth, week, firstWeekday),
+    );
   }
 
-  Widget dayCell(BuildContext context, DateTime date) {
-    final value = activityData[date] ?? emptyValue;
-    final color = colorCalculator(value);
-    final hasActivity = value != emptyValue;
-    final displayText = hasActivity
-        ? _formatActivityValue(value)
-        : '${date.day}';
+  WeekStats buildWeekStat(
+    BuildContext context,
+    DateTime monthDate,
+    int daysInMonth,
+    int week,
+    int firstWeekday,
+  ) {
+    final cells = <Widget>[];
+    var activeDays = 0;
+    num sum = 0;
 
-    return GestureDetector(
-      onTap: () => onDateTap(context, date, value),
+    for (int day = 0; day < CalendarConstants.daysPerWeek; day++) {
+      final dayOffset =
+          week * CalendarConstants.daysPerWeek + day - (firstWeekday - 1);
+      final isInMonth = dayOffset >= 0 && dayOffset < daysInMonth;
+
+      if (isInMonth) {
+        final date = DateTime(monthDate.year, monthDate.month, dayOffset + 1);
+        final value = activityData[date] ?? emptyValue;
+
+        if (value != emptyValue) {
+          activeDays++;
+          if (value is num) sum += value;
+        }
+
+        cells.add(dayCell(context, date));
+      } else {
+        cells.add(emptyCell());
+      }
+    }
+
+    return (cells: cells, activeDays: activeDays, sum: sum);
+  }
+
+  num findMaxSum(List<WeekStats> stats) =>
+      stats.fold<num>(0, (max, stat) => stat.sum > max ? stat.sum : max);
+
+  Widget buildWeekRow(List<Widget> cells, int activeDays, num sum, num maxSum) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [...cells, weekSummary(activeDays, sum, maxSum)],
+      ),
+    );
+  }
+
+  Widget weekSummary(int activeDays, num sum, num maxSum) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0),
+      child: SizedBox(
+        width: CalendarConstants.summaryWidth,
+        child: activeDays == 0
+            ? null
+            : weekSummaryContent(activeDays, sum, maxSum),
+      ),
+    );
+  }
+
+  Widget weekSummaryContent(int activeDays, num sum, num maxSum) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [daysBadge(activeDays), sumLabel(sum, maxSum)],
+    );
+  }
+
+  Widget daysBadge(int activeDays) {
+    final intensity = activeDays / CalendarConstants.daysPerWeek;
+
+    return SizedBox(
+      width: CalendarConstants.daysBadgeWidth,
       child: Container(
-        width: 40,
-        height: 40,
-        margin: const EdgeInsets.all(3),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         decoration: BoxDecoration(
-          color: hasActivity
-              ? color
-              : AppColors.backgroundPrimary.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: cellBorderColor(value),
-            width: hasActivity ? 1.5 : 0.5,
-          ),
-          boxShadow: hasActivity
-              ? [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.3),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
+          color: intensityColor(intensity, alphaMin: 0.15, alphaMax: 0.7),
+          borderRadius: BorderRadius.circular(4),
         ),
-        child: Center(
-          child: Text(
-            displayText,
-            style: cellTextStyle(value).copyWith(
-              fontSize: hasActivity ? 12 : 14,
-              fontWeight: hasActivity ? FontWeight.bold : FontWeight.w500,
-            ),
+        child: Text(
+          '$activeDays',
+          textAlign: TextAlign.center,
+          style: AppTypography.bodySmall.copyWith(
+            color: CupertinoColors.white,
+            fontSize: CalendarConstants.summaryFontSize,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
     );
   }
 
-  String _formatActivityValue(T value) {
-    if (value is int) {
-      return value.toString();
-    } else if (value is double) {
-      return formatDecimalValue(value);
-    } else {
-      return value.toString();
-    }
+  Widget sumLabel(num sum, num maxSum) {
+    final intensity = maxSum > 0 ? sum / maxSum : 0.0;
+    final display = sum is double
+        ? formatDecimalValue(sum)
+        : sum.toInt().toString();
+
+    return Text(
+      display,
+      textAlign: TextAlign.right,
+      style: AppTypography.bodySmall.copyWith(
+        color: Color.lerp(
+          CupertinoColors.systemGrey.withValues(alpha: 0.5),
+          CupertinoColors.white,
+          intensity,
+        ),
+        fontSize: CalendarConstants.summaryFontSize,
+        fontWeight: intensity > CalendarConstants.boldThreshold
+            ? FontWeight.w600
+            : FontWeight.normal,
+      ),
+    );
+  }
+
+  Widget dayCell(BuildContext context, DateTime date) {
+    final value = activityData[date] ?? emptyValue;
+    final hasActivity = value != emptyValue;
+    final color = colorCalculator(value);
+
+    return GestureDetector(
+      onTap: () => onDateTap(context, date, value),
+      child: Container(
+        width: CalendarConstants.cellSize,
+        height: CalendarConstants.cellSize,
+        margin: const EdgeInsets.all(CalendarConstants.cellMargin),
+        decoration: dayCellDecoration(hasActivity, color, value),
+        child: Center(child: dayCellText(value, hasActivity, date)),
+      ),
+    );
+  }
+
+  BoxDecoration dayCellDecoration(bool hasActivity, Color color, T value) {
+    return BoxDecoration(
+      color: hasActivity
+          ? color
+          : AppColors.backgroundPrimary.withValues(alpha: 0.1),
+      borderRadius: BorderRadius.circular(6),
+      border: Border.all(
+        color: cellBorderColor(value),
+        width: hasActivity ? 1 : 0.5,
+      ),
+      boxShadow: hasActivity ? [dayCellShadow(color)] : null,
+    );
+  }
+
+  BoxShadow dayCellShadow(Color color) {
+    return BoxShadow(
+      color: color.withValues(alpha: 0.3),
+      blurRadius: 3,
+      offset: const Offset(0, 1),
+    );
+  }
+
+  Widget dayCellText(T value, bool hasActivity, DateTime date) {
+    final displayText = hasActivity ? formatValue(value) : '${date.day}';
+
+    return Text(
+      displayText,
+      style: cellTextStyle(value).copyWith(
+        fontSize: hasActivity ? 10 : 11,
+        fontWeight: hasActivity ? FontWeight.bold : FontWeight.w500,
+      ),
+    );
+  }
+
+  String formatValue(T value) {
+    if (value is double) return formatDecimalValue(value);
+    return value.toString();
   }
 
   Widget emptyCell() {
-    return Container(width: 40, height: 40, margin: const EdgeInsets.all(3));
+    return Container(
+      width: CalendarConstants.cellSize,
+      height: CalendarConstants.cellSize,
+      margin: const EdgeInsets.all(CalendarConstants.cellMargin),
+    );
   }
 
   Widget emptyState() {
@@ -230,7 +400,7 @@ class ActivityCalendar<T> extends StatelessWidget {
     );
   }
 
-  Widget monthsScrollView(BuildContext context, List<Widget> months) {
+  Widget monthsScrollView(List<Widget> months) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Column(
@@ -256,8 +426,7 @@ class ActivityCalendar<T> extends StatelessWidget {
     }
 
     final color = colorCalculator(value);
-    final luminance = color.computeLuminance();
-    final textColor = luminance > 0.5
+    final textColor = color.computeLuminance() > 0.5
         ? CupertinoColors.black
         : CupertinoColors.white;
 
@@ -289,17 +458,13 @@ class SeverityActivityCalendar extends StatelessWidget {
       subtitle:
           'Color intensity indicates symptom severity. Translucent days show no recorded activity.',
       activityData: activityData,
-      colorCalculator: _severityColor,
+      colorCalculator: SeverityUtils.colorForSeverity,
       legendBuilder: severityLegend,
       onDateTap: onDateTap,
       activityDescriptor: (severity) =>
           severity == 0 ? 'No activity' : 'Severity level $severity',
       emptyValue: 0,
     );
-  }
-
-  Color _severityColor(int severity) {
-    return SeverityUtils.colorForSeverity(severity);
   }
 
   Widget severityLegend() {
@@ -312,16 +477,18 @@ class SeverityActivityCalendar extends StatelessWidget {
           spacing: 12,
           runSpacing: 8,
           children: [
-            _legendItem(0, 'No Activity'),
-            for (int i = 1; i <= 10; i++) _legendItem(i, '$i'),
+            severityLegendItem(0, 'No Activity'),
+            for (int i = 1; i <= 10; i++) severityLegendItem(i, '$i'),
           ],
         ),
       ],
     );
   }
 
-  Widget _legendItem(int severity, String label) {
+  Widget severityLegendItem(int severity, String label) {
+    final color = SeverityUtils.colorForSeverity(severity);
     final isInactive = severity == 0;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -329,12 +496,12 @@ class SeverityActivityCalendar extends StatelessWidget {
           width: 16,
           height: 16,
           decoration: BoxDecoration(
-            color: _severityColor(severity),
+            color: color,
             borderRadius: BorderRadius.circular(2),
             border: Border.all(
               color: isInactive
                   ? CupertinoColors.systemGrey4.withValues(alpha: 0.3)
-                  : _severityColor(severity).withValues(alpha: 0.6),
+                  : color.withValues(alpha: 0.6),
             ),
           ),
         ),
@@ -365,19 +532,19 @@ class DosageActivityCalendar extends StatelessWidget {
     required this.unit,
   });
 
+  double get maxDosage => activityData.values.isEmpty
+      ? 0.0
+      : activityData.values.reduce((a, b) => a > b ? a : b);
+
   @override
   Widget build(BuildContext context) {
-    final maxDosage = activityData.values.isNotEmpty
-        ? activityData.values.reduce((a, b) => a > b ? a : b)
-        : 0.0;
-
     return ActivityCalendar<double>(
       title: '$drugName Activity',
       subtitle:
           'Color intensity indicates dosage amount. Translucent days show no recorded doses.',
       activityData: activityData,
-      colorCalculator: (dosage) => _dosageColor(dosage, maxDosage),
-      legendBuilder: () => dosageLegend(maxDosage, unit),
+      colorCalculator: dosageColor,
+      legendBuilder: dosageLegend,
       onDateTap: onDateTap,
       activityDescriptor: (dosage) =>
           dosage == 0.0 ? 'No doses' : '${formatDecimalValue(dosage)}$unit',
@@ -385,43 +552,19 @@ class DosageActivityCalendar extends StatelessWidget {
     );
   }
 
-  Color _dosageColor(double dosage, double maxDosage) {
-    if (dosage == 0.0) {
+  Color dosageColor(double dosage) {
+    if (dosage == 0.0)
       return AppColors.backgroundPrimary.withValues(alpha: 0.3);
-    }
     if (maxDosage == 0.0) return AppColors.primary.withValues(alpha: 0.1);
-
-    final intensity = dosage / maxDosage;
-    final baseColor = AppColors.primary;
-    return Color.lerp(
-      baseColor.withValues(alpha: 0.1),
-      baseColor.withValues(alpha: 0.8),
-      intensity,
-    )!;
+    return intensityColor(dosage / maxDosage, alphaMin: 0.1, alphaMax: 0.8);
   }
 
-  Widget dosageLegend(double maxDosage, String unit) {
+  Widget dosageLegend() {
     return Row(
       children: [
         Text('Less', style: AppTypography.bodySmallSystemGrey),
         HSpace.s,
-        ...List.generate(5, (index) {
-          final intensity = (index + 1) / 5.0;
-          final baseColor = AppColors.primary;
-          return Container(
-            width: 12,
-            height: 12,
-            margin: const EdgeInsets.only(right: 2),
-            decoration: BoxDecoration(
-              color: Color.lerp(
-                baseColor.withValues(alpha: 0.1),
-                baseColor.withValues(alpha: 0.8),
-                intensity,
-              ),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          );
-        }),
+        ...intensityGradientSquares(alphaMin: 0.1, alphaMax: 0.8),
         HSpace.s,
         Text('More', style: AppTypography.bodySmallSystemGrey),
         const Spacer(),
@@ -447,14 +590,17 @@ class CheckInsActivityCalendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activityData = _generateActivityData();
+    final activityData = generateActivityData();
+    final maxCount = activityData.values.isEmpty
+        ? 0
+        : activityData.values.reduce((a, b) => a > b ? a : b);
 
     return ActivityCalendar<int>(
       title: 'Check-ins',
       subtitle: 'Tap on a date to view check-ins for that day',
       activityData: activityData,
-      colorCalculator: _checkInsColor,
-      legendBuilder: checkInsLegend,
+      colorCalculator: (count) => checkInsColor(count, maxCount),
+      legendBuilder: () => checkInsLegend(maxCount),
       onDateTap: (context, date, count) => onDateTap(date),
       activityDescriptor: (count) => count == 0
           ? 'No check-ins'
@@ -463,8 +609,8 @@ class CheckInsActivityCalendar extends StatelessWidget {
     );
   }
 
-  Map<DateTime, int> _generateActivityData() {
-    final activityData = <DateTime, int>{};
+  Map<DateTime, int> generateActivityData() {
+    final data = <DateTime, int>{};
 
     for (final checkIn in checkIns) {
       final dateKey = DateTime(
@@ -472,95 +618,53 @@ class CheckInsActivityCalendar extends StatelessWidget {
         checkIn.dateTime.month,
         checkIn.dateTime.day,
       );
-
-      activityData.update(
-        dateKey,
-        (existing) => existing + 1,
-        ifAbsent: () => 1,
-      );
+      data.update(dateKey, (count) => count + 1, ifAbsent: () => 1);
     }
 
-    return activityData;
+    return data;
   }
 
-  Color _checkInsColor(int count) {
+  static Color checkInsColor(int count, int maxCount) {
     if (count == 0) return AppColors.backgroundPrimary.withValues(alpha: 0.1);
-
-    switch (count) {
-      case 1:
-        return AppColors.activityNone;
-      case 2:
-        return AppColors.activityLight;
-      case 3:
-        return AppColors.activityMedium;
-      case 4:
-        return AppColors.success;
-      case 5:
-        return AppColors.activityStrong;
-      default: // 6+
-        return AppColors.activityDeep;
-    }
+    if (maxCount == 0) return AppColors.primary.withValues(alpha: 0.1);
+    return intensityColor(count / maxCount);
   }
 
-  Widget checkInsLegend() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Daily Check-in Count:',
-          style: AppTypography.bodyMediumWhiteSemibold,
-        ),
-        VSpace.of(12),
-        checkInsLegendRow(),
-      ],
-    );
-  }
-
-  Widget checkInsLegendRow() {
+  Widget checkInsLegend(int maxCount) {
     return Row(
       children: [
-        _checkInsLegendItem(0, 'None'),
-        HSpace.m,
-        ...[
-          1,
-          2,
-          3,
-          4,
-          5,
-        ].expand((n) => [_checkInsLegendItem(n, '$n'), HSpace.of(12)]),
-        _checkInsLegendItem(6, '6+'),
+        Text('Less', style: AppTypography.bodySmallSystemGrey),
+        HSpace.s,
+        ...intensityGradientSquares(),
+        HSpace.s,
+        Text('More', style: AppTypography.bodySmallSystemGrey),
+        const Spacer(),
+        if (maxCount > 0)
+          Text('Max: $maxCount/day', style: AppTypography.bodySmallSystemGrey),
       ],
     );
   }
+}
 
-  Widget _checkInsLegendItem(int count, String label) {
-    final color = _checkInsColor(count);
-    return Column(
-      children: [
-        Container(
-          width: 20,
-          height: 20,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(
-              color: count == 0
-                  ? CupertinoColors.systemGrey4.withValues(alpha: 0.5)
-                  : color.withValues(alpha: 0.8),
-              width: count == 0 ? 0.5 : 1,
-            ),
-          ),
+List<Widget> intensityGradientSquares({
+  double alphaMin = CalendarConstants.alphaMin,
+  double alphaMax = CalendarConstants.alphaMax,
+  int steps = 5,
+}) {
+  return List.generate(steps, (index) {
+    final intensity = (index + 1) / steps;
+    return Container(
+      width: CalendarConstants.legendItemSize,
+      height: CalendarConstants.legendItemSize,
+      margin: const EdgeInsets.only(right: 2),
+      decoration: BoxDecoration(
+        color: intensityColor(
+          intensity,
+          alphaMin: alphaMin,
+          alphaMax: alphaMax,
         ),
-        VSpace.xs,
-        Text(
-          label,
-          style: AppTypography.bodySmall.copyWith(
-            color: CupertinoColors.white.withValues(alpha: 0.9),
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
+        borderRadius: BorderRadius.circular(2),
+      ),
     );
-  }
+  });
 }

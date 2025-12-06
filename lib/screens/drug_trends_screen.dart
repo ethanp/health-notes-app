@@ -1,17 +1,17 @@
 import 'package:flutter/cupertino.dart';
-import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/drug_dose.dart';
+import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/screens/trends/base_trends_screen.dart';
-import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/utils/number_formatter.dart';
 import 'package:health_notes/services/text_normalizer.dart';
+import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
+import 'package:health_notes/utils/number_formatter.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
 import 'package:health_notes/widgets/health_note_card.dart';
-import 'package:health_notes/widgets/trends_components.dart';
 import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/widgets/trends_components.dart';
 
 class DrugTrendsScreen extends BaseTrendsScreen {
   final String drugName;
@@ -173,16 +173,13 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
   }
 
   void _showNoteDetail(HealthNote note) {
-    final relevantDoses = _relevantDoses(note);
-    final totalDosage = _totalDosageForNote(note);
-
     showCupertinoDialog(
       context: context,
       builder: (dialogContext) => dosageDetailAlert(
         dialogContext,
         AppDateUtils.formatLongDate(note.dateTime),
-        totalDosage,
-        relevantDoses,
+        _totalDosageForNote(note),
+        _relevantDoses(note),
       ),
     );
   }
