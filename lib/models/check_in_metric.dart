@@ -20,6 +20,8 @@ abstract class CheckInMetric with _$CheckInMetric {
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
   }) = _CheckInMetric;
 
+  const CheckInMetric._();
+
   factory CheckInMetric.fromJson(Map<String, dynamic> json) =>
       _$CheckInMetricFromJson(json);
 
@@ -44,29 +46,7 @@ abstract class CheckInMetric with _$CheckInMetric {
       updatedAt: DateTime.now(),
     );
   }
-}
 
-enum MetricType {
-  lowerIsBetter(
-    description: 'Lower values are better',
-    getRatingColor: ColorMappingUtils.lowerIsBetterColor,
-  ),
-  middleIsBest(
-    description: 'Middle values (4-7) are optimal',
-    getRatingColor: ColorMappingUtils.middleIsBestColor,
-  ),
-  higherIsBetter(
-    description: 'Higher values are better',
-    getRatingColor: ColorMappingUtils.higherIsBetterColor,
-  );
-
-  final String description;
-  final Color Function(int) getRatingColor;
-
-  const MetricType({required this.description, required this.getRatingColor});
-}
-
-extension CheckInMetricExtensions on CheckInMetric {
   /// Returns the color for this metric
   Color get color => Color(colorValue);
 
@@ -93,6 +73,26 @@ extension CheckInMetricExtensions on CheckInMetric {
   CheckInMetric withUpdatedTimestamp() {
     return copyWith(updatedAt: DateTime.now());
   }
+}
+
+enum MetricType {
+  lowerIsBetter(
+    description: 'Lower values are better',
+    getRatingColor: ColorMappingUtils.lowerIsBetterColor,
+  ),
+  middleIsBest(
+    description: 'Middle values (4-7) are optimal',
+    getRatingColor: ColorMappingUtils.middleIsBestColor,
+  ),
+  higherIsBetter(
+    description: 'Higher values are better',
+    getRatingColor: ColorMappingUtils.higherIsBetterColor,
+  );
+
+  final String description;
+  final Color Function(int) getRatingColor;
+
+  const MetricType({required this.description, required this.getRatingColor});
 }
 
 /// Default color palette for new metrics

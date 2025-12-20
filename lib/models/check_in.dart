@@ -16,6 +16,8 @@ abstract class CheckIn with _$CheckIn {
     @JsonKey(name: 'created_at') required DateTime createdAt,
   }) = _CheckIn;
 
+  const CheckIn._();
+
   factory CheckIn.fromJson(Map<String, dynamic> json) =>
       _$CheckInFromJson(json);
 
@@ -35,9 +37,7 @@ abstract class CheckIn with _$CheckIn {
       createdAt: createdAt,
     );
   }
-}
 
-extension CheckInExtensions on CheckIn {
   bool get isValid => rating >= 1 && rating <= 10 && metricName.isNotEmpty;
 
   /// Get the color for this check-in's metric (requires CheckInMetric to be passed)

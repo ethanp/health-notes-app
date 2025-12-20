@@ -11,6 +11,8 @@ abstract class AppliedTool with _$AppliedTool {
     @Default('') String note,
   }) = _AppliedTool;
 
+  const AppliedTool._();
+
   factory AppliedTool.fromJson(Map<String, dynamic> json) =>
       _$AppliedToolFromJson(json);
 }

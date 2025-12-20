@@ -1,7 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/models/symptom.dart';
+import 'package:health_notes/providers/conditions_provider.dart';
 import 'package:health_notes/providers/symptom_suggestions_provider.dart';
+import 'package:health_notes/screens/condition_detail_screen.dart';
+import 'package:health_notes/screens/condition_form.dart';
 import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/services/symptom_suggestions_service.dart';
 import 'package:health_notes/services/text_normalizer.dart';
@@ -24,6 +28,7 @@ class SymptomsSection extends ConsumerWidget {
     String? majorComponent,
     String? minorComponent,
     String? additionalNotes,
+    String? conditionId,
   })
   onUpdate;
 
@@ -75,7 +80,7 @@ class SymptomsSection extends ConsumerWidget {
     if (!isEditable) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: symptoms.map((s) => _readOnlyItem(context, s)).toList(),
+        children: symptoms.map((s) => _readOnlyItem(context, ref, s)).toList(),
       );
     }
 
@@ -84,12 +89,12 @@ class SymptomsSection extends ConsumerWidget {
       children: symptoms.asMap().entries.map((entry) {
         final index = entry.key;
         final symptom = entry.value;
-        return _editableItem(ref, index, symptom, controllers[index]!);
+        return _editableItem(context, ref, index, symptom, controllers[index]!);
       }).toList(),
     );
   }
 
-  Widget _readOnlyItem(BuildContext context, Symptom symptom) {
+  Widget _readOnlyItem(BuildContext context, WidgetRef ref, Symptom symptom) {
     return GestureDetector(
       onTap: () {
         if (symptom.majorComponent.isNotEmpty) {
@@ -123,6 +128,9 @@ class SymptomsSection extends ConsumerWidget {
                     style: AppTypography.bodyMedium,
                   ),
                 ),
+                if (symptom.hasLinkedCondition)
+                  _conditionBadge(context, ref, symptom.conditionId!),
+                HSpace.s,
                 EnhancedUIComponents.statusIndicator(
                   text: '${symptom.severityLevel}/10',
                   color: AppColors.primary,
@@ -145,7 +153,57 @@ class SymptomsSection extends ConsumerWidget {
     );
   }
 
+  Widget _conditionBadge(
+    BuildContext context,
+    WidgetRef ref,
+    String conditionId,
+  ) {
+    final conditionsAsync = ref.watch(conditionsNotifierProvider);
+
+    return conditionsAsync.when(
+      data: (conditions) {
+        final condition = conditions
+            .where((c) => c.id == conditionId)
+            .firstOrNull;
+        if (condition == null) return const SizedBox.shrink();
+
+        return GestureDetector(
+          onTap: () {
+            Navigator.of(context).push(
+              CupertinoPageRoute(
+                builder: (context) =>
+                    ConditionDetailScreen(conditionId: conditionId),
+              ),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: condition.color.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: condition.color.withValues(alpha: 0.3)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(condition.icon, size: 12, color: condition.color),
+                HSpace.xs,
+                Text(
+                  condition.name,
+                  style: AppTypography.caption.copyWith(color: condition.color),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (e, st) => const SizedBox.shrink(),
+    );
+  }
+
   Widget _editableItem(
+    BuildContext context,
     WidgetRef ref,
     int index,
     Symptom symptom,
@@ -163,8 +221,128 @@ class SymptomsSection extends ConsumerWidget {
           _editableRow(index, controllers),
           VSpace.s,
           _editableNotes(index, controllers),
+          VSpace.s,
+          _conditionLinkRow(context, ref, index, symptom),
         ],
       ),
+    );
+  }
+
+  Widget _conditionLinkRow(
+    BuildContext context,
+    WidgetRef ref,
+    int index,
+    Symptom symptom,
+  ) {
+    if (symptom.hasLinkedCondition) {
+      return Row(
+        children: [
+          _conditionBadge(context, ref, symptom.conditionId!),
+          HSpace.s,
+          CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: () => onUpdate(index, conditionId: ''),
+            child: Text(
+              'Remove',
+              style: AppTypography.caption.copyWith(
+                color: CupertinoColors.destructiveRed,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      onPressed: () => _showConditionPicker(context, ref, index),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            CupertinoIcons.bandage,
+            size: 14,
+            color: CupertinoColors.systemBlue,
+          ),
+          HSpace.xs,
+          Text(
+            '+ Link Condition',
+            style: AppTypography.bodySmall.copyWith(
+              color: CupertinoColors.systemBlue,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showConditionPicker(BuildContext context, WidgetRef ref, int index) {
+    final conditionsAsync = ref.read(conditionsNotifierProvider);
+
+    conditionsAsync.when(
+      data: (conditions) {
+        final activeConditions = conditions.where((c) => c.isActive).toList();
+
+        showCupertinoModalPopup(
+          context: context,
+          builder: (context) => CupertinoActionSheet(
+            title: const Text('Link to Condition'),
+            message: const Text(
+              'Select an active condition or create a new one',
+            ),
+            actions: [
+              ...activeConditions.map(
+                (condition) => CupertinoActionSheetAction(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    onUpdate(index, conditionId: condition.id);
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(condition.icon, color: condition.color, size: 18),
+                      HSpace.s,
+                      Text(condition.name),
+                    ],
+                  ),
+                ),
+              ),
+              CupertinoActionSheetAction(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  final newCondition = await Navigator.of(context)
+                      .push<Condition>(
+                        CupertinoPageRoute(
+                          builder: (context) => const ConditionForm(),
+                        ),
+                      );
+                  if (newCondition != null) {
+                    onUpdate(index, conditionId: newCondition.id);
+                  }
+                },
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      CupertinoIcons.add,
+                      color: CupertinoColors.systemBlue,
+                      size: 18,
+                    ),
+                    HSpace.s,
+                    Text('+ New Condition'),
+                  ],
+                ),
+              ),
+            ],
+            cancelButton: CupertinoActionSheetAction(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+          ),
+        );
+      },
+      loading: () {},
+      error: (e, st) {},
     );
   }
 

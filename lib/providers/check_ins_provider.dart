@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/services/check_ins_dao.dart';
+import 'package:health_notes/services/condition_entries_dao.dart';
 import 'package:health_notes/services/offline_repository.dart';
 import 'package:health_notes/providers/auth_provider.dart';
 import 'package:health_notes/utils/data_utils.dart';
@@ -56,12 +57,26 @@ class CheckInsNotifier extends _$CheckInsNotifier {
   }
 
   Future<void> deleteCheckIn(String id) async {
+    final linkedEntries = await ConditionEntriesDao.getEntriesForCheckIn(id);
+    for (final entry in linkedEntries) {
+      await ConditionEntriesDao.deleteEntry(entry.id);
+      DataUtils.syncService.queueForSync('condition_entries', entry.id, 'delete', {});
+    }
+    
     await CheckInsDao.deleteCheckIn(id);
     DataUtils.syncService.queueForSync('check_ins', id, 'delete', {});
     ref.invalidateSelf();
   }
 
   Future<void> deleteCheckInGroup(List<String> checkInIds) async {
+    for (final checkInId in checkInIds) {
+      final linkedEntries = await ConditionEntriesDao.getEntriesForCheckIn(checkInId);
+      for (final entry in linkedEntries) {
+        await ConditionEntriesDao.deleteEntry(entry.id);
+        DataUtils.syncService.queueForSync('condition_entries', entry.id, 'delete', {});
+      }
+    }
+    
     await CheckInsDao.deleteCheckInGroup(checkInIds);
     for (final id in checkInIds) {
       DataUtils.syncService.queueForSync('check_ins', id, 'delete', {});

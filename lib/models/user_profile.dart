@@ -13,6 +13,8 @@ abstract class UserProfile with _$UserProfile {
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
   }) = _UserProfile;
 
+  const UserProfile._();
+
   factory UserProfile.fromJson(Map<String, dynamic> json) =>
       _$UserProfileFromJson(json);
 }

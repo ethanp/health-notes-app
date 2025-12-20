@@ -5,6 +5,8 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:health_notes/services/check_in_metrics_dao.dart';
 import 'package:health_notes/services/check_ins_dao.dart';
+import 'package:health_notes/services/condition_entries_dao.dart';
+import 'package:health_notes/services/conditions_dao.dart';
 import 'package:health_notes/services/health_notes_dao.dart';
 import 'package:health_notes/services/local_database.dart';
 import 'package:health_notes/services/user_profile_dao.dart';
@@ -130,6 +132,23 @@ class SyncService {
         await _syncCheckInMetricOperation(
           supabase,
           user.id,
+          recordId,
+          operation,
+          data,
+        );
+        break;
+      case 'conditions':
+        await _syncConditionOperation(
+          supabase,
+          user.id,
+          recordId,
+          operation,
+          data,
+        );
+        break;
+      case 'condition_entries':
+        await _syncConditionEntryOperation(
+          supabase,
           recordId,
           operation,
           data,
@@ -288,6 +307,80 @@ class SyncService {
     }
   }
 
+  /// Sync condition operation
+  Future<void> _syncConditionOperation(
+    SupabaseClient supabase,
+    String userId,
+    String recordId,
+    String operation,
+    Map<String, dynamic> data,
+  ) async {
+    switch (operation) {
+      case 'insert':
+        await supabase.from('conditions').insert({
+          'id': recordId,
+          'user_id': userId,
+          ...data,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+        await ConditionsDao.markAsSynced(recordId);
+        break;
+
+      case 'update':
+        await supabase
+            .from('conditions')
+            .update(data)
+            .eq('id', recordId)
+            .eq('user_id', userId);
+        await ConditionsDao.markAsSynced(recordId);
+        break;
+
+      case 'delete':
+        await supabase
+            .from('conditions')
+            .delete()
+            .eq('id', recordId)
+            .eq('user_id', userId);
+        await ConditionsDao.markAsSynced(recordId);
+        break;
+    }
+  }
+
+  /// Sync condition entry operation
+  Future<void> _syncConditionEntryOperation(
+    SupabaseClient supabase,
+    String recordId,
+    String operation,
+    Map<String, dynamic> data,
+  ) async {
+    switch (operation) {
+      case 'insert':
+        await supabase.from('condition_entries').insert({
+          'id': recordId,
+          ...data,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+        await ConditionEntriesDao.markAsSynced(recordId);
+        break;
+
+      case 'update':
+        await supabase
+            .from('condition_entries')
+            .update(data)
+            .eq('id', recordId);
+        await ConditionEntriesDao.markAsSynced(recordId);
+        break;
+
+      case 'delete':
+        await supabase
+            .from('condition_entries')
+            .delete()
+            .eq('id', recordId);
+        await ConditionEntriesDao.markAsSynced(recordId);
+        break;
+    }
+  }
+
   /// Sync all pending operations
   Future<void> syncAllData(String userId) async {
     if (_isSyncing || !await _isConnected()) return;
@@ -395,6 +488,25 @@ class SyncService {
 
       for (final metricData in metricsResponse) {
         await CheckInMetricsDao.upsertFromServer(metricData);
+      }
+
+      final conditionsResponse = await supabase
+          .from('conditions')
+          .select()
+          .eq('user_id', userId)
+          .order('start_date', ascending: false);
+
+      for (final conditionData in conditionsResponse) {
+        await ConditionsDao.upsertFromServer(conditionData, userId);
+      }
+
+      final conditionEntriesResponse = await supabase
+          .from('condition_entries')
+          .select()
+          .order('entry_date', ascending: false);
+
+      for (final entryData in conditionEntriesResponse) {
+        await ConditionEntriesDao.upsertFromServer(entryData);
       }
     } catch (e) {
       _emitSyncError('Error pulling latest data: ${e.toString()}');

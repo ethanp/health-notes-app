@@ -5,7 +5,7 @@ import 'package:path/path.dart';
 /// Local SQLite database service for offline storage
 class LocalDatabase {
   static const String _databaseName = 'health_notes.db';
-  static const int _databaseVersion = 4;
+  static const int _databaseVersion = 5;
 
   static Database? _database;
 
@@ -104,6 +104,43 @@ class LocalDatabase {
       )
     ''');
 
+    await db.execute('''
+      CREATE TABLE conditions (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        start_date TEXT NOT NULL,
+        end_date TEXT,
+        condition_status TEXT NOT NULL DEFAULT 'active',
+        color_value INTEGER NOT NULL DEFAULT 4293467747,
+        icon_code_point INTEGER NOT NULL DEFAULT 62318,
+        notes TEXT NOT NULL DEFAULT '',
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        synced_at TEXT,
+        is_deleted INTEGER DEFAULT 0,
+        sync_status TEXT DEFAULT 'pending'
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE condition_entries (
+        id TEXT PRIMARY KEY,
+        condition_id TEXT NOT NULL,
+        entry_date TEXT NOT NULL,
+        severity INTEGER NOT NULL,
+        phase TEXT NOT NULL DEFAULT 'onset',
+        notes TEXT NOT NULL DEFAULT '',
+        linked_check_in_id TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        synced_at TEXT,
+        is_deleted INTEGER DEFAULT 0,
+        sync_status TEXT DEFAULT 'pending',
+        FOREIGN KEY (condition_id) REFERENCES conditions(id)
+      )
+    ''');
+
     await db.execute(
       'CREATE INDEX idx_health_notes_user_id ON health_notes(user_id)',
     );
@@ -139,6 +176,26 @@ class LocalDatabase {
     );
     await db.execute(
       'CREATE INDEX idx_sync_queue_created_at ON sync_queue(created_at)',
+    );
+
+    await db.execute(
+      'CREATE INDEX idx_conditions_user_id ON conditions(user_id)',
+    );
+    await db.execute(
+      'CREATE INDEX idx_conditions_status ON conditions(condition_status)',
+    );
+    await db.execute(
+      'CREATE INDEX idx_conditions_sync_status ON conditions(sync_status)',
+    );
+
+    await db.execute(
+      'CREATE INDEX idx_condition_entries_condition_id ON condition_entries(condition_id)',
+    );
+    await db.execute(
+      'CREATE INDEX idx_condition_entries_entry_date ON condition_entries(entry_date)',
+    );
+    await db.execute(
+      'CREATE INDEX idx_condition_entries_sync_status ON condition_entries(sync_status)',
     );
   }
 
@@ -211,6 +268,65 @@ class LocalDatabase {
           "ALTER TABLE health_notes ADD COLUMN applied_tools TEXT NOT NULL DEFAULT '[]'",
         );
       }
+    }
+
+    if (oldVersion < 5) {
+      await db.execute('''
+        CREATE TABLE conditions (
+          id TEXT PRIMARY KEY,
+          user_id TEXT NOT NULL,
+          name TEXT NOT NULL,
+          start_date TEXT NOT NULL,
+          end_date TEXT,
+          condition_status TEXT NOT NULL DEFAULT 'active',
+          color_value INTEGER NOT NULL DEFAULT 4293467747,
+          icon_code_point INTEGER NOT NULL DEFAULT 62318,
+          notes TEXT NOT NULL DEFAULT '',
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL,
+          synced_at TEXT,
+          is_deleted INTEGER DEFAULT 0,
+          sync_status TEXT DEFAULT 'pending'
+        )
+      ''');
+
+      await db.execute('''
+        CREATE TABLE condition_entries (
+          id TEXT PRIMARY KEY,
+          condition_id TEXT NOT NULL,
+          entry_date TEXT NOT NULL,
+          severity INTEGER NOT NULL,
+          phase TEXT NOT NULL DEFAULT 'onset',
+          notes TEXT NOT NULL DEFAULT '',
+          linked_check_in_id TEXT NOT NULL,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL,
+          synced_at TEXT,
+          is_deleted INTEGER DEFAULT 0,
+          sync_status TEXT DEFAULT 'pending',
+          FOREIGN KEY (condition_id) REFERENCES conditions(id)
+        )
+      ''');
+
+      await db.execute(
+        'CREATE INDEX idx_conditions_user_id ON conditions(user_id)',
+      );
+      await db.execute(
+        'CREATE INDEX idx_conditions_status ON conditions(condition_status)',
+      );
+      await db.execute(
+        'CREATE INDEX idx_conditions_sync_status ON conditions(sync_status)',
+      );
+
+      await db.execute(
+        'CREATE INDEX idx_condition_entries_condition_id ON condition_entries(condition_id)',
+      );
+      await db.execute(
+        'CREATE INDEX idx_condition_entries_entry_date ON condition_entries(entry_date)',
+      );
+      await db.execute(
+        'CREATE INDEX idx_condition_entries_sync_status ON condition_entries(sync_status)',
+      );
     }
   }
 

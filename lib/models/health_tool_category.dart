@@ -17,11 +17,11 @@ abstract class HealthToolCategory with _$HealthToolCategory {
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
   }) = _HealthToolCategory;
 
+  const HealthToolCategory._();
+
   factory HealthToolCategory.fromJson(Map<String, dynamic> json) =>
       _$HealthToolCategoryFromJson(json);
-}
 
-extension HealthToolCategoryExtensions on HealthToolCategory {
   Map<String, dynamic> toJsonForUpdate() {
     return {
       'name': name,

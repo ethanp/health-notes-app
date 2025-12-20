@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/services/check_in_metrics_dao.dart';
 import 'package:health_notes/services/sync_service.dart';
 

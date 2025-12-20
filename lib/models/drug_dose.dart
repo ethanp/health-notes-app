@@ -12,27 +12,17 @@ abstract class DrugDose with _$DrugDose {
     @Default('mg') String unit,
   }) = _DrugDose;
 
+  const DrugDose._();
+
   factory DrugDose.fromJson(Map<String, dynamic> json) =>
       _$DrugDoseFromJson(json);
-}
 
-/// Extension for DrugDose to add utility methods without interfering with freezed code generation
-extension DrugDoseExtensions on DrugDose {
+  static const empty = DrugDose(name: '', dosage: 0.0, unit: 'mg');
+
   bool get isValid => name.isNotEmpty && dosage > 0;
   bool get isEmpty => name.isEmpty;
 
   String get displayName => name.isEmpty ? 'Unnamed medication' : name;
   String get displayDosage => '${formatDecimalValue(dosage)}$unit';
   String get fullDisplay => '$displayName - $displayDosage';
-
-  DrugDose copyWith({String? name, double? dosage, String? unit}) {
-    return DrugDose(
-      name: name ?? this.name,
-      dosage: dosage ?? this.dosage,
-      unit: unit ?? this.unit,
-    );
-  }
-
-  static DrugDose get empty =>
-      const DrugDose(name: '', dosage: 0.0, unit: 'mg');
 }

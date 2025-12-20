@@ -10,14 +10,18 @@ abstract class Symptom with _$Symptom {
     @JsonKey(name: 'minor_component') @Default('') String minorComponent,
     @JsonKey(name: 'severity_level') required int severityLevel,
     @JsonKey(name: 'additional_notes') @Default('') String additionalNotes,
+    @JsonKey(name: 'condition_id') String? conditionId,
   }) = _Symptom;
+
+  const Symptom._();
 
   factory Symptom.fromJson(Map<String, dynamic> json) =>
       _$SymptomFromJson(json);
-}
 
-extension SymptomExtensions on Symptom {
-  /// Returns the full symptom description combining major and minor components
+  static const empty = Symptom(majorComponent: '', severityLevel: 1);
+
+  bool get hasLinkedCondition => conditionId != null && conditionId!.isNotEmpty;
+
   String get fullDescription {
     if (majorComponent.isEmpty && minorComponent.isEmpty) {
       return 'Unnamed symptom';
@@ -29,7 +33,4 @@ extension SymptomExtensions on Symptom {
       return '$majorComponent - $minorComponent';
     }
   }
-
-  static Symptom get empty =>
-      const Symptom(majorComponent: '', severityLevel: 1);
 }

@@ -16,34 +16,13 @@ abstract class HealthTool with _$HealthTool {
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
   }) = _HealthTool;
 
+  const HealthTool._();
+
   factory HealthTool.fromJson(Map<String, dynamic> json) =>
       _$HealthToolFromJson(json);
-}
 
-extension HealthToolExtensions on HealthTool {
-  bool get isValid => name.isNotEmpty && description.isNotEmpty && categoryId.isNotEmpty;
-
-  HealthTool copyWith({
-    String? id,
-    String? name,
-    String? description,
-    String? categoryId,
-    int? sortOrder,
-    bool? isActive,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) {
-    return HealthTool(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      description: description ?? this.description,
-      categoryId: categoryId ?? this.categoryId,
-      sortOrder: sortOrder ?? this.sortOrder,
-      isActive: isActive ?? this.isActive,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
+  bool get isValid =>
+      name.isNotEmpty && description.isNotEmpty && categoryId.isNotEmpty;
 
   Map<String, dynamic> toJsonForUpdate() {
     return {

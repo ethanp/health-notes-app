@@ -54,6 +54,7 @@ class HealthNoteCard extends StatelessWidget {
   bool _hasContent() {
     return note.hasSymptoms ||
         note.drugDoses.isNotEmpty ||
+        note.appliedTools.isNotEmpty ||
         note.notes.isNotEmpty;
   }
 
@@ -62,9 +63,23 @@ class HealthNoteCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (note.hasSymptoms) _buildSymptoms(context),
+        if (note.appliedTools.isNotEmpty) _buildAppliedTools(),
         if (note.drugDoses.isNotEmpty) _buildDrugDoses(context),
         if (note.notes.isNotEmpty) _buildGeneralNotes(),
       ],
+    );
+  }
+
+  Widget _buildAppliedTools() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        children: note.appliedTools
+            .map((tool) => _ToolChip(toolName: tool.toolName))
+            .toList(),
+      ),
     );
   }
 
@@ -215,6 +230,29 @@ class _DrugChip extends StatelessWidget {
               : drugName,
           style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
         ),
+      ),
+    );
+  }
+}
+
+/// Applied tool chip
+class _ToolChip extends StatelessWidget {
+  final String toolName;
+
+  const _ToolChip({required this.toolName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.accentWarm.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.accentWarm.withValues(alpha: 0.3)),
+      ),
+      child: Text(
+        toolName,
+        style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
       ),
     );
   }

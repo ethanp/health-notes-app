@@ -6,6 +6,8 @@ import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/providers/sync_provider.dart';
+import 'package:health_notes/screens/check_in_form.dart';
+import 'package:health_notes/screens/check_ins_screen.dart';
 import 'package:health_notes/screens/drug_trends_screen.dart';
 import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/services/text_normalizer.dart';
@@ -48,7 +50,19 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
         onPressed: () => AuthUtils.showSignOutDialog(context),
         child: const Icon(CupertinoIcons.person_circle),
       ),
-      trailing: const CompactSyncStatusWidget(),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CompactSyncStatusWidget(),
+          CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: () => Navigator.of(context).push(
+              CupertinoPageRoute(builder: (context) => const CheckInForm()),
+            ),
+            child: const Icon(CupertinoIcons.add),
+          ),
+        ],
+      ),
     );
   }
 
@@ -156,7 +170,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
           padding: const EdgeInsets.all(16),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              sectionHeader('Check-in Trends'),
+              checkInTrendsHeader(),
               checkInTrendsSection(checkIns),
               VSpace.of(20),
               sectionHeader('Recent Symptom Trends'),
@@ -179,6 +193,28 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
 
   Widget sectionHeader(String title) {
     return EnhancedUIComponents.sectionHeader(title: title);
+  }
+
+  Widget checkInTrendsHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text('Check-in Trends', style: AppTypography.headlineSmall),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => Navigator.of(context).push(
+            CupertinoPageRoute(builder: (context) => const CheckInsScreen()),
+          ),
+          child: Row(
+            children: [
+              Text('View All', style: AppTypography.bodyMediumSemiboldBlue),
+              HSpace.xs,
+              Icon(CupertinoIcons.chevron_right, size: 14, color: CupertinoColors.systemBlue),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   Widget recentSymptomTrendsCard(Map<String, int> recentTrends) {

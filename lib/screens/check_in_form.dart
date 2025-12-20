@@ -2,9 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/check_in_metric.dart';
+import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/providers/check_ins_provider.dart';
+import 'package:health_notes/providers/conditions_provider.dart';
+import 'package:health_notes/screens/condition_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/utils/data_utils.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/spacing.dart';
 
@@ -32,8 +36,10 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late DateTime _selectedDateTime;
   bool _isLoading = false;
+  bool _conditionsLoaded = false;
 
   final Map<String, int> _selectedMetrics = {};
+  final List<ConditionEntryDraft> _conditionDrafts = [];
 
   @override
   void initState() {
@@ -42,6 +48,27 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
 
     if (widget.checkIn != null) {
       _selectedMetrics[widget.checkIn!.metricName] = widget.checkIn!.rating;
+    }
+
+    _loadActiveConditions();
+  }
+
+  Future<void> _loadActiveConditions() async {
+    if (widget.checkIn != null) return;
+    
+    final activeConditions = await ref.read(conditionsNotifierProvider.notifier).getActiveConditions();
+    if (mounted) {
+      setState(() {
+        _conditionDrafts.clear();
+        for (final condition in activeConditions) {
+          _conditionDrafts.add(ConditionEntryDraft(
+            conditionId: condition.id,
+            conditionName: condition.name,
+            conditionColor: condition.color,
+          ));
+        }
+        _conditionsLoaded = true;
+      });
     }
   }
 
@@ -86,13 +113,18 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     if (userMetrics.isEmpty) return noMetricsAvailable();
 
     if (_selectedMetrics.isEmpty && widget.checkIn == null) {
-      // All metrics start with a default rating of "5".
       userMetrics.forEach((m) => _selectedMetrics[m.name] = 5);
     }
 
+    final sections = <Widget>[
+      dateTimeSection(),
+      metricSlidersSection(userMetrics),
+      if (widget.checkIn == null) conditionsSection(),
+    ];
+
     return ListView(
       padding: const EdgeInsets.all(16),
-      children: [dateTimeSection(), metricSlidersSection(userMetrics)]
+      children: sections
           .map(
             (section) => Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -285,6 +317,271 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     );
   }
 
+  Widget conditionsSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: AppComponents.primaryCard,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Active Conditions', style: AppTypography.headlineSmall),
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: showAddConditionOptions,
+                child: Row(
+                  children: [
+                    Icon(CupertinoIcons.add, size: 18, color: CupertinoColors.systemBlue),
+                    HSpace.xs,
+                    Text('Add', style: AppTypography.bodyMediumSemiboldBlue),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          VSpace.s,
+          Text(
+            'Log entries for active conditions',
+            style: AppTypography.bodySmallTertiary,
+          ),
+          VSpace.m,
+          if (!_conditionsLoaded)
+            const Center(child: CupertinoActivityIndicator())
+          else if (_conditionDrafts.isEmpty)
+            noConditionsMessage()
+          else
+            ..._conditionDrafts.asMap().entries.map(
+              (entry) => conditionEntryCard(entry.key, entry.value),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget noConditionsMessage() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundTertiary,
+        borderRadius: BorderRadius.circular(AppRadius.small),
+      ),
+      child: Center(
+        child: Text(
+          'No active conditions to log',
+          style: AppTypography.bodyMediumSystemGrey,
+        ),
+      ),
+    );
+  }
+
+  Widget conditionEntryCard(int index, ConditionEntryDraft draft) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundTertiary,
+        borderRadius: BorderRadius.circular(AppRadius.small),
+        border: Border.all(
+          color: draft.conditionColor.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          conditionEntryHeader(index, draft),
+          VSpace.m,
+          conditionSeveritySlider(index, draft),
+          VSpace.m,
+          conditionPhasePicker(index, draft),
+          VSpace.m,
+          conditionNotesField(index, draft),
+          VSpace.m,
+          conditionResolveToggle(index, draft),
+        ],
+      ),
+    );
+  }
+
+  Widget conditionEntryHeader(int index, ConditionEntryDraft draft) {
+    return Row(
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: draft.conditionColor.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(
+            CupertinoIcons.bandage,
+            size: 14,
+            color: draft.conditionColor,
+          ),
+        ),
+        HSpace.s,
+        Expanded(
+          child: Text(draft.conditionName, style: AppTypography.labelLargePrimary),
+        ),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => setState(() => _conditionDrafts.removeAt(index)),
+          child: Icon(
+            CupertinoIcons.xmark_circle_fill,
+            color: CupertinoColors.systemRed.withValues(alpha: 0.7),
+            size: 20,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget conditionSeveritySlider(int index, ConditionEntryDraft draft) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Severity', style: AppTypography.labelMedium),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: severityColor(draft.severity),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '${draft.severity}/10',
+                style: AppTypography.labelSmall.copyWith(color: CupertinoColors.white),
+              ),
+            ),
+          ],
+        ),
+        VSpace.xs,
+        CupertinoSlider(
+          value: draft.severity.toDouble(),
+          min: 1,
+          max: 10,
+          divisions: 9,
+          activeColor: severityColor(draft.severity),
+          onChanged: (value) => setState(() => draft.severity = value.round()),
+        ),
+      ],
+    );
+  }
+
+  Widget conditionPhasePicker(int index, ConditionEntryDraft draft) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Phase', style: AppTypography.labelMedium),
+        VSpace.xs,
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: ConditionPhase.values.map((p) {
+            final isSelected = draft.phase == p;
+            return GestureDetector(
+              onTap: () => setState(() => draft.phase = p),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isSelected ? p.color.withValues(alpha: 0.2) : AppColors.backgroundQuaternary,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isSelected ? p.color : AppColors.backgroundQuinary,
+                    width: isSelected ? 1.5 : 1,
+                  ),
+                ),
+                child: Text(
+                  p.displayName,
+                  style: AppTypography.caption.copyWith(
+                    color: isSelected ? p.color : AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget conditionNotesField(int index, ConditionEntryDraft draft) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Notes', style: AppTypography.labelMedium),
+        VSpace.xs,
+        CupertinoTextField(
+          placeholder: 'Optional notes for this condition...',
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: AppColors.backgroundQuaternary,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          style: AppTypography.bodySmall,
+          placeholderStyle: AppTypography.inputPlaceholder.copyWith(fontSize: 13),
+          maxLines: 2,
+          onChanged: (value) => draft.notes = value,
+        ),
+      ],
+    );
+  }
+
+  Widget conditionResolveToggle(int index, ConditionEntryDraft draft) {
+    return Row(
+      children: [
+        CupertinoSwitch(
+          value: draft.markResolved,
+          onChanged: (value) => setState(() => draft.markResolved = value),
+          activeTrackColor: CupertinoColors.systemGreen,
+        ),
+        HSpace.s,
+        Expanded(
+          child: Text(
+            'Mark as resolved after this entry',
+            style: AppTypography.bodySmallSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Color severityColor(int severity) {
+    if (severity <= 3) return CupertinoColors.systemGreen;
+    if (severity <= 5) return CupertinoColors.systemYellow;
+    if (severity <= 7) return CupertinoColors.systemOrange;
+    return CupertinoColors.systemRed;
+  }
+
+  void showAddConditionOptions() {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => CupertinoActionSheet(
+        title: const Text('Add Condition'),
+        actions: [
+          CupertinoActionSheetAction(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await Navigator.of(context).push(
+                CupertinoPageRoute(builder: (context) => const ConditionForm()),
+              );
+              await _loadActiveConditions();
+            },
+            child: const Text('Create New Condition'),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+      ),
+    );
+  }
+
   Future<void> saveCheckIn() async {
     if (!_formKey.currentState!.validate() || _selectedMetrics.isEmpty) return;
 
@@ -292,6 +589,8 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
 
     try {
       final notifier = ref.read(checkInsNotifierProvider.notifier);
+      late String checkInId;
+
       if (widget.checkIn != null) {
         final entry = _selectedMetrics.entries.first;
         await notifier.updateCheckIn(widget.checkIn!.copyWith(
@@ -299,6 +598,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
           rating: entry.value,
           dateTime: _selectedDateTime,
         ));
+        checkInId = widget.checkIn!.id;
       } else {
         for (final entry in _selectedMetrics.entries) {
           await notifier.addCheckIn(CheckIn(
@@ -308,6 +608,34 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
             dateTime: _selectedDateTime,
             createdAt: DateTime.now(),
           ));
+        }
+
+        final allCheckIns = await ref.read(checkInsNotifierProvider.future);
+        final latestCheckIn = allCheckIns
+            .where((c) => c.dateTime.isAtSameMomentAs(_selectedDateTime) || 
+                          c.dateTime.difference(_selectedDateTime).inSeconds.abs() < 5)
+            .toList();
+        if (latestCheckIn.isNotEmpty) {
+          checkInId = latestCheckIn.first.id;
+        } else {
+          checkInId = DataUtils.uuid.v4();
+        }
+      }
+
+      for (final draft in _conditionDrafts) {
+        final conditionsNotifier = ref.read(conditionsNotifierProvider.notifier);
+        final entriesNotifier = ref.read(conditionEntriesNotifierProvider(draft.conditionId).notifier);
+
+        await entriesNotifier.addEntry(
+          entryDate: _selectedDateTime,
+          severity: draft.severity,
+          phase: draft.phase,
+          notes: draft.notes,
+          linkedCheckInId: checkInId,
+        );
+
+        if (draft.markResolved) {
+          await conditionsNotifier.resolveCondition(draft.conditionId, endDate: _selectedDateTime);
         }
       }
 

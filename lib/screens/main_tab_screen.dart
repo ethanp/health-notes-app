@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:health_notes/screens/check_ins_screen.dart';
+import 'package:health_notes/screens/conditions_screen.dart';
 import 'package:health_notes/screens/health_notes_home_page.dart';
 import 'package:health_notes/screens/my_tools_screen.dart';
 import 'package:health_notes/screens/trends_screen.dart';
@@ -84,8 +84,8 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen>
           label: 'Trends',
         ),
         BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.chart_bar_alt_fill),
-          label: 'Check-ins',
+          icon: Icon(CupertinoIcons.bandage),
+          label: 'Conditions',
         ),
         BottomNavigationBarItem(
           icon: Icon(CupertinoIcons.doc_text),
@@ -93,7 +93,7 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen>
         ),
         BottomNavigationBarItem(
           icon: Icon(CupertinoIcons.wrench),
-          label: 'My Tools',
+          label: 'Tools',
         ),
       ],
     );
@@ -105,7 +105,7 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen>
         opacity: _fadeInAnimation,
         child: switch (index) {
           0 => const TrendsScreen(),
-          1 => const CheckInsScreen(),
+          1 => const ConditionsScreen(),
           2 => const HealthNotesHomePage(),
           3 => const MyToolsScreen(),
           _ => const TrendsScreen(),

@@ -234,7 +234,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
   void addDrugDose() {
     setState(() {
       final newIndex = _drugDoses.length;
-      _drugDoses.add(DrugDoseExtensions.empty);
+      _drugDoses.add(DrugDose.empty);
       _drugDoseControllers[newIndex] = DrugDoseControllers(
         _drugDoses[newIndex],
       );
@@ -271,7 +271,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
   void addSymptom() {
     setState(() {
       final newIndex = _symptoms.length;
-      _symptoms.add(SymptomExtensions.empty);
+      _symptoms.add(Symptom.empty);
       _symptomControllers[newIndex] = SymptomControllers(_symptoms[newIndex]);
     });
   }
@@ -307,6 +307,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     String? majorComponent,
     String? minorComponent,
     String? additionalNotes,
+    String? conditionId,
   }) {
     setState(() {
       final currentSymptom = _symptoms[index];
@@ -320,6 +321,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
         majorComponent: majorComponent ?? currentSymptom.majorComponent,
         minorComponent: minorComponent ?? currentSymptom.minorComponent,
         additionalNotes: additionalNotes ?? currentSymptom.additionalNotes,
+        conditionId: conditionId ?? currentSymptom.conditionId,
       );
 
       _symptoms[index] = newSymptom;
