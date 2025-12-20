@@ -175,7 +175,6 @@ class SyncService {
           'id': recordId,
           'user_id': userId,
           ...data,
-          'created_at': DateTime.now().toIso8601String(),
         });
         await HealthNotesDao.markAsSynced(recordId);
         break;
@@ -214,7 +213,6 @@ class SyncService {
           'id': recordId,
           'user_id': userId,
           ...data,
-          'updated_at': DateTime.now().toIso8601String(),
         });
         await CheckInMetricsDao.markAsSynced(recordId);
         break;
@@ -223,8 +221,6 @@ class SyncService {
           'id': recordId,
           'user_id': userId,
           ...data,
-          'created_at': DateTime.now().toIso8601String(),
-          'updated_at': DateTime.now().toIso8601String(),
         });
         await CheckInMetricsDao.markAsSynced(recordId);
         break;
@@ -232,7 +228,7 @@ class SyncService {
       case 'update':
         await supabase
             .from('check_in_metrics')
-            .update({...data, 'updated_at': DateTime.now().toIso8601String()})
+            .update(data)
             .eq('id', recordId)
             .eq('user_id', userId);
         await CheckInMetricsDao.markAsSynced(recordId);
@@ -263,7 +259,6 @@ class SyncService {
           'id': recordId,
           'user_id': userId,
           ...data,
-          'created_at': DateTime.now().toIso8601String(),
         });
         await CheckInsDao.markAsSynced(recordId);
         break;
@@ -321,7 +316,6 @@ class SyncService {
           'id': recordId,
           'user_id': userId,
           ...data,
-          'created_at': DateTime.now().toIso8601String(),
         });
         await ConditionsDao.markAsSynced(recordId);
         break;
@@ -358,7 +352,6 @@ class SyncService {
         await supabase.from('condition_entries').insert({
           'id': recordId,
           ...data,
-          'created_at': DateTime.now().toIso8601String(),
         });
         await ConditionEntriesDao.markAsSynced(recordId);
         break;

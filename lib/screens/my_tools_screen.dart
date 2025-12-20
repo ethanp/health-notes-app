@@ -6,7 +6,7 @@ import 'package:health_notes/screens/health_tool_category_form.dart';
 import 'package:health_notes/screens/health_tool_category_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
-import 'package:health_notes/utils/auth_utils.dart';
+import 'package:health_notes/widgets/log_out_button.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
 import 'package:health_notes/widgets/spacing.dart';
@@ -27,15 +27,17 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
     return CupertinoPageScaffold(
       navigationBar: EnhancedUIComponents.navigationBar(
         title: 'My Tools',
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => AuthUtils.showSignOutDialog(context),
-          child: const Icon(CupertinoIcons.person_circle),
-        ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => _showAddCategoryForm(),
-          child: const Icon(CupertinoIcons.add),
+        leading: const LogOutButton(),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CompactSyncStatusWidget(),
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () => _showAddCategoryForm(),
+              child: const Icon(CupertinoIcons.add),
+            ),
+          ],
         ),
       ),
       child: SafeArea(

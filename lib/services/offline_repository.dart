@@ -34,6 +34,8 @@ class OfflineRepository {
         'color_value': metric.colorValue,
         'icon_code_point': metric.iconCodePoint,
         'sort_order': metric.sortOrder,
+        'created_at': metric.createdAt.toIso8601String(),
+        'updated_at': metric.updatedAt.toIso8601String(),
       });
     }
   }

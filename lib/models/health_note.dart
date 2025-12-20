@@ -44,6 +44,7 @@ abstract class HealthNote with _$HealthNote {
       'drug_doses': validDrugDoses.map((d) => d.toJson()).toList(),
       'applied_tools': appliedTools.map((t) => t.toJson()).toList(),
       'notes': notes,
+      'created_at': createdAt.toIso8601String(),
     };
   }
 }

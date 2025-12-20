@@ -57,6 +57,7 @@ abstract class CheckIn with _$CheckIn {
       'metric_name': metricName,
       'rating': rating,
       'date_time': dateTime.toIso8601String(),
+      'created_at': createdAt.toIso8601String(),
     };
   }
 }

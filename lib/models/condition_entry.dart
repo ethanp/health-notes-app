@@ -51,7 +51,8 @@ abstract class ConditionEntry with _$ConditionEntry {
     'phase': phase.name,
     'notes': notes,
     'linked_check_in_id': linkedCheckInId,
-    'updated_at': DateTime.now().toIso8601String(),
+    'created_at': createdAt.toIso8601String(),
+    'updated_at': updatedAt.toIso8601String(),
   };
 }
 

@@ -13,6 +13,13 @@ typedef LegendBuilder<T> = Widget Function();
 typedef DateInfoCallback<T> =
     void Function(BuildContext context, DateTime date, T value);
 typedef ActivityDescriptor<T> = String Function(T value);
+typedef DayCellBuilder<T> = Widget Function(
+  BuildContext context,
+  DateTime date,
+  T value,
+  bool hasActivity,
+  Color color,
+);
 
 typedef WeekStats = ({List<Widget> cells, int activeDays, num sum});
 
@@ -51,6 +58,7 @@ class ActivityCalendar<T> extends StatelessWidget {
   final DateInfoCallback<T> onDateTap;
   final ActivityDescriptor<T> activityDescriptor;
   final T emptyValue;
+  final DayCellBuilder<T>? dayCellBuilder;
 
   const ActivityCalendar({
     super.key,
@@ -62,6 +70,7 @@ class ActivityCalendar<T> extends StatelessWidget {
     required this.onDateTap,
     required this.activityDescriptor,
     required this.emptyValue,
+    this.dayCellBuilder,
   });
 
   @override
@@ -310,6 +319,10 @@ class ActivityCalendar<T> extends StatelessWidget {
     final value = activityData[date] ?? emptyValue;
     final hasActivity = value != emptyValue;
     final color = colorCalculator(value);
+
+    if (dayCellBuilder != null) {
+      return dayCellBuilder!(context, date, value, hasActivity, color);
+    }
 
     return GestureDetector(
       onTap: () => onDateTap(context, date, value),

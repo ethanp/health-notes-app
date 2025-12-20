@@ -4,6 +4,8 @@ import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/providers/conditions_provider.dart';
 import 'package:health_notes/screens/condition_form.dart';
+import 'package:health_notes/screens/health_note_view_screen.dart';
+import 'package:health_notes/services/health_notes_dao.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/condition_activity_calendar.dart';
 import 'package:health_notes/widgets/condition_entry_edit_modal.dart';
@@ -21,6 +23,7 @@ class ConditionDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final conditionsAsync = ref.watch(conditionsNotifierProvider);
     final entriesAsync = ref.watch(conditionEntriesNotifierProvider(conditionId));
+    final linkedSymptomsAsync = ref.watch(symptomsForConditionProvider(conditionId));
 
     return conditionsAsync.when(
       data: (conditions) {
@@ -33,7 +36,10 @@ class ConditionDetailScreen extends ConsumerWidget {
         }
 
         return entriesAsync.when(
-          data: (entries) => conditionDetailContent(context, ref, condition, entries),
+          data: (entries) {
+            final linkedSymptoms = linkedSymptomsAsync.valueOrNull ?? [];
+            return conditionDetailContent(context, ref, condition, entries, linkedSymptoms);
+          },
           loading: () => CupertinoPageScaffold(
             navigationBar: EnhancedUIComponents.navigationBar(title: condition.name),
             child: const SyncStatusWidget.loading(message: 'Loading entries...'),
@@ -63,6 +69,7 @@ class ConditionDetailScreen extends ConsumerWidget {
     WidgetRef ref,
     Condition condition,
     List<ConditionEntry> entries,
+    List<LinkedSymptom> linkedSymptoms,
   ) {
     return CupertinoPageScaffold(
       navigationBar: EnhancedUIComponents.navigationBar(
@@ -85,17 +92,25 @@ class ConditionDetailScreen extends ConsumerWidget {
                 notesSection(condition),
                 VSpace.l,
               ],
-              statisticsSection(condition, entries),
+              statisticsSection(condition, entries, linkedSymptoms),
               VSpace.l,
               ConditionActivityCalendar(
                 condition: condition,
                 entries: entries,
+                linkedSymptoms: linkedSymptoms,
                 onEntryTap: (entry) => showEntryEditModal(context, ref, entry),
+                onSymptomTap: (date, symptoms) => showSymptomDetails(context, date, symptoms, condition),
               ),
               VSpace.l,
               EnhancedUIComponents.sectionHeader(title: 'Daily Entries'),
               VSpace.s,
               entriesList(context, ref, entries),
+              if (linkedSymptoms.isNotEmpty) ...[
+                VSpace.l,
+                EnhancedUIComponents.sectionHeader(title: 'Linked Symptoms'),
+                VSpace.s,
+                linkedSymptomsList(context, condition, linkedSymptoms),
+              ],
             ],
           ),
         ),
@@ -175,14 +190,14 @@ class ConditionDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget statisticsSection(Condition condition, List<ConditionEntry> entries) {
+  Widget statisticsSection(
+    Condition condition,
+    List<ConditionEntry> entries,
+    List<LinkedSymptom> linkedSymptoms,
+  ) {
     final avgSeverity = entries.isEmpty
         ? 0.0
         : entries.map((e) => e.severity).reduce((a, b) => a + b) / entries.length;
-    
-    final peakSeverity = entries.isEmpty
-        ? 0
-        : entries.map((e) => e.severity).reduce((a, b) => a > b ? a : b);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -204,7 +219,7 @@ class ConditionDetailScreen extends ConsumerWidget {
             children: [
               Expanded(child: statCard('Avg Severity', avgSeverity.toStringAsFixed(1), '/10')),
               HSpace.m,
-              Expanded(child: statCard('Peak', '$peakSeverity', '/10')),
+              Expanded(child: statCard('Symptoms', '${linkedSymptoms.length}', 'linked')),
             ],
           ),
         ],
@@ -353,15 +368,15 @@ class ConditionDetailScreen extends ConsumerWidget {
     return 'Started $startStr';
   }
 
-  void showActionsMenu(BuildContext context, WidgetRef ref, Condition condition) {
+  void showActionsMenu(BuildContext screenContext, WidgetRef ref, Condition condition) {
     showCupertinoModalPopup(
-      context: context,
+      context: screenContext,
       builder: (context) => CupertinoActionSheet(
         actions: [
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.of(context).pop();
-              Navigator.of(context).push(
+              Navigator.of(screenContext).push(
                 CupertinoPageRoute(
                   builder: (context) => ConditionForm(
                     condition: condition,
@@ -388,8 +403,8 @@ class ConditionDetailScreen extends ConsumerWidget {
             onPressed: () async {
               Navigator.of(context).pop();
               final confirmed = await showCupertinoDialog<bool>(
-                context: context,
-                builder: (context) => CupertinoAlertDialog(
+                context: screenContext,
+                builder: (dialogContext) => CupertinoAlertDialog(
                   title: const Text('Delete Condition'),
                   content: const Text(
                     'Are you sure you want to delete this condition and all its entries? This cannot be undone.',
@@ -397,20 +412,20 @@ class ConditionDetailScreen extends ConsumerWidget {
                   actions: [
                     CupertinoDialogAction(
                       child: const Text('Cancel'),
-                      onPressed: () => Navigator.of(context).pop(false),
+                      onPressed: () => Navigator.of(dialogContext).pop(false),
                     ),
                     CupertinoDialogAction(
                       isDestructiveAction: true,
                       child: const Text('Delete'),
-                      onPressed: () => Navigator.of(context).pop(true),
+                      onPressed: () => Navigator.of(dialogContext).pop(true),
                     ),
                   ],
                 ),
               );
               if (confirmed == true) {
                 await ref.read(conditionsNotifierProvider.notifier).deleteCondition(conditionId);
-                if (context.mounted) {
-                  Navigator.of(context).pop();
+                if (screenContext.mounted) {
+                  Navigator.of(screenContext).pop();
                 }
               }
             },
@@ -438,6 +453,190 @@ class ConditionDetailScreen extends ConsumerWidget {
             Navigator.of(context).pop();
           }
         },
+      ),
+    );
+  }
+
+  Widget linkedSymptomsList(
+    BuildContext context,
+    Condition condition,
+    List<LinkedSymptom> linkedSymptoms,
+  ) {
+    if (linkedSymptoms.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: AppComponents.primaryCard,
+        child: Center(
+          child: Text(
+            'No symptoms linked to this condition yet.',
+            style: AppTypography.bodyMediumSystemGrey,
+          ),
+        ),
+      );
+    }
+
+    // Group by date
+    final byDate = <DateTime, List<LinkedSymptom>>{};
+    for (final ls in linkedSymptoms) {
+      final dateKey = DateTime(ls.date.year, ls.date.month, ls.date.day);
+      byDate.putIfAbsent(dateKey, () => []).add(ls);
+    }
+
+    final sortedDates = byDate.keys.toList()..sort((a, b) => b.compareTo(a));
+
+    return Column(
+      children: sortedDates.take(10).map((date) {
+        final symptoms = byDate[date]!;
+        return symptomDateCard(context, date, symptoms, condition);
+      }).toList(),
+    );
+  }
+
+  Widget symptomDateCard(
+    BuildContext context,
+    DateTime date,
+    List<LinkedSymptom> symptoms,
+    Condition condition,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: () async {
+          if (symptoms.isNotEmpty) {
+            final note = await HealthNotesDao.getNoteById(symptoms.first.healthNoteId);
+            if (note != null && context.mounted) {
+              Navigator.of(context).push(
+                CupertinoPageRoute(
+                  builder: (context) => HealthNoteViewScreen(note: note),
+                ),
+              );
+            }
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: AppComponents.primaryCard,
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: condition.color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Icon(
+                  CupertinoIcons.bandage,
+                  size: 18,
+                  color: condition.color,
+                ),
+              ),
+              HSpace.m,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      DateFormat('EEE, MMM d').format(date),
+                      style: AppTypography.labelMedium,
+                    ),
+                    VSpace.xs,
+                    Text(
+                      symptoms.map((s) => s.symptom.fullDescription).join(', '),
+                      style: AppTypography.bodySmallSecondary,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              HSpace.s,
+              ...symptoms.take(3).map((ls) => Container(
+                margin: const EdgeInsets.only(left: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: severityColor(ls.symptom.severityLevel),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${ls.symptom.severityLevel}',
+                  style: AppTypography.labelMediumWhite,
+                ),
+              )),
+              if (symptoms.length > 3)
+                Padding(
+                  padding: const EdgeInsets.only(left: 4),
+                  child: Text(
+                    '+${symptoms.length - 3}',
+                    style: AppTypography.caption,
+                  ),
+                ),
+              HSpace.s,
+              Icon(
+                CupertinoIcons.chevron_right,
+                size: 14,
+                color: AppColors.textQuaternary,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void showSymptomDetails(
+    BuildContext context,
+    DateTime date,
+    List<LinkedSymptom> symptoms,
+    Condition condition,
+  ) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => CupertinoActionSheet(
+        title: Text('Symptoms on ${DateFormat('MMM d, y').format(date)}'),
+        message: Text('${symptoms.length} symptom${symptoms.length == 1 ? '' : 's'} linked to ${condition.name}'),
+        actions: symptoms.map((ls) {
+          return CupertinoActionSheetAction(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              final note = await HealthNotesDao.getNoteById(ls.healthNoteId);
+              if (note != null && context.mounted) {
+                Navigator.of(context).push(
+                  CupertinoPageRoute(
+                    builder: (context) => HealthNoteViewScreen(note: note),
+                  ),
+                );
+              }
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: severityColor(ls.symptom.severityLevel),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${ls.symptom.severityLevel}',
+                    style: const TextStyle(
+                      color: CupertinoColors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                HSpace.s,
+                Text(ls.symptom.fullDescription),
+              ],
+            ),
+          );
+        }).toList(),
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Close'),
+        ),
       ),
     );
   }

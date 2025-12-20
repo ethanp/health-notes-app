@@ -12,7 +12,7 @@ import 'package:health_notes/screens/drug_trends_screen.dart';
 import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/utils/auth_utils.dart';
+import 'package:health_notes/widgets/log_out_button.dart';
 import 'package:health_notes/widgets/check_in_trends_chart.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
@@ -45,11 +45,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   ObstructingPreferredSizeWidget trendsNavigationBar() {
     return EnhancedUIComponents.navigationBar(
       title: 'Trends',
-      leading: CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: () => AuthUtils.showSignOutDialog(context),
-        child: const Icon(CupertinoIcons.person_circle),
-      ),
+      leading: const LogOutButton(),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

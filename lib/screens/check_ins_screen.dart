@@ -10,7 +10,7 @@ import 'package:health_notes/screens/check_in_form.dart';
 import 'package:health_notes/screens/metrics_management_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
-import 'package:health_notes/utils/auth_utils.dart';
+import 'package:health_notes/widgets/log_out_button.dart';
 import 'package:health_notes/utils/check_in_grouping.dart';
 import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
@@ -72,14 +72,11 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
     return CupertinoPageScaffold(
       navigationBar: EnhancedUIComponents.navigationBar(
         title: 'Check-ins',
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => AuthUtils.showSignOutDialog(context),
-          child: const Icon(CupertinoIcons.person_circle),
-        ),
+        leading: const LogOutButton(),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            const CompactSyncStatusWidget(),
             CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: () => Navigator.of(context).push(
@@ -89,7 +86,6 @@ class _CheckInsScreenState extends ConsumerState<CheckInsScreen>
               ),
               child: const Icon(CupertinoIcons.settings),
             ),
-            HSpace.s,
             CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: () => _showAddCheckInForm(),

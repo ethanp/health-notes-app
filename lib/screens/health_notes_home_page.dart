@@ -8,7 +8,7 @@ import 'package:health_notes/screens/health_note_form.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/services/search_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/utils/auth_utils.dart';
+import 'package:health_notes/widgets/log_out_button.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/health_note_card.dart';
 import 'package:health_notes/widgets/animated_welcome_card.dart';
@@ -119,11 +119,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
     return CupertinoPageScaffold(
       navigationBar: EnhancedUIComponents.navigationBar(
         title: 'Health Notes',
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => AuthUtils.showSignOutDialog(context),
-          child: const Icon(CupertinoIcons.person_circle),
-        ),
+        leading: const LogOutButton(),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

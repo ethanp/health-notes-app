@@ -24,7 +24,7 @@ abstract class Condition with _$Condition {
     @JsonKey(name: 'end_date') DateTime? endDate,
     @JsonKey(name: 'condition_status') @Default(ConditionStatus.active) ConditionStatus status,
     @JsonKey(name: 'color_value') @Default(0xFFE57373) int colorValue,
-    @JsonKey(name: 'icon_code_point') @Default(0xf36e) int iconCodePoint,
+    @JsonKey(name: 'icon_code_point') @Default(0xf584) int iconCodePoint, // CupertinoIcons.bandage
     @Default('') String notes,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
@@ -58,7 +58,8 @@ abstract class Condition with _$Condition {
     'color_value': colorValue,
     'icon_code_point': iconCodePoint,
     'notes': notes,
-    'updated_at': DateTime.now().toIso8601String(),
+    'created_at': createdAt.toIso8601String(),
+    'updated_at': updatedAt.toIso8601String(),
   };
 }
 

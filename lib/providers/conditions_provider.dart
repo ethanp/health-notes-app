@@ -2,12 +2,27 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/models/condition_entry.dart';
+import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/services/conditions_dao.dart';
 import 'package:health_notes/services/condition_entries_dao.dart';
 import 'package:health_notes/providers/auth_provider.dart';
+import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/utils/data_utils.dart';
 
 part 'conditions_provider.g.dart';
+
+/// A symptom linked to a condition, with date information from the health note.
+class LinkedSymptom {
+  final DateTime date;
+  final Symptom symptom;
+  final String healthNoteId;
+
+  const LinkedSymptom({
+    required this.date,
+    required this.symptom,
+    required this.healthNoteId,
+  });
+}
 
 @riverpod
 class ConditionsNotifier extends _$ConditionsNotifier {
@@ -185,5 +200,29 @@ Future<List<Condition>> activeConditions(Ref ref) async {
 @riverpod
 Future<List<ConditionEntry>> conditionEntriesForCheckIn(Ref ref, String checkInId) async {
   return await ConditionEntriesDao.getEntriesForCheckIn(checkInId);
+}
+
+/// Provider that returns all symptoms linked to a specific condition.
+/// Symptoms are linked via conditionId in health notes.
+@riverpod
+Future<List<LinkedSymptom>> symptomsForCondition(Ref ref, String conditionId) async {
+  final healthNotes = await ref.watch(healthNotesNotifierProvider.future);
+  final linkedSymptoms = <LinkedSymptom>[];
+
+  for (final note in healthNotes) {
+    for (final symptom in note.symptomsList) {
+      if (symptom.conditionId == conditionId) {
+        linkedSymptoms.add(LinkedSymptom(
+          date: note.dateTime,
+          symptom: symptom,
+          healthNoteId: note.id,
+        ));
+      }
+    }
+  }
+
+  // Sort by date descending (most recent first)
+  linkedSymptoms.sort((a, b) => b.date.compareTo(a.date));
+  return linkedSymptoms;
 }
 

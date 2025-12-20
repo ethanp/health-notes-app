@@ -43,15 +43,19 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
     0xFF4DB6AC, // Teal
   ];
 
-  static const List<int> availableIcons = [
-    0xf36e, // bandage
-    0xf42a, // heart
-    0xf6e6, // bolt
-    0xf74f, // flame
-    0xf2a6, // drop
-    0xf3dc, // moon
-    0xf4d4, // sun.max
-    0xf4dc, // thermometer
+  static final List<IconData> availableIcons = [
+    CupertinoIcons.bandage,
+    CupertinoIcons.heart_fill,
+    CupertinoIcons.bolt_fill,
+    CupertinoIcons.flame_fill,
+    CupertinoIcons.drop_fill,
+    CupertinoIcons.moon_fill,
+    CupertinoIcons.sun_max_fill,
+    CupertinoIcons.thermometer,
+    CupertinoIcons.bed_double_fill,
+    CupertinoIcons.eye,
+    CupertinoIcons.ear,
+    CupertinoIcons.hand_raised_fill,
   ];
 
   @override
@@ -61,7 +65,7 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
     notesController = TextEditingController(text: widget.condition?.notes ?? '');
     startDate = widget.condition?.startDate ?? DateTime.now();
     selectedColorValue = widget.condition?.colorValue ?? availableColors.first;
-    selectedIconCodePoint = widget.condition?.iconCodePoint ?? availableIcons.first;
+    selectedIconCodePoint = widget.condition?.iconCodePoint ?? availableIcons.first.codePoint;
   }
 
   @override
@@ -201,15 +205,10 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
         Wrap(
           spacing: 12,
           runSpacing: 12,
-          children: availableIcons.map((iconCodePoint) {
-            final isSelected = iconCodePoint == selectedIconCodePoint;
-            final icon = IconData(
-              iconCodePoint,
-              fontFamily: 'CupertinoIcons',
-              fontPackage: 'cupertino_icons',
-            );
+          children: availableIcons.map((icon) {
+            final isSelected = icon.codePoint == selectedIconCodePoint;
             return GestureDetector(
-              onTap: () => setState(() => selectedIconCodePoint = iconCodePoint),
+              onTap: () => setState(() => selectedIconCodePoint = icon.codePoint),
               child: Container(
                 width: 48,
                 height: 48,
