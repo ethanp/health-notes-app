@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/providers/sync_provider.dart';
 import 'package:health_notes/services/offline_repository.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 
 /// Compact sync status indicator for app bars
 class CompactSyncStatusWidget extends ConsumerWidget {

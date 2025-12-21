@@ -4,7 +4,7 @@ import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/providers/user_profile_provider.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/user_avatar_widget.dart';
 
 class AuthUtils {

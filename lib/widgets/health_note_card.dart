@@ -6,7 +6,7 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/number_formatter.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 
 /// Health note card for displaying in lists
 class HealthNoteCard extends StatelessWidget {

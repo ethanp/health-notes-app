@@ -4,7 +4,7 @@ import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/severity_utils.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 
 /// Reusable note card component for displaying symptom information
 class SymptomNoteCard extends StatelessWidget {

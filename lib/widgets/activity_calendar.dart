@@ -1,4 +1,4 @@
-import 'dart:math' as Math;
+import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
@@ -6,7 +6,7 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/number_formatter.dart';
 import 'package:health_notes/utils/severity_utils.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 
 typedef ColorCalculator<T> = Color Function(T value);
 typedef LegendBuilder<T> = Widget Function();
@@ -49,7 +49,7 @@ Color intensityColor(
   )!;
 }
 
-class ActivityCalendar<T> extends StatelessWidget {
+class ActivityCalendar<T> extends StatefulWidget {
   final String title;
   final String subtitle;
   final Map<DateTime, T> activityData;
@@ -59,6 +59,8 @@ class ActivityCalendar<T> extends StatelessWidget {
   final ActivityDescriptor<T> activityDescriptor;
   final T emptyValue;
   final DayCellBuilder<T>? dayCellBuilder;
+  final double? gridHeight;
+  final bool scrollToEnd;
 
   const ActivityCalendar({
     super.key,
@@ -71,7 +73,37 @@ class ActivityCalendar<T> extends StatelessWidget {
     required this.activityDescriptor,
     required this.emptyValue,
     this.dayCellBuilder,
+    this.gridHeight,
+    this.scrollToEnd = false,
   });
+
+  @override
+  State<ActivityCalendar<T>> createState() => _ActivityCalendarState<T>();
+}
+
+class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
+  ScrollController? _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.gridHeight != null) {
+      _scrollController = ScrollController();
+      if (widget.scrollToEnd) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_scrollController!.hasClients) {
+            _scrollController!.jumpTo(_scrollController!.position.maxScrollExtent);
+          }
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,13 +113,21 @@ class ActivityCalendar<T> extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppTypography.headlineSmall),
+          Text(widget.title, style: AppTypography.headlineSmall),
           VSpace.s,
-          Text(subtitle, style: AppTypography.bodySmallSystemGrey),
+          Text(widget.subtitle, style: AppTypography.bodySmallSystemGrey),
           VSpace.m,
-          legendBuilder(),
+          widget.legendBuilder(),
           VSpace.m,
-          activityGrid(context),
+          widget.gridHeight != null
+              ? SizedBox(
+                  height: widget.gridHeight,
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    child: activityGrid(context),
+                  ),
+                )
+              : activityGrid(context),
         ],
       ),
     );
@@ -102,14 +142,14 @@ class ActivityCalendar<T> extends StatelessWidget {
   num computeGlobalMaxSum() {
     final weekSums = <int, num>{};
 
-    for (final entry in activityData.entries) {
-      if (entry.value == emptyValue || entry.value is! num) continue;
+    for (final entry in widget.activityData.entries) {
+      if (entry.value == widget.emptyValue || entry.value is! num) continue;
       final v = (entry.value as num);
       final weekKey = entry.key.year * 100 + weekOfYear(entry.key);
       weekSums.update(weekKey, (sum) => sum + v, ifAbsent: () => v);
     }
 
-    return weekSums.values.fold(0, Math.max);
+    return weekSums.values.fold(0, math.max);
   }
 
   int weekOfYear(DateTime date) {
@@ -141,7 +181,7 @@ class ActivityCalendar<T> extends StatelessWidget {
   bool monthHasActivity(DateTime monthDate, int daysInMonth) {
     for (int day = 1; day <= daysInMonth; day++) {
       final date = DateTime(monthDate.year, monthDate.month, day);
-      if (activityData.containsKey(date) && activityData[date] != emptyValue) {
+      if (widget.activityData.containsKey(date) && widget.activityData[date] != widget.emptyValue) {
         return true;
       }
     }
@@ -219,9 +259,9 @@ class ActivityCalendar<T> extends StatelessWidget {
 
       if (isInMonth) {
         final date = DateTime(monthDate.year, monthDate.month, dayOffset + 1);
-        final value = activityData[date] ?? emptyValue;
+        final value = widget.activityData[date] ?? widget.emptyValue;
 
-        if (value != emptyValue) {
+        if (value != widget.emptyValue) {
           activeDays++;
           if (value is num) sum += value;
         }
@@ -316,16 +356,16 @@ class ActivityCalendar<T> extends StatelessWidget {
   }
 
   Widget dayCell(BuildContext context, DateTime date) {
-    final value = activityData[date] ?? emptyValue;
-    final hasActivity = value != emptyValue;
-    final color = colorCalculator(value);
+    final value = widget.activityData[date] ?? widget.emptyValue;
+    final hasActivity = value != widget.emptyValue;
+    final color = widget.colorCalculator(value);
 
-    if (dayCellBuilder != null) {
-      return dayCellBuilder!(context, date, value, hasActivity, color);
+    if (widget.dayCellBuilder != null) {
+      return widget.dayCellBuilder!(context, date, value, hasActivity, color);
     }
 
     return GestureDetector(
-      onTap: () => onDateTap(context, date, value),
+      onTap: () => widget.onDateTap(context, date, value),
       child: Container(
         width: CalendarConstants.cellSize,
         height: CalendarConstants.cellSize,
@@ -424,21 +464,21 @@ class ActivityCalendar<T> extends StatelessWidget {
   }
 
   Color cellBorderColor(T value) {
-    if (value == emptyValue) {
+    if (value == widget.emptyValue) {
       return CupertinoColors.systemGrey4.withValues(alpha: 0.3);
     }
-    return colorCalculator(value).withValues(alpha: 0.6);
+    return widget.colorCalculator(value).withValues(alpha: 0.6);
   }
 
   TextStyle cellTextStyle(T value) {
-    if (value == emptyValue) {
+    if (value == widget.emptyValue) {
       return AppTypography.bodySmall.copyWith(
         color: CupertinoColors.systemGrey.withValues(alpha: 0.6),
         fontSize: 12,
       );
     }
 
-    final color = colorCalculator(value);
+    final color = widget.colorCalculator(value);
     final textColor = color.computeLuminance() > 0.5
         ? CupertinoColors.black
         : CupertinoColors.white;
@@ -566,8 +606,9 @@ class DosageActivityCalendar extends StatelessWidget {
   }
 
   Color dosageColor(double dosage) {
-    if (dosage == 0.0)
+    if (dosage == 0.0) {
       return AppColors.backgroundPrimary.withValues(alpha: 0.3);
+    }
     if (maxDosage == 0.0) return AppColors.primary.withValues(alpha: 0.1);
     return intensityColor(dosage / maxDosage, alphaMin: 0.1, alphaMax: 0.8);
   }
@@ -594,11 +635,15 @@ class DosageActivityCalendar extends StatelessWidget {
 class CheckInsActivityCalendar extends StatelessWidget {
   final List<CheckIn> checkIns;
   final void Function(DateTime date) onDateTap;
+  final double? gridHeight;
+  final bool scrollToEnd;
 
   const CheckInsActivityCalendar({
     super.key,
     required this.checkIns,
     required this.onDateTap,
+    this.gridHeight,
+    this.scrollToEnd = false,
   });
 
   @override
@@ -619,6 +664,8 @@ class CheckInsActivityCalendar extends StatelessWidget {
           ? 'No check-ins'
           : '$count check-in${count == 1 ? '' : 's'}',
       emptyValue: 0,
+      gridHeight: gridHeight,
+      scrollToEnd: scrollToEnd,
     );
   }
 

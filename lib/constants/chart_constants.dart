@@ -1,6 +1,3 @@
-/// Chart dimension constants used across trend visualizations
-/// These values control the layout and rendering of chart components
-
 // Chart plot area height (excludes axis labels)
 const double kChartPlotHeight = 100.0;
 

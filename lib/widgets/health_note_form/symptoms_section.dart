@@ -12,7 +12,7 @@ import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 
 class SymptomsSection extends ConsumerWidget {
   final bool isEditable;
@@ -276,73 +276,67 @@ class SymptomsSection extends ConsumerWidget {
     );
   }
 
-  void _showConditionPicker(BuildContext context, WidgetRef ref, int index) {
-    final conditionsAsync = ref.read(conditionsNotifierProvider);
+  Future<void> _showConditionPicker(
+    BuildContext context,
+    WidgetRef ref,
+    int index,
+  ) async {
+    final conditions = await ref.read(conditionsNotifierProvider.future);
+    final activeConditions = conditions.where((c) => c.isActive).toList();
 
-    conditionsAsync.when(
-      data: (conditions) {
-        final activeConditions = conditions.where((c) => c.isActive).toList();
+    if (!context.mounted) return;
 
-        showCupertinoModalPopup(
-          context: context,
-          builder: (context) => CupertinoActionSheet(
-            title: const Text('Link to Condition'),
-            message: const Text(
-              'Select an active condition or create a new one',
-            ),
-            actions: [
-              ...activeConditions.map(
-                (condition) => CupertinoActionSheetAction(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    onUpdate(index, conditionId: condition.id);
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(condition.icon, color: condition.color, size: 18),
-                      HSpace.s,
-                      Text(condition.name),
-                    ],
-                  ),
-                ),
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => CupertinoActionSheet(
+        title: const Text('Link to Condition'),
+        message: const Text('Select an active condition or create a new one'),
+        actions: [
+          ...activeConditions.map(
+            (condition) => CupertinoActionSheetAction(
+              onPressed: () {
+                Navigator.of(context).pop();
+                onUpdate(index, conditionId: condition.id);
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(condition.icon, color: condition.color, size: 18),
+                  HSpace.s,
+                  Text(condition.name),
+                ],
               ),
-              CupertinoActionSheetAction(
-                onPressed: () async {
-                  Navigator.of(context).pop();
-                  final newCondition = await Navigator.of(context)
-                      .push<Condition>(
-                        CupertinoPageRoute(
-                          builder: (context) => const ConditionForm(),
-                        ),
-                      );
-                  if (newCondition != null) {
-                    onUpdate(index, conditionId: newCondition.id);
-                  }
-                },
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      CupertinoIcons.add,
-                      color: CupertinoColors.systemBlue,
-                      size: 18,
-                    ),
-                    HSpace.s,
-                    Text('+ New Condition'),
-                  ],
-                ),
-              ),
-            ],
-            cancelButton: CupertinoActionSheetAction(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
             ),
           ),
-        );
-      },
-      loading: () {},
-      error: (e, st) {},
+          CupertinoActionSheetAction(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              final newCondition = await Navigator.of(context).push<Condition>(
+                CupertinoPageRoute(builder: (context) => const ConditionForm()),
+              );
+              if (newCondition != null) {
+                onUpdate(index, conditionId: newCondition.id);
+              }
+            },
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  CupertinoIcons.add,
+                  color: CupertinoColors.systemBlue,
+                  size: 18,
+                ),
+                HSpace.s,
+                Text('+ New Condition'),
+              ],
+            ),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+      ),
     );
   }
 
@@ -358,13 +352,16 @@ class SymptomsSection extends ConsumerWidget {
 
     return suggestionsAsync.when(
       data: (suggestions) {
-        final availableSuggestions = suggestions.where((suggestion) {
-          final suggestionKey = SymptomNormalizer.generateKey(
-            suggestion.majorComponent,
-            suggestion.minorComponent,
-          );
-          return !usedSuggestions.contains(suggestionKey);
-        }).toList();
+        final availableSuggestions = suggestions
+            .where((suggestion) {
+              final suggestionKey = SymptomNormalizer.generateKey(
+                suggestion.majorComponent,
+                suggestion.minorComponent,
+              );
+              return !usedSuggestions.contains(suggestionKey);
+            })
+            .take(3)
+            .toList();
 
         if (availableSuggestions.isEmpty) return const SizedBox.shrink();
 

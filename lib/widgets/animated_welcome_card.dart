@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 
 class AnimatedWelcomeCard extends StatefulWidget {
   final String title;

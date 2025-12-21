@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/color_picker_grid.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 
 class MetricEditScreen extends ConsumerStatefulWidget {
   final CheckInMetric? metric;
@@ -208,41 +209,13 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
             ).textTheme.textStyle.copyWith(fontWeight: FontWeight.w600),
           ),
           VSpace.of(12),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: MetricColorPalette.colors.map(colorOption).toList(),
+          ColorPickerGrid(
+            colors: MetricColorPalette.colors,
+            selectedColor: _selectedColor,
+            onColorSelected: (color) => setState(() => _selectedColor = color),
+            useCircles: false,
           ),
         ],
-      ),
-    );
-  }
-
-  Widget colorOption(Color color) {
-    final isSelected = _selectedColor.toARGB32() == color.toARGB32();
-
-    return GestureDetector(
-      onTap: () => setState(() => _selectedColor = color),
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isSelected
-                ? CupertinoColors.white
-                : CupertinoColors.systemGrey4,
-            width: isSelected ? 3 : 1,
-          ),
-        ),
-        child: isSelected
-            ? const Icon(
-                CupertinoIcons.checkmark,
-                color: CupertinoColors.white,
-                size: 20,
-              )
-            : null,
       ),
     );
   }

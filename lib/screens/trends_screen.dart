@@ -7,7 +7,6 @@ import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/providers/sync_provider.dart';
 import 'package:health_notes/screens/check_in_form.dart';
-import 'package:health_notes/screens/check_ins_screen.dart';
 import 'package:health_notes/screens/drug_trends_screen.dart';
 import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/services/text_normalizer.dart';
@@ -17,7 +16,9 @@ import 'package:health_notes/widgets/check_in_trends_chart.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 import 'package:health_notes/widgets/trends_table_components.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
+import 'package:health_notes/widgets/activity_calendar.dart';
+import 'package:health_notes/screens/check_in_date_detail_screen.dart';
 import 'package:intl/intl.dart';
 
 class TrendsScreen extends ConsumerStatefulWidget {
@@ -169,17 +170,28 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
               checkInTrendsHeader(),
               checkInTrendsSection(checkIns),
               VSpace.of(20),
-              sectionHeader('Recent Symptom Trends'),
+              sectionHeader('Recent Symptom Trends (Last 30 Days)'),
               recentSymptomTrendsCard(recentSymptomTrends),
               VSpace.of(20),
               sectionHeader('All Symptoms'),
-              searchableSymptomsTable(symptomStats),
+              SearchableStatsTable(
+                searchPlaceholder: 'Search symptoms...',
+                stats: symptomStats,
+                onItemTap: _openSymptomTrends,
+              ),
               VSpace.of(20),
-              sectionHeader('Drug Usage'),
-              drugUsageCard(drugStats),
+              sectionHeader('All Drugs'),
+              SearchableStatsTable(
+                searchPlaceholder: 'Search drugs...',
+                stats: drugStats,
+                onItemTap: _openDrugTrends,
+              ),
               VSpace.of(20),
-              sectionHeader('Monthly Trends'),
+              sectionHeader('Notes per Month'),
               monthlyTrendsCard(monthlyStats),
+              VSpace.of(20),
+              sectionHeader('Check-in Activity'),
+              checkInsCalendar(checkIns),
             ]),
           ),
         ),
@@ -192,31 +204,12 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   }
 
   Widget checkInTrendsHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text('Check-in Trends', style: AppTypography.headlineSmall),
-        CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => Navigator.of(context).push(
-            CupertinoPageRoute(builder: (context) => const CheckInsScreen()),
-          ),
-          child: Row(
-            children: [
-              Text('View All', style: AppTypography.bodyMediumSemiboldBlue),
-              HSpace.xs,
-              Icon(CupertinoIcons.chevron_right, size: 14, color: CupertinoColors.systemBlue),
-            ],
-          ),
-        ),
-      ],
-    );
+    return Text('Check-in Trends', style: AppTypography.headlineSmall);
   }
 
   Widget recentSymptomTrendsCard(Map<String, int> recentTrends) {
     if (recentTrends.isEmpty) {
       return StatsCard(
-        title: 'Last 30 Days',
         statRows: [
           Text(
             'No recent symptoms recorded',
@@ -226,85 +219,15 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       );
     }
 
-    final sortedTrends = recentTrends.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    return StatsCard(
-      title: 'Last 30 Days',
-      statRows: sortedTrends
-          .take(3)
-          .map(
-            (entry) => StatRow(
-              label: entry.key,
-              value: entry.value,
-              unit: 'times',
-              onTap: () => _openSymptomTrends(entry.key),
-            ),
-          )
-          .toList(),
-    );
-  }
-
-  Widget searchableSymptomsTable(Map<String, int> symptomStats) {
-    if (symptomStats.isEmpty) {
-      return StatsCard(
-        title: 'All Symptoms',
-        statRows: [
-          Text(
-            'No symptoms recorded yet',
-            style: AppTypography.bodyMediumSystemGrey,
-          ),
-        ],
-      );
-    }
-
-    return SymptomsTable(symptomStats: symptomStats);
-  }
-
-  Widget drugUsageCard(Map<String, int> drugStats) {
-    if (drugStats.isEmpty) {
-      return StatsCard(
-        title: 'Most Used Drugs',
-        statRows: [
-          Text(
-            'No drugs recorded yet',
-            style: AppTypography.bodyMediumSystemGrey,
-          ),
-        ],
-      );
-    }
-
-    final sortedDrugs = drugStats.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    return StatsCard(
-      title: 'Most Used Drugs',
-      statRows: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: Text(
-            'Tap to view trends',
-            style: AppTypography.bodySmallSystemGrey,
-          ),
-        ),
-        ...sortedDrugs
-            .take(5)
-            .map(
-              (entry) => StatRow(
-                label: entry.key,
-                value: entry.value,
-                unit: 'times',
-                onTap: () => _openDrugTrends(entry.key),
-              ),
-            ),
-      ],
+    return RecentSymptomsChart(
+      symptomStats: recentTrends,
+      onSymptomTap: _openSymptomTrends,
     );
   }
 
   Widget monthlyTrendsCard(Map<String, int> monthlyStats) {
     if (monthlyStats.isEmpty) {
       return StatsCard(
-        title: 'Notes per Month',
         statRows: [
           Text(
             'No monthly data available',
@@ -314,22 +237,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       );
     }
 
-    final sortedMonths = monthlyStats.entries.toList()
-      ..sort((a, b) => b.key.compareTo(a.key));
-
-    return StatsCard(
-      title: 'Notes per Month',
-      statRows: sortedMonths
-          .take(6)
-          .map(
-            (entry) => StatRow(
-              label: formatMonth(entry.key),
-              value: entry.value,
-              unit: 'notes',
-            ),
-          )
-          .toList(),
-    );
+    return MonthlyNotesChart(monthlyStats: monthlyStats);
   }
 
   void _openSymptomTrends(String symptomName) {
@@ -356,7 +264,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
         final month = int.parse(parts[1]);
         return DateFormat('MMMM yyyy').format(DateTime(year, month));
       }
-    } catch (e) {}
+    } catch (_) {}
     return monthKey;
   }
 
@@ -404,6 +312,24 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     );
   }
 
+  Widget checkInsCalendar(List<CheckIn> checkIns) {
+    if (checkIns.isEmpty) return const SizedBox.shrink();
+
+    return CheckInsActivityCalendar(
+      checkIns: checkIns,
+      onDateTap: (date) => Navigator.of(context).push(
+        CupertinoPageRoute(
+          builder: (_) => CheckInDateDetailScreen(
+            date: date,
+            allCheckIns: checkIns,
+          ),
+        ),
+      ),
+      gridHeight: 320,
+      scrollToEnd: true,
+    );
+  }
+
   Widget checkInTrendsSection(List<CheckIn> checkIns) {
     final userMetricsAsync = ref.watch(checkInMetricsNotifierProvider);
 
@@ -411,7 +337,6 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
       data: (userMetrics) {
         if (checkIns.isEmpty) {
           return StatsCard(
-            title: 'Summary',
             statRows: [
               Text(
                 'No check-in data available',

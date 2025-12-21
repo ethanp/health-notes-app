@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/screens/check_in_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/date_utils.dart';
 
 class CheckInDateDetailScreen extends StatefulWidget {

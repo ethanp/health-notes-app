@@ -6,11 +6,13 @@ class SymptomSuggestion {
   final String majorComponent;
   final String minorComponent;
   final int lastSeverityLevel;
+  final String? conditionId;
 
   const SymptomSuggestion({
     required this.majorComponent,
     required this.minorComponent,
     required this.lastSeverityLevel,
+    this.conditionId,
   });
 
   @override
@@ -44,7 +46,9 @@ class SymptomSuggestion {
 }
 
 class SymptomSuggestionsService {
-  /// Returns the 3 most recent unique (major, minor) component pairs from health notes
+  static const int maxSuggestions = 10;
+
+  /// Returns recent unique (major, minor) component pairs from health notes
   static List<SymptomSuggestion> getRecentSymptomSuggestions(
     List<HealthNote> notes,
   ) {
@@ -67,29 +71,26 @@ class SymptomSuggestionsService {
             majorComponent: symptom.majorComponent,
             minorComponent: symptom.minorComponent,
             lastSeverityLevel: symptom.severityLevel,
+            conditionId: symptom.conditionId,
           );
 
-          if (suggestionsMap.length >= 3) {
-            break;
-          }
+          if (suggestionsMap.length >= maxSuggestions) break;
         }
       }
 
-      if (suggestionsMap.length >= 3) {
-        break;
-      }
+      if (suggestionsMap.length >= maxSuggestions) break;
     }
 
     return suggestionsMap.values.toList();
   }
 
-  /// Creates a symptom from a suggestion with the default severity level
   static Symptom createSymptomFromSuggestion(SymptomSuggestion suggestion) {
     return Symptom(
       majorComponent: suggestion.majorComponent,
       minorComponent: suggestion.minorComponent,
       severityLevel: suggestion.lastSeverityLevel,
       additionalNotes: '',
+      conditionId: suggestion.conditionId,
     );
   }
 }

@@ -5,7 +5,7 @@ import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/trends_components.dart';
 
 abstract class BaseTrendsScreen extends ConsumerStatefulWidget {

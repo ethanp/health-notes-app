@@ -10,7 +10,7 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/condition_activity_calendar.dart';
 import 'package:health_notes/widgets/condition_entry_edit_modal.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 import 'package:intl/intl.dart';
 

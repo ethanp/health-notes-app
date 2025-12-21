@@ -4,7 +4,7 @@ import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 
 class AppliedToolPickerSheet extends ConsumerStatefulWidget {
   final List<dynamic> appliedTools;
@@ -144,7 +144,7 @@ class _AppliedToolPickerSheetState
         return ListView.separated(
           padding: const EdgeInsets.all(AppSpacing.m),
           itemCount: filtered.length,
-          separatorBuilder: (_, __) => VSpace.s,
+          separatorBuilder: (_, _) => VSpace.s,
           itemBuilder: (context, i) {
             final t = filtered[i];
             final isSelected = widget.appliedTools.any(

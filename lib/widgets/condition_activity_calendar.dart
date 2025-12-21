@@ -5,7 +5,7 @@ import 'package:health_notes/providers/conditions_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/severity_utils.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 
 /// Represents combined activity data for a single day on the condition calendar.
 class ConditionDayData {

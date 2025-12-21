@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 import 'package:intl/intl.dart';
 
 class ConditionEntryEditModal extends StatefulWidget {

@@ -10,7 +10,7 @@ import 'package:health_notes/screens/condition_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/data_utils.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 
 class CheckInForm extends ConsumerStatefulWidget {
   final CheckIn? checkIn;

@@ -8,7 +8,7 @@ import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
 import 'package:health_notes/utils/severity_utils.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/symptom_note_card.dart';
 import 'package:health_notes/widgets/trends_components.dart';
 

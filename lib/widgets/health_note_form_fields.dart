@@ -13,7 +13,7 @@ import 'package:health_notes/widgets/health_note_form/general_notes_section.dart
 import 'package:health_notes/widgets/health_note_form/medications_section.dart';
 import 'package:health_notes/widgets/health_note_form/symptoms_section.dart';
 import 'package:health_notes/providers/medication_recommendations_provider.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 
 class HealthNoteFormFields extends ConsumerStatefulWidget {
   final HealthNote? note;
@@ -194,12 +194,12 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
           recentRecommendations: recommendations.when(
             data: (data) => data.recent,
             loading: () => [],
-            error: (_, __) => [],
+            error: (_, _) => [],
           ),
           commonRecommendations: recommendations.when(
             data: (data) => data.common,
             loading: () => [],
-            error: (_, __) => [],
+            error: (_, _) => [],
           ),
           onAdd: addDrugDose,
           onRemove: removeDrugDose,

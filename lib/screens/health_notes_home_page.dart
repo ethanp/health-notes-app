@@ -14,7 +14,7 @@ import 'package:health_notes/widgets/health_note_card.dart';
 import 'package:health_notes/widgets/animated_welcome_card.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 import 'package:intl/intl.dart';
 
 class HealthNotesHomePage extends ConsumerStatefulWidget {

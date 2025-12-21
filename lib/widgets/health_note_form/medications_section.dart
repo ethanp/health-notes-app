@@ -5,7 +5,7 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/number_formatter.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 
 class MedicationsSection extends StatelessWidget {
   final bool isEditable;

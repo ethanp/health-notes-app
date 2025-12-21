@@ -8,7 +8,7 @@ import 'package:health_notes/screens/metric_edit_screen.dart';
 import 'package:health_notes/services/offline_repository.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 
 class MetricsManagementScreen extends ConsumerStatefulWidget {

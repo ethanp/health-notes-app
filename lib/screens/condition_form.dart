@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/providers/conditions_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/color_picker_grid.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 import 'package:intl/intl.dart';
 
 class ConditionForm extends ConsumerStatefulWidget {
@@ -32,17 +33,6 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
   bool get isEditing => widget.condition != null;
   bool isSaving = false;
 
-  static const List<int> availableColors = [
-    0xFFE57373, // Red
-    0xFFFFB74D, // Orange
-    0xFFFFF176, // Yellow
-    0xFF81C784, // Green
-    0xFF64B5F6, // Blue
-    0xFF9575CD, // Purple
-    0xFFBA68C8, // Pink
-    0xFF4DB6AC, // Teal
-  ];
-
   static final List<IconData> availableIcons = [
     CupertinoIcons.bandage,
     CupertinoIcons.heart_fill,
@@ -64,7 +54,7 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
     nameController = TextEditingController(text: widget.condition?.name ?? '');
     notesController = TextEditingController(text: widget.condition?.notes ?? '');
     startDate = widget.condition?.startDate ?? DateTime.now();
-    selectedColorValue = widget.condition?.colorValue ?? availableColors.first;
+    selectedColorValue = widget.condition?.colorValue ?? ColorPickerGrid.defaultColors.first.toARGB32();
     selectedIconCodePoint = widget.condition?.iconCodePoint ?? availableIcons.first.codePoint;
   }
 
@@ -167,30 +157,10 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
       children: [
         Text('Color', style: AppTypography.labelMedium),
         VSpace.s,
-        Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: availableColors.map((colorValue) {
-            final isSelected = colorValue == selectedColorValue;
-            return GestureDetector(
-              onTap: () => setState(() => selectedColorValue = colorValue),
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Color(colorValue),
-                  shape: BoxShape.circle,
-                  border: isSelected
-                      ? Border.all(color: CupertinoColors.white, width: 3)
-                      : null,
-                  boxShadow: isSelected ? AppComponents.mediumShadow : null,
-                ),
-                child: isSelected
-                    ? const Icon(CupertinoIcons.checkmark, color: CupertinoColors.white, size: 20)
-                    : null,
-              ),
-            );
-          }).toList(),
+        ColorPickerGrid(
+          colors: ColorPickerGrid.defaultColors,
+          selectedColor: Color(selectedColorValue),
+          onColorSelected: (color) => setState(() => selectedColorValue = color.toARGB32()),
         ),
       ],
     );

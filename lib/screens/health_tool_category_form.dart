@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Colors;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_tool_category.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/color_picker_grid.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
-import 'package:health_notes/widgets/spacing.dart';
+import 'package:health_notes/theme/spacing.dart';
 
 class HealthToolCategoryForm extends ConsumerStatefulWidget {
   final HealthToolCategory? category;
@@ -34,6 +34,7 @@ class _HealthToolCategoryFormState
   final _descriptionController = TextEditingController();
   late String _selectedIcon;
   late String _selectedColor;
+  late Color _selectedColorValue;
   bool _isLoading = false;
 
   static const List<Map<String, String>> availableIcons = [
@@ -48,16 +49,6 @@ class _HealthToolCategoryFormState
     {'name': 'General', 'value': 'general'},
   ];
 
-  static const List<Map<String, String>> availableColors = [
-    {'name': 'Blue', 'value': '#007AFF'},
-    {'name': 'Green', 'value': '#34C759'},
-    {'name': 'Orange', 'value': '#FF9500'},
-    {'name': 'Red', 'value': '#FF3B30'},
-    {'name': 'Purple', 'value': '#AF52DE'},
-    {'name': 'Pink', 'value': '#FF2D92'},
-    {'name': 'Yellow', 'value': '#FFCC00'},
-    {'name': 'Teal', 'value': '#5AC8FA'},
-  ];
 
   @override
   void initState() {
@@ -66,6 +57,7 @@ class _HealthToolCategoryFormState
     _descriptionController.text = widget.category?.description ?? '';
     _selectedIcon = widget.category?.iconName ?? 'general';
     _selectedColor = widget.category?.colorHex ?? '#007AFF';
+    _selectedColorValue = _parseColor(_selectedColor);
   }
 
   @override
@@ -228,44 +220,23 @@ class _HealthToolCategoryFormState
   }
 
   Widget colorChoices() {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: availableColors.map((color) {
-        final isSelected = _selectedColor == color['value'];
-        return GestureDetector(
-          onTap: () => setState(() => _selectedColor = color['value']!),
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: _parseColor(color['value']!),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: isSelected ? CupertinoColors.white : Colors.transparent,
-                width: 3,
-              ),
-              boxShadow: isSelected
-                  ? [
-                      BoxShadow(
-                        color: _parseColor(
-                          color['value']!,
-                        ).withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        spreadRadius: 2,
-                      ),
-                    ]
-                  : null,
-            ),
-          ),
-        );
-      }).toList(),
+    return ColorPickerGrid(
+      colors: ColorPickerGrid.systemColors,
+      selectedColor: _selectedColorValue,
+      onColorSelected: (color) => setState(() {
+        _selectedColorValue = color;
+        _selectedColor = _colorToHex(color);
+      }),
     );
   }
 
   Color _parseColor(String colorHex) {
     final parsed = int.tryParse(colorHex.replaceAll('#', '0xFF'));
     return parsed != null ? Color(parsed) : AppColors.primary;
+  }
+
+  String _colorToHex(Color color) {
+    return '#${color.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
   }
 
   Future<void> saveCategory() async {
