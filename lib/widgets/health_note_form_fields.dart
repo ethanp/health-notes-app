@@ -5,7 +5,6 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/models/applied_tool.dart';
 import 'package:health_notes/models/health_tool.dart';
-import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/widgets/health_note_form/applied_tools_section.dart';
 import 'package:health_notes/widgets/health_note_form/date_time_section.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
@@ -45,7 +44,6 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
   Map<int, DrugDoseControllers> _drugDoseControllers = {};
   Map<int, SymptomControllers> _symptomControllers = {};
   Map<int, TextEditingController> _appliedToolNoteControllers = {};
-  final Set<String> _usedSuggestions = {};
 
   @override
   void initState() {
@@ -110,7 +108,6 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
 
     _drugDoseControllers.clear();
     _symptomControllers.clear();
-    _usedSuggestions.clear();
 
     if (widget.note != null) {
       final note = widget.note!;
@@ -137,17 +134,6 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     _appliedToolNoteControllers = _appliedTools.asMap().map(
       (key, value) => MapEntry(key, TextEditingController(text: value.note)),
     );
-
-    for (final symptom in _symptoms) {
-      if (symptom.majorComponent.isNotEmpty ||
-          symptom.minorComponent.isNotEmpty) {
-        final key = SymptomNormalizer.generateKey(
-          symptom.majorComponent,
-          symptom.minorComponent,
-        );
-        _usedSuggestions.add(key);
-      }
-    }
   }
 
   @override
@@ -180,10 +166,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
           isEditable: widget.isEditable,
           symptoms: _symptoms,
           controllers: _symptomControllers,
-          usedSuggestions: _usedSuggestions,
           onAdd: addSymptom,
           onRemove: removeSymptom,
-          onUpdateFromSuggestion: updateSymptomFromSuggestion,
           onUpdate: updateSymptom,
         ),
         VSpace.m,
@@ -278,16 +262,6 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
 
   void removeSymptom(int index) {
     setState(() {
-      final symptom = _symptoms[index];
-      if (symptom.majorComponent.isNotEmpty ||
-          symptom.minorComponent.isNotEmpty) {
-        final key = SymptomNormalizer.generateKey(
-          symptom.majorComponent,
-          symptom.minorComponent,
-        );
-        _usedSuggestions.remove(key);
-      }
-
       _symptomControllers.values.forEach(
         (controllers) => controllers.dispose(),
       );
@@ -311,45 +285,13 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
   }) {
     setState(() {
       final currentSymptom = _symptoms[index];
-      final oldKey = SymptomNormalizer.generateKey(
-        currentSymptom.majorComponent,
-        currentSymptom.minorComponent,
-      );
-
-      final newSymptom = Symptom(
+      _symptoms[index] = Symptom(
         severityLevel: severityLevel ?? currentSymptom.severityLevel,
         majorComponent: majorComponent ?? currentSymptom.majorComponent,
         minorComponent: minorComponent ?? currentSymptom.minorComponent,
         additionalNotes: additionalNotes ?? currentSymptom.additionalNotes,
         conditionId: conditionId ?? currentSymptom.conditionId,
       );
-
-      _symptoms[index] = newSymptom;
-
-      if (oldKey.isNotEmpty && oldKey != '|') {
-        _usedSuggestions.remove(oldKey);
-      }
-
-      if (newSymptom.majorComponent.isNotEmpty ||
-          newSymptom.minorComponent.isNotEmpty) {
-        final newKey = SymptomNormalizer.generateKey(
-          newSymptom.majorComponent,
-          newSymptom.minorComponent,
-        );
-        _usedSuggestions.add(newKey);
-      }
-    });
-  }
-
-  void updateSymptomFromSuggestion(
-    int index,
-    Symptom newSymptom,
-    String suggestionKey,
-  ) {
-    setState(() {
-      _symptoms[index] = newSymptom;
-      _symptomControllers[index] = SymptomControllers(newSymptom);
-      _usedSuggestions.add(suggestionKey);
     });
   }
 

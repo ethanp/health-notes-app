@@ -52,6 +52,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
 
     final metrics = _sortedMetricNames();
     return trendsChartContainer(
+      header: Text('Trends', style: AppTypography.headlineSmall),
       dateRangeSelector: dateRangeSelector(),
       indicator: improvementZonesIndicator(),
       charts: splitCharts(metrics),
@@ -78,6 +79,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
   }
 
   Widget trendsChartContainer({
+    required Widget header,
     required Widget dateRangeSelector,
     required Widget indicator,
     required Widget charts,
@@ -96,6 +98,8 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          header,
+          VSpace.m,
           dateRangeSelector,
           VSpace.of(12),
           indicator,
@@ -251,7 +255,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     }
 
     final metricData = _prepareMetricData(metrics);
-    final sortedDates = _getSortedDateTimes(metricData);
+    final sortedDates = _getSortedDates(metricData);
 
     return Container(
       decoration: BoxDecoration(
@@ -274,7 +278,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
           maxY: 10,
           backgroundColor: Colors.transparent,
           lineBarsData: lineBarsData(metrics, metricData, sortedDates),
-          lineTouchData: chartTouchData(metrics, sortedDates),
+          lineTouchData: chartTouchData(metrics),
           extraLinesData: ExtraLinesData(
             horizontalLines: [
               HorizontalLine(
@@ -325,14 +329,22 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     return metricData;
   }
 
-  List<DateTime> _getSortedDateTimes(Map<String, List<CheckIn>> metricData) {
-    final allDateTimes = <DateTime>{};
+  List<DateTime> _getSortedDates(Map<String, List<CheckIn>> metricData) {
+    final allDates = <DateTime>{};
     for (final checkIns in metricData.values) {
       for (final checkIn in checkIns) {
-        allDateTimes.add(checkIn.dateTime);
+        allDates.add(
+          DateTime(
+            checkIn.dateTime.year,
+            checkIn.dateTime.month,
+            checkIn.dateTime.day,
+          ),
+        );
       }
     }
-    return allDateTimes.toList()..sort();
+
+    final sortedDates = allDates.toList()..sort();
+    return sortedDates;
   }
 
   FlGridData chartGridData(List<DateTime> sortedDates) {
@@ -372,59 +384,31 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
   }
 
   AxisTitles bottomTitles(List<DateTime> sortedDates) {
-    final isFourteenDays = _selectedDateRange == DateRangeFilter.fourteenDays;
-
-    if (isFourteenDays) {
-      final interval = (sortedDates.length / 6).ceilToDouble().clamp(1.0, double.infinity);
-      return AxisTitles(
-        sideTitles: SideTitles(
-          showTitles: true,
-          reservedSize: kChartBottomAxisReservedSize,
-          interval: interval,
-          getTitlesWidget: (double value, TitleMeta meta) {
-            final idx = value.toInt();
-            if (idx >= 0 && idx < sortedDates.length) {
-              final date = sortedDates[idx];
-              return SideTitleWidget(
-                meta: meta,
-                space: 4,
-                child: Text(
-                  DateFormat("MMM d ''yy").format(date),
-                  style: AppTypography.bodySmallSecondarySmall.copyWith(
-                    color: CupertinoColors.white.withValues(alpha: 0.7),
-                  ),
-                ),
-              );
-            }
-            return const Text('');
-          },
-        ),
-      );
-    }
+    final interval = (sortedDates.length / 6).ceilToDouble().clamp(
+      1.0,
+      double.infinity,
+    );
 
     return AxisTitles(
       sideTitles: SideTitles(
         showTitles: true,
         reservedSize: kChartBottomAxisReservedSize,
-        interval: 1,
+        interval: interval,
         getTitlesWidget: (double value, TitleMeta meta) {
-          final idx = value.toInt();
-          if (idx >= 0 && idx < sortedDates.length) {
-            final date = sortedDates[idx];
-            if (date.day == 1) {
-              return SideTitleWidget(
-                meta: meta,
-                space: 4,
-                child: Text(
-                  DateFormat("MMM ''yy").format(date),
-                  style: AppTypography.bodySmallSecondarySmall.copyWith(
-                    color: CupertinoColors.white.withValues(alpha: 0.7),
-                  ),
+          if (value.toInt() >= 0 && value.toInt() < sortedDates.length) {
+            final date = sortedDates[value.toInt()];
+            return SideTitleWidget(
+              meta: meta,
+              space: 4,
+              child: Text(
+                DateFormat('MMM d').format(date),
+                style: AppTypography.bodySmallSecondarySmall.copyWith(
+                  color: CupertinoColors.white.withValues(alpha: 0.7),
                 ),
-              );
-            }
+              ),
+            );
           }
-          return const SizedBox.shrink();
+          return const Text('');
         },
       ),
     );
@@ -504,13 +488,18 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
 
   List<FlSpot> chartSpots(
     List<CheckIn> metricCheckIns,
-    List<DateTime> sortedDateTimes,
+    List<DateTime> sortedDates,
   ) {
     final spots = <FlSpot>[];
-    for (int i = 0; i < sortedDateTimes.length; i++) {
-      final dt = sortedDateTimes[i];
+    for (int i = 0; i < sortedDates.length; i++) {
+      final date = sortedDates[i];
       final checkIn = metricCheckIns
-          .where((c) => c.dateTime == dt)
+          .where(
+            (c) =>
+                c.dateTime.year == date.year &&
+                c.dateTime.month == date.month &&
+                c.dateTime.day == date.day,
+          )
           .firstOrNull;
 
       if (checkIn != null) {
@@ -550,7 +539,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     );
   }
 
-  LineTouchData chartTouchData(List<String> metrics, List<DateTime> sortedDates) {
+  LineTouchData chartTouchData(List<String> metrics) {
     return LineTouchData(
       enabled: true,
       touchTooltipData: LineTouchTooltipData(
@@ -558,9 +547,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
         fitInsideHorizontally: true,
         fitInsideVertically: true,
         getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
-          return touchedBarSpots.asMap().entries.map((entry) {
-            final isLast = entry.key == touchedBarSpots.length - 1;
-            final touchedSpot = entry.value;
+          return touchedBarSpots.map((touchedSpot) {
             final visibleMetrics = metrics
                 .where((m) => !_hiddenMetrics.contains(m))
                 .toList();
@@ -569,38 +556,6 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
             if (metricObj == null) return null;
 
             final rating = touchedSpot.y.toInt();
-            final dateIndex = touchedSpot.x.toInt();
-            final date = dateIndex >= 0 && dateIndex < sortedDates.length
-                ? sortedDates[dateIndex]
-                : null;
-
-            if (isLast && date != null) {
-              return LineTooltipItem(
-                '$metric: $rating',
-                AppTypography.bodySmall.copyWith(
-                  color: metricObj.color,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 10,
-                ),
-                children: [
-                  TextSpan(
-                    text: '\n───────\n',
-                    style: AppTypography.bodySmall.copyWith(
-                      color: CupertinoColors.systemGrey,
-                      fontSize: 10,
-                    ),
-                  ),
-                  TextSpan(
-                    text: DateFormat('MMM d, h:mm a').format(date),
-                    style: AppTypography.bodySmall.copyWith(
-                      color: CupertinoColors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 10,
-                    ),
-                  ),
-                ],
-              );
-            }
 
             return LineTooltipItem(
               '$metric: $rating',

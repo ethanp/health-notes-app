@@ -2,14 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/models/symptom.dart';
+import 'package:health_notes/models/symptom_component_index.dart';
 import 'package:health_notes/providers/conditions_provider.dart';
-import 'package:health_notes/providers/symptom_suggestions_provider.dart';
+import 'package:health_notes/providers/pinned_symptom_components_provider.dart';
+import 'package:health_notes/providers/symptom_component_provider.dart';
 import 'package:health_notes/screens/condition_detail_screen.dart';
 import 'package:health_notes/screens/condition_form.dart';
 import 'package:health_notes/screens/symptom_trends_screen.dart';
-import 'package:health_notes/services/symptom_suggestions_service.dart';
-import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/component_picker_sheet.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -18,10 +19,8 @@ class SymptomsSection extends ConsumerWidget {
   final bool isEditable;
   final List<Symptom> symptoms;
   final Map<int, SymptomControllers> controllers;
-  final Set<String> usedSuggestions;
   final VoidCallback onAdd;
   final Function(int) onRemove;
-  final Function(int, Symptom, String) onUpdateFromSuggestion;
   final Function(
     int, {
     int? severityLevel,
@@ -37,15 +36,19 @@ class SymptomsSection extends ConsumerWidget {
     required this.isEditable,
     required this.symptoms,
     required this.controllers,
-    required this.usedSuggestions,
     required this.onAdd,
     required this.onRemove,
-    required this.onUpdateFromSuggestion,
     required this.onUpdate,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Pre-load providers so they're ready when user taps a selector
+    if (isEditable) {
+      ref.watch(symptomComponentIndexProvider);
+      ref.watch(conditionsNotifierProvider);
+    }
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -216,15 +219,323 @@ class SymptomsSection extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (isEditable) _suggestions(ref, index),
+          _componentSelectors(context, ref, index, symptom),
           VSpace.s,
-          _editableRow(index, controllers),
+          _severityRow(index, symptom, controllers),
           VSpace.s,
           _editableNotes(index, controllers),
           VSpace.s,
           _conditionLinkRow(context, ref, index, symptom),
         ],
       ),
+    );
+  }
+
+  Widget _componentSelectors(
+    BuildContext context,
+    WidgetRef ref,
+    int index,
+    Symptom symptom,
+  ) {
+    return Row(
+      children: [
+        Expanded(
+          child: _componentSelector(
+            context: context,
+            ref: ref,
+            label: symptom.majorComponent.isEmpty
+                ? 'Select major...'
+                : symptom.majorComponent,
+            isEmpty: symptom.majorComponent.isEmpty,
+            onTap: () => _showMajorPicker(context, ref, index, symptom),
+          ),
+        ),
+        HSpace.s,
+        Expanded(
+          child: _componentSelector(
+            context: context,
+            ref: ref,
+            label: symptom.minorComponent.isEmpty
+                ? 'Select minor...'
+                : symptom.minorComponent,
+            isEmpty: symptom.minorComponent.isEmpty,
+            onTap: symptom.majorComponent.isEmpty
+                ? null
+                : () => _showMinorPicker(context, ref, index, symptom),
+          ),
+        ),
+        HSpace.s,
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => onRemove(index),
+          child: const Icon(
+            CupertinoIcons.delete,
+            color: CupertinoColors.destructiveRed,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _componentSelector({
+    required BuildContext context,
+    required WidgetRef ref,
+    required String label,
+    required bool isEmpty,
+    required VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.backgroundTertiary,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: onTap == null
+                ? AppColors.textQuaternary.withValues(alpha: 0.3)
+                : AppColors.textQuaternary,
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: isEmpty
+                    ? AppTypography.inputPlaceholder
+                    : AppTypography.bodyMedium,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Icon(
+              CupertinoIcons.chevron_down,
+              size: 14,
+              color: onTap == null
+                  ? AppColors.textQuaternary.withValues(alpha: 0.3)
+                  : AppColors.textQuaternary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showMajorPicker(
+    BuildContext context,
+    WidgetRef ref,
+    int index,
+    Symptom symptom,
+  ) {
+    final indexAsync = ref.read(symptomComponentIndexProvider);
+    final componentIndex = indexAsync.valueOrNull;
+
+    if (componentIndex == null) {
+      // Still loading - show empty picker that allows creating new
+      showCupertinoModalPopup(
+        context: context,
+        builder: (context) => SizedBox(
+          height: MediaQuery.of(context).size.height * 0.7,
+          child: ComponentPickerSheet(
+            title: 'Select Major Component',
+            components: const [],
+            onSelect: (_) {},
+            onTogglePin: (_) {},
+            onCreate: (name) {
+              onUpdate(index, majorComponent: name, minorComponent: '');
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    final components = componentIndex.getMajorComponents();
+    final conditionsAsync = ref.read(conditionsNotifierProvider);
+    final activeConditionIds = conditionsAsync.maybeWhen(
+      data: (conditions) =>
+          conditions.where((c) => c.isActive).map((c) => c.id).toSet(),
+      orElse: () => <String>{},
+    );
+
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => SizedBox(
+        height: MediaQuery.of(context).size.height * 0.7,
+        child: ComponentPickerSheet(
+          title: 'Select Major Component',
+          components: components,
+          onSelect: (name) {
+            onUpdate(index, majorComponent: name);
+            _autoPopulateMinorAndCondition(
+              ref,
+              index,
+              name,
+              componentIndex,
+              activeConditionIds,
+            );
+          },
+          onTogglePin: (component) {
+            ref
+                .read(pinnedSymptomComponentsNotifierProvider.notifier)
+                .toggleMajorPin(component.normalizedName);
+          },
+          onCreate: (name) {
+            onUpdate(index, majorComponent: name, minorComponent: '');
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showMinorPicker(
+    BuildContext context,
+    WidgetRef ref,
+    int index,
+    Symptom symptom,
+  ) {
+    final indexAsync = ref.read(symptomComponentIndexProvider);
+    final componentIndex = indexAsync.valueOrNull;
+
+    if (componentIndex == null) {
+      showCupertinoModalPopup(
+        context: context,
+        builder: (context) => SizedBox(
+          height: MediaQuery.of(context).size.height * 0.7,
+          child: ComponentPickerSheet(
+            title: 'Select Minor Component',
+            subtitle: symptom.majorComponent,
+            components: const [],
+            onSelect: (_) {},
+            onTogglePin: (_) {},
+            onCreate: (name) {
+              onUpdate(index, minorComponent: name);
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    final components = componentIndex.getMinorComponents(
+      symptom.majorComponent,
+    );
+    final conditionsAsync = ref.read(conditionsNotifierProvider);
+    final activeConditionIds = conditionsAsync.maybeWhen(
+      data: (conditions) =>
+          conditions.where((c) => c.isActive).map((c) => c.id).toSet(),
+      orElse: () => <String>{},
+    );
+
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => SizedBox(
+        height: MediaQuery.of(context).size.height * 0.7,
+        child: ComponentPickerSheet(
+          title: 'Select Minor Component',
+          subtitle: symptom.majorComponent,
+          components: components,
+          onSelect: (name) {
+            onUpdate(index, minorComponent: name);
+            _autoLinkCondition(
+              ref,
+              index,
+              symptom.majorComponent,
+              name,
+              componentIndex,
+              activeConditionIds,
+            );
+          },
+          onTogglePin: (component) {
+            ref
+                .read(pinnedSymptomComponentsNotifierProvider.notifier)
+                .toggleMinorPin(
+                  symptom.majorComponent.trim().toLowerCase(),
+                  component.normalizedName,
+                );
+          },
+          onCreate: (name) {
+            onUpdate(index, minorComponent: name);
+          },
+        ),
+      ),
+    );
+  }
+
+  void _autoPopulateMinorAndCondition(
+    WidgetRef ref,
+    int index,
+    String majorName,
+    SymptomComponentIndex componentIndex,
+    Set<String> activeConditionIds,
+  ) {
+    final defaultMinor = componentIndex.getDefaultMinor(majorName) ?? '';
+    onUpdate(index, minorComponent: defaultMinor);
+    _autoLinkCondition(
+      ref,
+      index,
+      majorName,
+      defaultMinor,
+      componentIndex,
+      activeConditionIds,
+    );
+  }
+
+  void _autoLinkCondition(
+    WidgetRef ref,
+    int index,
+    String majorName,
+    String minorName,
+    SymptomComponentIndex componentIndex,
+    Set<String> activeConditionIds,
+  ) {
+    final conditionId = componentIndex.getAutoLinkedCondition(
+      majorName,
+      minorName,
+      activeConditionIds,
+    );
+    if (conditionId != null) {
+      onUpdate(index, conditionId: conditionId);
+    }
+
+    final defaultSeverity = componentIndex.getDefaultSeverity(
+      majorName,
+      minorName,
+    );
+    onUpdate(index, severityLevel: defaultSeverity);
+  }
+
+  Widget _severityRow(
+    int index,
+    Symptom symptom,
+    SymptomControllers controllers,
+  ) {
+    return Row(
+      children: [
+        Text('Severity:', style: AppTypography.labelMedium),
+        HSpace.m,
+        Expanded(
+          child: CupertinoSlider(
+            value: symptom.severityLevel.toDouble(),
+            min: 1,
+            max: 10,
+            divisions: 9,
+            onChanged: (value) {
+              onUpdate(index, severityLevel: value.round());
+              controllers.severity.text = value.round().toString();
+            },
+          ),
+        ),
+        HSpace.s,
+        SizedBox(
+          width: 40,
+          child: Text(
+            '${symptom.severityLevel}/10',
+            style: AppTypography.bodyMedium,
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ],
     );
   }
 
@@ -276,186 +587,73 @@ class SymptomsSection extends ConsumerWidget {
     );
   }
 
-  Future<void> _showConditionPicker(
-    BuildContext context,
-    WidgetRef ref,
-    int index,
-  ) async {
-    final conditions = await ref.read(conditionsNotifierProvider.future);
-    final activeConditions = conditions.where((c) => c.isActive).toList();
+  void _showConditionPicker(BuildContext context, WidgetRef ref, int index) {
+    final conditionsAsync = ref.read(conditionsNotifierProvider);
 
-    if (!context.mounted) return;
+    conditionsAsync.when(
+      data: (conditions) {
+        final activeConditions = conditions.where((c) => c.isActive).toList();
 
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) => CupertinoActionSheet(
-        title: const Text('Link to Condition'),
-        message: const Text('Select an active condition or create a new one'),
-        actions: [
-          ...activeConditions.map(
-            (condition) => CupertinoActionSheetAction(
-              onPressed: () {
-                Navigator.of(context).pop();
-                onUpdate(index, conditionId: condition.id);
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(condition.icon, color: condition.color, size: 18),
-                  HSpace.s,
-                  Text(condition.name),
-                ],
-              ),
+        showCupertinoModalPopup(
+          context: context,
+          builder: (context) => CupertinoActionSheet(
+            title: const Text('Link to Condition'),
+            message: const Text(
+              'Select an active condition or create a new one',
             ),
-          ),
-          CupertinoActionSheetAction(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              final newCondition = await Navigator.of(context).push<Condition>(
-                CupertinoPageRoute(builder: (context) => const ConditionForm()),
-              );
-              if (newCondition != null) {
-                onUpdate(index, conditionId: newCondition.id);
-              }
-            },
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  CupertinoIcons.add,
-                  color: CupertinoColors.systemBlue,
-                  size: 18,
-                ),
-                HSpace.s,
-                Text('+ New Condition'),
-              ],
-            ),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-      ),
-    );
-  }
-
-  Widget _suggestions(WidgetRef ref, int index) {
-    final symptom = symptoms[index];
-
-    if (symptom.majorComponent.isNotEmpty ||
-        symptom.minorComponent.isNotEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    final suggestionsAsync = ref.watch(symptomSuggestionsProvider);
-
-    return suggestionsAsync.when(
-      data: (suggestions) {
-        final availableSuggestions = suggestions
-            .where((suggestion) {
-              final suggestionKey = SymptomNormalizer.generateKey(
-                suggestion.majorComponent,
-                suggestion.minorComponent,
-              );
-              return !usedSuggestions.contains(suggestionKey);
-            })
-            .take(3)
-            .toList();
-
-        if (availableSuggestions.isEmpty) return const SizedBox.shrink();
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Recent symptoms:', style: AppTypography.labelMediumSecondary),
-            VSpace.s,
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: availableSuggestions.map((suggestion) {
-                return CupertinoButton(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  color: AppColors.backgroundSecondary,
-                  borderRadius: BorderRadius.circular(16),
+            actions: [
+              ...activeConditions.map(
+                (condition) => CupertinoActionSheetAction(
                   onPressed: () {
-                    final newSymptom =
-                        SymptomSuggestionsService.createSymptomFromSuggestion(
-                          suggestion,
-                        );
-                    final suggestionKey = SymptomNormalizer.generateKey(
-                      suggestion.majorComponent,
-                      suggestion.minorComponent,
-                    );
-                    onUpdateFromSuggestion(index, newSymptom, suggestionKey);
+                    Navigator.of(context).pop();
+                    onUpdate(index, conditionId: condition.id);
                   },
-                  child: Text(
-                    suggestion.toString(),
-                    style: AppTypography.bodySmallPrimary,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(condition.icon, color: condition.color, size: 18),
+                      HSpace.s,
+                      Text(condition.name),
+                    ],
                   ),
-                );
-              }).toList(),
+                ),
+              ),
+              CupertinoActionSheetAction(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  final newCondition = await Navigator.of(context)
+                      .push<Condition>(
+                        CupertinoPageRoute(
+                          builder: (context) => const ConditionForm(),
+                        ),
+                      );
+                  if (newCondition != null) {
+                    onUpdate(index, conditionId: newCondition.id);
+                  }
+                },
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      CupertinoIcons.add,
+                      color: CupertinoColors.systemBlue,
+                      size: 18,
+                    ),
+                    HSpace.s,
+                    Text('+ New Condition'),
+                  ],
+                ),
+              ),
+            ],
+            cancelButton: CupertinoActionSheetAction(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
             ),
-          ],
+          ),
         );
       },
-      loading: () => const SizedBox.shrink(),
-      error: (error, stack) => const SizedBox.shrink(),
-    );
-  }
-
-  Widget _editableRow(int index, SymptomControllers controllers) {
-    return Row(
-      children: [
-        Expanded(
-          child: CupertinoTextField(
-            controller: controllers.majorComponent,
-            placeholder: 'Major component (e.g., headache)',
-            placeholderStyle: AppTypography.inputPlaceholder,
-            style: AppTypography.input,
-            onChanged: (value) => onUpdate(index, majorComponent: value),
-          ),
-        ),
-        HSpace.s,
-        Expanded(
-          child: CupertinoTextField(
-            controller: controllers.minorComponent,
-            placeholder: 'Minor component (e.g., right temple)',
-            placeholderStyle: AppTypography.inputPlaceholder,
-            style: AppTypography.input,
-            onChanged: (value) => onUpdate(index, minorComponent: value),
-          ),
-        ),
-        HSpace.s,
-        SizedBox(
-          width: 80,
-          child: CupertinoTextField(
-            controller: controllers.severity,
-            placeholder: '1-10',
-            placeholderStyle: AppTypography.inputPlaceholder,
-            style: AppTypography.input,
-            keyboardType: TextInputType.number,
-            onChanged: (value) {
-              final severity = int.tryParse(value);
-              if (severity != null && severity >= 1 && severity <= 10) {
-                onUpdate(index, severityLevel: severity);
-              }
-            },
-          ),
-        ),
-        HSpace.s,
-        CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => onRemove(index),
-          child: const Icon(
-            CupertinoIcons.delete,
-            color: CupertinoColors.destructiveRed,
-          ),
-        ),
-      ],
+      loading: () {},
+      error: (e, st) {},
     );
   }
 
