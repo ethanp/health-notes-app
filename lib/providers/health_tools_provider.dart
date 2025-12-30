@@ -139,3 +139,17 @@ Future<List<HealthTool>> toolsByCategory(Ref ref, String categoryId) async {
     error: (error, stack) => [],
   );
 }
+
+@riverpod
+Future<HealthTool?> toolById(Ref ref, String toolId) async {
+  final tools = await ref.watch(healthToolsNotifierProvider.future);
+  return tools.where((t) => t.id == toolId).firstOrNull;
+}
+
+@riverpod
+Future<HealthToolCategory?> categoryById(Ref ref, String categoryId) async {
+  final categories = await ref.watch(
+    healthToolCategoriesNotifierProvider.future,
+  );
+  return categories.where((c) => c.id == categoryId).firstOrNull;
+}

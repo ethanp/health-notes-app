@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/screens/drug_trends_screen.dart';
 import 'package:health_notes/screens/symptom_trends_screen.dart';
+import 'package:health_notes/screens/tool_detail_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/number_formatter.dart';
@@ -63,21 +64,34 @@ class HealthNoteCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (note.hasSymptoms) _buildSymptoms(context),
-        if (note.appliedTools.isNotEmpty) _buildAppliedTools(),
         if (note.drugDoses.isNotEmpty) _buildDrugDoses(context),
+        if (note.appliedTools.isNotEmpty) _buildAppliedTools(context),
         if (note.notes.isNotEmpty) _buildGeneralNotes(),
       ],
     );
   }
 
-  Widget _buildAppliedTools() {
+  Widget _buildAppliedTools(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Wrap(
         spacing: 6,
         runSpacing: 6,
         children: note.appliedTools
-            .map((tool) => _ToolChip(toolName: tool.toolName))
+            .map(
+              (tool) => _ToolChip(
+                toolId: tool.toolId,
+                toolName: tool.toolName,
+                onTap: () => Navigator.of(context).push(
+                  CupertinoPageRoute(
+                    builder: (_) => ToolDetailScreen(
+                      toolId: tool.toolId,
+                      toolName: tool.toolName,
+                    ),
+                  ),
+                ),
+              ),
+            )
             .toList(),
       ),
     );
@@ -237,22 +251,32 @@ class _DrugChip extends StatelessWidget {
 
 /// Applied tool chip
 class _ToolChip extends StatelessWidget {
+  final String toolId;
   final String toolName;
+  final VoidCallback onTap;
 
-  const _ToolChip({required this.toolName});
+  const _ToolChip({
+    required this.toolId,
+    required this.toolName,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.accentWarm.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.accentWarm.withValues(alpha: 0.3)),
-      ),
-      child: Text(
-        toolName,
-        style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: AppColors.accentWarm.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(16),
+          border:
+              Border.all(color: AppColors.accentWarm.withValues(alpha: 0.3)),
+        ),
+        child: Text(
+          toolName,
+          style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
+        ),
       ),
     );
   }

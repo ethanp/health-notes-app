@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/applied_tool.dart';
 import 'package:health_notes/models/health_tool.dart';
+import 'package:health_notes/screens/tool_detail_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/applied_tool_picker_sheet.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
@@ -34,7 +35,7 @@ class AppliedToolsSection extends StatelessWidget {
           : AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [_header(context), VSpace.s, _content()],
+        children: [_header(context), VSpace.s, _content(context)],
       ),
     );
   }
@@ -52,7 +53,7 @@ class AppliedToolsSection extends StatelessWidget {
     );
   }
 
-  Widget _content() {
+  Widget _content(BuildContext context) {
     if (appliedTools.isEmpty) {
       return Text('No tools applied', style: AppTypography.bodyMedium);
     }
@@ -60,7 +61,9 @@ class AppliedToolsSection extends StatelessWidget {
     if (!isEditable) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: appliedTools.map(_readOnlyItem).toList(),
+        children: appliedTools
+            .map((tool) => readOnlyItem(context, tool))
+            .toList(),
       );
     }
 
@@ -75,36 +78,47 @@ class AppliedToolsSection extends StatelessWidget {
     );
   }
 
-  Widget _readOnlyItem(AppliedTool tool) {
+  Widget readOnlyItem(BuildContext context, AppliedTool tool) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              HSpace.of(12),
-              Expanded(
-                child: Text(tool.toolName, style: AppTypography.labelLarge),
-              ),
-            ],
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: () => Navigator.of(context).push(
+          CupertinoPageRoute(
+            builder: (context) =>
+                ToolDetailScreen(toolId: tool.toolId, toolName: tool.toolName),
           ),
-          if (tool.note.isNotEmpty) ...[
-            VSpace.s,
-            Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: Text(tool.note, style: AppTypography.bodyMediumSecondary),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 8,
+              height: 8,
+              decoration: const BoxDecoration(
+                color: AppColors.primary,
+                shape: BoxShape.circle,
+              ),
+            ),
+            HSpace.of(12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(tool.toolName, style: AppTypography.labelLarge),
+                  if (tool.note.isNotEmpty) ...[
+                    VSpace.xs,
+                    Text(tool.note, style: AppTypography.bodyMediumSecondary),
+                  ],
+                ],
+              ),
+            ),
+            Icon(
+              CupertinoIcons.chevron_right,
+              size: 14,
+              color: AppColors.textQuaternary,
             ),
           ],
-        ],
+        ),
       ),
     );
   }

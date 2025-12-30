@@ -10,31 +10,44 @@ class NoteFilterUtils {
   static List<HealthNote> bySymptom(
     List<HealthNote> notes,
     String symptomName,
-  ) =>
-      notes
-          .where((note) => note.symptomsList.any(
-                (s) => s.majorComponent == symptomName,
-              ))
-          .toList();
+  ) => notes
+      .where(
+        (note) => note.symptomsList.any((s) => s.majorComponent == symptomName),
+      )
+      .toList();
 
   /// Filter notes by drug name (case-insensitive)
-  static List<HealthNote> byDrug(
-    List<HealthNote> notes,
-    String drugName,
-  ) =>
+  static List<HealthNote> byDrug(List<HealthNote> notes, String drugName) =>
       notes
-          .where((note) => note.drugDoses.any(
-                (d) => _normalizer.areEqual(d.name, drugName),
-              ))
+          .where(
+            (note) => note.drugDoses.any(
+              (d) => _normalizer.areEqual(d.name, drugName),
+            ),
+          )
+          .toList();
+
+  /// Filter notes by tool ID
+  static List<HealthNote> byToolId(List<HealthNote> notes, String toolId) =>
+      notes
+          .where((note) => note.appliedTools.any((t) => t.toolId == toolId))
+          .toList();
+
+  /// Filter notes by tool name (case-insensitive)
+  static List<HealthNote> byToolName(List<HealthNote> notes, String toolName) =>
+      notes
+          .where(
+            (note) => note.appliedTools.any(
+              (t) => _normalizer.areEqual(t.toolName, toolName),
+            ),
+          )
           .toList();
 
   /// Filter notes by search query using SearchService
-  static List<HealthNote> bySearchQuery(
-    List<HealthNote> notes,
-    String query,
-  ) {
+  static List<HealthNote> bySearchQuery(List<HealthNote> notes, String query) {
     if (query.trim().isEmpty) return notes;
-    return notes.where((note) => SearchService.matchesSearch(note, query)).toList();
+    return notes
+        .where((note) => SearchService.matchesSearch(note, query))
+        .toList();
   }
 
   /// Filter notes by date range
