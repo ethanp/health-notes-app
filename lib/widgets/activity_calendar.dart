@@ -3,25 +3,31 @@ import 'dart:math' as math;
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/number_formatter.dart';
 import 'package:health_notes/utils/severity_utils.dart';
-import 'package:health_notes/theme/spacing.dart';
 
 typedef ColorCalculator<T> = Color Function(T value);
 typedef LegendBuilder<T> = Widget Function();
 typedef DateInfoCallback<T> =
     void Function(BuildContext context, DateTime date, T value);
 typedef ActivityDescriptor<T> = String Function(T value);
-typedef DayCellBuilder<T> = Widget Function(
-  BuildContext context,
-  DateTime date,
-  T value,
-  bool hasActivity,
-  Color color,
-);
+typedef DayCellBuilder<T> =
+    Widget Function(
+      BuildContext context,
+      DateTime date,
+      T value,
+      bool hasActivity,
+      Color color,
+    );
 
-typedef WeekStats = ({List<Widget> cells, int activeDays, num sum});
+typedef WeekStats = ({
+  List<Widget> cells,
+  int activeDays,
+  num sum,
+  bool ownsWeek,
+});
 
 class CalendarConstants {
   static const double cellSize = 39;
@@ -92,7 +98,9 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
       if (widget.scrollToEnd) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (_scrollController!.hasClients) {
-            _scrollController!.jumpTo(_scrollController!.position.maxScrollExtent);
+            _scrollController!.jumpTo(
+              _scrollController!.position.maxScrollExtent,
+            );
           }
         });
       }
@@ -145,17 +153,16 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
     for (final entry in widget.activityData.entries) {
       if (entry.value == widget.emptyValue || entry.value is! num) continue;
       final v = (entry.value as num);
-      final weekKey = entry.key.year * 100 + weekOfYear(entry.key);
+      final weekKey = isoWeekKey(entry.key);
       weekSums.update(weekKey, (sum) => sum + v, ifAbsent: () => v);
     }
 
     return weekSums.values.fold(0, math.max);
   }
 
-  int weekOfYear(DateTime date) {
-    final firstDayOfYear = DateTime(date.year, 1, 1);
-    final daysDiff = date.difference(firstDayOfYear).inDays;
-    return (daysDiff / 7).floor();
+  int isoWeekKey(DateTime date) {
+    final monday = date.subtract(Duration(days: date.weekday - 1));
+    return monday.year * 10000 + monday.month * 100 + monday.day;
   }
 
   List<Widget> buildActiveMonths(BuildContext context, num globalMaxSum) {
@@ -181,7 +188,8 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
   bool monthHasActivity(DateTime monthDate, int daysInMonth) {
     for (int day = 1; day <= daysInMonth; day++) {
       final date = DateTime(monthDate.year, monthDate.month, day);
-      if (widget.activityData.containsKey(date) && widget.activityData[date] != widget.emptyValue) {
+      if (widget.activityData.containsKey(date) &&
+          widget.activityData[date] != widget.emptyValue) {
         return true;
       }
     }
@@ -198,6 +206,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         monthHeader(AppDateUtils.formatMonthYear(monthDate)),
+        dayOfWeekLabel(),
         ...buildWeekRows(context, monthDate, daysInMonth, globalMaxSum),
         VSpace.m,
       ],
@@ -206,8 +215,32 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
 
   Widget monthHeader(String monthName) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8, left: 4),
+      padding: const EdgeInsets.only(bottom: 2, left: 4),
       child: Text(monthName, style: AppTypography.bodySmallSystemGreySemibold),
+    );
+  }
+
+  static const _dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  Widget dayOfWeekLabel() {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final label in _dayLabels)
+          SizedBox(
+            width:
+                CalendarConstants.cellSize + CalendarConstants.cellMargin * 2,
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: AppTypography.bodySmall.copyWith(
+                color: CupertinoColors.systemGrey,
+                fontSize: 9,
+              ),
+            ),
+          ),
+        SizedBox(width: CalendarConstants.summaryWidth + 8),
+      ],
     );
   }
 
@@ -217,12 +250,11 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
     int daysInMonth,
     num globalMaxSum,
   ) {
-    return computeWeekStats(context, monthDate, daysInMonth)
-        .map(
-          (stat) =>
-              buildWeekRow(stat.cells, stat.activeDays, stat.sum, globalMaxSum),
-        )
-        .toList();
+    return computeWeekStats(
+      context,
+      monthDate,
+      daysInMonth,
+    ).map((stat) => buildWeekRow(stat, globalMaxSum)).toList();
   }
 
   List<WeekStats> computeWeekStats(
@@ -251,6 +283,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
     final cells = <Widget>[];
     var activeDays = 0;
     num sum = 0;
+    var ownsWeek = false;
 
     for (int day = 0; day < CalendarConstants.daysPerWeek; day++) {
       final dayOffset =
@@ -259,44 +292,57 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
 
       if (isInMonth) {
         final date = DateTime(monthDate.year, monthDate.month, dayOffset + 1);
-        final value = widget.activityData[date] ?? widget.emptyValue;
-
-        if (value != widget.emptyValue) {
-          activeDays++;
-          if (value is num) sum += value;
-        }
-
+        if (day == 6) ownsWeek = true;
         cells.add(dayCell(context, date));
       } else {
         cells.add(emptyCell());
       }
     }
 
-    return (cells: cells, activeDays: activeDays, sum: sum);
+    if (ownsWeek) {
+      final sundayOffset =
+          week * CalendarConstants.daysPerWeek + 6 - (firstWeekday - 1);
+      final sunday = DateTime(
+        monthDate.year,
+        monthDate.month,
+        sundayOffset + 1,
+      );
+      final monday = sunday.subtract(const Duration(days: 6));
+      for (int i = 0; i < CalendarConstants.daysPerWeek; i++) {
+        final date = monday.add(Duration(days: i));
+        final value = widget.activityData[date] ?? widget.emptyValue;
+        if (value != widget.emptyValue) {
+          activeDays++;
+          if (value is num) sum += value;
+        }
+      }
+    }
+
+    return (cells: cells, activeDays: activeDays, sum: sum, ownsWeek: ownsWeek);
   }
 
   num findMaxSum(List<WeekStats> stats) =>
       stats.fold<num>(0, (max, stat) => stat.sum > max ? stat.sum : max);
 
-  Widget buildWeekRow(List<Widget> cells, int activeDays, num sum, num maxSum) {
+  Widget buildWeekRow(WeekStats stat, num maxSum) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
-        children: [...cells, weekSummary(activeDays, sum, maxSum)],
+        children: [...stat.cells, weekSummary(stat, maxSum)],
       ),
     );
   }
 
-  Widget weekSummary(int activeDays, num sum, num maxSum) {
+  Widget weekSummary(WeekStats stat, num maxSum) {
     return Padding(
       padding: const EdgeInsets.only(left: 8.0),
       child: SizedBox(
         width: CalendarConstants.summaryWidth,
-        child: activeDays == 0
-            ? null
-            : weekSummaryContent(activeDays, sum, maxSum),
+        child: stat.ownsWeek && stat.activeDays > 0
+            ? weekSummaryContent(stat.activeDays, stat.sum, maxSum)
+            : null,
       ),
     );
   }
@@ -370,24 +416,57 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
         width: CalendarConstants.cellSize,
         height: CalendarConstants.cellSize,
         margin: const EdgeInsets.all(CalendarConstants.cellMargin),
-        decoration: dayCellDecoration(hasActivity, color, value),
-        child: Center(child: dayCellText(value, hasActivity, date)),
+        decoration: dayCellDecoration(hasActivity, color, value, date),
+        child: Stack(
+          children: [
+            if (hasActivity) miniDateLabel(date),
+            Center(child: dayCellText(value, hasActivity, date)),
+          ],
+        ),
       ),
     );
   }
 
-  BoxDecoration dayCellDecoration(bool hasActivity, Color color, T value) {
+  Widget miniDateLabel(DateTime date) {
+    return Positioned(
+      left: 3,
+      top: 2,
+      child: Text(
+        '${date.day}',
+        style: TextStyle(
+          fontSize: 8,
+          fontWeight: FontWeight.w500,
+          color: AppColors.backgroundPrimary,
+        ),
+      ),
+    );
+  }
+
+  BoxDecoration dayCellDecoration(
+    bool hasActivity,
+    Color color,
+    T value,
+    DateTime date,
+  ) {
+    final isToday = _isToday(date);
     return BoxDecoration(
       color: hasActivity
           ? color
           : AppColors.backgroundPrimary.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(6),
       border: Border.all(
-        color: cellBorderColor(value),
-        width: hasActivity ? 1 : 0.5,
+        color: isToday ? AppColors.todayBorder : cellBorderColor(value),
+        width: isToday ? 1.5 : (hasActivity ? 1 : 0.5),
       ),
       boxShadow: hasActivity ? [dayCellShadow(color)] : null,
     );
+  }
+
+  bool _isToday(DateTime date) {
+    final now = DateTime.now();
+    return date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
   }
 
   BoxShadow dayCellShadow(Color color) {

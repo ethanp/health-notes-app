@@ -20,9 +20,13 @@ class AppColors {
 
   // Background colors
   static const Color backgroundPrimary = Color(0xFF1A1B2E); // Deep blue-grey
-  static const Color backgroundSecondary = Color(0xFF252A3A); // Warmer secondary
+  static const Color backgroundSecondary = Color(
+    0xFF252A3A,
+  ); // Warmer secondary
   static const Color backgroundTertiary = Color(0xFF2F3542); // Elevated surface
-  static const Color backgroundQuaternary = Color(0xFF3A4151); // Higher elevation
+  static const Color backgroundQuaternary = Color(
+    0xFF3A4151,
+  ); // Higher elevation
   static const Color backgroundQuinary = Color(0xFF4A5568); // Highest elevation
 
   // Text colors
@@ -37,6 +41,9 @@ class AppColors {
   static const Color activityMedium = Color(0xFFA5D6A7); // Medium light green
   static const Color activityStrong = Color(0xFF66BB6A); // Strong green
   static const Color activityDeep = Color(0xFF4CAF50); // Deep green
+
+  // Calendar-specific colors
+  static const Color todayBorder = Color(0xFF9E9464); // Subtle yellow-grey
 }
 
 /// Typography system for consistent text styling
@@ -130,14 +137,6 @@ class AppTypography {
     letterSpacing: 0.1,
   );
 
-  static TextStyle get success => const TextStyle(
-    fontSize: 14,
-    fontWeight: FontWeight.normal,
-    color: AppColors.success,
-    height: 1.4,
-    letterSpacing: 0.1,
-  );
-
   // Navigation and system UI
   static TextStyle get navTitleTextStyle => const TextStyle(
     fontSize: 18,
@@ -195,10 +194,6 @@ class AppTypography {
   static TextStyle get bodyMediumSemiboldBlue =>
       bodyMediumSemibold.copyWith(color: CupertinoColors.systemBlue);
 
-  // Bold variants
-  static TextStyle get bodySmallWhiteBold =>
-      bodySmallWhite.copyWith(fontWeight: FontWeight.bold);
-
   // Additional essential variants (commonly used)
   static TextStyle get bodyLargeSecondary =>
       bodyLarge.copyWith(color: AppColors.textSecondary);
@@ -209,9 +204,6 @@ class AppTypography {
   static TextStyle get bodySmallSecondary =>
       bodySmall.copyWith(color: AppColors.textSecondary);
 
-  static TextStyle get bodySmallPrimary =>
-      bodySmall.copyWith(color: AppColors.textPrimary);
-
   static TextStyle get labelLargePrimary =>
       labelLarge.copyWith(color: AppColors.textPrimary);
 
@@ -219,9 +211,6 @@ class AppTypography {
 
   static TextStyle get labelMediumWhite =>
       labelMedium.copyWith(color: CupertinoColors.white);
-
-  static TextStyle get labelMediumSecondary =>
-      labelMedium.copyWith(color: AppColors.textSecondary);
 
   static TextStyle get labelMediumSystemGreySemibold =>
       bodySmallSystemGrey.copyWith(fontWeight: FontWeight.w600);
@@ -249,9 +238,6 @@ class AppTypography {
   // Button bold variants
   static TextStyle get buttonPrimaryBold =>
       buttonPrimary.copyWith(fontWeight: FontWeight.bold);
-
-  static TextStyle get buttonPrimaryBoldSmall =>
-      buttonPrimaryBold.copyWith(fontSize: 10);
 
   // Additional hierarchy variants
   static TextStyle get headlineSmallPrimary =>
