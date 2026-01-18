@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
@@ -22,11 +23,7 @@ class ToolNoteCard extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12),
       child: CupertinoButton(
         padding: EdgeInsets.zero,
-        onPressed: () => Navigator.of(context).push(
-          CupertinoPageRoute(
-            builder: (context) => HealthNoteViewScreen(note: note),
-          ),
-        ),
+        onPressed: () => context.push((_) => HealthNoteViewScreen(note: note)),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: AppComponents.primaryCard,

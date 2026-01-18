@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in_metric.dart';
@@ -235,7 +236,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
           Wrap(
             spacing: 12,
             runSpacing: 12,
-            children: MetricIconPalette.icons.map(iconOption).toList(),
+            children: MetricIconPalette.icons.mapL(iconOption),
           ),
         ],
       ),

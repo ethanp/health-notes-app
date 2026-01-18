@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
@@ -19,10 +20,7 @@ class ToolDetailScreen extends ConsumerStatefulWidget {
   final String toolId;
   final String? toolName;
 
-  const ToolDetailScreen({
-    required this.toolId,
-    this.toolName,
-  });
+  const ToolDetailScreen({required this.toolId, this.toolName});
 
   @override
   ConsumerState<ToolDetailScreen> createState() => _ToolDetailScreenState();
@@ -51,21 +49,26 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
         child: toolAsync.when(
           data: (tool) => notesAsync.when(
             data: (notes) => buildContent(context, tool, notes),
-            loading: () => const SyncStatusWidget.loading(message: 'Loading notes...'),
+            loading: () =>
+                const SyncStatusWidget.loading(message: 'Loading notes...'),
             error: (error, stack) => Center(
               child: Text('Error: $error', style: AppTypography.error),
             ),
           ),
-          loading: () => const SyncStatusWidget.loading(message: 'Loading tool...'),
-          error: (error, stack) => Center(
-            child: Text('Error: $error', style: AppTypography.error),
-          ),
+          loading: () =>
+              const SyncStatusWidget.loading(message: 'Loading tool...'),
+          error: (error, stack) =>
+              Center(child: Text('Error: $error', style: AppTypography.error)),
         ),
       ),
     );
   }
 
-  Widget buildContent(BuildContext context, HealthTool? tool, List<HealthNote> allNotes) {
+  Widget buildContent(
+    BuildContext context,
+    HealthTool? tool,
+    List<HealthNote> allNotes,
+  ) {
     final toolNotes = NoteFilterUtils.byToolId(allNotes, widget.toolId);
 
     if (toolNotes.isEmpty) {
@@ -84,16 +87,14 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
     return CustomScrollView(
       slivers: [
         CupertinoSliverRefreshControl(
-          onRefresh: () => ref.read(healthNotesNotifierProvider.notifier).refreshNotes(),
+          onRefresh: () =>
+              ref.read(healthNotesNotifierProvider.notifier).refreshNotes(),
         ),
         SliverPadding(
           padding: const EdgeInsets.all(16),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              if (tool != null) ...[
-                toolHeaderCard(tool),
-                VSpace.l,
-              ],
+              if (tool != null) ...[toolHeaderCard(tool), VSpace.l],
               statisticsCard(sortedNotes),
               VSpace.l,
               ToolActivityCalendar(
@@ -172,17 +173,16 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
         color: AppColors.backgroundTertiary,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(
-        category.name,
-        style: AppTypography.caption,
-      ),
+      child: Text(category.name, style: AppTypography.caption),
     );
   }
 
   Widget statisticsCard(List<HealthNote> notes) {
     final totalUses = notes.fold<int>(
       0,
-      (sum, note) => sum + note.appliedTools.where((t) => t.toolId == widget.toolId).length,
+      (sum, note) =>
+          sum +
+          note.appliedTools.where((t) => t.toolId == widget.toolId).length,
     );
 
     final firstUse = notes.isNotEmpty ? notes.last.dateTime : null;
@@ -208,7 +208,9 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
               Expanded(
                 child: statItem(
                   'First Applied',
-                  firstUse != null ? AppDateUtils.formatShortDate(firstUse) : '-',
+                  firstUse != null
+                      ? AppDateUtils.formatShortDate(firstUse)
+                      : '-',
                 ),
               ),
             ],
@@ -276,7 +278,10 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Health Notes (${notes.length})', style: AppTypography.headlineSmall),
+        Text(
+          'Health Notes (${notes.length})',
+          style: AppTypography.headlineSmall,
+        ),
         VSpace.s,
         ...notes.map((note) => ToolNoteCard(note: note, toolId: widget.toolId)),
       ],
@@ -292,8 +297,14 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
         note.dateTime.month,
         note.dateTime.day,
       );
-      final usageCount = note.appliedTools.where((t) => t.toolId == widget.toolId).length;
-      data.update(dateKey, (count) => count + usageCount, ifAbsent: () => usageCount);
+      final usageCount = note.appliedTools
+          .where((t) => t.toolId == widget.toolId)
+          .length;
+      data.update(
+        dateKey,
+        (count) => count + usageCount,
+        ifAbsent: () => usageCount,
+      );
     }
 
     return data;
@@ -385,11 +396,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
               child: const Text('View Note'),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
-                Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (context) => HealthNoteViewScreen(note: note),
-                  ),
-                );
+                context.push((_) => HealthNoteViewScreen(note: note));
               },
             ),
           ],
@@ -416,17 +423,17 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
               child: const Text('Close'),
               onPressed: () => Navigator.of(dialogContext).pop(),
             ),
-            ...notesForDate.take(3).map((note) => CupertinoDialogAction(
-                  child: Text(AppDateUtils.formatTime(note.dateTime)),
-                  onPressed: () {
-                    Navigator.of(dialogContext).pop();
-                    Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder: (context) => HealthNoteViewScreen(note: note),
-                      ),
-                    );
-                  },
-                )),
+            ...notesForDate
+                .take(3)
+                .map(
+                  (note) => CupertinoDialogAction(
+                    child: Text(AppDateUtils.formatTime(note.dateTime)),
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                      context.push((_) => HealthNoteViewScreen(note: note));
+                    },
+                  ),
+                ),
           ],
         ),
       );
@@ -454,4 +461,3 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
     );
   }
 }
-

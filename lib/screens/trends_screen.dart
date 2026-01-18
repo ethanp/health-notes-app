@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in.dart';
@@ -53,9 +54,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
           const CompactSyncStatusWidget(),
           CupertinoButton(
             padding: EdgeInsets.zero,
-            onPressed: () => Navigator.of(context).push(
-              CupertinoPageRoute(builder: (context) => const CheckInForm()),
-            ),
+            onPressed: () => context.push((_) => const CheckInForm()),
             child: const Icon(CupertinoIcons.add),
           ),
         ],
@@ -241,19 +240,11 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   }
 
   void _openSymptomTrends(String symptomName) {
-    Navigator.of(context).push(
-      CupertinoPageRoute(
-        builder: (context) => SymptomTrendsScreen(symptomName: symptomName),
-      ),
-    );
+    context.push((_) => SymptomTrendsScreen(symptomName: symptomName));
   }
 
   void _openDrugTrends(String drugName) {
-    Navigator.of(context).push(
-      CupertinoPageRoute(
-        builder: (context) => DrugTrendsScreen(drugName: drugName),
-      ),
-    );
+    context.push((_) => DrugTrendsScreen(drugName: drugName));
   }
 
   String formatMonth(String monthKey) {
@@ -317,13 +308,8 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
 
     return CheckInsActivityCalendar(
       checkIns: checkIns,
-      onDateTap: (date) => Navigator.of(context).push(
-        CupertinoPageRoute(
-          builder: (_) => CheckInDateDetailScreen(
-            date: date,
-            allCheckIns: checkIns,
-          ),
-        ),
+      onDateTap: (date) => context.push(
+        (_) => CheckInDateDetailScreen(date: date, allCheckIns: checkIns),
       ),
       gridHeight: 320,
       scrollToEnd: true,

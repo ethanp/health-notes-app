@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/condition.dart';
@@ -101,11 +102,8 @@ class SymptomsSection extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         if (symptom.majorComponent.isNotEmpty) {
-          Navigator.of(context).push(
-            CupertinoPageRoute(
-              builder: (context) =>
-                  SymptomTrendsScreen(symptomName: symptom.majorComponent),
-            ),
+          context.push(
+            (_) => SymptomTrendsScreen(symptomName: symptom.majorComponent),
           );
         }
       },
@@ -172,11 +170,8 @@ class SymptomsSection extends ConsumerWidget {
 
         return GestureDetector(
           onTap: () {
-            Navigator.of(context).push(
-              CupertinoPageRoute(
-                builder: (context) =>
-                    ConditionDetailScreen(conditionId: conditionId),
-              ),
+            context.push(
+              (_) => ConditionDetailScreen(conditionId: conditionId),
             );
           },
           child: Container(

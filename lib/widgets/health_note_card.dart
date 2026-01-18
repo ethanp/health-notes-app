@@ -1,13 +1,14 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/screens/drug_trends_screen.dart';
 import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/screens/tool_detail_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/number_formatter.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
-import 'package:health_notes/theme/spacing.dart';
 
 /// Health note card for displaying in lists
 class HealthNoteCard extends StatelessWidget {
@@ -22,14 +23,15 @@ class HealthNoteCard extends StatelessWidget {
       padding: EdgeInsets.zero,
       onPressed: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 8),
         decoration: AppComponents.primaryCard,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(),
-            if (_hasContent()) ...[VSpace.of(12), _buildContent(context)],
+            if (_hasContent()) ...[VSpace.of(6), _buildContent(context)],
           ],
         ),
       ),
@@ -37,18 +39,12 @@ class HealthNoteCard extends StatelessWidget {
   }
 
   Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          AppDateUtils.formatShortDate(note.dateTime),
-          style: AppTypography.labelLarge,
-        ),
-        Text(
-          AppDateUtils.formatTime(note.dateTime),
-          style: AppTypography.bodySmallSystemGrey,
-        ),
-      ],
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        AppDateUtils.formatTime(note.dateTime),
+        style: AppTypography.bodySmallSystemGrey,
+      ),
     );
   }
 
@@ -60,88 +56,49 @@ class HealthNoteCard extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context) {
+    final hasChips =
+        note.hasSymptoms ||
+        note.drugDoses.isNotEmpty ||
+        note.appliedTools.isNotEmpty;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (note.hasSymptoms) _buildSymptoms(context),
-        if (note.drugDoses.isNotEmpty) _buildDrugDoses(context),
-        if (note.appliedTools.isNotEmpty) _buildAppliedTools(context),
+        if (hasChips) _buildChips(context),
         if (note.notes.isNotEmpty) _buildGeneralNotes(),
       ],
     );
   }
 
-  Widget _buildAppliedTools(BuildContext context) {
+  Widget _buildChips(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Wrap(
         spacing: 6,
         runSpacing: 6,
-        children: note.appliedTools
-            .map(
-              (tool) => _ToolChip(
-                toolId: tool.toolId,
-                toolName: tool.toolName,
-                onTap: () => Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (_) => ToolDetailScreen(
-                      toolId: tool.toolId,
-                      toolName: tool.toolName,
-                    ),
-                  ),
-                ),
-              ),
-            )
-            .toList(),
+        children: [...symptoms(context), ...meds(context), ...tools(context)],
       ),
     );
   }
 
-  Widget _buildSymptoms(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Wrap(
-        spacing: 6,
-        runSpacing: 6,
-        children: note.validSymptoms
-            .map(
-              (symptom) => _SymptomChip(
-                symptomName: symptom.majorComponent,
-                severity: symptom.severityLevel,
-                onTap: () => Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (_) => SymptomTrendsScreen(
-                      symptomName: symptom.majorComponent,
-                    ),
-                  ),
-                ),
-              ),
-            )
-            .toList(),
-      ),
+  Iterable<Widget> tools(BuildContext context) {
+    return note.appliedTools.map(
+      (tool) => _ToolChip(toolId: tool.toolId, toolName: tool.toolName),
     );
   }
 
-  Widget _buildDrugDoses(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Wrap(
-        spacing: 6,
-        runSpacing: 6,
-        children: note.drugDoses
-            .map(
-              (drug) => _DrugChip(
-                drugName: drug.name,
-                dosage: drug.dosage,
-                unit: drug.unit,
-                onTap: () => Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (_) => DrugTrendsScreen(drugName: drug.name),
-                  ),
-                ),
-              ),
-            )
-            .toList(),
+  Iterable<Widget> meds(BuildContext context) {
+    return note.drugDoses.map(
+      (drug) =>
+          _DrugChip(drugName: drug.name, dosage: drug.dosage, unit: drug.unit),
+    );
+  }
+
+  Iterable<Widget> symptoms(BuildContext context) {
+    return note.validSymptoms.map(
+      (symptom) => _SymptomChip(
+        symptomName: symptom.majorComponent,
+        severity: symptom.severityLevel,
       ),
     );
   }
@@ -156,16 +113,18 @@ class HealthNoteCard extends StatelessWidget {
   }
 }
 
-/// Symptom chip with severity indicator
-class _SymptomChip extends StatelessWidget {
-  final String symptomName;
-  final int severity;
+/// Base chip widget with consistent styling and optional badge
+class _NoteChip extends StatelessWidget {
+  final Color color;
+  final String label;
+  final String? badge;
   final VoidCallback onTap;
 
-  const _SymptomChip({
-    required this.symptomName,
-    required this.severity,
+  const _NoteChip({
+    required this.color,
+    required this.label,
     required this.onTap,
+    this.badge,
   });
 
   @override
@@ -175,33 +134,33 @@ class _SymptomChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: AppColors.primary.withValues(alpha: 0.15),
+          color: color.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              symptomName,
+              label,
               style: AppTypography.bodySmall.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
-            if (severity > 0) ...[
+            if (badge != null) ...[
               HSpace.xs,
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.2),
+                  color: color.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  severity.toString(),
+                  badge!,
                   style: AppTypography.bodySmall.copyWith(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+                    color: color,
                   ),
                 ),
               ),
@@ -213,38 +172,44 @@ class _SymptomChip extends StatelessWidget {
   }
 }
 
+/// Symptom chip with severity indicator
+class _SymptomChip extends StatelessWidget {
+  final String symptomName;
+  final int severity;
+
+  const _SymptomChip({required this.symptomName, required this.severity});
+
+  @override
+  Widget build(BuildContext context) {
+    return _NoteChip(
+      color: AppColors.primary,
+      label: symptomName,
+      badge: severity > 0 ? severity.toString() : null,
+      onTap: () =>
+          context.push((_) => SymptomTrendsScreen(symptomName: symptomName)),
+    );
+  }
+}
+
 /// Drug dose chip
 class _DrugChip extends StatelessWidget {
   final String drugName;
   final double dosage;
   final String unit;
-  final VoidCallback onTap;
 
   const _DrugChip({
     required this.drugName,
     required this.dosage,
     required this.unit,
-    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: AppColors.accent.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
-        ),
-        child: Text(
-          dosage > 0
-              ? '$drugName (${formatDecimalValue(dosage)}$unit)'
-              : drugName,
-          style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
-        ),
-      ),
+    return _NoteChip(
+      color: AppColors.accent,
+      label: drugName,
+      badge: dosage > 0 ? '${formatDecimalValue(dosage)}$unit' : null,
+      onTap: () => context.push((_) => DrugTrendsScreen(drugName: drugName)),
     );
   }
 }
@@ -253,30 +218,16 @@ class _DrugChip extends StatelessWidget {
 class _ToolChip extends StatelessWidget {
   final String toolId;
   final String toolName;
-  final VoidCallback onTap;
 
-  const _ToolChip({
-    required this.toolId,
-    required this.toolName,
-    required this.onTap,
-  });
+  const _ToolChip({required this.toolId, required this.toolName});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: AppColors.accentWarm.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(16),
-          border:
-              Border.all(color: AppColors.accentWarm.withValues(alpha: 0.3)),
-        ),
-        child: Text(
-          toolName,
-          style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
-        ),
+    return _NoteChip(
+      color: AppColors.accentWarm,
+      label: toolName,
+      onTap: () => context.push(
+        (_) => ToolDetailScreen(toolId: toolId, toolName: toolName),
       ),
     );
   }

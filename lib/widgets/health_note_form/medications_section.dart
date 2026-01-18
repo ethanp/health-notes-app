@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/screens/drug_trends_screen.dart';
@@ -83,11 +84,7 @@ class MedicationsSection extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (dose.name.isNotEmpty) {
-          Navigator.of(context).push(
-            CupertinoPageRoute(
-              builder: (context) => DrugTrendsScreen(drugName: dose.name),
-            ),
-          );
+          context.push((_) => DrugTrendsScreen(drugName: dose.name));
         }
       },
       child: Padding(

@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/grouped_health_notes.dart';
@@ -68,11 +69,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   }
 
   void navigateToView(HealthNote note) {
-    Navigator.of(context).push(
-      CupertinoPageRoute(
-        builder: (context) => HealthNoteViewScreen(note: note),
-      ),
-    );
+    context.push((_) => HealthNoteViewScreen(note: note));
   }
 
   void clearFilters() {
@@ -395,13 +392,14 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
     final groupDate = DateTime(date.year, date.month, date.day);
+    final formattedDate = DateFormat('MMM d, yyyy').format(date);
 
     if (groupDate == today) {
-      return 'Today';
+      return 'Today ($formattedDate)';
     } else if (groupDate == yesterday) {
-      return 'Yesterday';
+      return 'Yesterday ($formattedDate)';
     } else {
-      return DateFormat('EEEE, MMMM d').format(date);
+      return DateFormat('EEEE, MMMM d, yyyy').format(date);
     }
   }
 

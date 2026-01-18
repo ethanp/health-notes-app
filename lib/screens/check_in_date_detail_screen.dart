@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/screens/check_in_form.dart';
@@ -60,13 +61,11 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
   }
 
   void showEditCheckInForm(CheckIn checkIn) {
-    Navigator.of(context).push(
-      CupertinoPageRoute(
-        builder: (context) => CheckInForm(
-          checkIn: checkIn,
-          title: 'Edit Check-in',
-          saveButtonText: 'Update',
-        ),
+    context.push(
+      (_) => CheckInForm(
+        checkIn: checkIn,
+        title: 'Edit Check-in',
+        saveButtonText: 'Update',
       ),
     );
   }

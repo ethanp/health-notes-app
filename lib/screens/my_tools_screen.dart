@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_tool_category.dart';
@@ -124,20 +125,14 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
   }
 
   void _navigateToCategory(HealthToolCategory category) {
-    Navigator.of(context).push(
-      CupertinoPageRoute(
-        builder: (context) => HealthToolCategoryScreen(category: category),
-      ),
-    );
+    context.push((_) => HealthToolCategoryScreen(category: category));
   }
 
   void _showAddCategoryForm() {
-    Navigator.of(context).push(
-      CupertinoPageRoute(
-        builder: (context) => const HealthToolCategoryForm(
-          title: 'Add Category',
-          saveButtonText: 'Save',
-        ),
+    context.push(
+      (_) => const HealthToolCategoryForm(
+        title: 'Add Category',
+        saveButtonText: 'Save',
       ),
     );
   }

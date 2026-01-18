@@ -10,6 +10,12 @@ import 'package:health_notes/theme/app_theme.dart';
 
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
+class TabDefinition {
+  const TabDefinition({required this.item, required this.view});
+  final BottomNavigationBarItem item;
+  final Widget view;
+}
+
 class MainTabScreen extends ConsumerStatefulWidget {
   const MainTabScreen();
 
@@ -22,6 +28,37 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen>
   int currentTabIndex = 0;
   late AnimationController _fadeInController;
   late Animation<double> _fadeInAnimation;
+
+  static const _tabs = <TabDefinition>[
+    TabDefinition(
+      item: BottomNavigationBarItem(
+        icon: Icon(CupertinoIcons.doc_text),
+        label: 'Notes',
+      ),
+      view: HealthNotesHomePage(),
+    ),
+    TabDefinition(
+      item: BottomNavigationBarItem(
+        icon: Icon(CupertinoIcons.bandage),
+        label: 'Conditions',
+      ),
+      view: ConditionsScreen(),
+    ),
+    TabDefinition(
+      item: BottomNavigationBarItem(
+        icon: Icon(CupertinoIcons.chart_bar),
+        label: 'Trends',
+      ),
+      view: TrendsScreen(),
+    ),
+    TabDefinition(
+      item: BottomNavigationBarItem(
+        icon: Icon(CupertinoIcons.wrench),
+        label: 'Tools',
+      ),
+      view: MyToolsScreen(),
+    ),
+  ];
 
   @override
   void initState() {
@@ -78,39 +115,14 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen>
           width: 0.5,
         ),
       ),
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.chart_bar),
-          label: 'Trends',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.bandage),
-          label: 'Conditions',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.doc_text),
-          label: 'Notes',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.wrench),
-          label: 'Tools',
-        ),
-      ],
+      items: _tabs.map((t) => t.item).toList(),
     );
   }
 
   Widget tabView(int index) {
     return CupertinoTabView(
-      builder: (context) => FadeTransition(
-        opacity: _fadeInAnimation,
-        child: switch (index) {
-          0 => const TrendsScreen(),
-          1 => const ConditionsScreen(),
-          2 => const HealthNotesHomePage(),
-          3 => const MyToolsScreen(),
-          _ => const TrendsScreen(),
-        },
-      ),
+      builder: (context) =>
+          FadeTransition(opacity: _fadeInAnimation, child: _tabs[index].view),
     );
   }
 }

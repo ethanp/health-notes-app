@@ -348,6 +348,7 @@ class AppComponents {
   static BoxDecoration get primaryCard => BoxDecoration(
     gradient: cardGradient,
     borderRadius: BorderRadius.circular(AppRadius.medium),
+    border: BoxBorder.all(color: CupertinoColors.systemGrey, width: 0.25),
     boxShadow: subtleShadow,
   );
 

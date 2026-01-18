@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in_metric.dart';
@@ -230,17 +231,11 @@ class _MetricsManagementScreenState
   }
 
   void _showAddMetricDialog(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(CupertinoPageRoute(builder: (context) => const MetricEditScreen()));
+    context.push((_) => const MetricEditScreen());
   }
 
   void _showEditMetricDialog(BuildContext context, CheckInMetric metric) {
-    Navigator.of(context).push(
-      CupertinoPageRoute(
-        builder: (context) => MetricEditScreen(metric: metric),
-      ),
-    );
+    context.push((_) => MetricEditScreen(metric: metric));
   }
 
   void _showDeleteMetricDialog(BuildContext context, CheckInMetric metric) {

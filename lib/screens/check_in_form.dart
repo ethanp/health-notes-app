@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in.dart';
@@ -566,9 +567,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
           CupertinoActionSheetAction(
             onPressed: () async {
               Navigator.of(context).pop();
-              await Navigator.of(context).push(
-                CupertinoPageRoute(builder: (context) => const ConditionForm()),
-              );
+              await context.push((_) => const ConditionForm());
               await _loadActiveConditions();
             },
             child: const Text('Create New Condition'),
