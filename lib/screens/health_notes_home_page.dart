@@ -69,7 +69,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   }
 
   void navigateToView(HealthNote note) {
-    context.push((_) => HealthNoteViewScreen(note: note));
+    context.push(HealthNoteViewScreen(note: note));
   }
 
   void clearFilters() {

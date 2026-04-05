@@ -396,7 +396,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
               child: const Text('View Note'),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
-                context.push((_) => HealthNoteViewScreen(note: note));
+                context.push(HealthNoteViewScreen(note: note));
               },
             ),
           ],
@@ -430,7 +430,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
                     child: Text(AppDateUtils.formatTime(note.dateTime)),
                     onPressed: () {
                       Navigator.of(dialogContext).pop();
-                      context.push((_) => HealthNoteViewScreen(note: note));
+                      context.push(HealthNoteViewScreen(note: note));
                     },
                   ),
                 ),

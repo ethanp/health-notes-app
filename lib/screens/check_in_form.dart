@@ -567,7 +567,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
           CupertinoActionSheetAction(
             onPressed: () async {
               Navigator.of(context).pop();
-              await context.push((_) => const ConditionForm());
+              await context.push(const ConditionForm());
               await _loadActiveConditions();
             },
             child: const Text('Create New Condition'),

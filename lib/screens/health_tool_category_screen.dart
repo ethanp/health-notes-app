@@ -169,7 +169,7 @@ class _HealthToolCategoryScreenState
 
   void _showAddToolForm() {
     context.push(
-      (_) => HealthToolForm(
+      HealthToolForm(
         category: widget.category,
         title: 'Add Tool',
         saveButtonText: 'Save',
@@ -179,7 +179,7 @@ class _HealthToolCategoryScreenState
 
   void _showEditToolForm(HealthTool tool) {
     context.push(
-      (_) => HealthToolForm(
+      HealthToolForm(
         tool: tool,
         title: 'Edit Tool',
         saveButtonText: 'Update',

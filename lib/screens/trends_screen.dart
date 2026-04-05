@@ -54,7 +54,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
           const CompactSyncStatusWidget(),
           CupertinoButton(
             padding: EdgeInsets.zero,
-            onPressed: () => context.push((_) => const CheckInForm()),
+            onPressed: () => context.push(const CheckInForm()),
             child: const Icon(CupertinoIcons.add),
           ),
         ],
@@ -240,11 +240,11 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   }
 
   void _openSymptomTrends(String symptomName) {
-    context.push((_) => SymptomTrendsScreen(symptomName: symptomName));
+    context.push(SymptomTrendsScreen(symptomName: symptomName));
   }
 
   void _openDrugTrends(String drugName) {
-    context.push((_) => DrugTrendsScreen(drugName: drugName));
+    context.push(DrugTrendsScreen(drugName: drugName));
   }
 
   String formatMonth(String monthKey) {
@@ -309,7 +309,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     return CheckInsActivityCalendar(
       checkIns: checkIns,
       onDateTap: (date) => context.push(
-        (_) => CheckInDateDetailScreen(date: date, allCheckIns: checkIns),
+        CheckInDateDetailScreen(date: date, allCheckIns: checkIns),
       ),
       gridHeight: 320,
       scrollToEnd: true,

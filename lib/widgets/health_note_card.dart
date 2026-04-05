@@ -186,7 +186,7 @@ class _SymptomChip extends StatelessWidget {
       label: symptomName,
       badge: severity > 0 ? severity.toString() : null,
       onTap: () =>
-          context.push((_) => SymptomTrendsScreen(symptomName: symptomName)),
+          context.push(SymptomTrendsScreen(symptomName: symptomName)),
     );
   }
 }
@@ -209,7 +209,7 @@ class _DrugChip extends StatelessWidget {
       color: AppColors.accent,
       label: drugName,
       badge: dosage > 0 ? '${formatDecimalValue(dosage)}$unit' : null,
-      onTap: () => context.push((_) => DrugTrendsScreen(drugName: drugName)),
+      onTap: () => context.push(DrugTrendsScreen(drugName: drugName)),
     );
   }
 }
@@ -227,7 +227,7 @@ class _ToolChip extends StatelessWidget {
       color: AppColors.accentWarm,
       label: toolName,
       onTap: () => context.push(
-        (_) => ToolDetailScreen(toolId: toolId, toolName: toolName),
+        ToolDetailScreen(toolId: toolId, toolName: toolName),
       ),
     );
   }

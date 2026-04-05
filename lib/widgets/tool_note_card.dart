@@ -23,7 +23,7 @@ class ToolNoteCard extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12),
       child: CupertinoButton(
         padding: EdgeInsets.zero,
-        onPressed: () => context.push((_) => HealthNoteViewScreen(note: note)),
+        onPressed: () => context.push(HealthNoteViewScreen(note: note)),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: AppComponents.primaryCard,

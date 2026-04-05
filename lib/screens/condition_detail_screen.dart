@@ -566,7 +566,7 @@ class ConditionDetailScreen extends ConsumerWidget {
               symptoms.first.healthNoteId,
             );
             if (note != null && context.mounted) {
-              context.push((_) => HealthNoteViewScreen(note: note));
+              context.push(HealthNoteViewScreen(note: note));
             }
           }
         },
@@ -667,7 +667,7 @@ class ConditionDetailScreen extends ConsumerWidget {
               Navigator.of(context).pop();
               final note = await HealthNotesDao.getNoteById(ls.healthNoteId);
               if (note != null && context.mounted) {
-                context.push((_) => HealthNoteViewScreen(note: note));
+                context.push(HealthNoteViewScreen(note: note));
               }
             },
             child: Row(

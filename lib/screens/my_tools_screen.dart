@@ -125,12 +125,12 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
   }
 
   void _navigateToCategory(HealthToolCategory category) {
-    context.push((_) => HealthToolCategoryScreen(category: category));
+    context.push(HealthToolCategoryScreen(category: category));
   }
 
   void _showAddCategoryForm() {
     context.push(
-      (_) => const HealthToolCategoryForm(
+      const HealthToolCategoryForm(
         title: 'Add Category',
         saveButtonText: 'Save',
       ),

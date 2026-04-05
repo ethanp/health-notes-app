@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/theme/spacing.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen();
@@ -101,30 +101,27 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   }
 
   Widget introTextBlock() {
+    final Widget title = Text(
+      'Health Notes',
+      textAlign: TextAlign.center,
+      style: AppTypography.headlineLarge,
+    );
+    final Widget subtitle = Text(
+      'Your personal health companion',
+      textAlign: TextAlign.center,
+      style: AppTypography.bodyLargeSecondary,
+    );
+    final Widget briefInfo = Text(
+      'Extract insights about your health patterns by performing self-surveys.',
+      textAlign: TextAlign.center,
+      style: AppTypography.bodyMediumTertiary,
+    );
     return SlideTransition(
       position: _slideAnimation,
       child: FadeTransition(
         opacity: _fadeAnimation,
         child: Column(
-          children: [
-            Text(
-              'Health Notes',
-              textAlign: TextAlign.center,
-              style: AppTypography.headlineLarge,
-            ),
-            VSpace.s,
-            Text(
-              'Your personal health companion',
-              textAlign: TextAlign.center,
-              style: AppTypography.bodyLargeSecondary,
-            ),
-            VSpace.l,
-            Text(
-              'Track symptoms, medications, and insights to better understand your health patterns',
-              textAlign: TextAlign.center,
-              style: AppTypography.bodyMediumTertiary,
-            ),
-          ],
+          children: [title, VSpace.s, subtitle, VSpace.l, briefInfo],
         ),
       ),
     );
@@ -160,22 +157,25 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   Future<void> signInButtonPressed() async {
     setState(() => _isLoading = true);
     try {
-      final authService = AuthService();
-      await authService.signInViaGoogle();
+      await AuthService().signInViaGoogle();
     } catch (e) {
-      if (mounted) {
-        showCupertinoDialog(
-          context: context,
-          builder: (context) => AppAlertDialogs.error(
-            title: 'Sign In Failed',
-            content: 'Please try again. Error: $e',
-          ),
-        );
-      }
+      showSignInFailed(e);
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
       }
+    }
+  }
+
+  void showSignInFailed(Object e) {
+    if (mounted) {
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => AppAlertDialogs.error(
+          title: 'Sign In Failed',
+          content: 'Please try again. Error: $e',
+        ),
+      );
     }
   }
 }

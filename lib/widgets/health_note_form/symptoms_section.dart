@@ -103,7 +103,7 @@ class SymptomsSection extends ConsumerWidget {
       onTap: () {
         if (symptom.majorComponent.isNotEmpty) {
           context.push(
-            (_) => SymptomTrendsScreen(symptomName: symptom.majorComponent),
+            SymptomTrendsScreen(symptomName: symptom.majorComponent),
           );
         }
       },
@@ -171,7 +171,7 @@ class SymptomsSection extends ConsumerWidget {
         return GestureDetector(
           onTap: () {
             context.push(
-              (_) => ConditionDetailScreen(conditionId: conditionId),
+              ConditionDetailScreen(conditionId: conditionId),
             );
           },
           child: Container(

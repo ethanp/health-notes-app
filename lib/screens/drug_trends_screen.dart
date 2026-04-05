@@ -9,6 +9,7 @@ import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
 import 'package:health_notes/utils/number_formatter.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
+import 'package:health_notes/widgets/drug/bulk_dose_sheet.dart';
 import 'package:health_notes/widgets/health_note_card.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/trends_components.dart';
@@ -60,6 +61,7 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
       onDateTap: (context, date, dosage) =>
           handleDateTap(context, date, dosage, notes),
       unit: unit,
+      onMultiSelectConfirmed: (dates) => _handleBulkAddRequested(dates, unit),
     );
   }
 
@@ -189,6 +191,35 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
         .expand((note) => note.drugDoses)
         .where((drug) => _normalizer.areEqual(drug.name, widget.drugName))
         .length;
+  }
+
+  void _handleBulkAddRequested(List<DateTime> dates, String unit) {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (sheetContext) => BulkDoseSheet(
+        drugName: widget.drugName,
+        initialUnit: unit,
+        dates: dates,
+        onConfirm: (dosage, confirmedUnit) =>
+            _persistBulkDoses(dates, dosage, confirmedUnit),
+      ),
+    );
+  }
+
+  Future<void> _persistBulkDoses(
+    List<DateTime> dates,
+    double dosage,
+    String unit,
+  ) async {
+    final notifier = ref.read(healthNotesNotifierProvider.notifier);
+    for (final date in dates) {
+      await notifier.addNote(
+        dateTime: DateTime(date.year, date.month, date.day, 12),
+        symptomsList: [],
+        drugDoses: [DrugDose(name: widget.drugName, dosage: dosage, unit: unit)],
+        notes: '',
+      );
+    }
   }
 
   CupertinoAlertDialog noDosageAlert(

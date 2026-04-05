@@ -84,7 +84,7 @@ class MedicationsSection extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (dose.name.isNotEmpty) {
-          context.push((_) => DrugTrendsScreen(drugName: dose.name));
+          context.push(DrugTrendsScreen(drugName: dose.name));
         }
       },
       child: Padding(

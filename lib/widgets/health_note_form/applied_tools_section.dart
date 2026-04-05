@@ -85,7 +85,7 @@ class AppliedToolsSection extends StatelessWidget {
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: () => context.push(
-          (_) => ToolDetailScreen(toolId: tool.toolId, toolName: tool.toolName),
+          ToolDetailScreen(toolId: tool.toolId, toolName: tool.toolName),
         ),
         child: Row(
           children: [

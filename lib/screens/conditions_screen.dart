@@ -134,10 +134,10 @@ class ConditionsScreen extends ConsumerWidget {
   }
 
   void navigateToDetail(BuildContext context, Condition condition) {
-    context.push((_) => ConditionDetailScreen(conditionId: condition.id));
+    context.push(ConditionDetailScreen(conditionId: condition.id));
   }
 
   void showAddConditionForm(BuildContext context) {
-    context.push((_) => const ConditionForm());
+    context.push(const ConditionForm());
   }
 }

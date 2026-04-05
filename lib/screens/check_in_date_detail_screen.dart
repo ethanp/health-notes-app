@@ -62,7 +62,7 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
 
   void showEditCheckInForm(CheckIn checkIn) {
     context.push(
-      (_) => CheckInForm(
+      CheckInForm(
         checkIn: checkIn,
         title: 'Edit Check-in',
         saveButtonText: 'Update',

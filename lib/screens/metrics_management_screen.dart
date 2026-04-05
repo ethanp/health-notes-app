@@ -231,11 +231,11 @@ class _MetricsManagementScreenState
   }
 
   void _showAddMetricDialog(BuildContext context) {
-    context.push((_) => const MetricEditScreen());
+    context.push(const MetricEditScreen());
   }
 
   void _showEditMetricDialog(BuildContext context, CheckInMetric metric) {
-    context.push((_) => MetricEditScreen(metric: metric));
+    context.push(MetricEditScreen(metric: metric));
   }
 
   void _showDeleteMetricDialog(BuildContext context, CheckInMetric metric) {

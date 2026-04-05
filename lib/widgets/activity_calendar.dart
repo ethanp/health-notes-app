@@ -67,6 +67,8 @@ class ActivityCalendar<T> extends StatefulWidget {
   final DayCellBuilder<T>? dayCellBuilder;
   final double? gridHeight;
   final bool scrollToEnd;
+  final void Function(List<DateTime> dates)? onMultiSelectConfirmed;
+  final String? multiSelectActionLabel;
 
   const ActivityCalendar({
     super.key,
@@ -81,6 +83,8 @@ class ActivityCalendar<T> extends StatefulWidget {
     this.dayCellBuilder,
     this.gridHeight,
     this.scrollToEnd = false,
+    this.onMultiSelectConfirmed,
+    this.multiSelectActionLabel,
   });
 
   @override
@@ -89,6 +93,8 @@ class ActivityCalendar<T> extends StatefulWidget {
 
 class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
   ScrollController? _scrollController;
+  bool _isSelectingDays = false;
+  Set<DateTime> _selectedDays = {};
 
   @override
   void initState() {
@@ -136,6 +142,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
                   ),
                 )
               : activityGrid(context),
+          if (_isSelectingDays) ...[VSpace.m, _selectionActionBar()],
         ],
       ),
     );
@@ -410,17 +417,30 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
       return widget.dayCellBuilder!(context, date, value, hasActivity, color);
     }
 
+    final isSelected = _selectedDays.contains(date);
+
     return GestureDetector(
-      onTap: () => widget.onDateTap(context, date, value),
+      onTap: () => _isSelectingDays
+          ? _toggleDaySelection(date)
+          : widget.onDateTap(context, date, value),
+      onLongPress: widget.onMultiSelectConfirmed != null && !_isSelectingDays
+          ? () => _enterSelectionMode(date)
+          : null,
       child: Container(
         width: CalendarConstants.cellSize,
         height: CalendarConstants.cellSize,
         margin: const EdgeInsets.all(CalendarConstants.cellMargin),
-        decoration: dayCellDecoration(hasActivity, color, value, date),
+        decoration: isSelected
+            ? _selectedCellDecoration(date)
+            : dayCellDecoration(hasActivity, color, value, date),
         child: Stack(
           children: [
-            if (hasActivity) miniDateLabel(date),
-            Center(child: dayCellText(value, hasActivity, date)),
+            if (hasActivity && !isSelected) miniDateLabel(date),
+            Center(
+              child: isSelected
+                  ? _selectionCheckmark()
+                  : dayCellText(value, hasActivity, date),
+            ),
           ],
         ),
       ),
@@ -568,6 +588,76 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
       fontWeight: FontWeight.w500,
     );
   }
+
+  void _enterSelectionMode(DateTime date) {
+    setState(() {
+      _isSelectingDays = true;
+      _selectedDays = {date};
+    });
+  }
+
+  void _exitSelectionMode() {
+    setState(() {
+      _isSelectingDays = false;
+      _selectedDays = {};
+    });
+  }
+
+  void _toggleDaySelection(DateTime date) {
+    setState(() {
+      if (_selectedDays.contains(date)) {
+        _selectedDays.remove(date);
+      } else {
+        _selectedDays.add(date);
+      }
+    });
+  }
+
+  BoxDecoration _selectedCellDecoration(DateTime date) {
+    return BoxDecoration(
+      color: AppColors.primary.withValues(alpha: 0.25),
+      borderRadius: BorderRadius.circular(6),
+      border: Border.all(color: AppColors.primary, width: 2.0),
+    );
+  }
+
+  Widget _selectionCheckmark() {
+    return Icon(CupertinoIcons.checkmark_alt, size: 16, color: AppColors.primary);
+  }
+
+  Widget _selectionActionBar() {
+    final selectedCount = _selectedDays.length;
+    final label = widget.multiSelectActionLabel ?? 'Confirm';
+    final dayWord = selectedCount == 1 ? 'day' : 'days';
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          minimumSize: Size.zero,
+          onPressed: _exitSelectionMode,
+          child: Text('Cancel', style: AppTypography.bodyMediumSystemGrey),
+        ),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          minimumSize: Size.zero,
+          onPressed: selectedCount > 0
+              ? () {
+                  widget.onMultiSelectConfirmed!(_selectedDays.toList());
+                  _exitSelectionMode();
+                }
+              : null,
+          child: Text(
+            '$selectedCount $dayWord · $label',
+            style: selectedCount > 0
+                ? AppTypography.bodyMediumPrimarySemibold
+                : AppTypography.bodyMediumSystemGrey,
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class SeverityActivityCalendar extends StatelessWidget {
@@ -655,6 +745,7 @@ class DosageActivityCalendar extends StatelessWidget {
   final void Function(BuildContext context, DateTime date, double dosage)
   onDateTap;
   final String unit;
+  final void Function(List<DateTime> dates)? onMultiSelectConfirmed;
 
   const DosageActivityCalendar({
     super.key,
@@ -662,6 +753,7 @@ class DosageActivityCalendar extends StatelessWidget {
     required this.activityData,
     required this.onDateTap,
     required this.unit,
+    this.onMultiSelectConfirmed,
   });
 
   double get maxDosage => activityData.values.isEmpty
@@ -681,6 +773,8 @@ class DosageActivityCalendar extends StatelessWidget {
       activityDescriptor: (dosage) =>
           dosage == 0.0 ? 'No doses' : '${formatDecimalValue(dosage)}$unit',
       emptyValue: 0.0,
+      onMultiSelectConfirmed: onMultiSelectConfirmed,
+      multiSelectActionLabel: 'Add Dose',
     );
   }
 
