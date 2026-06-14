@@ -536,7 +536,7 @@ class ConditionDetailScreen extends ConsumerWidget {
     // Group by date
     final byDate = <DateTime, List<LinkedSymptom>>{};
     for (final ls in linkedSymptoms) {
-      final dateKey = DateTime(ls.date.year, ls.date.month, ls.date.day);
+      final dateKey = ls.date.startOfDay;
       byDate.putIfAbsent(dateKey, () => []).add(ls);
     }
 

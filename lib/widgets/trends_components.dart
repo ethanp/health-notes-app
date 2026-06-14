@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/theme/app_theme.dart';
@@ -53,11 +54,7 @@ class TrendsActivityDataGenerator {
     final activityData = <DateTime, T>{};
 
     for (final note in notes) {
-      final dateKey = DateTime(
-        note.dateTime.year,
-        note.dateTime.month,
-        note.dateTime.day,
-      );
+      final dateKey = note.dateTime.startOfDay;
 
       final value = valueExtractor(note);
 

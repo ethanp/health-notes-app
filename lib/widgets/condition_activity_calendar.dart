@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/models/condition_entry.dart';
@@ -47,15 +48,12 @@ class ConditionActivityCalendar extends StatelessWidget {
   Widget build(BuildContext context) {
     final activityData = generateActivityData();
     final entryMap = Map.fromEntries(
-      entries.map((e) => MapEntry(
-        DateTime(e.entryDate.year, e.entryDate.month, e.entryDate.day),
-        e,
-      )),
+      entries.map((entry) => MapEntry(entry.entryDate.startOfDay, entry)),
     );
 
     final symptomsByDate = <DateTime, List<LinkedSymptom>>{};
     for (final ls in linkedSymptoms) {
-      final dateKey = DateTime(ls.date.year, ls.date.month, ls.date.day);
+      final dateKey = ls.date.startOfDay;
       symptomsByDate.putIfAbsent(dateKey, () => []).add(ls);
     }
 
@@ -190,11 +188,7 @@ class ConditionActivityCalendar extends StatelessWidget {
 
     // Add entries
     for (final entry in entries) {
-      final dateKey = DateTime(
-        entry.entryDate.year,
-        entry.entryDate.month,
-        entry.entryDate.day,
-      );
+      final dateKey = entry.entryDate.startOfDay;
       data[dateKey] = ConditionDayData(
         severity: entry.severity,
         symptomCount: data[dateKey]?.symptomCount ?? 0,
@@ -204,7 +198,7 @@ class ConditionActivityCalendar extends StatelessWidget {
 
     // Add symptoms
     for (final ls in linkedSymptoms) {
-      final dateKey = DateTime(ls.date.year, ls.date.month, ls.date.day);
+      final dateKey = ls.date.startOfDay;
       final existing = data[dateKey];
       final currentMax = existing?.maxSymptomSeverity ?? 0;
       final newMax = ls.symptom.severityLevel > currentMax

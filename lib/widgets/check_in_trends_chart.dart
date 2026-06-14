@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -333,13 +334,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     final allDates = <DateTime>{};
     for (final checkIns in metricData.values) {
       for (final checkIn in checkIns) {
-        allDates.add(
-          DateTime(
-            checkIn.dateTime.year,
-            checkIn.dateTime.month,
-            checkIn.dateTime.day,
-          ),
-        );
+        allDates.add(checkIn.dateTime.startOfDay);
       }
     }
 

@@ -20,12 +20,4 @@ class AppDateUtils {
   /// Format complete date and time (e.g., "Monday, January 15, 2024 at 3:45 PM")
   static String formatDateTime(DateTime date) =>
       '${formatLongDate(date)} at ${formatTime(date)}';
-
-  /// Get date-only DateTime (strips time component)
-  static DateTime dateOnly(DateTime dateTime) =>
-      DateTime(dateTime.year, dateTime.month, dateTime.day);
-
-  /// Check if two dates are on the same day
-  static bool isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
 }

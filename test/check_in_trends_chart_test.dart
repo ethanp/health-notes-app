@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_notes/models/check_in.dart';
@@ -48,14 +49,14 @@ void main() {
           id: '1',
           metricName: 'Energy Level',
           rating: 8,
-          dateTime: DateTime.now().subtract(const Duration(days: 2)),
+          dateTime: DateTime.now().shiftedByDays(-2),
           createdAt: DateTime.now(),
         ),
         CheckIn(
           id: '2',
           metricName: 'Mood',
           rating: 7,
-          dateTime: DateTime.now().subtract(const Duration(days: 1)),
+          dateTime: DateTime.now().shiftedByDays(-1),
           createdAt: DateTime.now(),
         ),
         CheckIn(
@@ -97,7 +98,7 @@ void main() {
           id: '1',
           metricName: 'Pain Level',
           rating: 3,
-          dateTime: DateTime.now().subtract(const Duration(days: 1)),
+          dateTime: DateTime.now().shiftedByDays(-1),
           createdAt: DateTime.now(),
         ),
         CheckIn(
@@ -132,7 +133,7 @@ void main() {
           id: '1',
           metricName: 'Energy Level',
           rating: 8,
-          dateTime: DateTime.now().subtract(const Duration(days: 1)),
+          dateTime: DateTime.now().shiftedByDays(-1),
           createdAt: DateTime.now(),
         ),
         CheckIn(

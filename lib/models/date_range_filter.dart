@@ -1,3 +1,5 @@
+import 'package:ethan_utils/ethan_utils.dart';
+
 /// Date range filter options for trends data
 enum DateRangeFilter {
   fourteenDays,
@@ -23,9 +25,9 @@ extension DateRangeFilterExtension on DateRangeFilter {
   DateTime? getCutoffDate() {
     switch (this) {
       case DateRangeFilter.fourteenDays:
-        return DateTime.now().subtract(const Duration(days: 14));
+        return DateTime.now().shiftedByDays(-14);
       case DateRangeFilter.sixtyDays:
-        return DateTime.now().subtract(const Duration(days: 60));
+        return DateTime.now().shiftedByDays(-60);
       case DateRangeFilter.allTime:
         return null;
     }

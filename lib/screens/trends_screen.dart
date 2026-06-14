@@ -291,7 +291,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   }
 
   Map<String, int> _analyzeRecentSymptomTrends(List<HealthNote> notes) {
-    final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
+    final thirtyDaysAgo = DateTime.now().shiftedByDays(-30);
 
     return CaseInsensitiveAggregator.aggregateStrings(
       notes

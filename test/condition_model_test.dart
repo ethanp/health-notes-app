@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_notes/models/condition.dart';
 
@@ -83,7 +84,7 @@ void main() {
     });
 
     test('durationDays calculates correctly for active condition', () {
-      final startDate = DateTime.now().subtract(const Duration(days: 5));
+      final startDate = DateTime.now().shiftedByDays(-5);
       final condition = Condition(
         id: 'c1',
         userId: 'u1',

@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
@@ -73,7 +74,7 @@ void main() {
       final notes = [
         HealthNote(
           id: '1',
-          dateTime: DateTime.now().subtract(const Duration(days: 1)),
+          dateTime: DateTime.now().shiftedByDays(-1),
           symptomsList: [
             Symptom(
               majorComponent: 'headache',
@@ -83,7 +84,7 @@ void main() {
           ],
           drugDoses: [],
           notes: '',
-          createdAt: DateTime.now().subtract(const Duration(days: 1)),
+          createdAt: DateTime.now().shiftedByDays(-1),
         ),
         HealthNote(
           id: '2',

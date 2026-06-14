@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
@@ -71,12 +72,9 @@ class _SymptomTrendsScreenState
 
   @override
   List<HealthNote> notesForDate(List<HealthNote> notes, DateTime date) {
-    final targetDate = AppDateUtils.dateOnly(date);
+    final targetDate = date.startOfDay;
     return notes
-        .where(
-          (note) =>
-              AppDateUtils.dateOnly(note.dateTime).isAtSameMomentAs(targetDate),
-        )
+        .where((note) => note.dateTime.sameDayAs(targetDate))
         .toList();
   }
 

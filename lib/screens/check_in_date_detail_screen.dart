@@ -52,11 +52,9 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
   }
 
   List<CheckIn> get filteredCheckIns {
-    final targetDate = AppDateUtils.dateOnly(widget.date);
+    final targetDate = widget.date.startOfDay;
     return widget.allCheckIns
-        .where(
-          (checkIn) => AppDateUtils.isSameDay(checkIn.dateTime, targetDate),
-        )
+        .where((checkIn) => checkIn.dateTime.sameDayAs(targetDate))
         .toList();
   }
 

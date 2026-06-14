@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/services/local_database.dart';
@@ -30,7 +31,7 @@ class ConditionEntriesDao {
 
   static Future<ConditionEntry?> getEntryForDate(String conditionId, DateTime date) async {
     final db = await LocalDatabase.database;
-    final dateStr = DateTime(date.year, date.month, date.day).toIso8601String().split('T')[0];
+    final dateStr = date.startOfDay.toIso8601String().split('T')[0];
     final List<Map<String, dynamic>> maps = await db.query(
       _tableName,
       where: 'condition_id = ? AND entry_date LIKE ? AND is_deleted = 0',

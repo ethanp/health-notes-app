@@ -292,11 +292,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
     final data = <DateTime, int>{};
 
     for (final note in notes) {
-      final dateKey = DateTime(
-        note.dateTime.year,
-        note.dateTime.month,
-        note.dateTime.day,
-      );
+      final dateKey = note.dateTime.startOfDay;
       final usageCount = note.appliedTools
           .where((t) => t.toolId == widget.toolId)
           .length;
@@ -338,15 +334,8 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
       return;
     }
 
-    final dateKey = DateTime(date.year, date.month, date.day);
-    final notesForDate = allNotes.where((note) {
-      final noteDate = DateTime(
-        note.dateTime.year,
-        note.dateTime.month,
-        note.dateTime.day,
-      );
-      return noteDate.isAtSameMomentAs(dateKey);
-    }).toList();
+    final notesForDate =
+        allNotes.where((note) => note.dateTime.sameDayAs(date)).toList();
 
     if (notesForDate.isEmpty) {
       showCupertinoDialog(

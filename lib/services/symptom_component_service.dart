@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/pinned_symptom_components.dart';
 import 'package:health_notes/models/symptom_component.dart';
@@ -12,7 +13,7 @@ class SymptomComponentService {
     PinnedSymptomComponents pinned,
   ) {
     final now = DateTime.now();
-    final recentCutoff = now.subtract(const Duration(days: _recentDays));
+    final recentCutoff = now.shiftedByDays(-_recentDays);
 
     final majorCounts = <String, int>{};
     final majorRecentCounts = <String, int>{};

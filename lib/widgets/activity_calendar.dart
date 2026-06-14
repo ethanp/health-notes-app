@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/theme/app_theme.dart';
@@ -168,7 +169,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
   }
 
   int isoWeekKey(DateTime date) {
-    final monday = date.subtract(Duration(days: date.weekday - 1));
+    final monday = date.shiftedByDays(-(date.weekday - 1));
     return monday.year * 10000 + monday.month * 100 + monday.day;
   }
 
@@ -314,9 +315,9 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
         monthDate.month,
         sundayOffset + 1,
       );
-      final monday = sunday.subtract(const Duration(days: 6));
-      for (int i = 0; i < CalendarConstants.daysPerWeek; i++) {
-        final date = monday.add(Duration(days: i));
+      final monday = sunday.shiftedByDays(-6);
+      for (int dayOffset = 0; dayOffset < CalendarConstants.daysPerWeek; dayOffset++) {
+        final date = monday.shiftedByDays(dayOffset);
         final value = widget.activityData[date] ?? widget.emptyValue;
         if (value != widget.emptyValue) {
           activeDays++;
@@ -846,11 +847,7 @@ class CheckInsActivityCalendar extends StatelessWidget {
     final data = <DateTime, int>{};
 
     for (final checkIn in checkIns) {
-      final dateKey = DateTime(
-        checkIn.dateTime.year,
-        checkIn.dateTime.month,
-        checkIn.dateTime.day,
-      );
+      final dateKey = checkIn.dateTime.startOfDay;
       data.update(dateKey, (count) => count + 1, ifAbsent: () => 1);
     }
 

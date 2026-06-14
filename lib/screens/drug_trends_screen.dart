@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/health_note.dart';
@@ -95,11 +96,11 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
 
   @override
   List<HealthNote> notesForDate(List<HealthNote> notes, DateTime date) {
-    final targetDate = AppDateUtils.dateOnly(date);
+    final targetDate = date.startOfDay;
     return notes
         .where(
           (note) =>
-              AppDateUtils.isSameDay(note.dateTime, targetDate) &&
+              note.dateTime.sameDayAs(targetDate) &&
               _relevantDoses(note).isNotEmpty,
         )
         .toList();
