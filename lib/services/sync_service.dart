@@ -128,15 +128,6 @@ class SyncService {
           data,
         );
         break;
-      case 'user_metrics': // For backward compatibility
-        await _syncCheckInMetricOperation(
-          supabase,
-          user.id,
-          recordId,
-          operation,
-          data,
-        );
-        break;
       case 'conditions':
         await _syncConditionOperation(
           supabase,
