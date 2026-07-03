@@ -1,6 +1,7 @@
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/drug_dose.dart';
+import 'package:health_notes/providers/medication_recommendations_provider.dart';
 import 'package:health_notes/screens/drug_trends_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/number_formatter.dart';
@@ -17,6 +18,7 @@ class MedicationsSection extends StatelessWidget {
   final Function(int, {String? name, double? dosage, String? unit}) onUpdate;
   final List<DrugDose> recentRecommendations;
   final List<DrugDose> commonRecommendations;
+  final List<DrugDose> allKnownRecommendations;
 
   const MedicationsSection({
     super.key,
@@ -28,6 +30,7 @@ class MedicationsSection extends StatelessWidget {
     required this.onUpdate,
     this.recentRecommendations = const [],
     this.commonRecommendations = const [],
+    this.allKnownRecommendations = const [],
   });
 
   @override
@@ -171,24 +174,27 @@ class MedicationsSection extends StatelessWidget {
               ),
             ],
           ),
-          if (dose.name.isEmpty &&
-              (recentRecommendations.isNotEmpty ||
-                  commonRecommendations.isNotEmpty)) ...[
+          if (_matchingRecommendations(dose.name).isNotEmpty) ...[
             VSpace.of(12),
-            _recommendations(index),
+            _recommendations(index, dose.name),
           ],
         ],
       ),
     );
   }
 
-  Widget _recommendations(int index) {
-    final allRecommendations = {
-      ...recentRecommendations,
-      ...commonRecommendations,
-    }.toList();
+  List<DrugDose> _matchingRecommendations(String typedName) =>
+      MedicationRecommendationsFilter.matchingRecommendations(
+        typedName: typedName,
+        recent: recentRecommendations,
+        common: commonRecommendations,
+        allKnown: allKnownRecommendations,
+      );
 
-    if (allRecommendations.isEmpty) return const SizedBox.shrink();
+  Widget _recommendations(int index, String typedName) {
+    final matchingRecommendations = _matchingRecommendations(typedName);
+
+    if (matchingRecommendations.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,8 +204,8 @@ class MedicationsSection extends StatelessWidget {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: allRecommendations
-              .map((r) => _recommendationChip(index, r))
+          children: matchingRecommendations
+              .map((recommendation) => _recommendationChip(index, recommendation))
               .toList(),
         ),
       ],

@@ -5,8 +5,8 @@ import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/grouped_notes_section.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/widgets/trends_components.dart';
 
 abstract class BaseTrendsScreen extends ConsumerStatefulWidget {
   final String itemName;
@@ -160,19 +160,12 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
     );
   }
 
-  Widget buildNotesSection(List<HealthNote> filteredNotes) {
-    if (filteredNotes.isEmpty) {
-      return const NoMatchingNotesState();
-    }
-
-    final header = buildNotesHeader(filteredNotes);
-    final cards = buildNotesContent(filteredNotes);
-
-    return NotesSection(
-      noteCount: filteredNotes.length,
-      noteCards: [if (header != null) header, ...cards],
-    );
-  }
+  Widget buildNotesSection(List<HealthNote> filteredNotes) =>
+      GroupedNotesSection(
+        notes: filteredNotes,
+        cardBuilder: buildNotesContent,
+        header: buildNotesHeader(filteredNotes),
+      );
 
   void handleDateTap(
     BuildContext context,

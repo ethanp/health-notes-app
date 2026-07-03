@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
+import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/screens/trends/base_trends_screen.dart';
 import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/theme/app_theme.dart';
@@ -13,7 +14,7 @@ import 'package:health_notes/widgets/activity_calendar.dart';
 import 'package:health_notes/widgets/drug/bulk_dose_sheet.dart';
 import 'package:health_notes/widgets/health_note_card.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/widgets/trends_components.dart';
+import 'package:health_notes/services/trends_activity_aggregator.dart';
 
 class DrugTrendsScreen extends BaseTrendsScreen {
   final String drugName;
@@ -43,10 +44,10 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
 
   @override
   Map<DateTime, double> buildActivityData(List<HealthNote> notes) {
-    return TrendsActivityDataGenerator.generate<double>(
+    return TrendsActivityAggregator.aggregate<double>(
       notes: notes,
       valueExtractor: (note) => _totalDosageForNote(note),
-      aggregator: (existing, newValue) => existing + newValue,
+      combiner: (existing, newValue) => existing + newValue,
     );
   }
 
@@ -70,8 +71,10 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
   List<Widget> buildNotesContent(List<HealthNote> notes) {
     return notes
         .map(
-          (note) =>
-              HealthNoteCard(note: note, onTap: () => _showNoteDetail(note)),
+          (note) => HealthNoteCard(
+            note: note,
+            onTap: () => context.push(HealthNoteViewScreen(note: note)),
+          ),
         )
         .toList();
   }
@@ -141,14 +144,36 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
     double dosage,
     List<HealthNote> relevantNotes,
   ) {
-    final relevantDoses = relevantNotes
-        .expand((note) => _relevantDoses(note))
-        .toList();
-    return dosageDetailAlert(
-      dialogContext,
-      AppDateUtils.formatLongDate(date),
-      dosage,
-      relevantDoses,
+    final unit = _unitForDrug(relevantNotes) ?? 'mg';
+    return CupertinoAlertDialog(
+      title: Text(AppDateUtils.formatLongDate(date)),
+      content: Text(
+        'Total dosage: ${formatDecimalValue(dosage)}$unit',
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+      actions: [
+        ...relevantNotes.map(
+          (note) {
+            final noteDosage = _totalDosageForNote(note);
+            return CupertinoDialogAction(
+              isDefaultAction: true,
+              child: Text(
+                '${AppDateUtils.formatTime(note.dateTime)}  ·  ${formatDecimalValue(noteDosage)}$unit',
+              ),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                if (!mounted) return;
+                context.push(HealthNoteViewScreen(note: note));
+              },
+            );
+          },
+        ),
+        CupertinoDialogAction(
+          isDestructiveAction: true,
+          child: const Text('Close'),
+          onPressed: () => Navigator.of(dialogContext).pop(),
+        ),
+      ],
     );
   }
 
@@ -173,18 +198,6 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
       }
     }
     return null;
-  }
-
-  void _showNoteDetail(HealthNote note) {
-    showCupertinoDialog(
-      context: context,
-      builder: (dialogContext) => dosageDetailAlert(
-        dialogContext,
-        AppDateUtils.formatLongDate(note.dateTime),
-        _totalDosageForNote(note),
-        _relevantDoses(note),
-      ),
-    );
   }
 
   int _calculateTotalDoses(List<HealthNote> notes) {
@@ -261,47 +274,4 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
     );
   }
 
-  CupertinoAlertDialog dosageDetailAlert(
-    BuildContext dialogContext,
-    String formattedDate,
-    double dosage,
-    List<DrugDose> relevantDoses,
-  ) {
-    final unit = relevantDoses.isNotEmpty ? relevantDoses.first.unit : 'mg';
-    return CupertinoAlertDialog(
-      title: Text(formattedDate),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Total dosage: ${formatDecimalValue(dosage)}$unit',
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-          VSpace.m,
-          ...relevantDoses.map((dose) => doseRow(dose)),
-        ],
-      ),
-      actions: [
-        CupertinoDialogAction(
-          child: const Text('OK'),
-          onPressed: () => Navigator.of(dialogContext).pop(),
-        ),
-      ],
-    );
-  }
-
-  Widget doseRow(DrugDose dose) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          Icon(CupertinoIcons.capsule, color: AppColors.primary, size: 16),
-          HSpace.s,
-          Expanded(
-            child: Text(dose.fullDisplay, style: const TextStyle(fontSize: 14)),
-          ),
-        ],
-      ),
-    );
-  }
 }

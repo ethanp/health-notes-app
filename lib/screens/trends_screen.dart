@@ -22,7 +22,9 @@ import 'package:health_notes/widgets/searchable_stats_table.dart';
 import 'package:health_notes/widgets/stats_card.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
+import 'package:health_notes/widgets/health_notes_activity_calendar.dart';
 import 'package:health_notes/screens/check_in_date_detail_screen.dart';
+import 'package:health_notes/screens/health_note_date_detail_screen.dart';
 import 'package:intl/intl.dart';
 
 class TrendsScreen extends ConsumerStatefulWidget {
@@ -192,6 +194,9 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
               sectionHeader('Notes per Month'),
               monthlyTrendsCard(monthlyStats),
               VSpace.of(20),
+              sectionHeader('Note Activity'),
+              notesCalendar(notes),
+              VSpace.of(20),
               sectionHeader('Check-in Activity'),
               checkInsCalendar(checkIns),
             ]),
@@ -303,6 +308,19 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
           )
           .expand((note) => note.validSymptoms.map((s) => s.majorComponent))
           .where((symptom) => symptom.isNotEmpty),
+    );
+  }
+
+  Widget notesCalendar(List<HealthNote> notes) {
+    if (notes.isEmpty) return const SizedBox.shrink();
+
+    return HealthNotesActivityCalendar(
+      notes: notes,
+      onDateTap: (date) => context.push(
+        HealthNoteDateDetailScreen(date: date, allNotes: notes),
+      ),
+      gridHeight: 320,
+      scrollToEnd: true,
     );
   }
 

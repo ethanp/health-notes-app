@@ -108,6 +108,28 @@ void main() {
     });
   });
 
+  group('DrugNameNormalizer', () {
+    test('matches prefix case-insensitively', () {
+      expect(DrugNameNormalizer.matchesPrefix('Ibuprofen', 'ibu'), isTrue);
+      expect(DrugNameNormalizer.matchesPrefix('Ibuprofen', 'IBU'), isTrue);
+      expect(DrugNameNormalizer.matchesPrefix('Ibuprofen', 'Ibuprofen'), isTrue);
+    });
+
+    test('trims prefix before matching', () {
+      expect(DrugNameNormalizer.matchesPrefix('Aspirin', '  asp  '), isTrue);
+    });
+
+    test('returns true for empty prefix', () {
+      expect(DrugNameNormalizer.matchesPrefix('Aspirin', ''), isTrue);
+      expect(DrugNameNormalizer.matchesPrefix('Aspirin', '   '), isTrue);
+    });
+
+    test('returns false when name does not start with prefix', () {
+      expect(DrugNameNormalizer.matchesPrefix('Ibuprofen', 'profen'), isFalse);
+      expect(DrugNameNormalizer.matchesPrefix('Ibuprofen', 'xyz'), isFalse);
+    });
+  });
+
   group('MetricNameNormalizer', () {
     test('should normalize metric names', () {
       expect(MetricNameNormalizer.normalize('  Mood  '), equals('mood'));

@@ -71,6 +71,47 @@ void main() {
     
     expect(recommendations.common.length, 5);
     expect(recommendations.common.first.name, 'Meds A');
+
+    expect(recommendations.allKnown.length, 6);
+    expect(
+      recommendations.allKnown.map((dose) => dose.name).toSet(),
+      {'Meds A', 'Meds B', 'Meds C', 'Meds D', 'Meds E', 'Meds F'},
+    );
+  });
+
+  test('MedicationRecommendationsFilter narrows to prefix matches', () {
+    final allKnown = [doseA, doseB, doseC, doseD, doseE, doseF];
+
+    final emptyQueryMatches =
+        MedicationRecommendationsFilter.matchingRecommendations(
+      typedName: '',
+      recent: [doseA, doseB],
+      common: [doseA, doseC],
+      allKnown: allKnown,
+    );
+
+    expect(emptyQueryMatches.map((dose) => dose.name).toList(), [
+      'Meds A',
+      'Meds B',
+      'Meds C',
+    ]);
+
+    final prefixMatches =
+        MedicationRecommendationsFilter.matchingRecommendations(
+      typedName: 'meds',
+      recent: [],
+      common: [],
+      allKnown: allKnown,
+    );
+
+    expect(prefixMatches.map((dose) => dose.name).toList(), [
+      'Meds A',
+      'Meds B',
+      'Meds C',
+      'Meds D',
+      'Meds E',
+      'Meds F',
+    ]);
   });
 }
 

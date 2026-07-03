@@ -185,6 +185,11 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
             loading: () => [],
             error: (_, _) => [],
           ),
+          allKnownRecommendations: recommendations.when(
+            data: (data) => data.allKnown,
+            loading: () => [],
+            error: (_, _) => [],
+          ),
           onAdd: addDrugDose,
           onRemove: removeDrugDose,
           onUpdate: updateDrugDose,

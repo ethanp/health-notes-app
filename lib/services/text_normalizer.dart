@@ -57,6 +57,21 @@ class MetricNameNormalizer {
   static bool isValidName(String name) => normalize(name).isNotEmpty;
 }
 
+class DrugNameNormalizer {
+  static final TextNormalizer _normalizer = CaseInsensitiveNormalizer();
+
+  static String normalize(String name) => _normalizer.normalize(name);
+
+  static bool areEqual(String name1, String name2) =>
+      _normalizer.areEqual(name1, name2);
+
+  static bool matchesPrefix(String drugName, String prefix) {
+    final normalizedPrefix = normalize(prefix);
+    if (normalizedPrefix.isEmpty) return true;
+    return normalize(drugName).startsWith(normalizedPrefix);
+  }
+}
+
 class CaseInsensitiveAggregator<T> {
   static final TextNormalizer _normalizer = CaseInsensitiveNormalizer();
 
