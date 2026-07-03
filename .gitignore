@@ -18,6 +18,7 @@ migrate_working_dir/
 .build_hash_iphone
 .build_hash_simulator
 .deploy_hash
+.deploy_ios_hash
 
 *.g.dart
 *.freezed.dart
