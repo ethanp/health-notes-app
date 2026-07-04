@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/theme/spacing.dart';
 
 class SearchableStatsTable extends StatefulWidget {
@@ -38,9 +39,7 @@ class _SearchableStatsTableState extends State<SearchableStatsTable> {
   Widget build(BuildContext context) {
     final filtered = _filter();
 
-    return Container(
-      decoration: AppComponents.primaryCard,
-      padding: const EdgeInsets.all(16),
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

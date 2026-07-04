@@ -10,6 +10,7 @@ import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
+import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 import 'package:health_notes/widgets/tool_activity_calendar.dart';
@@ -117,9 +118,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
   Widget toolHeaderCard(HealthTool tool) {
     final categoryAsync = ref.watch(categoryByIdProvider(tool.categoryId));
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppComponents.primaryCard,
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -193,9 +192,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
         : 1.0;
     final avgPerMonth = (totalUses / monthsSpan).toStringAsFixed(1);
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppComponents.primaryCard,
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

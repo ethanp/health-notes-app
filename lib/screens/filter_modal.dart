@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/app_filter_chip.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:intl/intl.dart';
@@ -147,7 +148,7 @@ class _FilterModalState extends State<FilterModal> {
   }
 
   Widget drugChip(String drug) {
-    return EnhancedUIComponents.filterChip(
+    return AppFilterChip(
       label: drug,
       isActive: _tempSelectedDrug == drug,
       onTap: () => setState(

@@ -8,7 +8,6 @@ import 'package:health_notes/screens/trends_screen.dart';
 import 'package:health_notes/providers/sync_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
 
 class TabDefinition {
   const TabDefinition({required this.item, required this.view});
@@ -90,7 +89,11 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen>
 
   @override
   Widget build(BuildContext context) {
-    return EnhancedUIComponents.animatedGradientBackground(
+    return AnimatedContainer(
+      duration: AppAnimation.slow,
+      decoration: const BoxDecoration(
+        gradient: AppComponents.backgroundGradient,
+      ),
       child: CupertinoTabScaffold(
         tabBar: mainTabBar(),
         tabBuilder: (context, index) => tabView(index),

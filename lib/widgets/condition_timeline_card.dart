@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/providers/conditions_provider.dart';
+import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:intl/intl.dart';
@@ -16,9 +17,7 @@ class ConditionTimelineCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final entriesAsync = ref.watch(conditionEntriesNotifierProvider(condition.id));
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppComponents.primaryCard,
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/app_card.dart';
 import 'package:intl/intl.dart';
 
 class MonthlyNotesChart extends StatelessWidget {
@@ -20,9 +21,7 @@ class MonthlyNotesChart extends StatelessWidget {
       return FlSpot(e.key.toDouble(), e.value.value.toDouble());
     }).toList();
 
-    return Container(
-      decoration: AppComponents.primaryCard,
-      padding: const EdgeInsets.all(16),
+    return AppCard(
       child: SizedBox(
         height: 180,
         child: LineChart(

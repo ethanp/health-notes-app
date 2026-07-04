@@ -10,9 +10,10 @@ import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/services/health_notes_dao.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/severity_utils.dart';
-import 'package:health_notes/widgets/note_date_dialog.dart';
+import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/condition_activity_calendar.dart';
 import 'package:health_notes/widgets/condition_entry_edit_modal.dart';
+import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
@@ -141,9 +142,7 @@ class ConditionDetailScreen extends ConsumerWidget {
   }
 
   Widget conditionHeader(Condition condition) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppComponents.primaryCard,
+    return AppCard(
       child: Row(
         children: [
           Container(
@@ -207,9 +206,7 @@ class ConditionDetailScreen extends ConsumerWidget {
         : entries.map((e) => e.severity).reduce((a, b) => a + b) /
               entries.length;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppComponents.primaryCard,
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -287,9 +284,7 @@ class ConditionDetailScreen extends ConsumerWidget {
     List<ConditionEntry> entries,
   ) {
     if (entries.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(24),
-        decoration: AppComponents.primaryCard,
+      return AppCard(
         child: Center(
           child: Text(
             'No entries yet. Add entries via check-ins.',
@@ -315,9 +310,7 @@ class ConditionDetailScreen extends ConsumerWidget {
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: () => showEntryEditModal(context, ref, entry),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: AppComponents.primaryCard,
+        child: AppCard(
           child: Row(
             children: [
               Column(

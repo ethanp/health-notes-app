@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/app_button.dart';
+import 'package:health_notes/widgets/app_dialogs.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen();
@@ -53,7 +54,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
 
   @override
   Widget build(BuildContext context) {
-    return EnhancedUIComponents.animatedGradientBackground(
+    return AnimatedContainer(
+      duration: AppAnimation.slow,
+      decoration: const BoxDecoration(
+        gradient: AppComponents.backgroundGradient,
+      ),
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.xl),
@@ -146,9 +151,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   }
 
   Widget signInButton() {
-    return EnhancedUIComponents.button(
+    return AppButton(
       text: 'Continue with Google',
-      onPressed: _isLoading ? () {} : () => signInButtonPressed(),
+      onPressed: () => signInButtonPressed(),
       isLoading: _isLoading,
       icon: CupertinoIcons.globe,
     );

@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/app_card.dart';
 
 class RecentSymptomsChart extends StatelessWidget {
   final Map<String, int> symptomStats;
@@ -24,9 +25,7 @@ class RecentSymptomsChart extends StatelessWidget {
         .map((e) => e.value)
         .reduce((a, b) => a > b ? a : b);
 
-    return Container(
-      decoration: AppComponents.primaryCard,
-      padding: const EdgeInsets.all(16),
+    return AppCard(
       child: SizedBox(
         height: 200,
         child: BarChart(

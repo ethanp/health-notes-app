@@ -5,6 +5,7 @@ import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/screens/tool_detail_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/applied_tool_picker_sheet.dart';
+import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/theme/spacing.dart';
 
@@ -126,10 +127,8 @@ class AppliedToolsSection extends StatelessWidget {
     AppliedTool tool,
     TextEditingController noteController,
   ) {
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

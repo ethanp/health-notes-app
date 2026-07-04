@@ -10,6 +10,8 @@ import 'package:health_notes/providers/conditions_provider.dart';
 import 'package:health_notes/screens/condition_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/data_utils.dart';
+import 'package:health_notes/widgets/app_card.dart';
+import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/theme/spacing.dart';
 
@@ -137,9 +139,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   }
 
   Widget noMetricsAvailable() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppComponents.primaryCard,
+    return AppCard(
       child: Column(
         children: [
           const Icon(
@@ -192,9 +192,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   }
 
   Widget metricSlidersSection(List<CheckInMetric> userMetrics) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppComponents.primaryCard,
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -293,9 +291,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   }
 
   Widget dateTimeSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppComponents.primaryCard,
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -319,9 +315,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   }
 
   Widget conditionsSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppComponents.primaryCard,
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

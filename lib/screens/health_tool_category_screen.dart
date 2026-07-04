@@ -6,6 +6,9 @@ import 'package:health_notes/models/health_tool_category.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/screens/health_tool_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/app_button.dart';
+import 'package:health_notes/widgets/app_card.dart';
+import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -49,10 +52,8 @@ class _HealthToolCategoryScreenState
   }
 
   Widget categoryHeader() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppComponents.primaryCard,
-      margin: const EdgeInsets.all(16),
+    return AppCard(
+      margin: const EdgeInsets.all(AppSpacing.m),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -77,7 +78,7 @@ class _HealthToolCategoryScreenState
       title: 'No tools for ${widget.category.name}',
       message: 'Add your first tool to get started',
       icon: CupertinoIcons.wrench,
-      action: EnhancedUIComponents.button(
+      action: AppButton(
         text: 'Add Tool',
         onPressed: () => _showAddToolForm(),
         icon: CupertinoIcons.add,
@@ -97,14 +98,14 @@ class _HealthToolCategoryScreenState
   }
 
   Widget toolCard(HealthTool tool) {
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: AppComponents.primaryCard,
+      padding: EdgeInsets.zero,
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: () => _showToolDetails(tool),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.m),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [toolHeader(tool), VSpace.s, toolDescription(tool)],

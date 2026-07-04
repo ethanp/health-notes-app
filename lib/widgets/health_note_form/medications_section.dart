@@ -5,6 +5,7 @@ import 'package:health_notes/providers/medication_recommendations_provider.dart'
 import 'package:health_notes/screens/drug_trends_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/number_formatter.dart';
+import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -116,10 +117,8 @@ class MedicationsSection extends StatelessWidget {
     DrugDose dose,
     DrugDoseControllers controllers,
   ) {
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

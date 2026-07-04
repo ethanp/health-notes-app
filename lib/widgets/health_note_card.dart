@@ -8,7 +8,8 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/number_formatter.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/app_card.dart';
+import 'package:health_notes/widgets/app_filter_chip.dart';
 
 /// Health note card for displaying in lists
 class HealthNoteCard extends StatelessWidget {
@@ -22,11 +23,8 @@ class HealthNoteCard extends StatelessWidget {
     return CupertinoButton(
       padding: EdgeInsets.zero,
       onPressed: onTap,
-      child: Container(
-        width: double.infinity,
+      child: AppCard(
         margin: const EdgeInsets.only(bottom: 8),
-        decoration: AppComponents.primaryCard,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -248,7 +246,7 @@ class FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return EnhancedUIComponents.filterChip(
+    return AppFilterChip(
       label: label,
       isActive: isActive,
       onTap: onTap,

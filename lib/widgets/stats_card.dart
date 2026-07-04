@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
+import 'package:health_notes/widgets/app_card.dart';
 
 class StatsCard extends StatelessWidget {
   final List<Widget> statRows;
@@ -9,9 +10,7 @@ class StatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: AppComponents.primaryCard,
-      padding: const EdgeInsets.all(16),
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: statRows,

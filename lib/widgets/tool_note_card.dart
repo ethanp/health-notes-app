@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/date_utils.dart';
 
@@ -24,9 +25,7 @@ class ToolNoteCard extends StatelessWidget {
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: () => context.push(HealthNoteViewScreen(note: note)),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: AppComponents.primaryCard,
+        child: AppCard(
           child: Row(
             children: [
               Expanded(

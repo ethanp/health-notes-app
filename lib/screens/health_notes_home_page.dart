@@ -10,6 +10,9 @@ import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/services/search_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/log_out_button.dart';
+import 'package:health_notes/widgets/app_button.dart';
+import 'package:health_notes/widgets/app_dialogs.dart';
+import 'package:health_notes/widgets/app_filter_chip.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/health_note_card.dart';
 import 'package:health_notes/widgets/animated_welcome_card.dart';
@@ -192,7 +195,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
             ),
           ),
           HSpace.s,
-          EnhancedUIComponents.button(
+          AppButton(
             text: '',
             onPressed: () => showFilterModal(),
             isPrimary: false,
@@ -252,7 +255,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   }) {
     return Container(
       margin: const EdgeInsets.only(right: AppSpacing.s),
-      child: EnhancedUIComponents.filterChip(
+      child: AppFilterChip(
         label: label,
         isActive: isClearAll,
         onTap: onTap,
@@ -274,11 +277,11 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
         message: 'Start tracking your health journey by adding your first note',
         icon: CupertinoIcons.heart_fill,
         iconColor: AppColors.primary,
-        action: EnhancedUIComponents.button(
-          text: 'Add First Note',
-          onPressed: showAddNoteModal,
-          icon: CupertinoIcons.add,
-        ),
+        action: AppButton(
+              text: 'Add First Note',
+              onPressed: showAddNoteModal,
+              icon: CupertinoIcons.add,
+            ),
       );
     }
   }
@@ -300,7 +303,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
                 'Start tracking your health journey by adding your first note',
             icon: CupertinoIcons.heart_fill,
             iconColor: AppColors.primary,
-            action: EnhancedUIComponents.button(
+            action: AppButton(
               text: 'Add First Note',
               onPressed: showAddNoteModal,
               icon: CupertinoIcons.add,

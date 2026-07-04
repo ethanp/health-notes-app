@@ -7,6 +7,7 @@ import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/models/date_range_filter.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/utils/color_mapping_utils.dart';
 import 'package:intl/intl.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -61,13 +62,14 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
   }
 
   Widget emptyChartContainer() {
-    return Container(
-      height: 450,
-      decoration: AppComponents.primaryCard,
-      child: Center(
-        child: Text(
-          'No check-in data available',
-          style: AppTypography.bodyMediumTertiary,
+    return AppCard(
+      child: SizedBox(
+        height: 450,
+        child: Center(
+          child: Text(
+            'No check-in data available',
+            style: AppTypography.bodyMediumTertiary,
+          ),
         ),
       ),
     );
@@ -306,8 +308,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
   }
 
   Widget noDataContainer() {
-    return Container(
-      decoration: AppComponents.primaryCard,
+    return AppCard(
       child: Center(
         child: Text('No data', style: AppTypography.bodySmallTertiary),
       ),

@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/theme/spacing.dart';
+import 'package:health_notes/widgets/app_card.dart';
 
 class AnimatedWelcomeCard extends StatefulWidget {
   final String title;
@@ -212,7 +212,7 @@ class _AnimatedProgressCardState extends State<AnimatedProgressCard>
 
   @override
   Widget build(BuildContext context) {
-    return EnhancedUIComponents.card(
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

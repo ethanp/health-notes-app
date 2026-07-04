@@ -8,6 +8,7 @@ import 'package:health_notes/screens/condition_detail_screen.dart';
 import 'package:health_notes/screens/condition_form.dart';
 import 'package:health_notes/widgets/log_out_button.dart';
 import 'package:health_notes/widgets/condition_timeline_card.dart';
+import 'package:health_notes/widgets/app_button.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 
@@ -55,7 +56,7 @@ class ConditionsScreen extends ConsumerWidget {
       title: 'No conditions yet',
       message: 'Track health conditions like colds, migraines, or flare-ups',
       icon: CupertinoIcons.bandage,
-      action: EnhancedUIComponents.button(
+      action: AppButton(
         text: 'Add Condition',
         onPressed: () => showAddConditionForm(context),
         icon: CupertinoIcons.add,

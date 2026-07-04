@@ -67,9 +67,9 @@ void main() {
         MetricType.middleIsBest,
       );
 
-      expect(lowerGradient.length, equals(3));
-      expect(higherGradient.length, equals(3));
-      expect(middleGradient.length, equals(5));
+      expect(lowerGradient.length, equals(4));
+      expect(higherGradient.length, equals(4));
+      expect(middleGradient.length, equals(6));
     });
   });
 }

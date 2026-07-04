@@ -4,6 +4,7 @@ import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/models/health_tool_category.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/theme/spacing.dart';
 
@@ -89,9 +90,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
   }
 
   Widget nameSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppComponents.primaryCard,
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -110,9 +109,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
   }
 
   Widget descriptionSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppComponents.primaryCard,
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -138,9 +135,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
   }
 
   Widget categorySection(AsyncValue<List<HealthToolCategory>> categoriesAsync) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppComponents.primaryCard,
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -4,6 +4,7 @@ import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/number_formatter.dart';
@@ -122,9 +123,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: AppComponents.primaryCard,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

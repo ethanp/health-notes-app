@@ -8,6 +8,8 @@ import 'package:health_notes/providers/sync_provider.dart';
 import 'package:health_notes/screens/metric_edit_screen.dart';
 import 'package:health_notes/services/offline_repository.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/app_card.dart';
+import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
@@ -161,7 +163,8 @@ class _MetricsManagementScreenState
     return Container(
       key: ValueKey(metric.id),
       margin: const EdgeInsets.only(bottom: 6),
-      child: EnhancedUIComponents.card(
+      child: AppCard(
+        margin: const EdgeInsets.all(AppSpacing.m),
         child: CupertinoListTile(
           padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 12, 10),
           leading: metricIcon(metric),

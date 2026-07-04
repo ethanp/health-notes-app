@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:intl/intl.dart';
 
@@ -22,9 +23,7 @@ class DateTimeSection extends StatelessWidget {
   }
 
   Widget _editableLayout() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppComponents.primaryCard,
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -46,9 +45,7 @@ class DateTimeSection extends StatelessWidget {
   }
 
   Widget _readOnlyLayout() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: AppComponents.primaryCard,
+    return AppCard(
       child: Row(
         children: [
           Expanded(

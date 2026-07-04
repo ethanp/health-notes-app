@@ -8,6 +8,8 @@ import 'package:health_notes/screens/health_tool_category_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
 import 'package:health_notes/widgets/log_out_button.dart';
+import 'package:health_notes/widgets/app_button.dart';
+import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -60,7 +62,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
       title: 'No health tools yet',
       message: 'Create your first health tool category to get started',
       icon: CupertinoIcons.wrench,
-      action: EnhancedUIComponents.button(
+      action: AppButton(
         text: 'Add Category',
         onPressed: () => _showAddCategoryForm(),
         icon: CupertinoIcons.add,
@@ -80,14 +82,14 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
   }
 
   Widget categoryCard(HealthToolCategory category) {
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: AppComponents.primaryCard,
+      padding: EdgeInsets.zero,
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: () => _navigateToCategory(category),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.m),
           child: Row(
             children: [
               categoryIcon(category),

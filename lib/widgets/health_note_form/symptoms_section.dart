@@ -13,6 +13,7 @@ import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/severity_utils.dart';
 import 'package:health_notes/widgets/component_picker_sheet.dart';
+import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -228,10 +229,8 @@ class SymptomsSection extends ConsumerWidget {
     Symptom symptom,
     SymptomControllers controllers,
   ) {
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: AppComponents.primaryCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

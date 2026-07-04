@@ -5,6 +5,8 @@ import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/color_picker_grid.dart';
+import 'package:health_notes/widgets/app_card.dart';
+import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/theme/spacing.dart';
 
@@ -84,7 +86,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
   }
 
   Widget nameSection() {
-    return EnhancedUIComponents.card(
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -110,7 +112,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
   }
 
   Widget typeSection() {
-    return EnhancedUIComponents.card(
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -199,7 +201,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
   }
 
   Widget colorSection() {
-    return EnhancedUIComponents.card(
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -222,7 +224,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
   }
 
   Widget iconSection() {
-    return EnhancedUIComponents.card(
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
