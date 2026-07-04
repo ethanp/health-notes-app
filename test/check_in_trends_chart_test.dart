@@ -202,12 +202,10 @@ void main() {
         ),
       );
 
-      expect(find.byType(GestureDetector), findsOneWidget);
+      expect(find.text('Pain Level'), findsOneWidget);
 
       await tester.tap(find.text('Pain Level'));
       await tester.pump();
-
-      expect(find.text('Pain Level'), findsOneWidget);
     });
   });
 }

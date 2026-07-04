@@ -152,7 +152,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        VSpace.of(20),
+        VSpace.s,
         DateTimeSection(
           isEditable: widget.isEditable,
           selectedDateTime: _selectedDateTime,
@@ -161,7 +161,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
             widget.onDateTimeChanged?.call(newDateTime);
           },
         ),
-        VSpace.of(20),
+        VSpace.m,
         SymptomsSection(
           isEditable: widget.isEditable,
           symptoms: _symptoms,

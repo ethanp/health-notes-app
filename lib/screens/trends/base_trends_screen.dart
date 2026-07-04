@@ -6,6 +6,7 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/grouped_notes_section.dart';
+import 'package:health_notes/widgets/note_date_dialog.dart';
 import 'package:health_notes/theme/spacing.dart';
 
 abstract class BaseTrendsScreen extends ConsumerStatefulWidget {
@@ -54,24 +55,17 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
 
   List<HealthNote> notesForDate(List<HealthNote> notes, DateTime date);
 
-  CupertinoAlertDialog buildNoActivityDialog(
-    BuildContext dialogContext,
-    DateTime date,
-  );
+  /// Message shown when tapping a date with no activity at all.
+  String noActivityMessage(DateTime date);
 
-  CupertinoAlertDialog buildValueOnlyDialog(
-    BuildContext dialogContext,
-    DateTime date,
-    V value,
-    List<HealthNote> scopedNotes,
-  );
+  /// Message shown when tapping a date that has a value but no linkable notes.
+  String valueOnlyMessage(DateTime date, V value);
 
-  CupertinoAlertDialog buildDetailDialog(
-    BuildContext dialogContext,
-    DateTime date,
-    V value,
-    List<HealthNote> relevantNotes,
-  );
+  /// Optional summary widget shown above the note links in the detail dialog.
+  Widget? dateSummary(DateTime date, V value, List<HealthNote> notes) => null;
+
+  /// Label widget for each note link in the detail dialog.
+  Widget noteDetailLabel(HealthNote note);
 
   String get title => '${widget.itemName} Trends';
   String get emptyTitle => 'No data for ${widget.itemName}';
@@ -174,9 +168,10 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
     List<HealthNote> scopedNotes,
   ) {
     if (!hasActivityForValue(value)) {
-      showCupertinoDialog(
+      showDateInfoDialog(
         context: context,
-        builder: (dialogContext) => buildNoActivityDialog(dialogContext, date),
+        date: date,
+        message: noActivityMessage(date),
       );
       return;
     }
@@ -184,18 +179,20 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
     final relevantNotes = notesForDate(scopedNotes, date);
 
     if (relevantNotes.isEmpty) {
-      showCupertinoDialog(
+      showDateInfoDialog(
         context: context,
-        builder: (dialogContext) =>
-            buildValueOnlyDialog(dialogContext, date, value, scopedNotes),
+        date: date,
+        message: valueOnlyMessage(date, value),
       );
-    } else {
-      showCupertinoDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (dialogContext) =>
-            buildDetailDialog(dialogContext, date, value, relevantNotes),
-      );
+      return;
     }
+
+    showNoteDateDialog(
+      context: context,
+      date: date,
+      notes: relevantNotes,
+      summary: dateSummary(date, value, relevantNotes),
+      noteLabelBuilder: noteDetailLabel,
+    );
   }
 }

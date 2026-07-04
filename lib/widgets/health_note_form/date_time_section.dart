@@ -17,6 +17,11 @@ class DateTimeSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (isEditable) return _editableLayout();
+    return _readOnlyLayout();
+  }
+
+  Widget _editableLayout() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: AppComponents.primaryCard,
@@ -25,32 +30,38 @@ class DateTimeSection extends StatelessWidget {
         children: [
           Text('Date & Time', style: AppTypography.headlineSmall),
           VSpace.m,
-          if (isEditable)
-            Container(
-              height: 200,
-              decoration: AppComponents.inputField,
-              child: CupertinoDatePicker(
-                mode: CupertinoDatePickerMode.dateAndTime,
-                initialDateTime: selectedDateTime,
-                backgroundColor: AppColors.backgroundTertiary,
-                onDateTimeChanged: onDateTimeChanged,
-              ),
-            )
-          else
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  DateFormat('EEEE, MMMM d, yyyy').format(selectedDateTime),
-                  style: AppTypography.headlineSmall,
-                ),
-                VSpace.xs,
-                Text(
-                  DateFormat('h:mm a').format(selectedDateTime),
-                  style: AppTypography.bodyMediumTertiary,
-                ),
-              ],
+          Container(
+            height: 200,
+            decoration: AppComponents.inputField,
+            child: CupertinoDatePicker(
+              mode: CupertinoDatePickerMode.dateAndTime,
+              initialDateTime: selectedDateTime,
+              backgroundColor: AppColors.backgroundTertiary,
+              onDateTimeChanged: onDateTimeChanged,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _readOnlyLayout() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: AppComponents.primaryCard,
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              DateFormat('EEEE, MMMM d, yyyy').format(selectedDateTime),
+              style: AppTypography.bodyLargePrimary,
+            ),
+          ),
+          HSpace.m,
+          Text(
+            DateFormat('h:mm a').format(selectedDateTime),
+            style: AppTypography.bodyMediumTertiary,
+          ),
         ],
       ),
     );

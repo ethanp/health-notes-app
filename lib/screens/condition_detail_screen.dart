@@ -3,11 +3,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/models/condition_entry.dart';
+import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/conditions_provider.dart';
 import 'package:health_notes/screens/condition_form.dart';
-import 'package:health_notes/screens/health_note_view_screen.dart';
+import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/services/health_notes_dao.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/utils/severity_utils.dart';
+import 'package:health_notes/widgets/note_date_dialog.dart';
 import 'package:health_notes/widgets/condition_activity_calendar.dart';
 import 'package:health_notes/widgets/condition_entry_edit_modal.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
@@ -110,10 +113,6 @@ class ConditionDetailScreen extends ConsumerWidget {
             children: [
               conditionHeader(condition),
               VSpace.l,
-              if (condition.notes.isNotEmpty) ...[
-                notesSection(condition),
-                VSpace.l,
-              ],
               statisticsSection(condition, entries, linkedSymptoms),
               VSpace.l,
               ConditionActivityCalendar(
@@ -122,7 +121,7 @@ class ConditionDetailScreen extends ConsumerWidget {
                 linkedSymptoms: linkedSymptoms,
                 onEntryTap: (entry) => showEntryEditModal(context, ref, entry),
                 onSymptomTap: (date, symptoms) =>
-                    showSymptomDetails(context, date, symptoms, condition),
+                    _showSymptomDateDialog(context, date, symptoms),
               ),
               VSpace.l,
               EnhancedUIComponents.sectionHeader(title: 'Daily Entries'),
@@ -132,7 +131,7 @@ class ConditionDetailScreen extends ConsumerWidget {
                 VSpace.l,
                 EnhancedUIComponents.sectionHeader(title: 'Linked Symptoms'),
                 VSpace.s,
-                linkedSymptomsList(context, condition, linkedSymptoms),
+                linkedSymptomsBreakdown(context, linkedSymptoms),
               ],
             ],
           ),
@@ -194,21 +193,6 @@ class ConditionDetailScreen extends ConsumerWidget {
       child: Text(
         condition.status.displayName,
         style: AppTypography.labelMedium.copyWith(color: color),
-      ),
-    );
-  }
-
-  Widget notesSection(Condition condition) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: AppComponents.primaryCard,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Notes', style: AppTypography.labelMedium),
-          VSpace.s,
-          Text(condition.notes, style: AppTypography.bodyMediumSecondary),
-        ],
       ),
     );
   }
@@ -515,193 +499,103 @@ class ConditionDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget linkedSymptomsList(
+  Widget linkedSymptomsBreakdown(
     BuildContext context,
-    Condition condition,
     List<LinkedSymptom> linkedSymptoms,
   ) {
-    if (linkedSymptoms.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(24),
-        decoration: AppComponents.primaryCard,
-        child: Center(
-          child: Text(
-            'No symptoms linked to this condition yet.',
-            style: AppTypography.bodyMediumSystemGrey,
-          ),
-        ),
-      );
+    final byDescription = <String, List<LinkedSymptom>>{};
+    for (final linkedSymptom in linkedSymptoms) {
+      final key = linkedSymptom.symptom.fullDescription;
+      byDescription.putIfAbsent(key, () => []).add(linkedSymptom);
     }
 
-    // Group by date
-    final byDate = <DateTime, List<LinkedSymptom>>{};
-    for (final ls in linkedSymptoms) {
-      final dateKey = ls.date.startOfDay;
-      byDate.putIfAbsent(dateKey, () => []).add(ls);
-    }
-
-    final sortedDates = byDate.keys.toList()..sort((a, b) => b.compareTo(a));
+    final sortedKeys = byDescription.keys.toList()
+      ..sort((a, b) =>
+          byDescription[b]!.length.compareTo(byDescription[a]!.length));
 
     return Column(
-      children: sortedDates.take(10).map((date) {
-        final symptoms = byDate[date]!;
-        return symptomDateCard(context, date, symptoms, condition);
+      children: sortedKeys.map((description) {
+        final occurrences = byDescription[description]!;
+        final avgSeverity =
+            occurrences.map((ls) => ls.symptom.severityLevel).reduce(
+                  (a, b) => a + b,
+                ) /
+            occurrences.length;
+        final avgColor = SeverityUtils.colorForSeverity(avgSeverity.round());
+
+        return GestureDetector(
+          onTap: () {
+            final majorComponent = occurrences.first.symptom.majorComponent;
+            if (majorComponent.isNotEmpty) {
+              context.push(
+                SymptomTrendsScreen(symptomName: majorComponent),
+              );
+            }
+          },
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.backgroundTertiary,
+              borderRadius: BorderRadius.circular(8),
+              border: Border(
+                left: BorderSide(color: avgColor, width: 3),
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(description, style: AppTypography.bodyMedium),
+                ),
+                HSpace.s,
+                Text(
+                  '${occurrences.length}×',
+                  style: AppTypography.bodySmallSecondary,
+                ),
+                HSpace.s,
+                EnhancedUIComponents.statusIndicator(
+                  text: 'avg ${avgSeverity.toStringAsFixed(1)}',
+                  color: avgColor,
+                ),
+              ],
+            ),
+          ),
+        );
       }).toList(),
     );
   }
 
-  Widget symptomDateCard(
+  Future<void> _showSymptomDateDialog(
     BuildContext context,
     DateTime date,
     List<LinkedSymptom> symptoms,
-    Condition condition,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: () async {
-          if (symptoms.isNotEmpty) {
-            final note = await HealthNotesDao.getNoteById(
-              symptoms.first.healthNoteId,
-            );
-            if (note != null && context.mounted) {
-              context.push(HealthNoteViewScreen(note: note));
-            }
-          }
-        },
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: AppComponents.primaryCard,
-          child: Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: condition.color.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Icon(
-                  CupertinoIcons.bandage,
-                  size: 18,
-                  color: condition.color,
-                ),
-              ),
-              HSpace.m,
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      DateFormat('EEE, MMM d').format(date),
-                      style: AppTypography.labelMedium,
-                    ),
-                    VSpace.xs,
-                    Text(
-                      symptoms.map((s) => s.symptom.fullDescription).join(', '),
-                      style: AppTypography.bodySmallSecondary,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              HSpace.s,
-              ...symptoms
-                  .take(3)
-                  .map(
-                    (ls) => Container(
-                      margin: const EdgeInsets.only(left: 4),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: severityColor(ls.symptom.severityLevel),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '${ls.symptom.severityLevel}',
-                        style: AppTypography.labelMediumWhite,
-                      ),
-                    ),
-                  ),
-              if (symptoms.length > 3)
-                Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: Text(
-                    '+${symptoms.length - 3}',
-                    style: AppTypography.caption,
-                  ),
-                ),
-              HSpace.s,
-              Icon(
-                CupertinoIcons.chevron_right,
-                size: 14,
-                color: AppColors.textQuaternary,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  ) async {
+    if (symptoms.isEmpty) return;
 
-  void showSymptomDetails(
-    BuildContext context,
-    DateTime date,
-    List<LinkedSymptom> symptoms,
-    Condition condition,
-  ) {
-    showCupertinoModalPopup(
+    final uniqueNoteIds = symptoms.map((ls) => ls.healthNoteId).toSet();
+    final notes = <HealthNote>[];
+    for (final noteId in uniqueNoteIds) {
+      final note = await HealthNotesDao.getNoteById(noteId);
+      if (note != null) notes.add(note);
+    }
+    notes.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+
+    if (!context.mounted || notes.isEmpty) return;
+
+    showNoteDateDialog(
       context: context,
-      builder: (context) => CupertinoActionSheet(
-        title: Text('Symptoms on ${DateFormat('MMM d, y').format(date)}'),
-        message: Text(
-          '${symptoms.length} symptom${symptoms.length == 1 ? '' : 's'} linked to ${condition.name}',
-        ),
-        actions: symptoms.map((ls) {
-          return CupertinoActionSheetAction(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              final note = await HealthNotesDao.getNoteById(ls.healthNoteId);
-              if (note != null && context.mounted) {
-                context.push(HealthNoteViewScreen(note: note));
-              }
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: severityColor(ls.symptom.severityLevel),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '${ls.symptom.severityLevel}',
-                    style: const TextStyle(
-                      color: CupertinoColors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                HSpace.s,
-                Text(ls.symptom.fullDescription),
-              ],
-            ),
-          );
-        }).toList(),
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
-        ),
+      date: date,
+      notes: notes,
+      summary: Text(
+        '${symptoms.length} symptom${symptoms.length == 1 ? '' : 's'} across ${notes.length} note${notes.length == 1 ? '' : 's'}',
       ),
+      noteLabelBuilder: (note) {
+        final noteSymptomCount =
+            symptoms.where((ls) => ls.healthNoteId == note.id).length;
+        return Text(
+          '${DateFormat('h:mm a').format(note.dateTime)}  ·  $noteSymptomCount symptom${noteSymptomCount == 1 ? '' : 's'}',
+        );
+      },
     );
   }
 }

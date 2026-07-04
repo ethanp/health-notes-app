@@ -110,70 +110,34 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
   }
 
   @override
-  CupertinoAlertDialog buildNoActivityDialog(
-    BuildContext dialogContext,
+  String noActivityMessage(DateTime date) =>
+      'No ${widget.drugName} was recorded on this date.';
+
+  @override
+  String valueOnlyMessage(DateTime date, double dosage) {
+    final unit = _unitForDrug([]) ?? 'mg';
+    return 'You took ${formatDecimalValue(dosage)}$unit of ${widget.drugName} on this date.';
+  }
+
+  @override
+  Widget? dateSummary(
     DateTime date,
+    double dosage,
+    List<HealthNote> notes,
   ) {
-    return noDosageAlert(
-      dialogContext,
-      AppDateUtils.formatLongDate(date),
-      widget.drugName,
+    final unit = _unitForDrug(notes) ?? 'mg';
+    return Text(
+      'Total dosage: ${formatDecimalValue(dosage)}$unit',
+      style: const TextStyle(fontWeight: FontWeight.w600),
     );
   }
 
   @override
-  CupertinoAlertDialog buildValueOnlyDialog(
-    BuildContext dialogContext,
-    DateTime date,
-    double dosage,
-    List<HealthNote> scopedNotes,
-  ) {
-    return dosageSummaryAlert(
-      dialogContext,
-      AppDateUtils.formatLongDate(date),
-      dosage,
-      widget.drugName,
-      _unitForDrug(scopedNotes) ?? 'mg',
-    );
-  }
-
-  @override
-  CupertinoAlertDialog buildDetailDialog(
-    BuildContext dialogContext,
-    DateTime date,
-    double dosage,
-    List<HealthNote> relevantNotes,
-  ) {
-    final unit = _unitForDrug(relevantNotes) ?? 'mg';
-    return CupertinoAlertDialog(
-      title: Text(AppDateUtils.formatLongDate(date)),
-      content: Text(
-        'Total dosage: ${formatDecimalValue(dosage)}$unit',
-        style: const TextStyle(fontWeight: FontWeight.w600),
-      ),
-      actions: [
-        ...relevantNotes.map(
-          (note) {
-            final noteDosage = _totalDosageForNote(note);
-            return CupertinoDialogAction(
-              isDefaultAction: true,
-              child: Text(
-                '${AppDateUtils.formatTime(note.dateTime)}  ·  ${formatDecimalValue(noteDosage)}$unit',
-              ),
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-                if (!mounted) return;
-                context.push(HealthNoteViewScreen(note: note));
-              },
-            );
-          },
-        ),
-        CupertinoDialogAction(
-          isDestructiveAction: true,
-          child: const Text('Close'),
-          onPressed: () => Navigator.of(dialogContext).pop(),
-        ),
-      ],
+  Widget noteDetailLabel(HealthNote note) {
+    final unit = _unitForDrug([note]) ?? 'mg';
+    final noteDosage = _totalDosageForNote(note);
+    return Text(
+      '${AppDateUtils.formatTime(note.dateTime)}  ·  ${formatDecimalValue(noteDosage)}$unit',
     );
   }
 
@@ -184,9 +148,9 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
   }
 
   double _totalDosageForNote(HealthNote note) {
-    return _relevantDoses(
-      note,
-    ).map((dose) => dose.dosage).fold<double>(0, (sum, value) => sum + value);
+    return _relevantDoses(note)
+        .map((dose) => dose.dosage)
+        .fold<double>(0, (sum, dosage) => sum + dosage);
   }
 
   String? _unitForDrug(List<HealthNote> notes) {
@@ -235,43 +199,4 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
       );
     }
   }
-
-  CupertinoAlertDialog noDosageAlert(
-    BuildContext dialogContext,
-    String formattedDate,
-    String drugName,
-  ) {
-    return CupertinoAlertDialog(
-      title: Text(formattedDate),
-      content: Text('No $drugName was recorded on this date.'),
-      actions: [
-        CupertinoDialogAction(
-          child: const Text('OK'),
-          onPressed: () => Navigator.of(dialogContext).pop(),
-        ),
-      ],
-    );
-  }
-
-  CupertinoAlertDialog dosageSummaryAlert(
-    BuildContext dialogContext,
-    String formattedDate,
-    double dosage,
-    String drugName,
-    String unit,
-  ) {
-    return CupertinoAlertDialog(
-      title: Text(formattedDate),
-      content: Text(
-        'You took ${formatDecimalValue(dosage)}$unit of $drugName on this date.',
-      ),
-      actions: [
-        CupertinoDialogAction(
-          child: const Text('OK'),
-          onPressed: () => Navigator.of(dialogContext).pop(),
-        ),
-      ],
-    );
-  }
-
 }

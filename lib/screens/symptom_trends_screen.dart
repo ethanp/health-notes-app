@@ -80,84 +80,18 @@ class _SymptomTrendsScreenState
   }
 
   @override
-  CupertinoAlertDialog buildNoActivityDialog(
-    BuildContext dialogContext,
-    DateTime date,
-  ) {
-    return _noSymptomsAlert(dialogContext, AppDateUtils.formatLongDate(date));
+  String noActivityMessage(DateTime date) =>
+      'No symptoms were recorded on this date.';
+
+  @override
+  String valueOnlyMessage(DateTime date, int severity) {
+    final description = SeverityUtils.descriptionForSeverity(severity);
+    return 'You reported $description (level $severity) on this date.';
   }
 
   @override
-  CupertinoAlertDialog buildValueOnlyDialog(
-    BuildContext dialogContext,
-    DateTime date,
-    int severity,
-    List<HealthNote> scopedNotes,
-  ) {
-    return _dateInfoNoNoteAlert(
-      dialogContext,
-      AppDateUtils.formatLongDate(date),
-      severity,
-      SeverityUtils.descriptionForSeverity(severity),
-    );
-  }
-
-  @override
-  CupertinoAlertDialog buildDetailDialog(
-    BuildContext dialogContext,
-    DateTime date,
-    int severity,
-    List<HealthNote> relevantNotes,
-  ) {
-    final severityText = SeverityUtils.descriptionForSeverity(severity);
-    return CupertinoAlertDialog(
-      title: Text(AppDateUtils.formatLongDate(date)),
-      content: _severityPill(severity, severityText),
-      actions: [
-        ...relevantNotes.map((note) {
-          final symptom = TrendsActivityAggregator.highestSeveritySymptom(
-            note,
-            widget.symptomName,
-          );
-          final noteSeverity = symptom?.severityLevel ?? 0;
-          final subsymptom = symptom?.minorComponent ?? '';
-          return CupertinoDialogAction(
-            isDefaultAction: true,
-            child: Text.rich(
-              TextSpan(children: [
-                TextSpan(
-                  text: AppDateUtils.formatTime(note.dateTime),
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-                const TextSpan(text: '  ·  '),
-                TextSpan(
-                  text: 'L$noteSeverity',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                if (subsymptom.isNotEmpty)
-                  TextSpan(
-                    text: ' $subsymptom',
-                    style: const TextStyle(fontWeight: FontWeight.w400),
-                  ),
-              ]),
-            ),
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              if (!mounted) return;
-              context.push(HealthNoteViewScreen(note: note));
-            },
-          );
-        }),
-        CupertinoDialogAction(
-          isDestructiveAction: true,
-          child: const Text('Close'),
-          onPressed: () => Navigator.of(dialogContext).pop(),
-        ),
-      ],
-    );
-  }
-
-  Widget _severityPill(int severity, String severityText) {
+  Widget? dateSummary(DateTime date, int severity, List<HealthNote> notes) {
+    final description = SeverityUtils.descriptionForSeverity(severity);
     final color = SeverityUtils.colorForSeverity(severity);
     return Padding(
       padding: const EdgeInsets.only(top: 8),
@@ -166,13 +100,10 @@ class _SymptomTrendsScreenState
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: color.withValues(alpha: 0.4),
-            width: 1,
-          ),
+          border: Border.all(color: color.withValues(alpha: 0.4), width: 1),
         ),
         child: Text(
-          'Peak: Level $severity - $severityText',
+          'Peak: Level $severity — $description',
           style: AppTypography.labelMedium.copyWith(
             color: color,
             fontWeight: FontWeight.w600,
@@ -182,39 +113,31 @@ class _SymptomTrendsScreenState
     );
   }
 
-  CupertinoAlertDialog _noSymptomsAlert(
-    BuildContext dialogContext,
-    String formattedDate,
-  ) {
-    return CupertinoAlertDialog(
-      title: Text(formattedDate),
-      content: const Text('No symptoms were recorded on this date.'),
-      actions: [
-        CupertinoDialogAction(
-          child: const Text('OK'),
-          onPressed: () => Navigator.of(dialogContext).pop(),
-        ),
-      ],
+  @override
+  Widget noteDetailLabel(HealthNote note) {
+    final symptom = TrendsActivityAggregator.highestSeveritySymptom(
+      note,
+      widget.symptomName,
     );
-  }
-
-  CupertinoAlertDialog _dateInfoNoNoteAlert(
-    BuildContext dialogContext,
-    String formattedDate,
-    int severity,
-    String severityText,
-  ) {
-    return CupertinoAlertDialog(
-      title: Text(formattedDate),
-      content: Text(
-        'You reported $severityText (level $severity) on this date.',
-      ),
-      actions: [
-        CupertinoDialogAction(
-          child: const Text('OK'),
-          onPressed: () => Navigator.of(dialogContext).pop(),
+    final noteSeverity = symptom?.severityLevel ?? 0;
+    final subsymptom = symptom?.minorComponent ?? '';
+    return Text.rich(
+      TextSpan(children: [
+        TextSpan(
+          text: AppDateUtils.formatTime(note.dateTime),
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
-      ],
+        const TextSpan(text: '  ·  '),
+        TextSpan(
+          text: 'L$noteSeverity',
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+        if (subsymptom.isNotEmpty)
+          TextSpan(
+            text: ' $subsymptom',
+            style: const TextStyle(fontWeight: FontWeight.w400),
+          ),
+      ]),
     );
   }
 }
