@@ -106,85 +106,73 @@ class AppText {
 class _HeadlineScale {
   const _HeadlineScale();
 
-  TextStyle get large => const TextStyle(
-    fontSize: 32,
-    fontWeight: FontWeight.w700,
-    color: AppColors.textPrimary,
-    height: 1.2,
-    letterSpacing: -0.5,
-  );
-
-  TextStyle get medium => const TextStyle(
-    fontSize: 24,
+  /// Canonical headline look without a fixed size; used by [size].
+  static const _base = TextStyle(
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
     height: 1.3,
     letterSpacing: -0.3,
   );
 
-  TextStyle get small => const TextStyle(
-    fontSize: 20,
-    fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
-    height: 1.4,
-    letterSpacing: -0.2,
+  TextStyle get large => _base.copyWith(
+    fontSize: 32,
+    fontWeight: FontWeight.w700,
+    height: 1.2,
+    letterSpacing: -0.5,
   );
+
+  TextStyle get medium => _base.copyWith(fontSize: 24);
+
+  TextStyle get small =>
+      _base.copyWith(fontSize: 20, height: 1.4, letterSpacing: -0.2);
+
+  /// Headline style at an arbitrary size.
+  TextStyle size(double fontSize) => _base.copyWith(fontSize: fontSize);
 }
 
 class _BodyScale {
   const _BodyScale();
 
-  TextStyle get large => const TextStyle(
-    fontSize: 18,
+  /// Canonical body look without a fixed size; used by [size].
+  static const _base = TextStyle(
     fontWeight: FontWeight.normal,
     color: AppColors.textPrimary,
     height: 1.5,
     letterSpacing: 0.1,
   );
 
-  TextStyle get medium => const TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.normal,
-    color: AppColors.textPrimary,
-    height: 1.5,
-    letterSpacing: 0.1,
-  );
+  TextStyle get large => _base.copyWith(fontSize: 18);
 
-  TextStyle get small => const TextStyle(
-    fontSize: 14,
-    fontWeight: FontWeight.normal,
-    color: AppColors.textSecondary,
-    height: 1.5,
-    letterSpacing: 0.1,
-  );
+  TextStyle get medium => _base.copyWith(fontSize: 16);
+
+  TextStyle get small =>
+      _base.copyWith(fontSize: 14, color: AppColors.textSecondary);
+
+  /// Body style at an arbitrary size.
+  TextStyle size(double fontSize) => _base.copyWith(fontSize: fontSize);
 }
 
 class _LabelScale {
   const _LabelScale();
 
-  TextStyle get large => const TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
-    height: 1.4,
-    letterSpacing: 0.1,
-  );
-
-  TextStyle get medium => const TextStyle(
-    fontSize: 14,
+  /// Canonical label look without a fixed size; used by [size].
+  static const _base = TextStyle(
     fontWeight: FontWeight.w500,
     color: AppColors.textPrimary,
     height: 1.4,
     letterSpacing: 0.1,
   );
 
-  TextStyle get small => const TextStyle(
-    fontSize: 12,
-    fontWeight: FontWeight.w500,
-    color: AppColors.textSecondary,
-    height: 1.4,
-    letterSpacing: 0.1,
-  );
+  TextStyle get large =>
+      _base.copyWith(fontSize: 16, fontWeight: FontWeight.w600);
+
+  TextStyle get medium => _base.copyWith(fontSize: 14);
+
+  TextStyle get small =>
+      _base.copyWith(fontSize: 12, color: AppColors.textSecondary);
+
+  /// Label style at an arbitrary size.
+  TextStyle size(double fontSize) => _base.copyWith(fontSize: fontSize);
 }
 
 /// Chainable color/weight/size modifiers for the [AppText] fluent API.

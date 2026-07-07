@@ -59,9 +59,7 @@ class MonthlyNotesChart extends StatelessWidget {
                       space: 4,
                       child: Text(
                         _formatMonthShort(monthKey),
-                        style: AppText.body.small.systemGrey.copyWith(
-                          fontSize: 10,
-                        ),
+                        style: AppText.body.size(10).systemGrey,
                       ),
                     );
                   },
@@ -78,9 +76,7 @@ class MonthlyNotesChart extends StatelessWidget {
                   getTitlesWidget: (value, meta) {
                     return Text(
                       value.toInt().toString(),
-                      style: AppText.body.small.systemGrey.copyWith(
-                        fontSize: 10,
-                      ),
+                      style: AppText.body.size(10).systemGrey,
                     );
                   },
                 ),
