@@ -127,9 +127,9 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.title, style: AppTypography.headlineSmall),
+          Text(widget.title, style: AppText.headline.small),
           VSpace.s,
-          Text(widget.subtitle, style: AppTypography.bodySmallSystemGrey),
+          Text(widget.subtitle, style: AppText.body.small.systemGrey),
           VSpace.m,
           widget.legendBuilder(),
           VSpace.m,
@@ -223,7 +223,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
   Widget monthHeader(String monthName) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 2, left: 4),
-      child: Text(monthName, style: AppTypography.bodySmallSystemGreySemibold),
+      child: Text(monthName, style: AppText.body.small.systemGrey.semibold),
     );
   }
 
@@ -240,7 +240,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
             child: Text(
               label,
               textAlign: TextAlign.center,
-              style: AppTypography.bodySmall.copyWith(
+              style: AppText.body.small.copyWith(
                 color: CupertinoColors.systemGrey,
                 fontSize: 9,
               ),
@@ -375,7 +375,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
         child: Text(
           '$activeDays',
           textAlign: TextAlign.center,
-          style: AppTypography.bodySmall.copyWith(
+          style: AppText.body.small.copyWith(
             color: CupertinoColors.white,
             fontSize: CalendarConstants.summaryFontSize,
             fontWeight: FontWeight.w600,
@@ -394,7 +394,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
     return Text(
       display,
       textAlign: TextAlign.right,
-      style: AppTypography.bodySmall.copyWith(
+      style: AppText.body.small.copyWith(
         color: Color.lerp(
           CupertinoColors.systemGrey.withValues(alpha: 0.5),
           CupertinoColors.white,
@@ -536,12 +536,12 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
             VSpace.m,
             Text(
               'No activity data available',
-              style: AppTypography.bodyMediumSystemGreySemibold,
+              style: AppText.body.medium.systemGrey.semibold,
             ),
             VSpace.s,
             Text(
               'Start recording data to see trends',
-              style: AppTypography.bodySmall.copyWith(
+              style: AppText.body.small.copyWith(
                 color: CupertinoColors.systemGrey.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
@@ -571,7 +571,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
 
   TextStyle cellTextStyle(T value) {
     if (value == widget.emptyValue) {
-      return AppTypography.bodySmall.copyWith(
+      return AppText.body.small.copyWith(
         color: CupertinoColors.systemGrey.withValues(alpha: 0.6),
         fontSize: 12,
       );
@@ -582,7 +582,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
         ? CupertinoColors.black
         : CupertinoColors.white;
 
-    return AppTypography.bodySmall.copyWith(
+    return AppText.body.small.copyWith(
       color: textColor,
       fontSize: 12,
       fontWeight: FontWeight.w500,
@@ -637,7 +637,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
           padding: EdgeInsets.zero,
           minimumSize: Size.zero,
           onPressed: _exitSelectionMode,
-          child: Text('Cancel', style: AppTypography.bodyMediumSystemGrey),
+          child: Text('Cancel', style: AppText.body.medium.systemGrey),
         ),
         CupertinoButton(
           padding: EdgeInsets.zero,
@@ -651,8 +651,8 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
           child: Text(
             '$selectedCount $dayWord · $label',
             style: selectedCount > 0
-                ? AppTypography.bodyMediumPrimarySemibold
-                : AppTypography.bodyMediumSystemGrey,
+                ? AppText.body.medium.semibold.withColor(AppColors.primary)
+                : AppText.body.medium.systemGrey,
           ),
         ),
       ],
@@ -693,7 +693,7 @@ class SeverityActivityCalendar extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Severity Levels:', style: AppTypography.bodyMediumWhiteSemibold),
+        Text('Severity Levels:', style: AppText.body.medium.white.semibold),
         VSpace.s,
         Wrap(
           spacing: 12,
@@ -730,7 +730,7 @@ class SeverityActivityCalendar extends StatelessWidget {
         HSpace.xs,
         Text(
           label,
-          style: AppTypography.bodySmall.copyWith(
+          style: AppText.body.small.copyWith(
             color: CupertinoColors.white.withValues(alpha: 0.8),
           ),
         ),
@@ -789,16 +789,16 @@ class DosageActivityCalendar extends StatelessWidget {
   Widget dosageLegend() {
     return Row(
       children: [
-        Text('Less', style: AppTypography.bodySmallSystemGrey),
+        Text('Less', style: AppText.body.small.systemGrey),
         HSpace.s,
         ...intensityGradientSquares(alphaMin: 0.1, alphaMax: 0.8),
         HSpace.s,
-        Text('More', style: AppTypography.bodySmallSystemGrey),
+        Text('More', style: AppText.body.small.systemGrey),
         const Spacer(),
         if (maxDosage > 0)
           Text(
             'Max: ${formatDecimalValue(maxDosage)}$unit',
-            style: AppTypography.bodySmallSystemGrey,
+            style: AppText.body.small.systemGrey,
           ),
       ],
     );
@@ -862,14 +862,14 @@ class CheckInsActivityCalendar extends StatelessWidget {
   Widget checkInsLegend(int maxCount) {
     return Row(
       children: [
-        Text('Less', style: AppTypography.bodySmallSystemGrey),
+        Text('Less', style: AppText.body.small.systemGrey),
         HSpace.s,
         ...intensityGradientSquares(),
         HSpace.s,
-        Text('More', style: AppTypography.bodySmallSystemGrey),
+        Text('More', style: AppText.body.small.systemGrey),
         const Spacer(),
         if (maxCount > 0)
-          Text('Max: $maxCount/day', style: AppTypography.bodySmallSystemGrey),
+          Text('Max: $maxCount/day', style: AppText.body.small.systemGrey),
       ],
     );
   }

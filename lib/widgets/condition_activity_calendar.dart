@@ -127,7 +127,7 @@ class ConditionActivityCalendar extends StatelessWidget {
   Widget _legend() {
     return Row(
       children: [
-        Text('Mild', style: AppTypography.bodySmallSystemGrey),
+        Text('Mild', style: AppText.body.small.systemGrey),
         HSpace.s,
         ...List.generate(5, (index) {
           final severity = (index + 1) * 2;
@@ -142,7 +142,7 @@ class ConditionActivityCalendar extends StatelessWidget {
           );
         }),
         HSpace.s,
-        Text('Severe', style: AppTypography.bodySmallSystemGrey),
+        Text('Severe', style: AppText.body.small.systemGrey),
       ],
     );
   }

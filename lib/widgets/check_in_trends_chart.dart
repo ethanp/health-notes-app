@@ -54,7 +54,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
 
     final metrics = _sortedMetricNames();
     return trendsChartContainer(
-      header: Text('Trends', style: AppTypography.headlineSmall),
+      header: Text('Trends', style: AppText.headline.small),
       dateRangeSelector: dateRangeSelector(),
       indicator: improvementZonesIndicator(),
       charts: splitCharts(metrics),
@@ -68,7 +68,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
         child: Center(
           child: Text(
             'No check-in data available',
-            style: AppTypography.bodyMediumTertiary,
+            style: AppText.body.medium.tertiary,
           ),
         ),
       ),
@@ -154,7 +154,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
             HSpace.of(5),
             Text(
               metric,
-              style: AppTypography.bodySmall.copyWith(
+              style: AppText.body.small.copyWith(
                 color: isHidden ? AppColors.textTertiary : color,
                 fontWeight: FontWeight.w500,
                 fontSize: 12,
@@ -196,7 +196,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
           Expanded(
             child: Text(
               'Green zones: 1-3 (Lower is Better), 4-7 (Middle is Best), 8-10 (Higher is Better)',
-              style: AppTypography.bodySmallGreenSmall,
+              style: AppText.body.small.withColor(CupertinoColors.systemGreen).size(10),
             ),
           ),
         ],
@@ -238,7 +238,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
       children: [
         Text(
           _getTypeDisplayName(type),
-          style: AppTypography.bodySmallSemiboldPrimary,
+          style: AppText.body.small.semibold.primary.size(13),
         ),
         VSpace.of(6),
         legendForType(type, typeMetrics),
@@ -310,7 +310,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
   Widget noDataContainer() {
     return AppCard(
       child: Center(
-        child: Text('No data', style: AppTypography.bodySmallTertiary),
+        child: Text('No data', style: AppText.body.small.tertiary),
       ),
     );
   }
@@ -398,7 +398,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
               space: 4,
               child: Text(
                 DateFormat('MMM d').format(date),
-                style: AppTypography.bodySmallSecondarySmall.copyWith(
+                style: AppText.body.small.secondary.size(9).copyWith(
                   color: CupertinoColors.white.withValues(alpha: 0.7),
                 ),
               ),
@@ -423,7 +423,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
             space: 4,
             child: Text(
               '$v',
-              style: AppTypography.bodySmallSecondarySmall.copyWith(
+              style: AppText.body.small.secondary.size(9).copyWith(
                 color: CupertinoColors.white.withValues(alpha: 0.7),
               ),
             ),
@@ -555,7 +555,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
 
             return LineTooltipItem(
               '$metric: $rating',
-              AppTypography.bodySmall.copyWith(
+              AppText.body.small.copyWith(
                 color: metricObj.color,
                 fontWeight: FontWeight.w600,
                 fontSize: 10,
@@ -600,7 +600,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Text(
         filter.label,
-        style: AppTypography.bodySmall.copyWith(
+        style: AppText.body.small.copyWith(
           color: isSelected ? CupertinoColors.white : AppColors.textSecondary,
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
         ),

@@ -142,7 +142,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
             message: 'Loading your health notes...',
           ),
           error: (error, stack) =>
-              Center(child: Text('Error: $error', style: AppTypography.error)),
+              Center(child: Text('Error: $error', style: AppText.error)),
         ),
       ),
     );

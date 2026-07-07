@@ -56,11 +56,11 @@ class ConditionTimelineCard extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(condition.name, style: AppTypography.labelLargePrimary),
+              Text(condition.name, style: AppText.label.large.primary),
               VSpace.xs,
               Text(
                 formatDateRange(),
-                style: AppTypography.bodySmallTertiary,
+                style: AppText.body.small.tertiary,
               ),
             ],
           ),
@@ -83,7 +83,7 @@ class ConditionTimelineCard extends ConsumerWidget {
       ),
       child: Text(
         condition.status.displayName,
-        style: AppTypography.caption.copyWith(color: color, fontWeight: FontWeight.w600),
+        style: AppText.caption.copyWith(color: color, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -114,7 +114,7 @@ class ConditionTimelineCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(AppRadius.small),
       ),
       child: Center(
-        child: Text('No entries yet', style: AppTypography.caption),
+        child: Text('No entries yet', style: AppText.caption),
       ),
     );
   }
@@ -125,7 +125,7 @@ class ConditionTimelineCard extends ConsumerWidget {
       children: [
         Text(
           '${condition.durationDays} day${condition.durationDays == 1 ? '' : 's'}',
-          style: AppTypography.captionSecondary,
+          style: AppText.caption.quaternary,
         ),
         Icon(
           CupertinoIcons.chevron_right,

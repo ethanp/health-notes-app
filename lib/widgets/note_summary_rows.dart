@@ -60,7 +60,7 @@ class SymptomSummaryRow extends ConsumerWidget {
                 if (symptom.additionalNotes.isNotEmpty)
                   Text(
                     symptom.additionalNotes,
-                    style: AppTypography.bodySmallSecondary,
+                    style: AppText.body.small.secondary,
                   ),
               ],
             ),
@@ -77,12 +77,12 @@ class SymptomSummaryRow extends ConsumerWidget {
           text: symptom.majorComponent.isNotEmpty
               ? symptom.majorComponent
               : 'Unnamed symptom',
-          style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+          style: AppText.body.medium.copyWith(fontWeight: FontWeight.w600),
         ),
         if (symptom.minorComponent.isNotEmpty)
           TextSpan(
             text: ' — ${symptom.minorComponent}',
-            style: AppTypography.bodySmallSecondary,
+            style: AppText.body.small.secondary,
           ),
       ]),
     );
@@ -107,7 +107,7 @@ class MedicationSummaryRow extends StatelessWidget {
           Expanded(
             child: Text(
               dose.displayName,
-              style: AppTypography.bodyMedium.copyWith(
+              style: AppText.body.medium.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -146,13 +146,13 @@ class AppliedToolSummaryRow extends StatelessWidget {
         children: [
           Text(
             appliedTool.toolName,
-            style: AppTypography.bodyMedium.copyWith(
+            style: AppText.body.medium.copyWith(
               fontWeight: FontWeight.w600,
             ),
           ),
           if (appliedTool.note.isNotEmpty) ...[
             VSpace.xs,
-            Text(appliedTool.note, style: AppTypography.bodySmallSecondary),
+            Text(appliedTool.note, style: AppText.body.small.secondary),
           ],
         ],
       ),

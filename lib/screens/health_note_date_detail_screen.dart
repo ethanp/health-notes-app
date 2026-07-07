@@ -33,7 +33,7 @@ class HealthNoteDateDetailScreen extends StatelessWidget {
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('Health Notes', style: AppTypography.bodyLargePrimary),
+        middle: Text('Health Notes', style: AppText.body.large.primary),
         backgroundColor: AppColors.backgroundSecondary,
         border: Border.all(
           color: AppColors.textSecondary.withValues(alpha: 0.2),
@@ -76,7 +76,7 @@ class HealthNoteDateDetailScreen extends StatelessWidget {
         children: [
           Text(
             AppDateUtils.formatLongDate(date),
-            style: AppTypography.headlineSmallPrimary,
+            style: AppText.headline.small.primary,
           ),
           CupertinoButton(
             padding: EdgeInsets.zero,
@@ -117,12 +117,12 @@ class HealthNoteDateDetailScreen extends StatelessWidget {
             VSpace.m,
             Text(
               'No notes for this date',
-              style: AppTypography.bodyMediumPrimary,
+              style: AppText.body.medium.primary,
             ),
             VSpace.s,
             Text(
               'Notes will appear here when you add them',
-              style: AppTypography.bodySmallSecondary,
+              style: AppText.body.small.secondary,
               textAlign: TextAlign.center,
             ),
           ],

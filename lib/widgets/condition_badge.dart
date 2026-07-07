@@ -39,7 +39,7 @@ class ConditionBadge extends ConsumerWidget {
                 HSpace.xs,
                 Text(
                   condition.name,
-                  style: AppTypography.caption.copyWith(color: condition.color),
+                  style: AppText.caption.copyWith(color: condition.color),
                 ),
               ],
             ),

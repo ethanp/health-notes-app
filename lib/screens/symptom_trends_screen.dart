@@ -137,15 +137,15 @@ class _SymptomTrendsScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(stat.minorComponent, style: AppTypography.bodyMedium),
+                  Text(stat.minorComponent, style: AppText.body.medium),
                   Text(
                     AppDateUtils.formatShortDate(stat.mostRecent),
-                    style: AppTypography.bodySmallSystemGrey,
+                    style: AppText.body.small.systemGrey,
                   ),
                 ],
               ),
             ),
-            Text('${stat.count}×', style: AppTypography.bodySmallSecondary),
+            Text('${stat.count}×', style: AppText.body.small.secondary),
             HSpace.s,
             const Icon(
               CupertinoIcons.chevron_right,
@@ -203,7 +203,7 @@ class _SymptomTrendsScreenState
         ),
         child: Text(
           'Peak: Level $severity — $description',
-          style: AppTypography.labelMedium.copyWith(
+          style: AppText.label.medium.copyWith(
             color: color,
             fontWeight: FontWeight.w600,
           ),

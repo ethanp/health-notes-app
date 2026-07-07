@@ -64,7 +64,7 @@ class MedicationsSection extends StatelessWidget {
 
   Widget _content(BuildContext context) {
     if (drugDoses.isEmpty) {
-      return Text('No medications recorded', style: AppTypography.bodyMedium);
+      return Text('No medications recorded', style: AppText.body.medium);
     }
 
     if (!isEditable) {
@@ -100,8 +100,8 @@ class MedicationsSection extends StatelessWidget {
                 child: CupertinoTextField(
                   controller: controllers.name,
                   placeholder: 'Medication name',
-                  placeholderStyle: AppTypography.inputPlaceholder,
-                  style: AppTypography.input,
+                  placeholderStyle: AppText.inputPlaceholder,
+                  style: AppText.input,
                   onChanged: (value) => onUpdate(index, name: value),
                 ),
               ),
@@ -123,8 +123,8 @@ class MedicationsSection extends StatelessWidget {
                 child: CupertinoTextField(
                   controller: controllers.dosage,
                   placeholder: 'Dosage',
-                  placeholderStyle: AppTypography.inputPlaceholder,
-                  style: AppTypography.input,
+                  placeholderStyle: AppText.inputPlaceholder,
+                  style: AppText.input,
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final dosage = double.tryParse(value) ?? 0.0;
@@ -138,8 +138,8 @@ class MedicationsSection extends StatelessWidget {
                 child: CupertinoTextField(
                   controller: controllers.unit,
                   placeholder: 'Unit',
-                  placeholderStyle: AppTypography.inputPlaceholder,
-                  style: AppTypography.input,
+                  placeholderStyle: AppText.inputPlaceholder,
+                  style: AppText.input,
                   onChanged: (value) => onUpdate(index, unit: value),
                 ),
               ),
@@ -170,7 +170,7 @@ class MedicationsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Suggested', style: AppTypography.labelSmallPrimary),
+        Text('Suggested', style: AppText.label.large.size(12)),
         VSpace.xs,
         Wrap(
           spacing: 8,
@@ -207,7 +207,7 @@ class MedicationsSection extends StatelessWidget {
         ),
         child: Text(
           '${recommendation.name} ${recommendation.displayDosage}',
-          style: AppTypography.bodyMedium,
+          style: AppText.body.medium,
         ),
       ),
     );

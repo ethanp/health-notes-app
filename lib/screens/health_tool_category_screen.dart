@@ -57,7 +57,7 @@ class _HealthToolCategoryScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.category.description, style: AppTypography.bodyMedium),
+          Text(widget.category.description, style: AppText.body.medium),
         ],
       ),
     );
@@ -69,7 +69,7 @@ class _HealthToolCategoryScreenState
       loading: () =>
           EnhancedUIComponents.loadingIndicator(message: 'Loading tools...'),
       error: (error, stack) =>
-          Center(child: Text('Error: $error', style: AppTypography.error)),
+          Center(child: Text('Error: $error', style: AppText.error)),
     );
   }
 
@@ -118,7 +118,7 @@ class _HealthToolCategoryScreenState
   Widget toolHeader(HealthTool tool) {
     return Row(
       children: [
-        Expanded(child: Text(tool.name, style: AppTypography.labelLarge)),
+        Expanded(child: Text(tool.name, style: AppText.label.large)),
         const Icon(
           CupertinoIcons.chevron_right,
           color: CupertinoColors.systemGrey,
@@ -131,7 +131,7 @@ class _HealthToolCategoryScreenState
   Widget toolDescription(HealthTool tool) {
     return Text(
       tool.description,
-      style: AppTypography.bodyMediumTertiary,
+      style: AppText.body.medium.tertiary,
       maxLines: 3,
       overflow: TextOverflow.ellipsis,
     );

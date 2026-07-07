@@ -26,7 +26,7 @@ class GroupedNotesSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Health Notes (${notes.length})',
-            style: AppTypography.headlineSmall),
+            style: AppText.headline.small),
         VSpace.of(12),
         if (header != null) header!,
         ..._dateGroupedCards(),

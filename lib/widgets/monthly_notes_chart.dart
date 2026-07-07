@@ -59,7 +59,7 @@ class MonthlyNotesChart extends StatelessWidget {
                       space: 4,
                       child: Text(
                         _formatMonthShort(monthKey),
-                        style: AppTypography.bodySmallSystemGrey.copyWith(
+                        style: AppText.body.small.systemGrey.copyWith(
                           fontSize: 10,
                         ),
                       ),
@@ -78,7 +78,7 @@ class MonthlyNotesChart extends StatelessWidget {
                   getTitlesWidget: (value, meta) {
                     return Text(
                       value.toInt().toString(),
-                      style: AppTypography.bodySmallSystemGrey.copyWith(
+                      style: AppText.body.small.systemGrey.copyWith(
                         fontSize: 10,
                       ),
                     );
@@ -123,7 +123,7 @@ class MonthlyNotesChart extends StatelessWidget {
                   final count = spot.y.toInt();
                   return LineTooltipItem(
                     '$count notes\n',
-                    AppTypography.bodySmall.copyWith(
+                    AppText.body.small.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w600,
                       fontSize: 11,
@@ -131,7 +131,7 @@ class MonthlyNotesChart extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: _formatMonthFull(monthKey),
-                        style: AppTypography.bodySmall.copyWith(
+                        style: AppText.body.small.copyWith(
                           color: CupertinoColors.white,
                           fontSize: 10,
                         ),

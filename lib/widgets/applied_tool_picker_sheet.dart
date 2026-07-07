@@ -99,7 +99,7 @@ class _AppliedToolPickerSheetState
       Row(
         children: [
           Expanded(
-            child: Text('Select a tool', style: AppTypography.headlineSmall),
+            child: Text('Select a tool', style: AppText.headline.small),
           ),
           CupertinoButton(
             padding: EdgeInsets.zero,
@@ -157,7 +157,7 @@ class _AppliedToolPickerSheetState
       loading: () =>
           EnhancedUIComponents.loadingIndicator(message: 'Loading tools...'),
       error: (e, st) =>
-          Center(child: Text('Error: $e', style: AppTypography.error)),
+          Center(child: Text('Error: $e', style: AppText.error)),
     );
   }
 
@@ -173,11 +173,11 @@ class _AppliedToolPickerSheetState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(tool.name, style: AppTypography.labelLarge),
+                  Text(tool.name, style: AppText.label.large),
                   VSpace.xs,
                   Text(
                     tool.description,
-                    style: AppTypography.bodySmallSecondary,
+                    style: AppText.body.small.secondary,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -188,7 +188,7 @@ class _AppliedToolPickerSheetState
             if (isSelected)
               Text(
                 'Selected',
-                style: AppTypography.bodySmallSystemGreySemibold,
+                style: AppText.body.small.systemGrey.semibold,
               ),
           ],
         ),

@@ -79,7 +79,7 @@ class SymptomsSection extends ConsumerWidget {
 
   Widget _content(BuildContext context, WidgetRef ref) {
     if (symptoms.isEmpty) {
-      return Text('No symptoms recorded', style: AppTypography.bodyMedium);
+      return Text('No symptoms recorded', style: AppText.body.medium);
     }
 
     if (!isEditable) {
@@ -196,8 +196,8 @@ class SymptomsSection extends ConsumerWidget {
               child: Text(
                 label,
                 style: isEmpty
-                    ? AppTypography.inputPlaceholder
-                    : AppTypography.bodyMedium,
+                    ? AppText.inputPlaceholder
+                    : AppText.body.medium,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -405,7 +405,7 @@ class SymptomsSection extends ConsumerWidget {
   ) {
     return Row(
       children: [
-        Text('Severity:', style: AppTypography.labelMedium),
+        Text('Severity:', style: AppText.label.medium),
         HSpace.m,
         Expanded(
           child: CupertinoSlider(
@@ -424,7 +424,7 @@ class SymptomsSection extends ConsumerWidget {
           width: 40,
           child: Text(
             '${symptom.severityLevel}',
-            style: AppTypography.bodyMedium,
+            style: AppText.body.medium,
             textAlign: TextAlign.center,
           ),
         ),
@@ -448,7 +448,7 @@ class SymptomsSection extends ConsumerWidget {
             onPressed: () => onUpdate(index, conditionId: ''),
             child: Text(
               'Remove',
-              style: AppTypography.caption.copyWith(
+              style: AppText.caption.copyWith(
                 color: CupertinoColors.destructiveRed,
               ),
             ),
@@ -471,7 +471,7 @@ class SymptomsSection extends ConsumerWidget {
           HSpace.xs,
           Text(
             '+ Link Condition',
-            style: AppTypography.bodySmall.copyWith(
+            style: AppText.body.small.copyWith(
               color: CupertinoColors.systemBlue,
             ),
           ),
@@ -554,8 +554,8 @@ class SymptomsSection extends ConsumerWidget {
     return CupertinoTextField(
       controller: controllers.additionalNotes,
       placeholder: 'Additional notes (optional)',
-      placeholderStyle: AppTypography.inputPlaceholder,
-      style: AppTypography.input,
+      placeholderStyle: AppText.inputPlaceholder,
+      style: AppText.input,
       maxLines: 2,
       onChanged: (value) => onUpdate(index, additionalNotes: value),
     );

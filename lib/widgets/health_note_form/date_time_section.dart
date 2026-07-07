@@ -27,7 +27,7 @@ class DateTimeSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Date & Time', style: AppTypography.headlineSmall),
+          Text('Date & Time', style: AppText.headline.small),
           VSpace.m,
           Container(
             height: 200,
@@ -51,13 +51,13 @@ class DateTimeSection extends StatelessWidget {
           Expanded(
             child: Text(
               DateFormat('EEEE, MMMM d, yyyy').format(selectedDateTime),
-              style: AppTypography.bodyLargePrimary,
+              style: AppText.body.large.primary,
             ),
           ),
           HSpace.m,
           Text(
             DateFormat('h:mm a').format(selectedDateTime),
-            style: AppTypography.bodyMediumTertiary,
+            style: AppText.body.medium.tertiary,
           ),
         ],
       ),

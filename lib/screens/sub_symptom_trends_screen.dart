@@ -117,7 +117,7 @@ class _SubSymptomTrendsScreenState
         ),
         child: Text(
           'Peak: Level $severity — $description',
-          style: AppTypography.labelMedium.copyWith(
+          style: AppText.label.medium.copyWith(
             color: color,
             fontWeight: FontWeight.w600,
           ),

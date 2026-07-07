@@ -180,15 +180,15 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
                     Text(
                       _getMetricTypeDisplayName(type),
                       style: isSelected
-                          ? AppTypography.bodyMediumSemiboldBlue
-                          : AppTypography.bodyMediumWhite,
+                          ? AppText.body.medium.semibold.systemBlue
+                          : AppText.body.medium.white,
                     ),
                     VSpace.of(2),
                     Text(
                       type.description,
                       style: isSelected
-                          ? AppTypography.metricTypeSelected
-                          : AppTypography.metricTypeUnselected,
+                          ? AppText.metricTypeSelected
+                          : AppText.metricTypeUnselected,
                     ),
                   ],
                 ),

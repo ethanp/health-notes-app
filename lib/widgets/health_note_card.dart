@@ -38,7 +38,7 @@ class HealthNoteCard extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Text(
         AppDateUtils.formatTime(note.dateTime),
-        style: AppTypography.bodySmallSystemGrey,
+        style: AppText.body.small.systemGrey,
       ),
     );
   }
@@ -67,7 +67,7 @@ class HealthNoteCard extends StatelessWidget {
   Widget _buildGeneralNotes() {
     return Text(
       note.notes,
-      style: AppTypography.bodySmall,
+      style: AppText.body.small,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
     );

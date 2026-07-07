@@ -89,7 +89,7 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
           alignment: Alignment.centerRight,
           child: Text(
             'Total doses: $totalDoses',
-            style: AppTypography.bodySmallSystemGrey,
+            style: AppText.body.small.systemGrey,
           ),
         ),
         VSpace.of(12),

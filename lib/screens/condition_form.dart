@@ -109,15 +109,15 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Condition Name', style: AppTypography.labelMedium),
+        Text('Condition Name', style: AppText.label.medium),
         VSpace.s,
         CupertinoTextField(
           controller: nameController,
           placeholder: 'e.g., Cold, Migraine, Flare-up',
           padding: const EdgeInsets.all(16),
           decoration: AppComponents.inputField,
-          style: AppTypography.input,
-          placeholderStyle: AppTypography.inputPlaceholder,
+          style: AppText.input,
+          placeholderStyle: AppText.inputPlaceholder,
         ),
       ],
     );
@@ -127,7 +127,7 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Start Date', style: AppTypography.labelMedium),
+        Text('Start Date', style: AppText.label.medium),
         VSpace.s,
         CupertinoButton(
           padding: EdgeInsets.zero,
@@ -141,7 +141,7 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
                 HSpace.m,
                 Text(
                   DateFormat('EEEE, MMMM d, y').format(startDate),
-                  style: AppTypography.bodyMedium,
+                  style: AppText.body.medium,
                 ),
               ],
             ),
@@ -155,7 +155,7 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Color', style: AppTypography.labelMedium),
+        Text('Color', style: AppText.label.medium),
         VSpace.s,
         ColorPickerGrid(
           colors: ColorPickerGrid.defaultColors,
@@ -170,7 +170,7 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Icon', style: AppTypography.labelMedium),
+        Text('Icon', style: AppText.label.medium),
         VSpace.s,
         Wrap(
           spacing: 12,
@@ -211,15 +211,15 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Notes', style: AppTypography.labelMedium),
+        Text('Notes', style: AppText.label.medium),
         VSpace.s,
         CupertinoTextField(
           controller: notesController,
           placeholder: 'Optional notes about this condition...',
           padding: const EdgeInsets.all(16),
           decoration: AppComponents.inputField,
-          style: AppTypography.input,
-          placeholderStyle: AppTypography.inputPlaceholder,
+          style: AppText.input,
+          placeholderStyle: AppText.inputPlaceholder,
           maxLines: 4,
         ),
       ],

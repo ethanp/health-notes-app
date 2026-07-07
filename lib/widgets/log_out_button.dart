@@ -12,7 +12,7 @@ class LogOutButton extends StatelessWidget {
       onPressed: () => AuthUtils.showSignOutDialog(context),
       child: Text(
         'Log out',
-        style: AppTypography.bodyMedium.copyWith(
+        style: AppText.body.medium.copyWith(
           color: CupertinoColors.systemBlue,
         ),
       ),

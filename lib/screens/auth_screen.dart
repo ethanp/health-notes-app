@@ -109,17 +109,17 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     final Widget title = Text(
       'Health Notes',
       textAlign: TextAlign.center,
-      style: AppTypography.headlineLarge,
+      style: AppText.headline.large,
     );
     final Widget subtitle = Text(
       'Your personal health companion',
       textAlign: TextAlign.center,
-      style: AppTypography.bodyLargeSecondary,
+      style: AppText.body.large.secondary,
     );
     final Widget briefInfo = Text(
       'Extract insights about your health patterns by performing self-surveys.',
       textAlign: TextAlign.center,
-      style: AppTypography.bodyMediumTertiary,
+      style: AppText.body.medium.tertiary,
     );
     return SlideTransition(
       position: _slideAnimation,
@@ -145,7 +145,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
       child: Text(
         'Your health data stays private and secure',
         textAlign: TextAlign.center,
-        style: AppTypography.captionQuaternary,
+        style: AppText.caption.quaternary,
       ),
     );
   }

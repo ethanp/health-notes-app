@@ -104,12 +104,12 @@ class _MetricsManagementScreenState
           VSpace.m,
           Text(
             'Failed to load metrics',
-            style: AppTypography.navTitleTextStyle,
+            style: AppText.navTitle,
           ),
           VSpace.s,
           Text(
             error.toString(),
-            style: AppTypography.baseTextStyle,
+            style: AppText.body.medium,
             textAlign: TextAlign.center,
           ),
           VSpace.m,
@@ -134,11 +134,11 @@ class _MetricsManagementScreenState
               color: CupertinoColors.systemGrey,
             ),
             VSpace.m,
-            Text('No metrics yet', style: AppTypography.navTitleTextStyle),
+            Text('No metrics yet', style: AppText.navTitle),
             VSpace.s,
             Text(
               'Add your first metric to start tracking your health',
-              style: AppTypography.baseTextStyle,
+              style: AppText.body.medium,
               textAlign: TextAlign.center,
             ),
             VSpace.l,

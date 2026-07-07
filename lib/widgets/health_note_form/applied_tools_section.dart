@@ -57,7 +57,7 @@ class AppliedToolsSection extends StatelessWidget {
 
   Widget _content(BuildContext context) {
     if (appliedTools.isEmpty) {
-      return Text('No tools applied', style: AppTypography.bodyMedium);
+      return Text('No tools applied', style: AppText.body.medium);
     }
 
     if (!isEditable) {
@@ -92,7 +92,7 @@ class AppliedToolsSection extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(tool.toolName, style: AppTypography.labelLarge),
+                child: Text(tool.toolName, style: AppText.label.large),
               ),
               CupertinoButton(
                 padding: EdgeInsets.zero,
@@ -108,8 +108,8 @@ class AppliedToolsSection extends StatelessWidget {
           CupertinoTextField(
             controller: noteController,
             placeholder: 'Note for this tool (optional)',
-            placeholderStyle: AppTypography.inputPlaceholder,
-            style: AppTypography.input,
+            placeholderStyle: AppText.inputPlaceholder,
+            style: AppText.input,
             maxLines: 2,
             onChanged: (value) => onUpdateNote(index, value),
           ),

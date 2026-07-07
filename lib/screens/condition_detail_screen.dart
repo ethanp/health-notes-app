@@ -86,7 +86,7 @@ class ConditionDetailScreen extends ConsumerWidget {
       ),
       error: (error, stack) => CupertinoPageScaffold(
         navigationBar: EnhancedUIComponents.navigationBar(title: 'Error'),
-        child: Center(child: Text('Error: $error', style: AppTypography.error)),
+        child: Center(child: Text('Error: $error', style: AppText.error)),
       ),
     );
   }
@@ -164,11 +164,11 @@ class ConditionDetailScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(condition.name, style: AppTypography.headlineSmall),
+                Text(condition.name, style: AppText.headline.small),
                 VSpace.xs,
                 Text(
                   formatDateRange(condition),
-                  style: AppTypography.bodySmallTertiary,
+                  style: AppText.body.small.tertiary,
                 ),
               ],
             ),
@@ -192,7 +192,7 @@ class ConditionDetailScreen extends ConsumerWidget {
       ),
       child: Text(
         condition.status.displayName,
-        style: AppTypography.labelMedium.copyWith(color: color),
+        style: AppText.label.medium.copyWith(color: color),
       ),
     );
   }
@@ -211,7 +211,7 @@ class ConditionDetailScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Statistics', style: AppTypography.labelLargePrimary),
+          Text('Statistics', style: AppText.label.large.primary),
           VSpace.m,
           Row(
             children: [
@@ -263,15 +263,15 @@ class ConditionDetailScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: AppTypography.caption),
+          Text(label, style: AppText.caption),
           VSpace.xs,
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(value, style: AppTypography.headlineMedium),
+              Text(value, style: AppText.headline.medium),
               HSpace.xs,
-              Text(unit, style: AppTypography.caption),
+              Text(unit, style: AppText.caption),
             ],
           ),
         ],
@@ -289,7 +289,7 @@ class ConditionDetailScreen extends ConsumerWidget {
         child: Center(
           child: Text(
             'No entries yet. Add entries via check-ins.',
-            style: AppTypography.bodyMediumSystemGrey,
+            style: AppText.body.medium.systemGrey,
           ),
         ),
       );
@@ -319,7 +319,7 @@ class ConditionDetailScreen extends ConsumerWidget {
                 children: [
                   Text(
                     DateFormat('EEE, MMM d').format(entry.entryDate),
-                    style: AppTypography.labelMedium,
+                    style: AppText.label.medium,
                   ),
                   VSpace.xs,
                   Row(
@@ -362,7 +362,7 @@ class ConditionDetailScreen extends ConsumerWidget {
       ),
       child: Text(
         phase.displayName,
-        style: AppTypography.caption.copyWith(color: phase.color),
+        style: AppText.caption.copyWith(color: phase.color),
       ),
     );
   }
@@ -374,7 +374,7 @@ class ConditionDetailScreen extends ConsumerWidget {
         color: severityColor(severity),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text('$severity', style: AppTypography.labelMediumWhite),
+      child: Text('$severity', style: AppText.label.medium.white),
     );
   }
 
@@ -547,12 +547,12 @@ class ConditionDetailScreen extends ConsumerWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: Text(description, style: AppTypography.bodyMedium),
+                  child: Text(description, style: AppText.body.medium),
                 ),
                 HSpace.s,
                 Text(
                   '${occurrences.length}×',
-                  style: AppTypography.bodySmallSecondary,
+                  style: AppText.body.small.secondary,
                 ),
                 HSpace.s,
                 EnhancedUIComponents.statusIndicator(

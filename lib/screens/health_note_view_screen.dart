@@ -80,7 +80,7 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
       loading: () =>
           const SyncStatusWidget.loading(message: 'Loading note data...'),
       error: (error, stack) => Center(
-        child: Text('Error loading note: $error', style: AppTypography.error),
+        child: Text('Error loading note: $error', style: AppText.error),
       ),
     );
   }
@@ -127,14 +127,14 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
         showCupertinoDialog(
           context: context,
           builder: (context) => CupertinoAlertDialog(
-            title: Text('Error', style: AppTypography.headlineSmall),
+            title: Text('Error', style: AppText.headline.small),
             content: Text(
               'Failed to update note: $e',
-              style: AppTypography.error,
+              style: AppText.error,
             ),
             actions: [
               CupertinoDialogAction(
-                child: Text('OK', style: AppTypography.buttonSecondary),
+                child: Text('OK', style: AppText.buttonSecondary),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ],

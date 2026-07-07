@@ -40,13 +40,13 @@ class StatRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: Text(label, style: AppTypography.bodyMediumWhite)),
+          Expanded(child: Text(label, style: AppText.body.medium.white)),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 '$value $unit',
-                style: AppTypography.bodyMediumPrimarySemibold,
+                style: AppText.body.medium.semibold.withColor(AppColors.primary),
               ),
               if (onTap != null) HSpace.s,
               if (onTap != null)

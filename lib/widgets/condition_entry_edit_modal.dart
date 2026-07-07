@@ -74,11 +74,11 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit Entry', style: AppTypography.headlineSmall),
+            Text('Edit Entry', style: AppText.headline.small),
             VSpace.xs,
             Text(
               DateFormat('EEEE, MMMM d, y').format(widget.entry.entryDate),
-              style: AppTypography.bodySmallTertiary,
+              style: AppText.body.small.tertiary,
             ),
           ],
         ),
@@ -102,7 +102,7 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Severity', style: AppTypography.labelMedium),
+            Text('Severity', style: AppText.label.medium),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
@@ -111,7 +111,7 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
               ),
               child: Text(
                 '$severity/10',
-                style: AppTypography.labelMediumWhite,
+                style: AppText.label.medium.white,
               ),
             ),
           ],
@@ -129,8 +129,8 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Mild', style: AppTypography.captionSecondary),
-            Text('Severe', style: AppTypography.captionSecondary),
+            Text('Mild', style: AppText.caption.quaternary),
+            Text('Severe', style: AppText.caption.quaternary),
           ],
         ),
       ],
@@ -141,7 +141,7 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Phase', style: AppTypography.labelMedium),
+        Text('Phase', style: AppText.label.medium),
         VSpace.s,
         Wrap(
           spacing: 8,
@@ -168,7 +168,7 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
         ),
         child: Text(
           p.displayName,
-          style: AppTypography.labelMedium.copyWith(
+          style: AppText.label.medium.copyWith(
             color: isSelected ? p.color : AppColors.textSecondary,
           ),
         ),
@@ -180,15 +180,15 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Notes', style: AppTypography.labelMedium),
+        Text('Notes', style: AppText.label.medium),
         VSpace.s,
         CupertinoTextField(
           controller: notesController,
           placeholder: 'Optional notes for this entry...',
           padding: const EdgeInsets.all(12),
           decoration: AppComponents.inputField,
-          style: AppTypography.input,
-          placeholderStyle: AppTypography.inputPlaceholder,
+          style: AppText.input,
+          placeholderStyle: AppText.inputPlaceholder,
           maxLines: 3,
         ),
       ],

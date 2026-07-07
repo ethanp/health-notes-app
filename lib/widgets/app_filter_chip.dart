@@ -29,7 +29,7 @@ class AppFilterChip extends StatelessWidget {
         child: Text(
           label,
           style:
-              isActive ? AppTypography.labelMediumWhite : AppTypography.labelMedium,
+              isActive ? AppText.label.medium.white : AppText.label.medium,
         ),
       ),
     );

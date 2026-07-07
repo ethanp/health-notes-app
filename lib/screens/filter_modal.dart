@@ -47,7 +47,7 @@ class _FilterModalState extends State<FilterModal> {
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: applyFilters,
-          child: Text('Apply', style: AppTypography.buttonSecondary),
+          child: Text('Apply', style: AppText.buttonSecondary),
         ),
       ),
       child: SafeArea(
@@ -73,7 +73,7 @@ class _FilterModalState extends State<FilterModal> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Filter by Date', style: AppTypography.headlineSmall),
+          Text('Filter by Date', style: AppText.headline.small),
           VSpace.m,
           Row(
             children: [
@@ -100,8 +100,8 @@ class _FilterModalState extends State<FilterModal> {
             ? DateFormat('M/d/yyyy').format(_tempSelectedDate!)
             : 'Select Date',
         style: _tempSelectedDate != null
-            ? AppTypography.buttonPrimary
-            : AppTypography.bodyMedium,
+            ? AppText.buttonPrimary
+            : AppText.body.medium,
       ),
     );
   }
@@ -127,12 +127,12 @@ class _FilterModalState extends State<FilterModal> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Filter by Drug', style: AppTypography.headlineSmall),
+          Text('Filter by Drug', style: AppText.headline.small),
           VSpace.m,
           if (widget.availableDrugs.isEmpty)
             Text(
               'No drugs recorded yet',
-              style: AppTypography.bodyMediumTertiary,
+              style: AppText.body.medium.tertiary,
             )
           else
             Wrap(
@@ -167,7 +167,7 @@ class _FilterModalState extends State<FilterModal> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Select Date', style: AppTypography.headlineSmall),
+              Text('Select Date', style: AppText.headline.small),
               CupertinoButton(
                 padding: EdgeInsets.zero,
                 onPressed: () => setState(() => _isDatePickerVisible = false),
@@ -231,7 +231,7 @@ class _FilterModalState extends State<FilterModal> {
       children: months
           .map(
             (month) =>
-                Center(child: Text(month, style: AppTypography.bodyMedium)),
+                Center(child: Text(month, style: AppText.body.medium)),
           )
           .toList(),
     );
@@ -250,7 +250,7 @@ class _FilterModalState extends State<FilterModal> {
       ),
       children: days
           .map(
-            (day) => Center(child: Text(day, style: AppTypography.bodyMedium)),
+            (day) => Center(child: Text(day, style: AppText.body.medium)),
           )
           .toList(),
     );
@@ -270,7 +270,7 @@ class _FilterModalState extends State<FilterModal> {
       children: years
           .map(
             (year) =>
-                Center(child: Text(year, style: AppTypography.bodyMedium)),
+                Center(child: Text(year, style: AppText.body.medium)),
           )
           .toList(),
     );

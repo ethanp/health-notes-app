@@ -51,7 +51,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
             message: 'Loading your health tools...',
           ),
           error: (error, stack) =>
-              Center(child: Text('Error: $error', style: AppTypography.error)),
+              Center(child: Text('Error: $error', style: AppText.error)),
         ),
       ),
     );
@@ -159,11 +159,11 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(category.name, style: AppTypography.labelLarge),
+        Text(category.name, style: AppText.label.large),
         VSpace.xs,
         Text(
           category.description,
-          style: AppTypography.bodyMediumTertiary,
+          style: AppText.body.medium.tertiary,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),

@@ -56,14 +56,14 @@ class HealthNotesActivityCalendar extends StatelessWidget {
   Widget noteActivityLegend(int maxCount) {
     return Row(
       children: [
-        Text('Less', style: AppTypography.bodySmallSystemGrey),
+        Text('Less', style: AppText.body.small.systemGrey),
         HSpace.s,
         ...intensityGradientSquares(),
         HSpace.s,
-        Text('More', style: AppTypography.bodySmallSystemGrey),
+        Text('More', style: AppText.body.small.systemGrey),
         const Spacer(),
         if (maxCount > 0)
-          Text('Max: $maxCount/day', style: AppTypography.bodySmallSystemGrey),
+          Text('Max: $maxCount/day', style: AppText.body.small.systemGrey),
       ],
     );
   }

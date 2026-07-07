@@ -66,10 +66,10 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
             ),
           ),
           VSpace.m,
-          Text(widget.title, style: AppTypography.headlineSmall),
+          Text(widget.title, style: AppText.headline.small),
           if (widget.subtitle != null) ...[
             VSpace.xs,
-            Text(widget.subtitle!, style: AppTypography.bodySmall),
+            Text(widget.subtitle!, style: AppText.body.small),
           ],
           VSpace.m,
           Padding(
@@ -77,7 +77,7 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
             child: CupertinoSearchTextField(
               controller: _searchController,
               placeholder: 'Search...',
-              style: AppTypography.bodyMedium,
+              style: AppText.body.medium,
               onChanged: (value) => setState(() => _searchQuery = value),
             ),
           ),
@@ -106,7 +106,7 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
                   Center(
                     child: Text(
                       'No matches',
-                      style: AppTypography.bodyMediumSecondary,
+                      style: AppText.body.medium.secondary,
                     ),
                   ),
                   VSpace.m,
@@ -124,7 +124,7 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
   Widget _sectionHeader(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Text(text, style: AppTypography.labelSmall),
+      child: Text(text, style: AppText.label.small),
     );
   }
 
@@ -160,12 +160,12 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
               Expanded(
                 child: Text(
                   component.name.isEmpty ? '(none)' : component.name,
-                  style: AppTypography.bodyMedium,
+                  style: AppText.body.medium,
                 ),
               ),
               Text(
                 '(${component.displayCount})',
-                style: AppTypography.bodySmall,
+                style: AppText.body.small,
               ),
             ],
           ),
@@ -191,7 +191,7 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
             HSpace.s,
             Text(
               'Create New',
-              style: AppTypography.bodyMedium.copyWith(
+              style: AppText.body.medium.copyWith(
                 color: AppColors.primary,
               ),
             ),

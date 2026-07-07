@@ -138,7 +138,7 @@ class SyncStatusWidget extends ConsumerWidget {
             VSpace.m,
             Text(
               message!,
-              style: AppTypography.bodyMedium,
+              style: AppText.body.medium,
               textAlign: TextAlign.center,
             ),
           ],
@@ -196,13 +196,13 @@ class SyncStatusWidget extends ConsumerWidget {
         VSpace.m,
         Text(
           'No internet connection',
-          style: AppTypography.headlineSmall,
+          style: AppText.headline.small,
           textAlign: TextAlign.center,
         ),
         VSpace.s,
         Text(
           'Data will sync when connection is restored',
-          style: AppTypography.bodyMediumSystemGrey,
+          style: AppText.body.medium.systemGrey,
           textAlign: TextAlign.center,
         ),
       ];
@@ -218,13 +218,13 @@ class SyncStatusWidget extends ConsumerWidget {
         VSpace.m,
         Text(
           'Sync Error',
-          style: AppTypography.headlineSmall,
+          style: AppText.headline.small,
           textAlign: TextAlign.center,
         ),
         VSpace.s,
         Text(
           syncError,
-          style: AppTypography.bodyMediumSystemGrey,
+          style: AppText.body.medium.systemGrey,
           textAlign: TextAlign.center,
         ),
         if (onRetry != null) ...[
@@ -243,14 +243,14 @@ class SyncStatusWidget extends ConsumerWidget {
         VSpace.m,
         Text(
           'Syncing data...',
-          style: AppTypography.headlineSmall,
+          style: AppText.headline.small,
           textAlign: TextAlign.center,
         ),
         if (message != null) ...[
           VSpace.s,
           Text(
             message!,
-            style: AppTypography.bodyMediumSystemGrey,
+            style: AppText.body.medium.systemGrey,
             textAlign: TextAlign.center,
           ),
         ],
@@ -266,7 +266,7 @@ class SyncStatusWidget extends ConsumerWidget {
       VSpace.m,
       Text(
         'Data in sync',
-        style: AppTypography.headlineSmall,
+        style: AppText.headline.small,
         textAlign: TextAlign.center,
       ),
     ];
@@ -290,7 +290,7 @@ class SyncStatusWidget extends ConsumerWidget {
           Expanded(
             child: Text(
               message ?? 'Loading...',
-              style: AppTypography.bodyMediumSystemGrey,
+              style: AppText.body.medium.systemGrey,
             ),
           ),
         ],
@@ -329,14 +329,14 @@ class SyncStatusWidget extends ConsumerWidget {
             VSpace.m,
             Text(
               'Error',
-              style: AppTypography.headlineSmall,
+              style: AppText.headline.small,
               textAlign: TextAlign.center,
             ),
             if (errorMessage != null) ...[
               VSpace.s,
               Text(
                 errorMessage!,
-                style: AppTypography.bodyMediumSystemGrey,
+                style: AppText.body.medium.systemGrey,
                 textAlign: TextAlign.center,
               ),
             ],

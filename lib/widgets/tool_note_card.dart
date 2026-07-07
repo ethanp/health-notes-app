@@ -34,7 +34,7 @@ class ToolNoteCard extends StatelessWidget {
                   children: [
                     Text(
                       AppDateUtils.formatLongDate(note.dateTime),
-                      style: AppTypography.labelMedium,
+                      style: AppText.label.medium,
                     ),
                     VSpace.xs,
                     Row(
@@ -47,7 +47,7 @@ class ToolNoteCard extends StatelessWidget {
                         HSpace.xs,
                         Text(
                           appliedTool.toolName,
-                          style: AppTypography.bodyMediumPrimary,
+                          style: AppText.body.medium.primary,
                         ),
                       ],
                     ),
@@ -55,7 +55,7 @@ class ToolNoteCard extends StatelessWidget {
                       VSpace.xs,
                       Text(
                         appliedTool.note,
-                        style: AppTypography.bodySmallSecondary,
+                        style: AppText.body.small.secondary,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -64,7 +64,7 @@ class ToolNoteCard extends StatelessWidget {
                       VSpace.xs,
                       Text(
                         note.notes,
-                        style: AppTypography.bodySmallTertiary,
+                        style: AppText.body.small.tertiary,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),

@@ -53,13 +53,13 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
             loading: () =>
                 const SyncStatusWidget.loading(message: 'Loading notes...'),
             error: (error, stack) => Center(
-              child: Text('Error: $error', style: AppTypography.error),
+              child: Text('Error: $error', style: AppText.error),
             ),
           ),
           loading: () =>
               const SyncStatusWidget.loading(message: 'Loading tool...'),
           error: (error, stack) =>
-              Center(child: Text('Error: $error', style: AppTypography.error)),
+              Center(child: Text('Error: $error', style: AppText.error)),
         ),
       ),
     );
@@ -142,7 +142,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(tool.name, style: AppTypography.headlineSmall),
+                    Text(tool.name, style: AppText.headline.small),
                     VSpace.xs,
                     categoryAsync.when(
                       data: (category) => category != null
@@ -158,7 +158,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
           ),
           if (tool.description.isNotEmpty) ...[
             VSpace.m,
-            Text(tool.description, style: AppTypography.bodyMediumSecondary),
+            Text(tool.description, style: AppText.body.medium.secondary),
           ],
         ],
       ),
@@ -172,7 +172,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
         color: AppColors.backgroundTertiary,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(category.name, style: AppTypography.caption),
+      child: Text(category.name, style: AppText.caption),
     );
   }
 
@@ -196,7 +196,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Statistics', style: AppTypography.labelLargePrimary),
+          Text('Statistics', style: AppText.label.large.primary),
           VSpace.m,
           Row(
             children: [
@@ -240,9 +240,9 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: AppTypography.caption),
+          Text(label, style: AppText.caption),
           VSpace.xs,
-          Text(value, style: AppTypography.headlineMedium),
+          Text(value, style: AppText.headline.medium),
         ],
       ),
     );
@@ -252,7 +252,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Search Notes', style: AppTypography.labelLarge),
+        Text('Search Notes', style: AppText.label.large),
         VSpace.s,
         EnhancedUIComponents.searchField(
           controller: searchController,
@@ -277,7 +277,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
       children: [
         Text(
           'Health Notes (${notes.length})',
-          style: AppTypography.headlineSmall,
+          style: AppText.headline.small,
         ),
         VSpace.s,
         ...notes.map((note) => ToolNoteCard(note: note, toolId: widget.toolId)),
@@ -368,7 +368,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
               usageBadge(count),
               if (appliedTool.note.isNotEmpty) ...[
                 VSpace.m,
-                Text(appliedTool.note, style: AppTypography.bodyMediumWhite),
+                Text(appliedTool.note, style: AppText.body.medium.white),
               ],
             ],
           ),
@@ -400,7 +400,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
               VSpace.m,
               Text(
                 'Applied in ${notesForDate.length} note${notesForDate.length == 1 ? '' : 's'}',
-                style: AppTypography.bodyMediumWhite,
+                style: AppText.body.medium.white,
               ),
             ],
           ),
@@ -439,7 +439,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
       ),
       child: Text(
         '$count use${count == 1 ? '' : 's'}',
-        style: AppTypography.labelMedium.copyWith(
+        style: AppText.label.medium.copyWith(
           color: AppColors.primary,
           fontWeight: FontWeight.w600,
         ),

@@ -265,7 +265,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
         statRows: [
           Text(
             'No recent symptoms recorded',
-            style: AppTypography.bodyMediumSystemGrey,
+            style: AppText.body.medium.systemGrey,
           ),
         ],
       );
@@ -283,7 +283,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
         statRows: [
           Text(
             'No monthly data available',
-            style: AppTypography.bodyMediumSystemGrey,
+            style: AppText.body.medium.systemGrey,
           ),
         ],
       );
@@ -392,7 +392,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
             statRows: [
               Text(
                 'No check-in data available',
-                style: AppTypography.bodyMediumSystemGrey,
+                style: AppText.body.medium.systemGrey,
               ),
             ],
           );

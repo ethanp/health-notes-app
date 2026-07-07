@@ -85,7 +85,7 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
         children: [
           Text(
             AppDateUtils.formatLongDate(widget.date),
-            style: AppTypography.headlineSmallPrimary,
+            style: AppText.headline.small.primary,
           ),
           CupertinoButton(
             padding: EdgeInsets.zero,
@@ -119,12 +119,12 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
                 children: [
                   Text(
                     checkIn.metricName,
-                    style: AppTypography.labelLargePrimary,
+                    style: AppText.label.large.primary,
                   ),
                   VSpace.xs,
                   Text(
                     AppDateUtils.formatTime(checkIn.dateTime),
-                    style: AppTypography.bodySmallSecondary,
+                    style: AppText.body.small.secondary,
                   ),
                 ],
               ),
@@ -137,7 +137,7 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
               ),
               child: Text(
                 '${checkIn.rating}',
-                style: AppTypography.buttonPrimaryBold,
+                style: AppText.buttonPrimary.bold,
               ),
             ),
           ],
@@ -176,12 +176,12 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
             VSpace.m,
             Text(
               'No check-ins for this date',
-              style: AppTypography.bodyMediumPrimary,
+              style: AppText.body.medium.primary,
             ),
             VSpace.s,
             Text(
               'Check-ins will appear here when you add them',
-              style: AppTypography.bodySmallSecondary,
+              style: AppText.body.small.secondary,
               textAlign: TextAlign.center,
             ),
           ],
@@ -207,7 +207,7 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
 
   ObstructingPreferredSizeWidget headerNavigationBar() {
     return CupertinoNavigationBar(
-      middle: Text('Check-ins', style: AppTypography.bodyLargePrimary),
+      middle: Text('Check-ins', style: AppText.body.large.primary),
       backgroundColor: AppColors.backgroundSecondary,
       border: Border.all(color: AppColors.textSecondary.withValues(alpha: 0.2)),
       leading: CupertinoButton(

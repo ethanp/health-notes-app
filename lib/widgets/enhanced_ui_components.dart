@@ -18,8 +18,8 @@ class EnhancedUIComponents {
       child: CupertinoSearchTextField(
         controller: controller,
         placeholder: placeholder,
-        placeholderStyle: AppTypography.inputPlaceholder,
-        style: AppTypography.input,
+        placeholderStyle: AppText.inputPlaceholder,
+        style: AppText.input,
         onChanged: onChanged,
         onSuffixTap: showSuffix ? onSuffixTap : null,
         decoration: const BoxDecoration(),
@@ -37,20 +37,12 @@ class EnhancedUIComponents {
         horizontal: AppSpacing.m,
         vertical: AppSpacing.s,
       ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [color.withValues(alpha: 0.1), color.withValues(alpha: 0.05)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(AppRadius.medium),
-        border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
-      ),
+      decoration: AppComponents.tintedDecoration(color),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[Icon(icon, color: color, size: 16), HSpace.s],
-          Text(text, style: AppTypography.labelSmall.copyWith(color: color)),
+          Text(text, style: AppText.label.small.copyWith(color: color)),
         ],
       ),
     );
@@ -69,10 +61,10 @@ class EnhancedUIComponents {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: AppTypography.headlineSmall),
+                Text(title, style: AppText.headline.small),
                 if (subtitle != null) ...[
                   VSpace.xs,
-                  Text(subtitle, style: AppTypography.bodySmall),
+                  Text(subtitle, style: AppText.body.small),
                 ],
               ],
             ),
@@ -115,13 +107,13 @@ class EnhancedUIComponents {
             ],
             Text(
               title,
-              style: AppTypography.headlineMedium,
+              style: AppText.headline.medium,
               textAlign: TextAlign.center,
             ),
             VSpace.m,
             Text(
               message,
-              style: AppTypography.bodyMedium,
+              style: AppText.body.medium,
               textAlign: TextAlign.center,
             ),
             if (action != null) ...[VSpace.l, action],
@@ -158,7 +150,7 @@ class EnhancedUIComponents {
             VSpace.m,
             Text(
               message,
-              style: AppTypography.bodyMedium,
+              style: AppText.body.medium,
               textAlign: TextAlign.center,
             ),
           ],
@@ -174,7 +166,7 @@ class EnhancedUIComponents {
     bool showGradient = true,
   }) {
     return CupertinoNavigationBar(
-      middle: Text(title, style: AppTypography.headlineSmall),
+      middle: Text(title, style: AppText.headline.small),
       leading: leading,
       trailing: trailing,
       backgroundColor: showGradient

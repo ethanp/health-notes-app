@@ -104,7 +104,7 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
           loading: () =>
               EnhancedUIComponents.loadingIndicator(message: loadingMessage),
           error: (error, stack) =>
-              Center(child: Text('Error: $error', style: AppTypography.error)),
+              Center(child: Text('Error: $error', style: AppText.error)),
         ),
       ),
     );
@@ -197,7 +197,7 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Search Notes', style: AppTypography.labelLarge),
+        Text('Search Notes', style: AppText.label.large),
         VSpace.of(12),
         EnhancedUIComponents.searchField(
           controller: searchController,

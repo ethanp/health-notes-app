@@ -40,21 +40,21 @@ class GeneralNotesSection extends StatelessWidget {
       return CupertinoTextField(
         controller: notesController,
         placeholder: 'Additional Notes (optional)',
-        placeholderStyle: AppTypography.inputPlaceholder,
-        style: AppTypography.input,
+        placeholderStyle: AppText.inputPlaceholder,
+        style: AppText.input,
         maxLines: 4,
         onChanged: onNotesChanged,
       );
     }
 
     if (notesController?.text.isNotEmpty != true) {
-      return Text('No additional notes', style: AppTypography.bodyMedium);
+      return Text('No additional notes', style: AppText.body.medium);
     }
 
     return AccentBorderCard(
       accentColor: AppColors.primary,
       margin: EdgeInsets.zero,
-      child: Text(notesController!.text, style: AppTypography.bodyMedium),
+      child: Text(notesController!.text, style: AppText.body.medium),
     );
   }
 }

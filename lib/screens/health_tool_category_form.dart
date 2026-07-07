@@ -111,12 +111,12 @@ class _HealthToolCategoryFormState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Category Name', style: AppTypography.headlineSmall),
+          Text('Category Name', style: AppText.headline.small),
           VSpace.m,
           CupertinoTextField(
             controller: _nameController,
             placeholder: 'Enter category name',
-            style: AppTypography.input,
+            style: AppText.input,
             decoration: AppComponents.inputField,
             padding: const EdgeInsets.all(12),
           ),
@@ -130,17 +130,17 @@ class _HealthToolCategoryFormState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Description', style: AppTypography.headlineSmall),
+          Text('Description', style: AppText.headline.small),
           VSpace.s,
           Text(
             'Describe what this category is for',
-            style: AppTypography.bodyMediumTertiary,
+            style: AppText.body.medium.tertiary,
           ),
           VSpace.m,
           CupertinoTextField(
             controller: _descriptionController,
             placeholder: 'Enter description...',
-            style: AppTypography.input,
+            style: AppText.input,
             decoration: AppComponents.inputField,
             padding: const EdgeInsets.all(12),
             maxLines: 3,
@@ -156,7 +156,7 @@ class _HealthToolCategoryFormState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Icon', style: AppTypography.headlineSmall),
+          Text('Icon', style: AppText.headline.small),
           VSpace.m,
           iconChoices(),
         ],
@@ -187,7 +187,7 @@ class _HealthToolCategoryFormState
             ),
             child: Text(
               icon['name']!,
-              style: AppTypography.bodySmall.copyWith(
+              style: AppText.body.small.copyWith(
                 color: isSelected
                     ? CupertinoColors.white
                     : AppColors.textPrimary,
@@ -204,7 +204,7 @@ class _HealthToolCategoryFormState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Color', style: AppTypography.headlineSmall),
+          Text('Color', style: AppText.headline.small),
           VSpace.m,
           colorChoices(),
         ],

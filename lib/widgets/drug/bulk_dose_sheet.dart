@@ -157,7 +157,7 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
         Expanded(
           child: Text(
             'Add ${widget.drugName}',
-            style: AppTypography.headlineSmall,
+            style: AppText.headline.small,
           ),
         ),
         CupertinoButton(
@@ -180,7 +180,7 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
     final overflowSuffix = count > 3 ? ' +${count - 3} more' : '';
     return Text(
       '$count $dayWord: $preview$overflowSuffix',
-      style: AppTypography.bodySmallSystemGrey,
+      style: AppText.body.small.systemGrey,
     );
   }
 
@@ -188,15 +188,15 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Dosage amount', style: AppTypography.labelMedium),
+        Text('Dosage amount', style: AppText.label.medium),
         VSpace.s,
         CupertinoTextField(
           controller: _dosageController,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           placeholder: 'e.g. 10',
           autofocus: true,
-          style: AppTypography.bodyMedium,
-          placeholderStyle: AppTypography.bodyMediumSystemGrey,
+          style: AppText.body.medium,
+          placeholderStyle: AppText.body.medium.systemGrey,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
             color: AppColors.backgroundTertiary,
@@ -214,13 +214,13 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Unit', style: AppTypography.labelMedium),
+        Text('Unit', style: AppText.label.medium),
         VSpace.s,
         CupertinoTextField(
           controller: _unitController,
           placeholder: 'mg',
-          style: AppTypography.bodyMedium,
-          placeholderStyle: AppTypography.bodyMediumSystemGrey,
+          style: AppText.body.medium,
+          placeholderStyle: AppText.body.medium.systemGrey,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
             color: AppColors.backgroundTertiary,
@@ -251,8 +251,8 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
                 ? 'Add to $count $dayWord'
                 : 'Enter a dosage amount',
             style: _canSubmit
-                ? AppTypography.buttonPrimary
-                : AppTypography.bodyMediumSystemGrey,
+                ? AppText.buttonPrimary
+                : AppText.body.medium.systemGrey,
           ),
         ),
       ),

@@ -94,12 +94,12 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Tool Name', style: AppTypography.headlineSmall),
+          Text('Tool Name', style: AppText.headline.small),
           VSpace.m,
           CupertinoTextField(
             controller: _nameController,
             placeholder: 'Enter tool name',
-            style: AppTypography.input,
+            style: AppText.input,
             decoration: AppComponents.inputField,
             padding: const EdgeInsets.all(12),
           ),
@@ -113,17 +113,17 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Description', style: AppTypography.headlineSmall),
+          Text('Description', style: AppText.headline.small),
           VSpace.s,
           Text(
             'Describe what this tool is and how to use it',
-            style: AppTypography.bodyMediumTertiary,
+            style: AppText.body.medium.tertiary,
           ),
           VSpace.m,
           CupertinoTextField(
             controller: _descriptionController,
             placeholder: 'Enter detailed description...',
-            style: AppTypography.input,
+            style: AppText.input,
             decoration: AppComponents.inputField,
             padding: const EdgeInsets.all(12),
             maxLines: 5,
@@ -139,7 +139,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Category', style: AppTypography.headlineSmall),
+          Text('Category', style: AppText.headline.small),
           VSpace.m,
           categoriesAsync.when(
             data: (categories) => categoryContent(categories),
@@ -148,7 +148,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
             ),
             error: (error, stack) => Text(
               'Error loading categories: $error',
-              style: AppTypography.error,
+              style: AppText.error,
             ),
           ),
         ],
@@ -160,7 +160,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
     if (categories.isEmpty) {
       return Text(
         'No categories available. Please create a category first.',
-        style: AppTypography.bodyMediumTertiary,
+        style: AppText.body.medium.tertiary,
       );
     }
 
@@ -185,7 +185,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
             size: 20,
           ),
           HSpace.s,
-          Text(category.name, style: AppTypography.bodyMedium),
+          Text(category.name, style: AppText.body.medium),
         ],
       ),
     );
@@ -198,7 +198,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
         for (final category in categories)
           category.id: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(category.name, style: AppTypography.bodyMedium),
+            child: Text(category.name, style: AppText.body.medium),
           ),
       },
       onValueChanged: (value) {

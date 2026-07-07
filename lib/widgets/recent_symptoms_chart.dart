@@ -51,7 +51,7 @@ class RecentSymptomsChart extends StatelessWidget {
                   final symptom = topSymptoms[groupIndex];
                   return BarTooltipItem(
                     '${symptom.key}\n',
-                    AppTypography.bodySmall.copyWith(
+                    AppText.body.small.copyWith(
                       color: CupertinoColors.white,
                       fontWeight: FontWeight.w600,
                       fontSize: 11,
@@ -59,7 +59,7 @@ class RecentSymptomsChart extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: '${symptom.value} times',
-                        style: AppTypography.bodySmall.copyWith(
+                        style: AppText.body.small.copyWith(
                           color: AppColors.primary,
                           fontSize: 10,
                         ),
@@ -92,7 +92,7 @@ class RecentSymptomsChart extends StatelessWidget {
                         angle: -0.5,
                         child: Text(
                           label,
-                          style: AppTypography.bodySmall.copyWith(
+                          style: AppText.body.small.copyWith(
                             color: CupertinoColors.white.withValues(alpha: 0.9),
                             fontSize: 11,
                           ),
@@ -115,7 +115,7 @@ class RecentSymptomsChart extends StatelessWidget {
                   getTitlesWidget: (value, meta) {
                     return Text(
                       value.toInt().toString(),
-                      style: AppTypography.bodySmallSystemGrey.copyWith(
+                      style: AppText.body.small.systemGrey.copyWith(
                         fontSize: 10,
                       ),
                     );

@@ -30,12 +30,12 @@ class AuthUtils {
                   VSpace.s,
                   Text(
                     userProfile?.fullName ?? 'User',
-                    style: AppTypography.bodyMediumSemibold,
+                    style: AppText.body.medium.semibold,
                   ),
                   VSpace.m,
                   Text(
                     'Are you sure you want to sign out?',
-                    style: AppTypography.bodyMedium,
+                    style: AppText.body.medium,
                   ),
                 ],
               ),

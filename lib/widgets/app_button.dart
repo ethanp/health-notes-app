@@ -25,7 +25,7 @@ class AppButton extends StatelessWidget {
     final iconColor =
         isPrimary ? CupertinoColors.white : AppColors.primary;
     final textStyle =
-        isPrimary ? AppTypography.buttonPrimary : AppTypography.buttonSecondary;
+        isPrimary ? AppText.buttonPrimary : AppText.buttonSecondary;
 
     return SizedBox(
       width: width,

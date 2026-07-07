@@ -46,14 +46,14 @@ class _SearchableStatsTableState extends State<SearchableStatsTable> {
           CupertinoSearchTextField(
             controller: _searchController,
             placeholder: widget.searchPlaceholder,
-            placeholderStyle: AppTypography.inputPlaceholder,
-            style: AppTypography.input,
+            placeholderStyle: AppText.inputPlaceholder,
+            style: AppText.input,
             onChanged: (query) => setState(() => _searchQuery = query),
           ),
           VSpace.s,
           Text(
             '${widget.stats.length} total',
-            style: AppTypography.bodySmallSystemGrey,
+            style: AppText.body.small.systemGrey,
           ),
           VSpace.s,
           _buildList(filtered),
@@ -113,7 +113,7 @@ class _StatsRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: Text(label, style: AppTypography.bodyMediumWhiteSemibold),
+            child: Text(label, style: AppText.body.medium.white.semibold),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -131,7 +131,7 @@ class _StatsRow extends StatelessWidget {
             ),
             child: Text(
               '$count',
-              style: AppTypography.labelSmall.copyWith(
+              style: AppText.label.small.copyWith(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w600,
               ),

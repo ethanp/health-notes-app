@@ -46,54 +46,15 @@ class AppColors {
   static const Color todayBorder = Color(0xFF9E9464); // Subtle yellow-grey
 }
 
-/// Typography system for consistent text styling
-/// Pre-configured text styles eliminate the need for repetitive copyWith calls
-class AppTypography {
-  // Base text styles (foundational styles)
-  static TextStyle get headlineLarge => const TextStyle(
-    fontSize: 32,
-    fontWeight: FontWeight.w700,
-    color: AppColors.textPrimary,
-    height: 1.2,
-    letterSpacing: -0.5,
-  );
-
-  static TextStyle get headlineMedium => headlineLarge.copyWith(
-    fontSize: 24,
-    fontWeight: FontWeight.w600,
-    height: 1.3,
-    letterSpacing: -0.3,
-  );
-
-  static TextStyle get headlineSmall =>
-      headlineMedium.copyWith(fontSize: 20, height: 1.4, letterSpacing: -0.2);
-
-  static TextStyle get bodyLarge => const TextStyle(
-    fontSize: 18,
-    fontWeight: FontWeight.normal,
-    color: AppColors.textPrimary,
-    height: 1.5,
-    letterSpacing: 0.1,
-  );
-
-  static TextStyle get bodyMedium => bodyLarge.copyWith(fontSize: 16);
-
-  static TextStyle get bodySmall =>
-      bodyMedium.copyWith(fontSize: 14, color: AppColors.textSecondary);
-
-  static TextStyle get labelLarge => const TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
-    height: 1.4,
-    letterSpacing: 0.1,
-  );
-
-  static TextStyle get labelMedium =>
-      labelLarge.copyWith(fontSize: 14, fontWeight: FontWeight.w500);
-
-  static TextStyle get labelSmall =>
-      labelMedium.copyWith(fontSize: 12, color: AppColors.textSecondary);
+/// Typography system for consistent text styling.
+///
+/// Composable API: a size scale returns a [TextStyle]; color/weight/size
+/// modifiers are chainable extension getters on [TextStyle] (see
+/// [AppTextModifiers]). Example: `AppText.body.small.systemGrey.semibold`.
+class AppText {
+  static const body = _BodyScale();
+  static const headline = _HeadlineScale();
+  static const label = _LabelScale();
 
   static TextStyle get caption => const TextStyle(
     fontSize: 12,
@@ -103,31 +64,9 @@ class AppTypography {
     letterSpacing: 0.1,
   );
 
-  static TextStyle get captionSecondary =>
-      caption.copyWith(color: AppColors.textQuaternary);
+  static TextStyle get input => body.medium;
 
-  // Semantic text styles
-  static TextStyle get buttonPrimary => const TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    color: CupertinoColors.white,
-    height: 1.4,
-    letterSpacing: 0.1,
-  );
-
-  static TextStyle get buttonSecondary =>
-      buttonPrimary.copyWith(color: AppColors.primary);
-
-  static TextStyle get input => const TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.normal,
-    color: AppColors.textPrimary,
-    height: 1.5,
-    letterSpacing: 0.1,
-  );
-
-  static TextStyle get inputPlaceholder =>
-      input.copyWith(color: AppColors.textQuaternary);
+  static TextStyle get inputPlaceholder => input.quaternary;
 
   static TextStyle get error => const TextStyle(
     fontSize: 12,
@@ -137,8 +76,7 @@ class AppTypography {
     letterSpacing: 0.1,
   );
 
-  // Navigation and system UI
-  static TextStyle get navTitleTextStyle => const TextStyle(
+  static TextStyle get navTitle => const TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
@@ -146,7 +84,65 @@ class AppTypography {
     letterSpacing: 0.1,
   );
 
-  static TextStyle get baseTextStyle => const TextStyle(
+  static TextStyle get buttonPrimary => const TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: CupertinoColors.white,
+    height: 1.4,
+    letterSpacing: 0.1,
+  );
+
+  static TextStyle get buttonSecondary =>
+      buttonPrimary.withColor(AppColors.primary);
+
+  static TextStyle get metricTypeSelected => body.small
+      .withColor(CupertinoColors.systemBlue.withValues(alpha: 0.8))
+      .size(12);
+
+  static TextStyle get metricTypeUnselected =>
+      body.small.withColor(CupertinoColors.white.withValues(alpha: 0.7)).size(12);
+}
+
+class _HeadlineScale {
+  const _HeadlineScale();
+
+  TextStyle get large => const TextStyle(
+    fontSize: 32,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textPrimary,
+    height: 1.2,
+    letterSpacing: -0.5,
+  );
+
+  TextStyle get medium => const TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+    height: 1.3,
+    letterSpacing: -0.3,
+  );
+
+  TextStyle get small => const TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+    height: 1.4,
+    letterSpacing: -0.2,
+  );
+}
+
+class _BodyScale {
+  const _BodyScale();
+
+  TextStyle get large => const TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.normal,
+    color: AppColors.textPrimary,
+    height: 1.5,
+    letterSpacing: 0.1,
+  );
+
+  TextStyle get medium => const TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.normal,
     color: AppColors.textPrimary,
@@ -154,114 +150,61 @@ class AppTypography {
     letterSpacing: 0.1,
   );
 
-  // System UI color variants (commonly used)
-  static TextStyle get bodySmallSystemGrey =>
-      bodySmall.copyWith(color: CupertinoColors.systemGrey);
+  TextStyle get small => const TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.normal,
+    color: AppColors.textSecondary,
+    height: 1.5,
+    letterSpacing: 0.1,
+  );
+}
 
-  static TextStyle get bodyMediumSystemGrey =>
-      bodyMedium.copyWith(color: CupertinoColors.systemGrey);
+class _LabelScale {
+  const _LabelScale();
 
-  static TextStyle get bodySmallSystemGreySemibold =>
-      bodySmallSystemGrey.copyWith(fontWeight: FontWeight.w600);
-
-  static TextStyle get bodyMediumSystemGreySemibold =>
-      bodyMediumSystemGrey.copyWith(fontWeight: FontWeight.w600);
-
-  // White text variants (for dark backgrounds)
-  static TextStyle get bodySmallWhite =>
-      bodySmall.copyWith(color: CupertinoColors.white);
-
-  static TextStyle get bodyMediumWhite =>
-      bodyMedium.copyWith(color: CupertinoColors.white);
-
-  static TextStyle get bodyMediumWhiteSemibold =>
-      bodyMediumWhite.copyWith(fontWeight: FontWeight.w600);
-
-  static TextStyle get headlineSmallWhite =>
-      headlineSmall.copyWith(color: CupertinoColors.white);
-
-  // Tertiary color variants (muted text)
-  static TextStyle get bodySmallTertiary =>
-      bodySmall.copyWith(color: AppColors.textTertiary);
-
-  static TextStyle get bodyMediumTertiary =>
-      bodyMedium.copyWith(color: AppColors.textTertiary);
-
-  // Semibold weight variants
-  static TextStyle get bodyMediumSemibold =>
-      bodyMedium.copyWith(fontWeight: FontWeight.w600);
-
-  static TextStyle get bodyMediumSemiboldBlue =>
-      bodyMediumSemibold.copyWith(color: CupertinoColors.systemBlue);
-
-  // Additional essential variants (commonly used)
-  static TextStyle get bodyLargeSecondary =>
-      bodyLarge.copyWith(color: AppColors.textSecondary);
-
-  static TextStyle get bodyMediumPrimary =>
-      bodyMedium.copyWith(color: AppColors.textPrimary);
-
-  static TextStyle get bodySmallSecondary =>
-      bodySmall.copyWith(color: AppColors.textSecondary);
-
-  static TextStyle get labelLargePrimary =>
-      labelLarge.copyWith(color: AppColors.textPrimary);
-
-  static TextStyle get labelSmallPrimary => labelLarge.copyWith(fontSize: 12);
-
-  static TextStyle get labelMediumWhite =>
-      labelMedium.copyWith(color: CupertinoColors.white);
-
-  static TextStyle get labelMediumSystemGreySemibold =>
-      bodySmallSystemGrey.copyWith(fontWeight: FontWeight.w600);
-
-  static TextStyle get bodySmallGreenSmall =>
-      bodySmall.copyWith(color: CupertinoColors.systemGreen, fontSize: 10);
-
-  static TextStyle get bodySmallSemiboldPrimary => bodySmall.copyWith(
+  TextStyle get large => const TextStyle(
+    fontSize: 16,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
-    fontSize: 13,
+    height: 1.4,
+    letterSpacing: 0.1,
   );
 
-  static TextStyle get bodySmallSecondarySmall =>
-      bodySmallSecondary.copyWith(fontSize: 9);
-
-  static TextStyle get bodyMediumPrimarySemibold => bodyMedium.copyWith(
-    fontWeight: FontWeight.w600,
-    color: AppColors.primary,
+  TextStyle get medium => const TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
+    height: 1.4,
+    letterSpacing: 0.1,
   );
 
-  static TextStyle get labelLargeWhiteSemibold =>
-      bodyMediumWhite.copyWith(fontWeight: FontWeight.w600);
-
-  // Button bold variants
-  static TextStyle get buttonPrimaryBold =>
-      buttonPrimary.copyWith(fontWeight: FontWeight.bold);
-
-  // Additional hierarchy variants
-  static TextStyle get headlineSmallPrimary =>
-      headlineSmall.copyWith(color: AppColors.textPrimary);
-
-  static TextStyle get bodyLargePrimary =>
-      bodyLarge.copyWith(color: AppColors.textPrimary);
-
-  static TextStyle get bodyMediumSecondary =>
-      bodyMedium.copyWith(color: AppColors.textSecondary);
-
-  static TextStyle get captionQuaternary =>
-      caption.copyWith(color: AppColors.textQuaternary);
-
-  // Metric type selection styles
-  static TextStyle get metricTypeSelected => bodySmall.copyWith(
-    color: CupertinoColors.systemBlue.withValues(alpha: 0.8),
+  TextStyle get small => const TextStyle(
     fontSize: 12,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textSecondary,
+    height: 1.4,
+    letterSpacing: 0.1,
   );
+}
 
-  static TextStyle get metricTypeUnselected => bodySmall.copyWith(
-    color: CupertinoColors.white.withValues(alpha: 0.7),
-    fontSize: 12,
-  );
+/// Chainable color/weight/size modifiers for the [AppText] fluent API.
+///
+/// `withColor` is named to avoid colliding with `TextStyle.color`.
+extension AppTextModifiers on TextStyle {
+  TextStyle withColor(Color textColor) => copyWith(color: textColor);
+  TextStyle size(double fontSize) => copyWith(fontSize: fontSize);
+  TextStyle weight(FontWeight fontWeight) => copyWith(fontWeight: fontWeight);
+
+  TextStyle get primary => withColor(AppColors.textPrimary);
+  TextStyle get secondary => withColor(AppColors.textSecondary);
+  TextStyle get tertiary => withColor(AppColors.textTertiary);
+  TextStyle get quaternary => withColor(AppColors.textQuaternary);
+  TextStyle get white => withColor(CupertinoColors.white);
+  TextStyle get systemGrey => withColor(CupertinoColors.systemGrey);
+  TextStyle get systemBlue => withColor(CupertinoColors.systemBlue);
+
+  TextStyle get semibold => weight(FontWeight.w600);
+  TextStyle get bold => weight(FontWeight.bold);
 }
 
 /// Spacing system for consistent layout
@@ -320,53 +263,73 @@ class AppComponents {
   );
 
   // Box shadows
-  static List<BoxShadow> get subtleShadow => [
+  static List<BoxShadow> _shadow({
+    required double alpha,
+    required double blurRadius,
+    required double dy,
+  }) => [
     BoxShadow(
-      color: CupertinoColors.black.withValues(alpha: 0.1),
-      blurRadius: 8,
-      offset: const Offset(0, 2),
+      color: CupertinoColors.black.withValues(alpha: alpha),
+      blurRadius: blurRadius,
+      offset: Offset(0, dy),
     ),
   ];
 
-  static List<BoxShadow> get mediumShadow => [
-    BoxShadow(
-      color: CupertinoColors.black.withValues(alpha: 0.15),
-      blurRadius: 12,
-      offset: const Offset(0, 4),
-    ),
-  ];
+  static List<BoxShadow> get subtleShadow =>
+      _shadow(alpha: 0.1, blurRadius: 8, dy: 2);
 
-  static List<BoxShadow> get strongShadow => [
-    BoxShadow(
-      color: CupertinoColors.black.withValues(alpha: 0.2),
-      blurRadius: 16,
-      offset: const Offset(0, 6),
-    ),
-  ];
+  static List<BoxShadow> get mediumShadow =>
+      _shadow(alpha: 0.15, blurRadius: 12, dy: 4);
+
+  static List<BoxShadow> get strongShadow =>
+      _shadow(alpha: 0.2, blurRadius: 16, dy: 6);
 
   // Component decorations
-  static BoxDecoration get primaryCard => BoxDecoration(
+  static BoxDecoration _surface({
+    Gradient? gradient,
+    Color? color,
+    double radius = AppRadius.medium,
+    BoxBorder? border,
+    List<BoxShadow>? boxShadow,
+  }) => BoxDecoration(
+    gradient: gradient,
+    color: color,
+    borderRadius: BorderRadius.circular(radius),
+    border: border,
+    boxShadow: boxShadow,
+  );
+
+  static LinearGradient _tintGradient(Color color) => LinearGradient(
+    colors: [color.withValues(alpha: 0.1), color.withValues(alpha: 0.05)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  /// Soft accent-tinted surface (faint gradient fill plus a matching border),
+  /// used for chips, badges, and status pills.
+  static BoxDecoration tintedDecoration(
+    Color color, {
+    double radius = AppRadius.medium,
+  }) => _surface(
+    gradient: _tintGradient(color),
+    radius: radius,
+    border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
+  );
+
+  static BoxDecoration get primaryCard => _surface(
     gradient: cardGradient,
-    borderRadius: BorderRadius.circular(AppRadius.medium),
     border: BoxBorder.all(color: CupertinoColors.systemGrey, width: 0.25),
     boxShadow: subtleShadow,
   );
 
-  static BoxDecoration get elevatedCard => BoxDecoration(
-    gradient: elevatedGradient,
-    borderRadius: BorderRadius.circular(AppRadius.medium),
-    boxShadow: mediumShadow,
-  );
+  static BoxDecoration get elevatedCard =>
+      _surface(gradient: elevatedGradient, boxShadow: mediumShadow);
 
-  static BoxDecoration get primaryButton => BoxDecoration(
-    gradient: primaryGradient,
-    borderRadius: BorderRadius.circular(AppRadius.medium),
-    boxShadow: subtleShadow,
-  );
+  static BoxDecoration get primaryButton =>
+      _surface(gradient: primaryGradient, boxShadow: subtleShadow);
 
-  static BoxDecoration get secondaryButton => BoxDecoration(
+  static BoxDecoration get secondaryButton => _surface(
     color: AppColors.backgroundTertiary,
-    borderRadius: BorderRadius.circular(AppRadius.medium),
     border: Border.all(
       color: AppColors.primary.withValues(alpha: 0.3),
       width: 1,
@@ -374,61 +337,32 @@ class AppComponents {
     boxShadow: subtleShadow,
   );
 
-  static BoxDecoration get inputField => BoxDecoration(
+  static BoxDecoration get inputField => _surface(
     color: AppColors.backgroundTertiary,
-    borderRadius: BorderRadius.circular(AppRadius.medium),
     border: Border.all(color: AppColors.backgroundQuaternary, width: 1),
     boxShadow: subtleShadow,
   );
 
-  static BoxDecoration get searchField => BoxDecoration(
+  static BoxDecoration get searchField => _surface(
     color: AppColors.backgroundTertiary,
-    borderRadius: BorderRadius.circular(AppRadius.large),
+    radius: AppRadius.large,
     border: Border.all(color: AppColors.backgroundQuaternary, width: 1),
     boxShadow: subtleShadow,
   );
 
-  static BoxDecoration get filterChip => BoxDecoration(
-    gradient: LinearGradient(
-      colors: [
-        AppColors.primary.withValues(alpha: 0.1),
-        AppColors.primary.withValues(alpha: 0.05),
-      ],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    borderRadius: BorderRadius.circular(AppRadius.large),
-    border: Border.all(
-      color: AppColors.primary.withValues(alpha: 0.2),
-      width: 1,
-    ),
-  );
+  static BoxDecoration get filterChip =>
+      tintedDecoration(AppColors.primary, radius: AppRadius.large);
 
-  static BoxDecoration get activeFilterChip => BoxDecoration(
+  static BoxDecoration get activeFilterChip => _surface(
     gradient: primaryGradient,
-    borderRadius: BorderRadius.circular(AppRadius.large),
+    radius: AppRadius.large,
     boxShadow: subtleShadow,
   );
 
-  static BoxDecoration get statusCard => BoxDecoration(
-    gradient: LinearGradient(
-      colors: [
-        AppColors.success.withValues(alpha: 0.1),
-        AppColors.success.withValues(alpha: 0.05),
-      ],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    borderRadius: BorderRadius.circular(AppRadius.medium),
-    border: Border.all(
-      color: AppColors.success.withValues(alpha: 0.2),
-      width: 1,
-    ),
-  );
+  static BoxDecoration get statusCard => tintedDecoration(AppColors.success);
 
-  static BoxDecoration get primaryCardWithBorder => BoxDecoration(
+  static BoxDecoration get primaryCardWithBorder => _surface(
     gradient: cardGradient,
-    borderRadius: BorderRadius.circular(AppRadius.medium),
     border: Border.all(
       color: AppColors.textSecondary.withValues(alpha: 0.1),
       width: 1,

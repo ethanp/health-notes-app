@@ -127,13 +127,13 @@ class _AnimatedWelcomeCardState extends State<AnimatedWelcomeCard>
             VSpace.l,
             Text(
               widget.title,
-              style: AppTypography.headlineMedium,
+              style: AppText.headline.medium,
               textAlign: TextAlign.center,
             ),
             VSpace.m,
             Text(
               widget.message,
-              style: AppTypography.bodyMediumSecondary,
+              style: AppText.body.medium.secondary,
               textAlign: TextAlign.center,
             ),
             if (widget.action != null) ...[VSpace.l, widget.action!],
@@ -227,12 +227,12 @@ class _AnimatedProgressCardState extends State<AnimatedProgressCard>
                 HSpace.s,
               ],
               Expanded(
-                child: Text(widget.title, style: AppTypography.labelLarge),
+                child: Text(widget.title, style: AppText.label.large),
               ),
             ],
           ),
           VSpace.s,
-          Text(widget.message, style: AppTypography.bodySmallTertiary),
+          Text(widget.message, style: AppText.body.small.tertiary),
           VSpace.m,
           AnimatedBuilder(
             animation: _progressAnimation,
@@ -245,13 +245,13 @@ class _AnimatedProgressCardState extends State<AnimatedProgressCard>
                     children: [
                       Text(
                         '${(_progressAnimation.value * 100).toInt()}%',
-                        style: AppTypography.labelMedium.copyWith(
+                        style: AppText.label.medium.copyWith(
                           color: widget.progressColor ?? AppColors.primary,
                         ),
                       ),
                       Text(
                         '${widget.progress * 100}%',
-                        style: AppTypography.caption,
+                        style: AppText.caption,
                       ),
                     ],
                   ),
