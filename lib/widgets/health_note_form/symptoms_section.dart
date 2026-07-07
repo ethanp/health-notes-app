@@ -7,16 +7,14 @@ import 'package:health_notes/models/symptom_component_index.dart';
 import 'package:health_notes/providers/conditions_provider.dart';
 import 'package:health_notes/providers/pinned_symptom_components_provider.dart';
 import 'package:health_notes/providers/symptom_component_provider.dart';
-import 'package:health_notes/screens/condition_detail_screen.dart';
 import 'package:health_notes/screens/condition_form.dart';
-import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/utils/severity_utils.dart';
-import 'package:health_notes/widgets/accent_border_card.dart';
 import 'package:health_notes/widgets/component_picker_sheet.dart';
 import 'package:health_notes/widgets/app_card.dart';
+import 'package:health_notes/widgets/condition_badge.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
+import 'package:health_notes/widgets/note_summary_rows.dart';
 import 'package:health_notes/theme/spacing.dart';
 
 class SymptomsSection extends ConsumerWidget {
@@ -87,7 +85,8 @@ class SymptomsSection extends ConsumerWidget {
     if (!isEditable) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: symptoms.map((s) => _readOnlyItem(context, ref, s)).toList(),
+        children: symptoms
+            .mapL((symptom) => SymptomSummaryRow(symptom: symptom)),
       );
     }
 
@@ -98,116 +97,6 @@ class SymptomsSection extends ConsumerWidget {
         final symptom = entry.value;
         return _editableItem(context, ref, index, symptom, controllers[index]!);
       }).toList(),
-    );
-  }
-
-  Widget _readOnlyItem(BuildContext context, WidgetRef ref, Symptom symptom) {
-    final severityColor = SeverityUtils.colorForSeverity(symptom.severityLevel);
-
-    return AccentBorderCard(
-      accentColor: severityColor,
-      onTap: symptom.majorComponent.isEmpty
-          ? null
-          : () => context.push(
-              SymptomTrendsScreen(symptomName: symptom.majorComponent),
-            ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text.rich(
-                  TextSpan(children: [
-                    TextSpan(
-                      text: symptom.majorComponent.isNotEmpty
-                          ? symptom.majorComponent
-                          : 'Unnamed symptom',
-                      style: AppTypography.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (symptom.minorComponent.isNotEmpty)
-                      TextSpan(
-                        text: ' — ${symptom.minorComponent}',
-                        style: AppTypography.bodySmallSecondary,
-                      ),
-                  ]),
-                ),
-              ),
-              HSpace.s,
-              EnhancedUIComponents.statusIndicator(
-                text: '${symptom.severityLevel}/10',
-                color: severityColor,
-              ),
-            ],
-          ),
-          if (symptom.hasLinkedCondition ||
-              symptom.additionalNotes.isNotEmpty) ...[
-            VSpace.xs,
-            Wrap(
-              spacing: 6,
-              runSpacing: 4,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                if (symptom.hasLinkedCondition)
-                  _conditionBadge(context, ref, symptom.conditionId!),
-                if (symptom.additionalNotes.isNotEmpty)
-                  Text(
-                    symptom.additionalNotes,
-                    style: AppTypography.bodySmallSecondary,
-                  ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _conditionBadge(
-    BuildContext context,
-    WidgetRef ref,
-    String conditionId,
-  ) {
-    final conditionsAsync = ref.watch(conditionsNotifierProvider);
-
-    return conditionsAsync.when(
-      data: (conditions) {
-        final condition = conditions
-            .where((c) => c.id == conditionId)
-            .firstOrNull;
-        if (condition == null) return const SizedBox.shrink();
-
-        return GestureDetector(
-          onTap: () {
-            context.push(
-              ConditionDetailScreen(conditionId: conditionId),
-            );
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: condition.color.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: condition.color.withValues(alpha: 0.3)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(condition.icon, size: 12, color: condition.color),
-                HSpace.xs,
-                Text(
-                  condition.name,
-                  style: AppTypography.caption.copyWith(color: condition.color),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-      loading: () => const SizedBox.shrink(),
-      error: (e, st) => const SizedBox.shrink(),
     );
   }
 
@@ -534,7 +423,7 @@ class SymptomsSection extends ConsumerWidget {
         SizedBox(
           width: 40,
           child: Text(
-            '${symptom.severityLevel}/10',
+            '${symptom.severityLevel}',
             style: AppTypography.bodyMedium,
             textAlign: TextAlign.center,
           ),
@@ -552,7 +441,7 @@ class SymptomsSection extends ConsumerWidget {
     if (symptom.hasLinkedCondition) {
       return Row(
         children: [
-          _conditionBadge(context, ref, symptom.conditionId!),
+          ConditionBadge(conditionId: symptom.conditionId!),
           HSpace.s,
           CupertinoButton(
             padding: EdgeInsets.zero,

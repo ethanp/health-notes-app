@@ -2,13 +2,12 @@ import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/providers/medication_recommendations_provider.dart';
-import 'package:health_notes/screens/drug_trends_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/number_formatter.dart';
-import 'package:health_notes/widgets/accent_border_card.dart';
 import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
+import 'package:health_notes/widgets/note_summary_rows.dart';
 import 'package:health_notes/theme/spacing.dart';
 
 class MedicationsSection extends StatelessWidget {
@@ -71,7 +70,7 @@ class MedicationsSection extends StatelessWidget {
     if (!isEditable) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: drugDoses.map((d) => _readOnlyItem(context, d)).toList(),
+        children: drugDoses.mapL((dose) => MedicationSummaryRow(dose: dose)),
       );
     }
 
@@ -82,32 +81,6 @@ class MedicationsSection extends StatelessWidget {
         final dose = entry.value;
         return _editableItem(index, dose, controllers[index]!);
       }).toList(),
-    );
-  }
-
-  Widget _readOnlyItem(BuildContext context, DrugDose dose) {
-    return AccentBorderCard(
-      accentColor: AppColors.primary,
-      onTap: dose.name.isEmpty
-          ? null
-          : () => context.push(DrugTrendsScreen(drugName: dose.name)),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              dose.displayName,
-              style: AppTypography.bodyMedium.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          HSpace.s,
-          EnhancedUIComponents.statusIndicator(
-            text: dose.displayDosage,
-            color: AppColors.primary,
-          ),
-        ],
-      ),
     );
   }
 

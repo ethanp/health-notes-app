@@ -2,12 +2,11 @@ import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/applied_tool.dart';
 import 'package:health_notes/models/health_tool.dart';
-import 'package:health_notes/screens/tool_detail_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/widgets/accent_border_card.dart';
 import 'package:health_notes/widgets/applied_tool_picker_sheet.dart';
 import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/note_summary_rows.dart';
 import 'package:health_notes/theme/spacing.dart';
 
 class AppliedToolsSection extends StatelessWidget {
@@ -65,8 +64,7 @@ class AppliedToolsSection extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: appliedTools
-            .map((tool) => readOnlyItem(context, tool))
-            .toList(),
+            .mapL((tool) => AppliedToolSummaryRow(appliedTool: tool)),
       );
     }
 
@@ -78,30 +76,6 @@ class AppliedToolsSection extends StatelessWidget {
         final controller = noteControllers[index]!;
         return _editableItem(index, tool, controller);
       }).toList(),
-    );
-  }
-
-  Widget readOnlyItem(BuildContext context, AppliedTool tool) {
-    return AccentBorderCard(
-      accentColor: AppColors.primary,
-      onTap: () => context.push(
-        ToolDetailScreen(toolId: tool.toolId, toolName: tool.toolName),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            tool.toolName,
-            style: AppTypography.bodyMedium.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          if (tool.note.isNotEmpty) ...[
-            VSpace.xs,
-            Text(tool.note, style: AppTypography.bodySmallSecondary),
-          ],
-        ],
-      ),
     );
   }
 
