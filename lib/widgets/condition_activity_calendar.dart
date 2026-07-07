@@ -3,30 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/providers/conditions_provider.dart';
+import 'package:health_notes/services/condition_activity_aggregator.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/severity_utils.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
 import 'package:health_notes/theme/spacing.dart';
-
-class ConditionDayData {
-  final int severity;
-  final int symptomCount;
-  final int maxSymptomSeverity;
-
-  const ConditionDayData({
-    this.severity = 0,
-    this.symptomCount = 0,
-    this.maxSymptomSeverity = 0,
-  });
-
-  bool get hasEntry => severity > 0;
-  bool get hasSymptoms => symptomCount > 0;
-  bool get hasActivity => hasEntry || hasSymptoms;
-  int get primaryValue => hasEntry ? severity : maxSymptomSeverity;
-
-  @override
-  String toString() => '$primaryValue';
-}
 
 class ConditionActivityCalendar extends StatelessWidget {
   final Condition condition;
@@ -47,7 +28,10 @@ class ConditionActivityCalendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activityData = _generateActivityData();
+    final activityData = ConditionActivityAggregator.byDate(
+      entries: entries,
+      linkedSymptoms: linkedSymptoms,
+    );
     final entryMap = Map.fromEntries(
       entries.map((entry) => MapEntry(entry.entryDate.startOfDay, entry)),
     );
@@ -74,35 +58,6 @@ class ConditionActivityCalendar extends StatelessWidget {
       activityDescriptor: _describeDay,
       emptyValue: const ConditionDayData(),
     );
-  }
-
-  Map<DateTime, ConditionDayData> _generateActivityData() {
-    final activityByDate = <DateTime, ConditionDayData>{};
-
-    for (final entry in entries) {
-      final dateKey = entry.entryDate.startOfDay;
-      activityByDate[dateKey] = ConditionDayData(
-        severity: entry.severity,
-        symptomCount: activityByDate[dateKey]?.symptomCount ?? 0,
-        maxSymptomSeverity: activityByDate[dateKey]?.maxSymptomSeverity ?? 0,
-      );
-    }
-
-    for (final linkedSymptom in linkedSymptoms) {
-      final dateKey = linkedSymptom.date.startOfDay;
-      final existing = activityByDate[dateKey];
-      final currentMax = existing?.maxSymptomSeverity ?? 0;
-      final symptomSeverity = linkedSymptom.symptom.severityLevel;
-
-      activityByDate[dateKey] = ConditionDayData(
-        severity: existing?.severity ?? 0,
-        symptomCount: (existing?.symptomCount ?? 0) + 1,
-        maxSymptomSeverity:
-            symptomSeverity > currentMax ? symptomSeverity : currentMax,
-      );
-    }
-
-    return activityByDate;
   }
 
   Color _colorForDay(ConditionDayData dayData) {

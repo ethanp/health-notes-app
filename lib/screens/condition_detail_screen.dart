@@ -20,25 +20,35 @@ import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 import 'package:intl/intl.dart';
 
-class ConditionDetailScreen extends ConsumerWidget {
+class ConditionDetailScreen extends ConsumerStatefulWidget {
   final String conditionId;
 
   const ConditionDetailScreen({required this.conditionId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConditionDetailScreen> createState() =>
+      _ConditionDetailScreenState();
+}
+
+enum ConditionDetailView { calendar, activity }
+
+class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
+  ConditionDetailView selectedView = ConditionDetailView.calendar;
+
+  @override
+  Widget build(BuildContext context) {
     final conditionsAsync = ref.watch(conditionsNotifierProvider);
     final entriesAsync = ref.watch(
-      conditionEntriesNotifierProvider(conditionId),
+      conditionEntriesNotifierProvider(widget.conditionId),
     );
     final linkedSymptomsAsync = ref.watch(
-      symptomsForConditionProvider(conditionId),
+      symptomsForConditionProvider(widget.conditionId),
     );
 
     return conditionsAsync.when(
       data: (conditions) {
         final condition = conditions
-            .where((c) => c.id == conditionId)
+            .where((c) => c.id == widget.conditionId)
             .firstOrNull;
         if (condition == null) {
           return CupertinoPageScaffold(
@@ -53,8 +63,6 @@ class ConditionDetailScreen extends ConsumerWidget {
           data: (entries) {
             final linkedSymptoms = linkedSymptomsAsync.valueOrNull ?? [];
             return conditionDetailContent(
-              context,
-              ref,
               condition,
               entries,
               linkedSymptoms,
@@ -74,8 +82,9 @@ class ConditionDetailScreen extends ConsumerWidget {
             ),
             child: SyncStatusWidget.error(
               errorMessage: 'Error: $error',
-              onRetry: () =>
-                  ref.invalidate(conditionEntriesNotifierProvider(conditionId)),
+              onRetry: () => ref.invalidate(
+                conditionEntriesNotifierProvider(widget.conditionId),
+              ),
             ),
           ),
         );
@@ -92,8 +101,6 @@ class ConditionDetailScreen extends ConsumerWidget {
   }
 
   Widget conditionDetailContent(
-    BuildContext context,
-    WidgetRef ref,
     Condition condition,
     List<ConditionEntry> entries,
     List<LinkedSymptom> linkedSymptoms,
@@ -103,7 +110,7 @@ class ConditionDetailScreen extends ConsumerWidget {
         title: condition.name,
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
-          onPressed: () => showActionsMenu(context, ref, condition),
+          onPressed: () => showActionsMenu(condition),
           child: const Icon(CupertinoIcons.ellipsis_vertical),
         ),
       ),
@@ -117,29 +124,74 @@ class ConditionDetailScreen extends ConsumerWidget {
               VSpace.l,
               statisticsSection(condition, entries, linkedSymptoms),
               VSpace.l,
-              ConditionActivityCalendar(
-                condition: condition,
-                entries: entries,
-                linkedSymptoms: linkedSymptoms,
-                onEntryTap: (entry) => showEntryEditModal(context, ref, entry),
-                onSymptomTap: (date, symptoms) =>
-                    _showSymptomDateDialog(context, date, symptoms),
-              ),
+              viewSelector(),
               VSpace.l,
-              EnhancedUIComponents.sectionHeader(title: 'Daily Entries'),
-              VSpace.s,
-              entriesList(context, ref, entries),
-              if (linkedSymptoms.isNotEmpty) ...[
-                VSpace.l,
-                EnhancedUIComponents.sectionHeader(title: 'Linked Symptoms'),
-                VSpace.s,
-                linkedSymptomsBreakdown(context, linkedSymptoms),
-              ],
+              ...selectedViewContent(condition, entries, linkedSymptoms),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget viewSelector() {
+    return SizedBox(
+      width: double.infinity,
+      child: CupertinoSlidingSegmentedControl<ConditionDetailView>(
+        groupValue: selectedView,
+        onValueChanged: (view) {
+          if (view == null) return;
+          setState(() => selectedView = view);
+        },
+        children: const {
+          ConditionDetailView.calendar: Padding(
+            padding: EdgeInsets.symmetric(vertical: 6),
+            child: Text('Calendar'),
+          ),
+          ConditionDetailView.activity: Padding(
+            padding: EdgeInsets.symmetric(vertical: 6),
+            child: Text('Activity'),
+          ),
+        },
+      ),
+    );
+  }
+
+  List<Widget> selectedViewContent(
+    Condition condition,
+    List<ConditionEntry> entries,
+    List<LinkedSymptom> linkedSymptoms,
+  ) {
+    if (selectedView == ConditionDetailView.calendar) {
+      return [
+        ConditionActivityCalendar(
+          condition: condition,
+          entries: entries,
+          linkedSymptoms: linkedSymptoms,
+          onEntryTap: (entry) => showEntryEditModal(entry),
+          onSymptomTap: (date, symptoms) =>
+              _showSymptomDateDialog(date, symptoms),
+        ),
+      ];
+    }
+    return activitySections(entries, linkedSymptoms);
+  }
+
+  List<Widget> activitySections(
+    List<ConditionEntry> entries,
+    List<LinkedSymptom> linkedSymptoms,
+  ) {
+    return [
+      EnhancedUIComponents.sectionHeader(title: 'Daily Entries'),
+      VSpace.s,
+      entriesList(entries, linkedSymptoms),
+      if (linkedSymptoms.isNotEmpty) ...[
+        VSpace.l,
+        EnhancedUIComponents.sectionHeader(title: 'Linked Symptoms'),
+        VSpace.s,
+        linkedSymptomsBreakdown(linkedSymptoms),
+      ],
+    ];
   }
 
   Widget conditionHeader(Condition condition) {
@@ -276,15 +328,17 @@ class ConditionDetailScreen extends ConsumerWidget {
   }
 
   Widget entriesList(
-    BuildContext context,
-    WidgetRef ref,
     List<ConditionEntry> entries,
+    List<LinkedSymptom> linkedSymptoms,
   ) {
     if (entries.isEmpty) {
+      final emptyMessage = linkedSymptoms.isNotEmpty
+          ? 'No check-in entries yet'
+          : 'No entries yet. Add entries via check-ins.';
       return AppCard(
         child: Center(
           child: Text(
-            'No entries yet. Add entries via check-ins.',
+            emptyMessage,
             style: AppText.body.medium.systemGrey,
           ),
         ),
@@ -296,17 +350,17 @@ class ConditionDetailScreen extends ConsumerWidget {
 
     return Column(
       children: sortedEntries
-          .map((entry) => entryCard(context, ref, entry))
+          .map((entry) => entryCard(entry))
           .toList(),
     );
   }
 
-  Widget entryCard(BuildContext context, WidgetRef ref, ConditionEntry entry) {
+  Widget entryCard(ConditionEntry entry) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: CupertinoButton(
         padding: EdgeInsets.zero,
-        onPressed: () => showEntryEditModal(context, ref, entry),
+        onPressed: () => showEntryEditModal(entry),
         child: AppCard(
           child: Row(
             children: [
@@ -382,21 +436,17 @@ class ConditionDetailScreen extends ConsumerWidget {
     return 'Started $startStr';
   }
 
-  void showActionsMenu(
-    BuildContext screenContext,
-    WidgetRef ref,
-    Condition condition,
-  ) {
+  void showActionsMenu(Condition condition) {
     showCupertinoModalPopup(
-      context: screenContext,
-      builder: (context) => CupertinoActionSheet(
+      context: context,
+      builder: (sheetContext) => CupertinoActionSheet(
         actions: [
           CupertinoActionSheetAction(
             onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(screenContext).push(
+              Navigator.of(sheetContext).pop();
+              Navigator.of(context).push(
                 CupertinoPageRoute(
-                  builder: (context) => ConditionForm(
+                  builder: (routeContext) => ConditionForm(
                     condition: condition,
                     title: 'Edit Condition',
                     saveButtonText: 'Save',
@@ -409,19 +459,19 @@ class ConditionDetailScreen extends ConsumerWidget {
           if (condition.isActive)
             CupertinoActionSheetAction(
               onPressed: () async {
-                Navigator.of(context).pop();
+                Navigator.of(sheetContext).pop();
                 await ref
                     .read(conditionsNotifierProvider.notifier)
-                    .resolveCondition(conditionId);
+                    .resolveCondition(widget.conditionId);
               },
               child: const Text('Mark as Resolved'),
             ),
           CupertinoActionSheetAction(
             isDestructiveAction: true,
             onPressed: () async {
-              Navigator.of(context).pop();
+              Navigator.of(sheetContext).pop();
               final confirmed = await showCupertinoDialog<bool>(
-                context: screenContext,
+                context: context,
                 builder: (dialogContext) => CupertinoAlertDialog(
                   title: const Text('Delete Condition'),
                   content: const Text(
@@ -443,9 +493,9 @@ class ConditionDetailScreen extends ConsumerWidget {
               if (confirmed == true) {
                 await ref
                     .read(conditionsNotifierProvider.notifier)
-                    .deleteCondition(conditionId);
-                if (screenContext.mounted) {
-                  Navigator.of(screenContext).pop();
+                    .deleteCondition(widget.conditionId);
+                if (mounted) {
+                  Navigator.of(context).pop();
                 }
               }
             },
@@ -453,38 +503,31 @@ class ConditionDetailScreen extends ConsumerWidget {
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(sheetContext).pop(),
           child: const Text('Cancel'),
         ),
       ),
     );
   }
 
-  void showEntryEditModal(
-    BuildContext context,
-    WidgetRef ref,
-    ConditionEntry entry,
-  ) {
+  void showEntryEditModal(ConditionEntry entry) {
     showCupertinoModalPopup(
       context: context,
-      builder: (context) => ConditionEntryEditModal(
+      builder: (sheetContext) => ConditionEntryEditModal(
         entry: entry,
         onSave: (updatedEntry) async {
           await ref
-              .read(conditionEntriesNotifierProvider(conditionId).notifier)
+              .read(conditionEntriesNotifierProvider(widget.conditionId).notifier)
               .updateEntry(updatedEntry);
-          if (context.mounted) {
-            Navigator.of(context).pop();
+          if (sheetContext.mounted) {
+            Navigator.of(sheetContext).pop();
           }
         },
       ),
     );
   }
 
-  Widget linkedSymptomsBreakdown(
-    BuildContext context,
-    List<LinkedSymptom> linkedSymptoms,
-  ) {
+  Widget linkedSymptomsBreakdown(List<LinkedSymptom> linkedSymptoms) {
     final byDescription = <String, List<LinkedSymptom>>{};
     for (final linkedSymptom in linkedSymptoms) {
       final key = linkedSymptom.symptom.fullDescription;
@@ -556,7 +599,6 @@ class ConditionDetailScreen extends ConsumerWidget {
   }
 
   Future<void> _showSymptomDateDialog(
-    BuildContext context,
     DateTime date,
     List<LinkedSymptom> symptoms,
   ) async {
@@ -570,7 +612,7 @@ class ConditionDetailScreen extends ConsumerWidget {
     }
     notes.sort((a, b) => a.dateTime.compareTo(b.dateTime));
 
-    if (!context.mounted || notes.isEmpty) return;
+    if (!mounted || notes.isEmpty) return;
 
     showNoteDateDialog(
       context: context,
