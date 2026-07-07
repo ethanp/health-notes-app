@@ -12,6 +12,7 @@ import 'package:health_notes/screens/condition_form.dart';
 import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/severity_utils.dart';
+import 'package:health_notes/widgets/accent_border_card.dart';
 import 'package:health_notes/widgets/component_picker_sheet.dart';
 import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
@@ -103,75 +104,63 @@ class SymptomsSection extends ConsumerWidget {
   Widget _readOnlyItem(BuildContext context, WidgetRef ref, Symptom symptom) {
     final severityColor = SeverityUtils.colorForSeverity(symptom.severityLevel);
 
-    return GestureDetector(
-      onTap: () {
-        if (symptom.majorComponent.isNotEmpty) {
-          context.push(
-            SymptomTrendsScreen(symptomName: symptom.majorComponent),
-          );
-        }
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        decoration: BoxDecoration(
-          color: AppColors.backgroundTertiary,
-          borderRadius: BorderRadius.circular(8),
-          border: Border(
-            left: BorderSide(color: severityColor, width: 3),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text.rich(
-                    TextSpan(children: [
-                      TextSpan(
-                        text: symptom.majorComponent.isNotEmpty
-                            ? symptom.majorComponent
-                            : 'Unnamed symptom',
-                        style: AppTypography.bodyMedium.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      if (symptom.minorComponent.isNotEmpty)
-                        TextSpan(
-                          text: ' — ${symptom.minorComponent}',
-                          style: AppTypography.bodySmallSecondary,
-                        ),
-                    ]),
-                  ),
-                ),
-                HSpace.s,
-                EnhancedUIComponents.statusIndicator(
-                  text: '${symptom.severityLevel}/10',
-                  color: severityColor,
-                ),
-              ],
+    return AccentBorderCard(
+      accentColor: severityColor,
+      onTap: symptom.majorComponent.isEmpty
+          ? null
+          : () => context.push(
+              SymptomTrendsScreen(symptomName: symptom.majorComponent),
             ),
-            if (symptom.hasLinkedCondition ||
-                symptom.additionalNotes.isNotEmpty) ...[
-              VSpace.xs,
-              Wrap(
-                spacing: 6,
-                runSpacing: 4,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  if (symptom.hasLinkedCondition)
-                    _conditionBadge(context, ref, symptom.conditionId!),
-                  if (symptom.additionalNotes.isNotEmpty)
-                    Text(
-                      symptom.additionalNotes,
-                      style: AppTypography.bodySmallSecondary,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text.rich(
+                  TextSpan(children: [
+                    TextSpan(
+                      text: symptom.majorComponent.isNotEmpty
+                          ? symptom.majorComponent
+                          : 'Unnamed symptom',
+                      style: AppTypography.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                ],
+                    if (symptom.minorComponent.isNotEmpty)
+                      TextSpan(
+                        text: ' — ${symptom.minorComponent}',
+                        style: AppTypography.bodySmallSecondary,
+                      ),
+                  ]),
+                ),
+              ),
+              HSpace.s,
+              EnhancedUIComponents.statusIndicator(
+                text: '${symptom.severityLevel}/10',
+                color: severityColor,
               ),
             ],
+          ),
+          if (symptom.hasLinkedCondition ||
+              symptom.additionalNotes.isNotEmpty) ...[
+            VSpace.xs,
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                if (symptom.hasLinkedCondition)
+                  _conditionBadge(context, ref, symptom.conditionId!),
+                if (symptom.additionalNotes.isNotEmpty)
+                  Text(
+                    symptom.additionalNotes,
+                    style: AppTypography.bodySmallSecondary,
+                  ),
+              ],
+            ),
           ],
-        ),
+        ],
       ),
     );
   }

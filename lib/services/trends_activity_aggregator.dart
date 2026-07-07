@@ -50,4 +50,35 @@ class TrendsActivityAggregator {
     }
     return highest;
   }
+
+  static Map<DateTime, int> maxSubSymptomSeverityPerDay({
+    required List<HealthNote> notes,
+    required String majorComponent,
+    required String minorComponent,
+  }) =>
+      aggregate<int>(
+        notes: notes,
+        valueExtractor: (note) =>
+            highestSeveritySubSymptom(note, majorComponent, minorComponent)
+                ?.severityLevel ??
+            0,
+        combiner: (existing, newValue) =>
+            existing > newValue ? existing : newValue,
+      );
+
+  static Symptom? highestSeveritySubSymptom(
+    HealthNote note,
+    String majorComponent,
+    String minorComponent,
+  ) {
+    Symptom? highest;
+    for (final symptom in note.symptomsList) {
+      if (symptom.majorComponent != majorComponent) continue;
+      if (symptom.minorComponent != minorComponent) continue;
+      if (highest == null || symptom.severityLevel > highest.severityLevel) {
+        highest = symptom;
+      }
+    }
+    return highest;
+  }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/accent_border_card.dart';
+import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/theme/spacing.dart';
 
 class GeneralNotesSection extends StatelessWidget {
@@ -30,7 +32,7 @@ class GeneralNotesSection extends StatelessWidget {
   }
 
   Widget _header() {
-    return Text('Notes', style: AppTypography.labelLarge);
+    return EnhancedUIComponents.sectionHeader(title: 'Notes');
   }
 
   Widget _content() {
@@ -45,9 +47,14 @@ class GeneralNotesSection extends StatelessWidget {
       );
     }
 
-    final text = notesController?.text.isNotEmpty == true
-        ? notesController!.text
-        : 'No additional notes';
-    return Text(text, style: AppTypography.bodyMedium);
+    if (notesController?.text.isNotEmpty != true) {
+      return Text('No additional notes', style: AppTypography.bodyMedium);
+    }
+
+    return AccentBorderCard(
+      accentColor: AppColors.primary,
+      margin: EdgeInsets.zero,
+      child: Text(notesController!.text, style: AppTypography.bodyMedium),
+    );
   }
 }

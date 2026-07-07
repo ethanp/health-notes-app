@@ -3,8 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
+import 'package:health_notes/screens/sub_symptom_trends_screen.dart';
 import 'package:health_notes/screens/trends/base_trends_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
 import 'package:health_notes/utils/severity_utils.dart';
@@ -56,6 +58,103 @@ class _SymptomTrendsScreenState
       activityData: activityData,
       onDateTap: (context, date, severity) =>
           handleDateTap(context, date, severity, notes),
+    );
+  }
+
+  @override
+  List<TrendsSegment> extraSegments(List<HealthNote> sortedNotes) {
+    final subSymptoms = _subSymptomBreakdown(sortedNotes);
+    if (subSymptoms.isEmpty) return [];
+    return [
+      TrendsSegment(
+        title: 'Sub-symptoms',
+        content: subSymptoms.map(_subSymptomRow).toList(),
+      ),
+    ];
+  }
+
+  List<_SubSymptomStat> _subSymptomBreakdown(List<HealthNote> notes) {
+    final subSymptomCounts = <String, int>{};
+    final subSymptomPeaks = <String, int>{};
+    final subSymptomLatest = <String, DateTime>{};
+    for (final note in notes) {
+      for (final symptom in note.symptomsList) {
+        if (symptom.majorComponent != widget.symptomName) continue;
+        final minorComponent = symptom.minorComponent;
+        if (minorComponent.isEmpty) continue;
+        subSymptomCounts.update(
+          minorComponent,
+          (count) => count + 1,
+          ifAbsent: () => 1,
+        );
+        subSymptomPeaks.update(
+          minorComponent,
+          (peak) =>
+              symptom.severityLevel > peak ? symptom.severityLevel : peak,
+          ifAbsent: () => symptom.severityLevel,
+        );
+        subSymptomLatest.update(
+          minorComponent,
+          (latest) =>
+              note.dateTime.isAfter(latest) ? note.dateTime : latest,
+          ifAbsent: () => note.dateTime,
+        );
+      }
+    }
+
+    final stats = subSymptomCounts.keys
+        .map((minorComponent) => _SubSymptomStat(
+              minorComponent: minorComponent,
+              count: subSymptomCounts[minorComponent]!,
+              peakSeverity: subSymptomPeaks[minorComponent]!,
+              mostRecent: subSymptomLatest[minorComponent]!,
+            ))
+        .toList();
+    stats.sort((first, second) => second.count.compareTo(first.count));
+    return stats;
+  }
+
+  Widget _subSymptomRow(_SubSymptomStat stat) {
+    final color = SeverityUtils.colorForSeverity(stat.peakSeverity);
+    return GestureDetector(
+      onTap: () => context.push(
+        SubSymptomTrendsScreen(
+          majorComponent: widget.symptomName,
+          minorComponent: stat.minorComponent,
+        ),
+      ),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.backgroundTertiary,
+          borderRadius: BorderRadius.circular(8),
+          border: Border(left: BorderSide(color: color, width: 3)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(stat.minorComponent, style: AppTypography.bodyMedium),
+                  Text(
+                    AppDateUtils.formatShortDate(stat.mostRecent),
+                    style: AppTypography.bodySmallSystemGrey,
+                  ),
+                ],
+              ),
+            ),
+            Text('${stat.count}×', style: AppTypography.bodySmallSecondary),
+            HSpace.s,
+            const Icon(
+              CupertinoIcons.chevron_right,
+              size: 16,
+              color: CupertinoColors.systemGrey3,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -140,4 +239,18 @@ class _SymptomTrendsScreenState
       ]),
     );
   }
+}
+
+class _SubSymptomStat {
+  final String minorComponent;
+  final int count;
+  final int peakSeverity;
+  final DateTime mostRecent;
+
+  const _SubSymptomStat({
+    required this.minorComponent,
+    required this.count,
+    required this.peakSeverity,
+    required this.mostRecent,
+  });
 }

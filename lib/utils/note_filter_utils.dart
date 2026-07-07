@@ -16,6 +16,21 @@ class NoteFilterUtils {
       )
       .toList();
 
+  /// Filter notes by a specific major/minor symptom pair (sub-symptom)
+  static List<HealthNote> bySubSymptom(
+    List<HealthNote> notes,
+    String majorComponent,
+    String minorComponent,
+  ) => notes
+      .where(
+        (note) => note.symptomsList.any(
+          (symptom) =>
+              symptom.majorComponent == majorComponent &&
+              symptom.minorComponent == minorComponent,
+        ),
+      )
+      .toList();
+
   /// Filter notes by drug name (case-insensitive)
   static List<HealthNote> byDrug(List<HealthNote> notes, String drugName) =>
       notes

@@ -15,12 +15,20 @@ abstract class BaseTrendsScreen extends ConsumerStatefulWidget {
   const BaseTrendsScreen({required this.itemName});
 }
 
+class TrendsSegment {
+  final String title;
+  final List<Widget> content;
+
+  const TrendsSegment({required this.title, required this.content});
+}
+
 abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
     extends ConsumerState<T> {
   String get itemNoun;
 
   late final TextEditingController searchController;
   String searchQuery = '';
+  int selectedSegmentIndex = 0;
 
   @override
   void initState() {
@@ -46,6 +54,9 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
   List<Widget> buildNotesContent(List<HealthNote> notes);
 
   Widget? buildNotesHeader(List<HealthNote> notes) => null;
+
+  /// Optional extra segments shown after the built-in Calendar and Notes tabs.
+  List<TrendsSegment> extraSegments(List<HealthNote> sortedNotes) => [];
 
   Future<void> onRefresh();
 
@@ -114,6 +125,9 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
     final activityData = buildActivityData(sortedNotes);
     final filteredNotes = applySearch(sortedNotes);
 
+    final segments = buildSegments(activityData, sortedNotes, filteredNotes);
+    final activeIndex = selectedSegmentIndex.clamp(0, segments.length - 1);
+
     return CustomScrollView(
       slivers: [
         CupertinoSliverRefreshControl(onRefresh: onRefresh),
@@ -121,15 +135,55 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
           padding: const EdgeInsets.all(16),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              buildActivityContent(activityData, sortedNotes),
+              buildViewSelector(segments, activeIndex),
               VSpace.of(20),
-              buildSearchSection(),
-              VSpace.of(20),
-              buildNotesSection(filteredNotes),
+              ...segments[activeIndex].content,
             ]),
           ),
         ),
       ],
+    );
+  }
+
+  List<TrendsSegment> buildSegments(
+    Map<DateTime, V> activityData,
+    List<HealthNote> sortedNotes,
+    List<HealthNote> filteredNotes,
+  ) {
+    return [
+      TrendsSegment(
+        title: 'Calendar',
+        content: [buildActivityContent(activityData, sortedNotes)],
+      ),
+      TrendsSegment(
+        title: 'Notes',
+        content: [
+          buildSearchSection(),
+          VSpace.of(20),
+          buildNotesSection(filteredNotes),
+        ],
+      ),
+      ...extraSegments(sortedNotes),
+    ];
+  }
+
+  Widget buildViewSelector(List<TrendsSegment> segments, int activeIndex) {
+    return SizedBox(
+      width: double.infinity,
+      child: CupertinoSlidingSegmentedControl<int>(
+        groupValue: activeIndex,
+        onValueChanged: (index) {
+          if (index == null) return;
+          setState(() => selectedSegmentIndex = index);
+        },
+        children: {
+          for (var index = 0; index < segments.length; index++)
+            index: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Text(segments[index].title),
+            ),
+        },
+      ),
     );
   }
 

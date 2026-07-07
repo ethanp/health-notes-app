@@ -5,6 +5,7 @@ import 'package:health_notes/providers/medication_recommendations_provider.dart'
 import 'package:health_notes/screens/drug_trends_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/number_formatter.dart';
+import 'package:health_notes/widgets/accent_border_card.dart';
 import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
@@ -85,29 +86,27 @@ class MedicationsSection extends StatelessWidget {
   }
 
   Widget _readOnlyItem(BuildContext context, DrugDose dose) {
-    return GestureDetector(
-      onTap: () {
-        if (dose.name.isNotEmpty) {
-          context.push(DrugTrendsScreen(drugName: dose.name));
-        }
-      },
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Row(
-          children: [
-            Container(
-              width: 8,
-              height: 8,
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-                shape: BoxShape.circle,
+    return AccentBorderCard(
+      accentColor: AppColors.primary,
+      onTap: dose.name.isEmpty
+          ? null
+          : () => context.push(DrugTrendsScreen(drugName: dose.name)),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              dose.displayName,
+              style: AppTypography.bodyMedium.copyWith(
+                fontWeight: FontWeight.w600,
               ),
             ),
-            HSpace.of(12),
-            Expanded(child: Text(dose.name, style: AppTypography.bodyMedium)),
-            Text(dose.displayDosage, style: AppTypography.bodyMediumTertiary),
-          ],
-        ),
+          ),
+          HSpace.s,
+          EnhancedUIComponents.statusIndicator(
+            text: dose.displayDosage,
+            color: AppColors.primary,
+          ),
+        ],
       ),
     );
   }

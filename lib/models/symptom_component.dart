@@ -24,4 +24,3 @@ abstract class SymptomComponent with _$SymptomComponent {
   int get displayCount =>
       section == ComponentSection.recent ? recentUsageCount : usageCount;
 }
-

@@ -4,6 +4,7 @@ import 'package:health_notes/models/applied_tool.dart';
 import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/screens/tool_detail_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/widgets/accent_border_card.dart';
 import 'package:health_notes/widgets/applied_tool_picker_sheet.dart';
 import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
@@ -81,43 +82,25 @@ class AppliedToolsSection extends StatelessWidget {
   }
 
   Widget readOnlyItem(BuildContext context, AppliedTool tool) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: () => context.push(
-          ToolDetailScreen(toolId: tool.toolId, toolName: tool.toolName),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 8,
-              height: 8,
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-                shape: BoxShape.circle,
-              ),
+    return AccentBorderCard(
+      accentColor: AppColors.primary,
+      onTap: () => context.push(
+        ToolDetailScreen(toolId: tool.toolId, toolName: tool.toolName),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            tool.toolName,
+            style: AppTypography.bodyMedium.copyWith(
+              fontWeight: FontWeight.w600,
             ),
-            HSpace.of(12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(tool.toolName, style: AppTypography.labelLarge),
-                  if (tool.note.isNotEmpty) ...[
-                    VSpace.xs,
-                    Text(tool.note, style: AppTypography.bodyMediumSecondary),
-                  ],
-                ],
-              ),
-            ),
-            Icon(
-              CupertinoIcons.chevron_right,
-              size: 14,
-              color: AppColors.textQuaternary,
-            ),
+          ),
+          if (tool.note.isNotEmpty) ...[
+            VSpace.xs,
+            Text(tool.note, style: AppTypography.bodySmallSecondary),
           ],
-        ),
+        ],
       ),
     );
   }

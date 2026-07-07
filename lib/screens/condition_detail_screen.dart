@@ -6,6 +6,7 @@ import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/conditions_provider.dart';
 import 'package:health_notes/screens/condition_form.dart';
+import 'package:health_notes/screens/sub_symptom_trends_screen.dart';
 import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/services/health_notes_dao.dart';
 import 'package:health_notes/theme/app_theme.dart';
@@ -518,12 +519,20 @@ class ConditionDetailScreen extends ConsumerWidget {
 
         return GestureDetector(
           onTap: () {
-            final majorComponent = occurrences.first.symptom.majorComponent;
-            if (majorComponent.isNotEmpty) {
+            final symptom = occurrences.first.symptom;
+            if (symptom.majorComponent.isEmpty) return;
+            if (symptom.minorComponent.isNotEmpty) {
               context.push(
-                SymptomTrendsScreen(symptomName: majorComponent),
+                SubSymptomTrendsScreen(
+                  majorComponent: symptom.majorComponent,
+                  minorComponent: symptom.minorComponent,
+                ),
               );
+              return;
             }
+            context.push(
+              SymptomTrendsScreen(symptomName: symptom.majorComponent),
+            );
           },
           child: Container(
             margin: const EdgeInsets.only(bottom: 6),

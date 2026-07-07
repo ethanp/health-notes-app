@@ -27,6 +27,8 @@ import 'package:health_notes/screens/check_in_date_detail_screen.dart';
 import 'package:health_notes/screens/health_note_date_detail_screen.dart';
 import 'package:intl/intl.dart';
 
+enum TrendsCategory { notes, checkIns }
+
 class TrendsScreen extends ConsumerStatefulWidget {
   const TrendsScreen();
 
@@ -35,6 +37,8 @@ class TrendsScreen extends ConsumerStatefulWidget {
 }
 
 class _TrendsScreenState extends ConsumerState<TrendsScreen> {
+  TrendsCategory selectedCategory = TrendsCategory.notes;
+
   @override
   Widget build(BuildContext context) {
     final healthNotesAsync = ref.watch(healthNotesNotifierProvider);
@@ -156,11 +160,6 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   }
 
   Widget trendsContent(List<HealthNote> notes, List<CheckIn> checkIns) {
-    final symptomStats = _analyzeSymptomFrequency(notes);
-    final drugStats = _analyzeDrugUsage(notes);
-    final monthlyStats = _analyzeMonthlyTrends(notes);
-    final recentSymptomTrends = _analyzeRecentSymptomTrends(notes);
-
     return CustomScrollView(
       slivers: [
         CupertinoSliverRefreshControl(
@@ -171,34 +170,9 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
           padding: const EdgeInsets.all(16),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              checkInTrendsHeader(),
-              checkInTrendsSection(checkIns),
+              categorySelector(),
               VSpace.of(20),
-              sectionHeader('Recent Symptom Trends (Last 30 Days)'),
-              recentSymptomTrendsCard(recentSymptomTrends),
-              VSpace.of(20),
-              sectionHeader('All Symptoms'),
-              SearchableStatsTable(
-                searchPlaceholder: 'Search symptoms...',
-                stats: symptomStats,
-                onItemTap: _openSymptomTrends,
-              ),
-              VSpace.of(20),
-              sectionHeader('All Drugs'),
-              SearchableStatsTable(
-                searchPlaceholder: 'Search drugs...',
-                stats: drugStats,
-                onItemTap: _openDrugTrends,
-              ),
-              VSpace.of(20),
-              sectionHeader('Notes per Month'),
-              monthlyTrendsCard(monthlyStats),
-              VSpace.of(20),
-              sectionHeader('Note Activity'),
-              notesCalendar(notes),
-              VSpace.of(20),
-              sectionHeader('Check-in Activity'),
-              checkInsCalendar(checkIns),
+              ...selectedCategorySections(notes, checkIns),
             ]),
           ),
         ),
@@ -206,12 +180,83 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     );
   }
 
-  Widget sectionHeader(String title) {
-    return EnhancedUIComponents.sectionHeader(title: title);
+  Widget categorySelector() {
+    return SizedBox(
+      width: double.infinity,
+      child: CupertinoSlidingSegmentedControl<TrendsCategory>(
+        groupValue: selectedCategory,
+        onValueChanged: (category) {
+          if (category == null) return;
+          setState(() => selectedCategory = category);
+        },
+        children: const {
+          TrendsCategory.notes: Padding(
+            padding: EdgeInsets.symmetric(vertical: 6),
+            child: Text('Note Trends'),
+          ),
+          TrendsCategory.checkIns: Padding(
+            padding: EdgeInsets.symmetric(vertical: 6),
+            child: Text('Check-in Trends'),
+          ),
+        },
+      ),
+    );
   }
 
-  Widget checkInTrendsHeader() {
-    return Text('Check-in Trends', style: AppTypography.headlineSmall);
+  List<Widget> selectedCategorySections(
+    List<HealthNote> notes,
+    List<CheckIn> checkIns,
+  ) {
+    if (selectedCategory == TrendsCategory.checkIns) {
+      return checkInSections(checkIns);
+    }
+    return noteSections(notes);
+  }
+
+  List<Widget> noteSections(List<HealthNote> notes) {
+    final symptomStats = _analyzeSymptomFrequency(notes);
+    final drugStats = _analyzeDrugUsage(notes);
+    final monthlyStats = _analyzeMonthlyTrends(notes);
+    final recentSymptomTrends = _analyzeRecentSymptomTrends(notes);
+
+    return [
+      sectionHeader('Recent Symptom Trends (Last 30 Days)'),
+      recentSymptomTrendsCard(recentSymptomTrends),
+      VSpace.of(20),
+      sectionHeader('All Symptoms'),
+      SearchableStatsTable(
+        searchPlaceholder: 'Search symptoms...',
+        stats: symptomStats,
+        onItemTap: _openSymptomTrends,
+      ),
+      VSpace.of(20),
+      sectionHeader('All Drugs'),
+      SearchableStatsTable(
+        searchPlaceholder: 'Search drugs...',
+        stats: drugStats,
+        onItemTap: _openDrugTrends,
+      ),
+      VSpace.of(20),
+      sectionHeader('Notes per Month'),
+      monthlyTrendsCard(monthlyStats),
+      VSpace.of(20),
+      sectionHeader('Note Activity'),
+      notesCalendar(notes),
+    ];
+  }
+
+  List<Widget> checkInSections(List<CheckIn> checkIns) {
+    return [
+      sectionHeader('Check-in Metrics'),
+      checkInTrendsSection(checkIns),
+      VSpace.of(20),
+      sectionHeader('Check-in Activity'),
+      checkInsCalendar(checkIns),
+    ];
+  }
+
+  Widget sectionHeader(String title) {
+    return EnhancedUIComponents.sectionHeader(title: title);
   }
 
   Widget recentSymptomTrendsCard(Map<String, int> recentTrends) {
