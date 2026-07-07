@@ -51,7 +51,7 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.backgroundSecondary,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.large)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -62,7 +62,7 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
             height: 4,
             decoration: BoxDecoration(
               color: AppColors.textQuaternary,
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(AppRadius.xs),
             ),
           ),
           VSpace.m,
@@ -137,10 +137,13 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
           Navigator.of(context).pop();
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.m,
+            vertical: AppSpacing.sm,
+          ),
           decoration: BoxDecoration(
             color: AppColors.backgroundTertiary,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppRadius.medium),
           ),
           child: Row(
             children: [
@@ -178,10 +181,13 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
     return GestureDetector(
       onTap: () => _showCreateDialog(context),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.m,
+          vertical: AppSpacing.sm,
+        ),
         decoration: BoxDecoration(
           color: AppColors.backgroundTertiary,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.medium),
           border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
         ),
         child: Row(

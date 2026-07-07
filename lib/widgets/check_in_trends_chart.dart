@@ -88,7 +88,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     required Widget charts,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.m),
       decoration: AppComponents.primaryCard.copyWith(
         boxShadow: [
           BoxShadow(
@@ -104,9 +104,9 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
           header,
           VSpace.m,
           dateRangeSelector,
-          VSpace.of(12),
+          VSpace.sm,
           indicator,
-          VSpace.of(12),
+          VSpace.sm,
           charts,
         ],
       ),
@@ -141,7 +141,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
                 ? AppColors.backgroundQuaternary
                 : color.withValues(alpha: 0.2),
           ),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadius.large),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -179,7 +179,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: CupertinoColors.systemGreen.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppRadius.small),
         border: Border.all(
           color: CupertinoColors.systemGreen.withValues(alpha: 0.2),
           width: 1,
@@ -196,7 +196,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
           Expanded(
             child: Text(
               'Green zones: 1-3 (Lower is Better), 4-7 (Middle is Best), 8-10 (Higher is Better)',
-              style: AppText.body.small.withColor(CupertinoColors.systemGreen).size(10),
+              style: AppText.body.tiny.withColor(CupertinoColors.systemGreen),
             ),
           ),
         ],
@@ -247,7 +247,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
           height: kChartTotalHeight,
           child: singleChart(typeMetrics, type),
         ),
-        VSpace.of(12),
+        VSpace.sm,
       ],
     );
   }
@@ -268,7 +268,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
           colors: ColorMappingUtils.getBackgroundGradient(metricType),
           stops: ColorMappingUtils.getBackgroundGradientStops(metricType),
         ),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppRadius.small),
       ),
       child: LineChart(
         LineChartData(

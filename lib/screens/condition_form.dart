@@ -85,7 +85,7 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
       ),
       child: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.m),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -114,7 +114,7 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
         CupertinoTextField(
           controller: nameController,
           placeholder: 'e.g., Cold, Migraine, Flare-up',
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.m),
           decoration: AppComponents.inputField,
           style: AppText.input,
           placeholderStyle: AppText.inputPlaceholder,
@@ -133,7 +133,7 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
           padding: EdgeInsets.zero,
           onPressed: showDatePicker,
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.m),
             decoration: AppComponents.inputField,
             child: Row(
               children: [
@@ -186,7 +186,7 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
                   color: isSelected
                       ? Color(selectedColorValue).withValues(alpha: 0.2)
                       : AppColors.backgroundTertiary,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppRadius.medium),
                   border: Border.all(
                     color: isSelected
                         ? Color(selectedColorValue)
@@ -216,7 +216,7 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
         CupertinoTextField(
           controller: notesController,
           placeholder: 'Optional notes about this condition...',
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.m),
           decoration: AppComponents.inputField,
           style: AppText.input,
           placeholderStyle: AppText.inputPlaceholder,

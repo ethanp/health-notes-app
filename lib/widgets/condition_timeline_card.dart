@@ -41,13 +41,9 @@ class ConditionTimelineCard extends ConsumerWidget {
         Container(
           width: 36,
           height: 36,
-          decoration: BoxDecoration(
-            color: condition.color.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: condition.color.withValues(alpha: 0.3),
-              width: 1,
-            ),
+          decoration: AppComponents.tintedSolidDecoration(
+            condition.color,
+            radius: 18,
           ),
           child: Icon(condition.icon, size: 18, color: condition.color),
         ),
@@ -76,10 +72,9 @@ class ConditionTimelineCard extends ConsumerWidget {
         : CupertinoColors.systemGreen;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
+      decoration: AppComponents.tintedSolidDecoration(
+        color,
+        radius: AppRadius.medium,
       ),
       child: Text(
         condition.status.displayName,

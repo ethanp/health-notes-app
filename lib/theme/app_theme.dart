@@ -106,7 +106,7 @@ class AppText {
 class _HeadlineScale {
   const _HeadlineScale();
 
-  /// Canonical headline look without a fixed size; used by [size].
+  /// Shared headline properties; each size layers its font size on top.
   static const _base = TextStyle(
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
@@ -125,15 +125,12 @@ class _HeadlineScale {
 
   TextStyle get small =>
       _base.copyWith(fontSize: 20, height: 1.4, letterSpacing: -0.2);
-
-  /// Headline style at an arbitrary size.
-  TextStyle size(double fontSize) => _base.copyWith(fontSize: fontSize);
 }
 
 class _BodyScale {
   const _BodyScale();
 
-  /// Canonical body look without a fixed size; used by [size].
+  /// Shared body properties; each size layers its font size on top.
   static const _base = TextStyle(
     fontWeight: FontWeight.normal,
     color: AppColors.textPrimary,
@@ -148,14 +145,13 @@ class _BodyScale {
   TextStyle get small =>
       _base.copyWith(fontSize: 14, color: AppColors.textSecondary);
 
-  /// Body style at an arbitrary size.
-  TextStyle size(double fontSize) => _base.copyWith(fontSize: fontSize);
+  TextStyle get tiny => _base.copyWith(fontSize: 10);
 }
 
 class _LabelScale {
   const _LabelScale();
 
-  /// Canonical label look without a fixed size; used by [size].
+  /// Shared label properties; each size layers its font size on top.
   static const _base = TextStyle(
     fontWeight: FontWeight.w500,
     color: AppColors.textPrimary,
@@ -170,9 +166,6 @@ class _LabelScale {
 
   TextStyle get small =>
       _base.copyWith(fontSize: 12, color: AppColors.textSecondary);
-
-  /// Label style at an arbitrary size.
-  TextStyle size(double fontSize) => _base.copyWith(fontSize: fontSize);
 }
 
 /// Chainable color/weight/size modifiers for the [AppText] fluent API.
@@ -199,6 +192,7 @@ extension AppTextModifiers on TextStyle {
 class AppSpacing {
   static const double xs = 4.0;
   static const double s = 8.0;
+  static const double sm = 12.0;
   static const double m = 16.0;
   static const double l = 24.0;
   static const double xl = 32.0;
@@ -207,6 +201,7 @@ class AppSpacing {
 
 /// Border radius values for consistent component styling
 class AppRadius {
+  static const double xs = 2.0;
   static const double small = 8.0;
   static const double medium = 12.0;
   static const double large = 16.0;
@@ -302,6 +297,19 @@ class AppComponents {
     gradient: _tintGradient(color),
     radius: radius,
     border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
+  );
+
+  /// Solid accent-tinted surface (0.15 fill, 0.3 border) for badges and pills.
+  static BoxDecoration tintedSolidDecoration(
+    Color color, {
+    double radius = AppRadius.medium,
+    double borderWidth = 1,
+  }) => _surface(
+    color: color.withValues(alpha: 0.15),
+    radius: radius,
+    border: borderWidth > 0
+        ? Border.all(color: color.withValues(alpha: 0.3), width: borderWidth)
+        : null,
   );
 
   static BoxDecoration get primaryCard => _surface(

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:health_notes/theme/app_theme.dart';
 
 class RefreshableListView<T> extends ConsumerWidget {
   final Future<void> Function() onRefresh;
@@ -14,7 +15,7 @@ class RefreshableListView<T> extends ConsumerWidget {
     required this.onRefresh,
     required this.items,
     required this.itemBuilder,
-    this.padding = const EdgeInsets.all(16),
+    this.padding = const EdgeInsets.all(AppSpacing.m),
     this.controller,
     this.primary = true,
     this.physics = const AlwaysScrollableScrollPhysics(),

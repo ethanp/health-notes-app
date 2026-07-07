@@ -90,7 +90,7 @@ class _HealthToolCategoryFormState
         child: Form(
           key: _formKey,
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.m),
             children: [
               nameSection(),
               VSpace.m,
@@ -118,7 +118,7 @@ class _HealthToolCategoryFormState
             placeholder: 'Enter category name',
             style: AppText.input,
             decoration: AppComponents.inputField,
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(AppSpacing.sm),
           ),
         ],
       ),
@@ -142,7 +142,7 @@ class _HealthToolCategoryFormState
             placeholder: 'Enter description...',
             style: AppText.input,
             decoration: AppComponents.inputField,
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(AppSpacing.sm),
             maxLines: 3,
             minLines: 2,
           ),
@@ -173,7 +173,7 @@ class _HealthToolCategoryFormState
         return GestureDetector(
           onTap: () => setState(() => _selectedIcon = icon['value']!),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
             decoration: BoxDecoration(
               color: isSelected
                   ? AppColors.primary

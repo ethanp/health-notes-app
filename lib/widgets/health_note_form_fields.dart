@@ -12,6 +12,7 @@ import 'package:health_notes/widgets/health_note_form/general_notes_section.dart
 import 'package:health_notes/widgets/health_note_form/medications_section.dart';
 import 'package:health_notes/widgets/health_note_form/symptoms_section.dart';
 import 'package:health_notes/providers/medication_recommendations_provider.dart';
+import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 
 class HealthNoteFormFields extends ConsumerStatefulWidget {
@@ -150,7 +151,7 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     final recommendations = ref.watch(medicationRecommendationsProvider);
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.m),
       children: [
         VSpace.s,
         DateTimeSection(

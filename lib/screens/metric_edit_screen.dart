@@ -71,7 +71,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
     return Form(
       key: _formKey,
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.m),
         children: [
           nameSection(),
           VSpace.l,
@@ -102,9 +102,9 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
             placeholder: 'Enter metric name',
             decoration: BoxDecoration(
               border: Border.all(color: CupertinoColors.systemGrey4),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppRadius.small),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
           ),
         ],
       ),
@@ -122,7 +122,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
               context,
             ).textTheme.textStyle.copyWith(fontWeight: FontWeight.w600),
           ),
-          VSpace.of(12),
+          VSpace.sm,
           ...MetricType.values.map(typeOption),
         ],
       ),
@@ -149,12 +149,12 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
         padding: EdgeInsets.zero,
         onPressed: () => setState(() => _selectedType = type),
         child: Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(AppSpacing.sm),
           decoration: BoxDecoration(
             color: isSelected
                 ? CupertinoColors.systemBlue.withValues(alpha: 0.1)
                 : CupertinoColors.systemGrey4.darkColor,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppRadius.small),
             border: Border.all(
               color: isSelected
                   ? CupertinoColors.systemBlue
@@ -172,7 +172,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
                     : CupertinoColors.systemGrey,
                 size: 20,
               ),
-              HSpace.of(12),
+              HSpace.sm,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,7 +211,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
               context,
             ).textTheme.textStyle.copyWith(fontWeight: FontWeight.w600),
           ),
-          VSpace.of(12),
+          VSpace.sm,
           ColorPickerGrid(
             colors: MetricColorPalette.colors,
             selectedColor: _selectedColor,
@@ -234,7 +234,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
               context,
             ).textTheme.textStyle.copyWith(fontWeight: FontWeight.w600),
           ),
-          VSpace.of(12),
+          VSpace.sm,
           Wrap(
             spacing: 12,
             runSpacing: 12,
@@ -257,7 +257,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
           color: isSelected
               ? _selectedColor.withValues(alpha: 0.2)
               : CupertinoColors.systemGrey6,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadius.small),
           border: Border.all(
             color: isSelected ? _selectedColor : CupertinoColors.systemGrey4,
             width: isSelected ? 2 : 1,

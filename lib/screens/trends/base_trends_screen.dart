@@ -132,7 +132,7 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
       slivers: [
         CupertinoSliverRefreshControl(onRefresh: onRefresh),
         SliverPadding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.m),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               buildViewSelector(segments, activeIndex),
@@ -198,7 +198,7 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Search Notes', style: AppText.label.large),
-        VSpace.of(12),
+        VSpace.sm,
         EnhancedUIComponents.searchField(
           controller: searchController,
           placeholder: searchPlaceholder,

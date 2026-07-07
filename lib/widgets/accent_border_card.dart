@@ -23,7 +23,7 @@ class AccentBorderCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.backgroundTertiary,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppRadius.small),
         border: Border(left: BorderSide(color: accentColor, width: 3)),
       ),
       child: child,

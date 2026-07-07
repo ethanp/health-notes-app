@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/accent_border_card.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/form_section_container.dart';
 import 'package:health_notes/theme/spacing.dart';
 
 class GeneralNotesSection extends StatelessWidget {
@@ -18,12 +19,8 @@ class GeneralNotesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: isEditable
-          ? AppComponents.inputField
-          : AppComponents.primaryCard,
+    return FormSectionContainer(
+      isEditable: isEditable,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [_header(), VSpace.s, _content()],

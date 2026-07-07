@@ -27,7 +27,7 @@ class GroupedNotesSection extends StatelessWidget {
       children: [
         Text('Health Notes (${notes.length})',
             style: AppText.headline.small),
-        VSpace.of(12),
+        VSpace.sm,
         if (header != null) header!,
         ..._dateGroupedCards(),
       ],

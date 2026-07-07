@@ -10,6 +10,7 @@ import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
 import 'package:health_notes/utils/severity_utils.dart';
+import 'package:health_notes/widgets/accent_border_card.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
 import 'package:health_notes/widgets/health_note_card.dart';
 import 'package:health_notes/services/trends_activity_aggregator.dart';
@@ -116,44 +117,36 @@ class _SymptomTrendsScreenState
 
   Widget _subSymptomRow(_SubSymptomStat stat) {
     final color = SeverityUtils.colorForSeverity(stat.peakSeverity);
-    return GestureDetector(
+    return AccentBorderCard(
+      accentColor: color,
       onTap: () => context.push(
         SubSymptomTrendsScreen(
           majorComponent: widget.symptomName,
           minorComponent: stat.minorComponent,
         ),
       ),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: AppColors.backgroundTertiary,
-          borderRadius: BorderRadius.circular(8),
-          border: Border(left: BorderSide(color: color, width: 3)),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(stat.minorComponent, style: AppText.body.medium),
-                  Text(
-                    AppDateUtils.formatShortDate(stat.mostRecent),
-                    style: AppText.body.small.systemGrey,
-                  ),
-                ],
-              ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(stat.minorComponent, style: AppText.body.medium),
+                Text(
+                  AppDateUtils.formatShortDate(stat.mostRecent),
+                  style: AppText.body.small.systemGrey,
+                ),
+              ],
             ),
-            Text('${stat.count}×', style: AppText.body.small.secondary),
-            HSpace.s,
-            const Icon(
-              CupertinoIcons.chevron_right,
-              size: 16,
-              color: CupertinoColors.systemGrey3,
-            ),
-          ],
-        ),
+          ),
+          Text('${stat.count}×', style: AppText.body.small.secondary),
+          HSpace.s,
+          const Icon(
+            CupertinoIcons.chevron_right,
+            size: 16,
+            color: CupertinoColors.systemGrey3,
+          ),
+        ],
       ),
     );
   }
@@ -195,10 +188,10 @@ class _SymptomTrendsScreenState
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadius.large),
           border: Border.all(color: color.withValues(alpha: 0.4), width: 1),
         ),
         child: Text(
@@ -224,17 +217,17 @@ class _SymptomTrendsScreenState
       TextSpan(children: [
         TextSpan(
           text: AppDateUtils.formatTime(note.dateTime),
-          style: const TextStyle(fontWeight: FontWeight.w700),
+          style: AppText.body.small.bold,
         ),
         const TextSpan(text: '  ·  '),
         TextSpan(
           text: 'L$noteSeverity',
-          style: const TextStyle(fontWeight: FontWeight.w600),
+          style: AppText.body.small.semibold,
         ),
         if (subsymptom.isNotEmpty)
           TextSpan(
             text: ' $subsymptom',
-            style: const TextStyle(fontWeight: FontWeight.w400),
+            style: AppText.body.small,
           ),
       ]),
     );

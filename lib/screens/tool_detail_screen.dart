@@ -92,7 +92,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
               ref.read(healthNotesNotifierProvider.notifier).refreshNotes(),
         ),
         SliverPadding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.m),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               if (tool != null) ...[toolHeaderCard(tool), VSpace.l],
@@ -127,9 +127,10 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
               Container(
                 width: 48,
                 height: 48,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
+                decoration: AppComponents.tintedSolidDecoration(
+                  AppColors.primary,
+                  radius: AppRadius.medium,
+                  borderWidth: 0,
                 ),
                 child: Icon(
                   CupertinoIcons.wrench,
@@ -170,7 +171,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: AppColors.backgroundTertiary,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppRadius.small),
       ),
       child: Text(category.name, style: AppText.caption),
     );
@@ -232,7 +233,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
 
   Widget statItem(String label, String value) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
         color: AppColors.backgroundTertiary,
         borderRadius: BorderRadius.circular(AppRadius.small),
@@ -428,10 +429,10 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
 
   Widget usageBadge(int count) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
       decoration: BoxDecoration(
         color: AppColors.primary.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.large),
         border: Border.all(
           color: AppColors.primary.withValues(alpha: 0.4),
           width: 1,

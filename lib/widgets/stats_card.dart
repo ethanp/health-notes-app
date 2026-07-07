@@ -36,7 +36,7 @@ class StatRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final row = Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

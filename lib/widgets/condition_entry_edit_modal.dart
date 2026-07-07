@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
+import 'package:health_notes/utils/severity_utils.dart';
 import 'package:intl/intl.dart';
 
 class ConditionEntryEditModal extends StatefulWidget {
@@ -106,8 +107,8 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: severityColor(severity),
-                borderRadius: BorderRadius.circular(12),
+                color: SeverityUtils.discreteCupertinoColor(severity),
+                borderRadius: BorderRadius.circular(AppRadius.medium),
               ),
               child: Text(
                 '$severity/10',
@@ -122,7 +123,7 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
           min: 1,
           max: 10,
           divisions: 9,
-          activeColor: severityColor(severity),
+          activeColor: SeverityUtils.discreteCupertinoColor(severity),
           onChanged: (value) => setState(() => severity = value.round()),
         ),
         VSpace.xs,
@@ -185,7 +186,7 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
         CupertinoTextField(
           controller: notesController,
           placeholder: 'Optional notes for this entry...',
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(AppSpacing.sm),
           decoration: AppComponents.inputField,
           style: AppText.input,
           placeholderStyle: AppText.inputPlaceholder,
@@ -206,13 +207,6 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
             : const Text('Save Changes'),
       ),
     );
-  }
-
-  Color severityColor(int severity) {
-    if (severity <= 3) return CupertinoColors.systemGreen;
-    if (severity <= 5) return CupertinoColors.systemYellow;
-    if (severity <= 7) return CupertinoColors.systemOrange;
-    return CupertinoColors.systemRed;
   }
 
   Future<void> saveEntry() async {

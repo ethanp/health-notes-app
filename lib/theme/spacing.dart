@@ -4,6 +4,7 @@ import 'package:health_notes/theme/app_theme.dart';
 class VSpace {
   static const xs = SizedBox(height: AppSpacing.xs);
   static const s = SizedBox(height: AppSpacing.s);
+  static const sm = SizedBox(height: AppSpacing.sm);
   static const m = SizedBox(height: AppSpacing.m);
   static const l = SizedBox(height: AppSpacing.l);
   static const xl = SizedBox(height: AppSpacing.xl);
@@ -14,6 +15,7 @@ class VSpace {
 class HSpace {
   static const xs = SizedBox(width: AppSpacing.xs);
   static const s = SizedBox(width: AppSpacing.s);
+  static const sm = SizedBox(width: AppSpacing.sm);
   static const m = SizedBox(width: AppSpacing.m);
   static const l = SizedBox(width: AppSpacing.l);
   static const xl = SizedBox(width: AppSpacing.xl);

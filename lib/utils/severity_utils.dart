@@ -48,6 +48,14 @@ class SeverityUtils {
     return severity >= minSeverity && severity <= maxSeverity;
   }
 
+  /// Discrete Cupertino system colors for sliders and form controls (4 buckets).
+  static Color discreteCupertinoColor(int severity) {
+    if (severity <= 3) return CupertinoColors.systemGreen;
+    if (severity <= 5) return CupertinoColors.systemYellow;
+    if (severity <= 7) return CupertinoColors.systemOrange;
+    return CupertinoColors.systemRed;
+  }
+
   /// Get display text for severity (returns number as string or "Unknown")
   static String displayText(int severity) {
     return isValidSeverity(severity) || severity == 0

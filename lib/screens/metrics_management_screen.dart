@@ -166,7 +166,10 @@ class _MetricsManagementScreenState
       child: AppCard(
         margin: const EdgeInsets.all(AppSpacing.m),
         child: CupertinoListTile(
-          padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 12, 10),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.sm,
+            vertical: AppSpacing.s,
+          ),
           leading: metricIcon(metric),
           title: metricTitle(metric),
           subtitle: metricSubtitle(metric),
@@ -182,7 +185,7 @@ class _MetricsManagementScreenState
       height: 36,
       decoration: BoxDecoration(
         color: metric.color.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppRadius.small),
       ),
       child: Icon(metric.icon, color: metric.color, size: 16),
     );

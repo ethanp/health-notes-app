@@ -122,7 +122,7 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _grabber(),
-            VSpace.of(12),
+            VSpace.sm,
             _header(),
             VSpace.s,
             _datesSummary(),
@@ -145,7 +145,7 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
         height: 4,
         decoration: BoxDecoration(
           color: AppColors.backgroundQuinary,
-          borderRadius: BorderRadius.circular(2),
+          borderRadius: BorderRadius.circular(AppRadius.xs),
         ),
       ),
     );
@@ -197,7 +197,10 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
           autofocus: true,
           style: AppText.body.medium,
           placeholderStyle: AppText.body.medium.systemGrey,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.m,
+            vertical: AppSpacing.sm,
+          ),
           decoration: BoxDecoration(
             color: AppColors.backgroundTertiary,
             borderRadius: BorderRadius.circular(AppRadius.small),
@@ -221,7 +224,10 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
           placeholder: 'mg',
           style: AppText.body.medium,
           placeholderStyle: AppText.body.medium.systemGrey,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.m,
+            vertical: AppSpacing.sm,
+          ),
           decoration: BoxDecoration(
             color: AppColors.backgroundTertiary,
             borderRadius: BorderRadius.circular(AppRadius.small),

@@ -109,10 +109,10 @@ class _SubSymptomTrendsScreenState
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadius.large),
           border: Border.all(color: color.withValues(alpha: 0.4), width: 1),
         ),
         child: Text(
@@ -138,12 +138,12 @@ class _SubSymptomTrendsScreenState
       TextSpan(children: [
         TextSpan(
           text: AppDateUtils.formatTime(note.dateTime),
-          style: const TextStyle(fontWeight: FontWeight.w700),
+          style: AppText.body.small.bold,
         ),
         const TextSpan(text: '  ·  '),
         TextSpan(
           text: 'L$noteSeverity',
-          style: const TextStyle(fontWeight: FontWeight.w600),
+          style: AppText.body.small.semibold,
         ),
       ]),
     );

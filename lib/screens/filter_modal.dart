@@ -52,7 +52,7 @@ class _FilterModalState extends State<FilterModal> {
       ),
       child: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.m),
           children: [
             VSpace.of(20),
             dateFilterSection(),
@@ -68,7 +68,7 @@ class _FilterModalState extends State<FilterModal> {
 
   Widget dateFilterSection() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.m),
       decoration: AppComponents.filterChip,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,11 +88,11 @@ class _FilterModalState extends State<FilterModal> {
 
   Widget dateSelectorButton() {
     return CupertinoButton(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
       color: _tempSelectedDate != null
           ? CupertinoColors.systemBlue
           : CupertinoColors.systemGrey6,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(AppRadius.small),
       onPressed: () =>
           setState(() => _isDatePickerVisible = !_isDatePickerVisible),
       child: Text(
@@ -110,7 +110,7 @@ class _FilterModalState extends State<FilterModal> {
     return CupertinoButton(
       padding: const EdgeInsets.all(8),
       color: CupertinoColors.destructiveRed,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(AppRadius.small),
       onPressed: () => setState(() => _tempSelectedDate = null),
       child: const Icon(
         CupertinoIcons.xmark,
@@ -122,7 +122,7 @@ class _FilterModalState extends State<FilterModal> {
 
   Widget drugFilterSection() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.m),
       decoration: AppComponents.filterChip,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,7 +159,7 @@ class _FilterModalState extends State<FilterModal> {
 
   Widget datePickerOverlay() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.m),
       decoration: AppComponents.inputField,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

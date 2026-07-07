@@ -60,7 +60,7 @@ class ColorPickerGrid extends StatelessWidget {
         decoration: BoxDecoration(
           color: color,
           shape: useCircles ? BoxShape.circle : BoxShape.rectangle,
-          borderRadius: useCircles ? null : BorderRadius.circular(8),
+          borderRadius: useCircles ? null : BorderRadius.circular(AppRadius.small),
           border: Border.all(
             color: isSelected ? CupertinoColors.white : CupertinoColors.systemGrey4,
             width: isSelected ? 3 : 1,

@@ -167,7 +167,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
               ref.read(syncNotifierProvider.notifier).syncAllData(),
         ),
         SliverPadding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.m),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               categorySelector(),

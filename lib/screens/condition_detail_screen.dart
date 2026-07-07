@@ -109,7 +109,7 @@ class ConditionDetailScreen extends ConsumerWidget {
       ),
       child: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.m),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -149,13 +149,10 @@ class ConditionDetailScreen extends ConsumerWidget {
           Container(
             width: 56,
             height: 56,
-            decoration: BoxDecoration(
-              color: condition.color.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(
-                color: condition.color.withValues(alpha: 0.3),
-                width: 2,
-              ),
+            decoration: AppComponents.tintedSolidDecoration(
+              condition.color,
+              radius: 28,
+              borderWidth: 2,
             ),
             child: Icon(condition.icon, size: 28, color: condition.color),
           ),
@@ -184,11 +181,10 @@ class ConditionDetailScreen extends ConsumerWidget {
         ? CupertinoColors.systemOrange
         : CupertinoColors.systemGreen;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
+      decoration: AppComponents.tintedSolidDecoration(
+        color,
+        radius: AppRadius.large,
       ),
       child: Text(
         condition.status.displayName,
@@ -255,7 +251,7 @@ class ConditionDetailScreen extends ConsumerWidget {
 
   Widget statCard(String label, String value, String unit) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
         color: AppColors.backgroundTertiary,
         borderRadius: BorderRadius.circular(AppRadius.small),
@@ -355,10 +351,9 @@ class ConditionDetailScreen extends ConsumerWidget {
   Widget phaseBadge(ConditionPhase phase) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: phase.color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: phase.color.withValues(alpha: 0.3), width: 1),
+      decoration: AppComponents.tintedSolidDecoration(
+        phase.color,
+        radius: AppRadius.small,
       ),
       child: Text(
         phase.displayName,
@@ -371,18 +366,11 @@ class ConditionDetailScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: severityColor(severity),
-        borderRadius: BorderRadius.circular(12),
+        color: SeverityUtils.discreteCupertinoColor(severity),
+        borderRadius: BorderRadius.circular(AppRadius.medium),
       ),
       child: Text('$severity', style: AppText.label.medium.white),
     );
-  }
-
-  Color severityColor(int severity) {
-    if (severity <= 3) return CupertinoColors.systemGreen;
-    if (severity <= 5) return CupertinoColors.systemYellow;
-    if (severity <= 7) return CupertinoColors.systemOrange;
-    return CupertinoColors.systemRed;
   }
 
   String formatDateRange(Condition condition) {
@@ -536,10 +524,10 @@ class ConditionDetailScreen extends ConsumerWidget {
           },
           child: Container(
             margin: const EdgeInsets.only(bottom: 6),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
             decoration: BoxDecoration(
               color: AppColors.backgroundTertiary,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppRadius.small),
               border: Border(
                 left: BorderSide(color: avgColor, width: 3),
               ),

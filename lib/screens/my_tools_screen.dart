@@ -77,13 +77,13 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
       },
       items: categories,
       itemBuilder: (category) => categoryCard(category),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.m),
     );
   }
 
   Widget categoryCard(HealthToolCategory category) {
     return AppCard(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       padding: EdgeInsets.zero,
       child: CupertinoButton(
         padding: EdgeInsets.zero,
@@ -145,7 +145,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
       height: 48,
       decoration: BoxDecoration(
         color: _parseColor(category.colorHex),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.medium),
       ),
       child: Icon(
         _getIconData(category.iconName),

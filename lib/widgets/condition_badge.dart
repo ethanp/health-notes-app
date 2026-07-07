@@ -27,10 +27,9 @@ class ConditionBadge extends ConsumerWidget {
               context.push(ConditionDetailScreen(conditionId: conditionId)),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: condition.color.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: condition.color.withValues(alpha: 0.3)),
+            decoration: AppComponents.tintedSolidDecoration(
+              condition.color,
+              radius: 10,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,

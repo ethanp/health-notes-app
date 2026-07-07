@@ -116,7 +116,7 @@ class _StatsRow extends StatelessWidget {
             child: Text(label, style: AppText.body.medium.white.semibold),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -124,7 +124,7 @@ class _StatsRow extends StatelessWidget {
                   AppColors.primary.withValues(alpha: 0.1),
                 ],
               ),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(AppRadius.large),
               border: Border.all(
                 color: AppColors.primary.withValues(alpha: 0.3),
               ),

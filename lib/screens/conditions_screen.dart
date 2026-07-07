@@ -6,6 +6,7 @@ import 'package:health_notes/providers/conditions_provider.dart';
 import 'package:health_notes/providers/sync_provider.dart';
 import 'package:health_notes/screens/condition_detail_screen.dart';
 import 'package:health_notes/screens/condition_form.dart';
+import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/log_out_button.dart';
 import 'package:health_notes/widgets/condition_timeline_card.dart';
 import 'package:health_notes/widgets/app_button.dart';
@@ -125,7 +126,7 @@ class ConditionsScreen extends ConsumerWidget {
     Condition condition,
   ) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: () => navigateToDetail(context, condition),

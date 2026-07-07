@@ -13,6 +13,7 @@ import 'package:health_notes/widgets/component_picker_sheet.dart';
 import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/condition_badge.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/form_section_container.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
 import 'package:health_notes/widgets/note_summary_rows.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -51,12 +52,8 @@ class SymptomsSection extends ConsumerWidget {
       ref.watch(conditionsNotifierProvider);
     }
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: isEditable
-          ? AppComponents.inputField
-          : AppComponents.primaryCard,
+    return FormSectionContainer(
+      isEditable: isEditable,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [_header(), VSpace.s, _content(context, ref)],
@@ -108,7 +105,7 @@ class SymptomsSection extends ConsumerWidget {
     SymptomControllers controllers,
   ) {
     return AppCard(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -180,10 +177,10 @@ class SymptomsSection extends ConsumerWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
         decoration: BoxDecoration(
           color: AppColors.backgroundTertiary,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadius.small),
           border: Border.all(
             color: onTap == null
                 ? AppColors.textQuaternary.withValues(alpha: 0.3)

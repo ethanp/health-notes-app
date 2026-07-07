@@ -137,7 +137,7 @@ class ConditionActivityCalendar extends StatelessWidget {
             margin: const EdgeInsets.only(right: 2),
             decoration: BoxDecoration(
               color: SeverityUtils.colorForSeverity(severity),
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(AppRadius.xs),
             ),
           );
         }),

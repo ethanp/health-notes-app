@@ -44,7 +44,7 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
       if (scrollController.hasClients && checkInsForDate.isNotEmpty) {
         scrollController.animateTo(
           0.0,
-          duration: const Duration(milliseconds: 300),
+          duration: AppAnimation.medium,
           curve: Curves.easeOut,
         );
       }
@@ -70,7 +70,7 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
 
   Widget header() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.m),
       decoration: BoxDecoration(
         color: AppColors.backgroundSecondary,
         border: Border(
@@ -99,7 +99,7 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
 
   Widget checkInItem(CheckIn checkIn) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       decoration: BoxDecoration(
         color: AppColors.backgroundSecondary,
         borderRadius: BorderRadius.circular(AppRadius.medium),
@@ -109,7 +109,7 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
         ),
       ),
       child: CupertinoButton(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.m),
         onPressed: () => showEditCheckInForm(checkIn),
         child: Row(
           children: [
@@ -130,10 +130,10 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
               ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
               decoration: BoxDecoration(
                 color: AppColors.primary,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(AppRadius.large),
               ),
               child: Text(
                 '${checkIn.rating}',
@@ -153,7 +153,7 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
 
     return ListView.builder(
       controller: scrollController,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.m),
       itemCount: checkInsForDate.length,
       itemBuilder: (context, index) {
         return checkInItem(checkInsForDate[index]);
@@ -163,7 +163,7 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
 
   Widget emptyState() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(AppSpacing.l),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -10,6 +10,7 @@ import 'package:health_notes/providers/conditions_provider.dart';
 import 'package:health_notes/screens/condition_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/data_utils.dart';
+import 'package:health_notes/utils/severity_utils.dart';
 import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
@@ -126,7 +127,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     ];
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.m),
       children: sections
           .map(
             (section) => Padding(
@@ -222,7 +223,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
       children: [
         sliderMetadata(metric, rating, metricName),
         ratingSliderRow(metricName, rating),
-        VSpace.of(12),
+        VSpace.sm,
       ],
     );
   }
@@ -233,7 +234,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
         _ratingPill(metric, rating),
         HSpace.m,
         Icon(metric.icon, size: 20, color: AppColors.textPrimary),
-        HSpace.of(12),
+        HSpace.sm,
         Expanded(child: Text(metric.name, style: AppText.label.large)),
         CupertinoButton(
           padding: EdgeInsets.zero,
@@ -357,7 +358,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
 
   Widget noConditionsMessage() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.m),
       decoration: BoxDecoration(
         color: AppColors.backgroundTertiary,
         borderRadius: BorderRadius.circular(AppRadius.small),
@@ -373,8 +374,8 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
 
   Widget conditionEntryCard(int index, ConditionEntryDraft draft) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
         color: AppColors.backgroundTertiary,
         borderRadius: BorderRadius.circular(AppRadius.small),
@@ -406,9 +407,10 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
         Container(
           width: 28,
           height: 28,
-          decoration: BoxDecoration(
-            color: draft.conditionColor.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(14),
+          decoration: AppComponents.tintedSolidDecoration(
+            draft.conditionColor,
+            radius: 14,
+            borderWidth: 0,
           ),
           child: Icon(
             CupertinoIcons.bandage,
@@ -444,7 +446,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: severityColor(draft.severity),
+                color: SeverityUtils.discreteCupertinoColor(draft.severity),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -460,7 +462,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
           min: 1,
           max: 10,
           divisions: 9,
-          activeColor: severityColor(draft.severity),
+          activeColor: SeverityUtils.discreteCupertinoColor(draft.severity),
           onChanged: (value) => setState(() => draft.severity = value.round()),
         ),
       ],
@@ -481,10 +483,10 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
             return GestureDetector(
               onTap: () => setState(() => draft.phase = p),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
                 decoration: BoxDecoration(
                   color: isSelected ? p.color.withValues(alpha: 0.2) : AppColors.backgroundQuaternary,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(AppRadius.large),
                   border: Border.all(
                     color: isSelected ? p.color : AppColors.backgroundQuinary,
                     width: isSelected ? 1.5 : 1,
@@ -515,10 +517,10 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: AppColors.backgroundQuaternary,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppRadius.small),
           ),
           style: AppText.body.small,
-          placeholderStyle: AppText.inputPlaceholder.copyWith(fontSize: 13),
+          placeholderStyle: AppText.inputPlaceholder.size(13),
           maxLines: 2,
           onChanged: (value) => draft.notes = value,
         ),
@@ -543,13 +545,6 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
         ),
       ],
     );
-  }
-
-  Color severityColor(int severity) {
-    if (severity <= 3) return CupertinoColors.systemGreen;
-    if (severity <= 5) return CupertinoColors.systemYellow;
-    if (severity <= 7) return CupertinoColors.systemOrange;
-    return CupertinoColors.systemRed;
   }
 
   void showAddConditionOptions() {

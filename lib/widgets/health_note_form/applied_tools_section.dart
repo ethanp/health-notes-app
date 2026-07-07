@@ -6,6 +6,7 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/applied_tool_picker_sheet.dart';
 import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/form_section_container.dart';
 import 'package:health_notes/widgets/note_summary_rows.dart';
 import 'package:health_notes/theme/spacing.dart';
 
@@ -29,12 +30,8 @@ class AppliedToolsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: isEditable
-          ? AppComponents.inputField
-          : AppComponents.primaryCard,
+    return FormSectionContainer(
+      isEditable: isEditable,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [_header(context), VSpace.s, _content(context)],
@@ -85,7 +82,7 @@ class AppliedToolsSection extends StatelessWidget {
     TextEditingController noteController,
   ) {
     return AppCard(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

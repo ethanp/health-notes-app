@@ -99,7 +99,7 @@ class _HealthToolCategoryScreenState
 
   Widget toolCard(HealthTool tool) {
     return AppCard(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       padding: EdgeInsets.zero,
       child: CupertinoButton(
         padding: EdgeInsets.zero,

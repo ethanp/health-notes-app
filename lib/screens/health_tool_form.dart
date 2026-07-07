@@ -75,7 +75,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
         child: Form(
           key: _formKey,
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.m),
             children: [
               nameSection(),
               VSpace.m,
@@ -101,7 +101,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
             placeholder: 'Enter tool name',
             style: AppText.input,
             decoration: AppComponents.inputField,
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(AppSpacing.sm),
           ),
         ],
       ),
@@ -125,7 +125,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
             placeholder: 'Enter detailed description...',
             style: AppText.input,
             decoration: AppComponents.inputField,
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(AppSpacing.sm),
             maxLines: 5,
             minLines: 3,
           ),
@@ -175,7 +175,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
 
   Widget singleCategoryDisplay(HealthToolCategory category) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: AppComponents.inputField,
       child: Row(
         children: [

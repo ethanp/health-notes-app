@@ -6,6 +6,7 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/number_formatter.dart';
 import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/form_section_container.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
 import 'package:health_notes/widgets/note_summary_rows.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -36,12 +37,8 @@ class MedicationsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: isEditable
-          ? AppComponents.inputField
-          : AppComponents.primaryCard,
+    return FormSectionContainer(
+      isEditable: isEditable,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [_header(), VSpace.s, _content(context)],
@@ -90,7 +87,7 @@ class MedicationsSection extends StatelessWidget {
     DrugDoseControllers controllers,
   ) {
     return AppCard(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -146,7 +143,7 @@ class MedicationsSection extends StatelessWidget {
             ],
           ),
           if (_matchingRecommendations(dose.name).isNotEmpty) ...[
-            VSpace.of(12),
+            VSpace.sm,
             _recommendations(index, dose.name),
           ],
         ],
@@ -202,7 +199,7 @@ class MedicationsSection extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
           color: AppColors.backgroundTertiary,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadius.small),
           border: Border.all(color: AppColors.backgroundQuaternary),
         ),
         child: Text(

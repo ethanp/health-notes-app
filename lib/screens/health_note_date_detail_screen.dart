@@ -61,7 +61,7 @@ class HealthNoteDateDetailScreen extends StatelessWidget {
 
   Widget dateHeader(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.m),
       decoration: BoxDecoration(
         color: AppColors.backgroundSecondary,
         border: Border(
@@ -90,7 +90,7 @@ class HealthNoteDateDetailScreen extends StatelessWidget {
 
   Widget notesList(BuildContext context, List<HealthNote> filteredNotes) {
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.m),
       itemCount: filteredNotes.length,
       itemBuilder: (context, index) {
         final note = filteredNotes[index];
@@ -104,7 +104,7 @@ class HealthNoteDateDetailScreen extends StatelessWidget {
 
   Widget emptyState() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(AppSpacing.l),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

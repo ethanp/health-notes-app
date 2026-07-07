@@ -74,7 +74,7 @@ class _AppliedToolPickerSheetState
       children: [
         VSpace.s,
         grabber(),
-        VSpace.of(12),
+        VSpace.sm,
         headerRow(),
         paddingHorizontal(searchField()),
         VSpace.s,
@@ -89,7 +89,7 @@ class _AppliedToolPickerSheetState
       height: 4,
       decoration: BoxDecoration(
         color: AppColors.backgroundQuinary,
-        borderRadius: BorderRadius.circular(2),
+        borderRadius: BorderRadius.circular(AppRadius.xs),
       ),
     );
   }

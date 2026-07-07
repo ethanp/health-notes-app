@@ -524,7 +524,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
 
   Widget emptyState() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(AppSpacing.l),
       child: Center(
         child: Column(
           children: [
@@ -571,9 +571,8 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
 
   TextStyle cellTextStyle(T value) {
     if (value == widget.emptyValue) {
-      return AppText.body.small.copyWith(
+      return AppText.label.small.copyWith(
         color: CupertinoColors.systemGrey.withValues(alpha: 0.6),
-        fontSize: 12,
       );
     }
 
@@ -582,11 +581,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
         ? CupertinoColors.black
         : CupertinoColors.white;
 
-    return AppText.body.small.copyWith(
-      color: textColor,
-      fontSize: 12,
-      fontWeight: FontWeight.w500,
-    );
+    return AppText.label.small.copyWith(color: textColor);
   }
 
   void _enterSelectionMode(DateTime date) {
@@ -719,7 +714,7 @@ class SeverityActivityCalendar extends StatelessWidget {
           height: 16,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(2),
+            borderRadius: BorderRadius.circular(AppRadius.xs),
             border: Border.all(
               color: isInactive
                   ? CupertinoColors.systemGrey4.withValues(alpha: 0.3)
@@ -892,7 +887,7 @@ List<Widget> intensityGradientSquares({
           alphaMin: alphaMin,
           alphaMax: alphaMax,
         ),
-        borderRadius: BorderRadius.circular(2),
+        borderRadius: BorderRadius.circular(AppRadius.xs),
       ),
     );
   });

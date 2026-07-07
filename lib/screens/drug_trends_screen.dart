@@ -92,7 +92,7 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
             style: AppText.body.small.systemGrey,
           ),
         ),
-        VSpace.of(12),
+        VSpace.sm,
       ],
     );
   }
@@ -128,7 +128,7 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
     final unit = _unitForDrug(notes) ?? 'mg';
     return Text(
       'Total dosage: ${formatDecimalValue(dosage)}$unit',
-      style: const TextStyle(fontWeight: FontWeight.w600),
+      style: AppText.body.medium.semibold,
     );
   }
 
