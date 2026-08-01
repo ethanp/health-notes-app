@@ -17,8 +17,9 @@ migrate_working_dir/
 .build_hash
 .build_hash_iphone
 .build_hash_simulator
+# Local phone_deploy / deploy.rb fingerprints
 .deploy_hash
-.deploy_ios_hash
+.deploy_*_hash
 
 *.g.dart
 *.freezed.dart
