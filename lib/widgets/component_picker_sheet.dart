@@ -46,7 +46,6 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
   @override
   Widget build(BuildContext context) {
     final grouped = _groupBySection(filteredComponents);
-    final hasResults = filteredComponents.isNotEmpty;
 
     return Container(
       decoration: const BoxDecoration(
@@ -101,7 +100,7 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
                   ...grouped.historical.map(_componentRow),
                   VSpace.m,
                 ],
-                if (!hasResults) ...[
+                if (filteredComponents.isEmpty) ...[
                   VSpace.l,
                   Center(
                     child: Text(

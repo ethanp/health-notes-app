@@ -498,10 +498,8 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
   }
 
   Widget dayCellText(T value, bool hasActivity, DateTime date) {
-    final displayText = hasActivity ? formatValue(value) : '${date.day}';
-
     return Text(
-      displayText,
+      hasActivity ? formatValue(value) : '${date.day}',
       style: cellTextStyle(value).copyWith(
         fontSize: hasActivity ? 10 : 11,
         fontWeight: hasActivity ? FontWeight.bold : FontWeight.w500,

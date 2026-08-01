@@ -173,19 +173,16 @@ class ConditionTimelineCard extends ConsumerWidget {
     List<ConditionEntry> entries,
     List<LinkedSymptom> linkedSymptoms,
   ) {
-    final entryCount = entries.length;
-    final symptomCount = linkedSymptoms.length;
-    final hasEntries = entryCount > 0;
-    final hasSymptoms = symptomCount > 0;
-
-    if (hasEntries && hasSymptoms) {
-      return '$entryCount ${entryCount == 1 ? 'entry' : 'entries'} · $symptomCount ${symptomCount == 1 ? 'symptom' : 'symptoms'}';
+    if (entries.isNotEmpty) {
+      if (linkedSymptoms.isNotEmpty) {
+        return '${entries.length} ${entries.length == 1 ? 'entry' : 'entries'} · '
+            '${linkedSymptoms.length} ${linkedSymptoms.length == 1 ? 'symptom' : 'symptoms'}';
+      }
+      return '${entries.length} check-in ${entries.length == 1 ? 'entry' : 'entries'}';
     }
-    if (hasEntries) {
-      return '$entryCount check-in ${entryCount == 1 ? 'entry' : 'entries'}';
-    }
-    final mostRecent = linkedSymptoms.first.date;
-    return '$symptomCount linked ${symptomCount == 1 ? 'symptom' : 'symptoms'} · last ${AppDateUtils.formatShortDate(mostRecent)}';
+    return '${linkedSymptoms.length} linked '
+        '${linkedSymptoms.length == 1 ? 'symptom' : 'symptoms'} · '
+        'last ${AppDateUtils.formatShortDate(linkedSymptoms.first.date)}';
   }
 
   Widget footer() {

@@ -332,13 +332,12 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
     List<LinkedSymptom> linkedSymptoms,
   ) {
     if (entries.isEmpty) {
-      final emptyMessage = linkedSymptoms.isNotEmpty
-          ? 'No check-in entries yet'
-          : 'No entries yet. Add entries via check-ins.';
       return AppCard(
         child: Center(
           child: Text(
-            emptyMessage,
+            linkedSymptoms.isNotEmpty
+                ? 'No check-in entries yet'
+                : 'No entries yet. Add entries via check-ins.',
             style: AppText.body.medium.systemGrey,
           ),
         ),
