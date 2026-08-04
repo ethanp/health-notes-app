@@ -7,15 +7,8 @@ void main() {
   group('HealthNotesActivityCalendar.activityDataForNotes', () {
     final day = DateTime(2025, 6, 15);
 
-    HealthNote noteAt({
-      required String id,
-      required DateTime dateTime,
-    }) {
-      return HealthNote(
-        id: id,
-        dateTime: dateTime,
-        createdAt: dateTime,
-      );
+    HealthNote noteAt({required String id, required DateTime dateTime}) {
+      return HealthNote(id: id, dateTime: dateTime, createdAt: dateTime);
     }
 
     test('aggregates multiple notes on the same day', () {
@@ -58,9 +51,10 @@ void main() {
         dateTime: DateTime(2025, 6, 15, 21, 45),
       );
 
-      final activityData = HealthNotesActivityCalendar.activityDataForNotes(
-        [morningNote, eveningNote],
-      );
+      final activityData = HealthNotesActivityCalendar.activityDataForNotes([
+        morningNote,
+        eveningNote,
+      ]);
 
       expect(activityData.length, 1);
       expect(activityData[day.startOfDay], 2);

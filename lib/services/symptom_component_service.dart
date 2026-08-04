@@ -62,7 +62,7 @@ class SymptomComponentService {
 
         final pairKey = SymptomNormalizer.generateKey(major, minor);
         pairSeverities.putIfAbsent(pairKey, () => symptom.severityLevel);
-        if (symptom.conditionId != null && symptom.conditionId!.isNotEmpty) {
+        if (symptom.hasLinkedCondition) {
           pairConditions.putIfAbsent(pairKey, () => symptom.conditionId!);
         }
       }
@@ -78,8 +78,8 @@ class SymptomComponentService {
       final section = isPinned
           ? ComponentSection.pinned
           : recentCount > 0
-              ? ComponentSection.recent
-              : ComponentSection.historical;
+          ? ComponentSection.recent
+          : ComponentSection.historical;
 
       majorComponents[normalized] = SymptomComponent(
         name: majorDisplayNames[normalized]!,
@@ -106,8 +106,8 @@ class SymptomComponentService {
         final section = isPinned
             ? ComponentSection.pinned
             : recentCount > 0
-                ? ComponentSection.recent
-                : ComponentSection.historical;
+            ? ComponentSection.recent
+            : ComponentSection.historical;
 
         minorsMap[normalizedMinor] = SymptomComponent(
           name: minorDisplayNames[normalizedMajor]![normalizedMinor]!,
@@ -130,5 +130,3 @@ class SymptomComponentService {
     );
   }
 }
-
-

@@ -54,4 +54,3 @@ abstract class PinnedSymptomComponents with _$PinnedSymptomComponents {
     return copyWith(pinnedMinors: newMinors);
   }
 }
-

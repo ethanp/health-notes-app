@@ -13,7 +13,7 @@ import 'package:health_notes/theme/spacing.dart';
 class MetricEditScreen extends ConsumerStatefulWidget {
   final CheckInMetric? metric;
 
-  const MetricEditScreen({super.key, this.metric});
+  const MetricEditScreen({this.metric});
 
   @override
   ConsumerState<MetricEditScreen> createState() => _MetricEditScreenState();
@@ -104,7 +104,10 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
               border: Border.all(color: CupertinoColors.systemGrey4),
               borderRadius: BorderRadius.circular(AppRadius.small),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: AppSpacing.s,
+            ),
           ),
         ],
       ),

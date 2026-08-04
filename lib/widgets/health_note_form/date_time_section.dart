@@ -10,7 +10,6 @@ class DateTimeSection extends StatelessWidget {
   final Function(DateTime) onDateTimeChanged;
 
   const DateTimeSection({
-    super.key,
     required this.isEditable,
     required this.selectedDateTime,
     required this.onDateTimeChanged,

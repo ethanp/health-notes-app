@@ -35,7 +35,6 @@ class SymptomsSection extends ConsumerWidget {
   onUpdate;
 
   const SymptomsSection({
-    super.key,
     required this.isEditable,
     required this.symptoms,
     required this.controllers,
@@ -82,8 +81,9 @@ class SymptomsSection extends ConsumerWidget {
     if (!isEditable) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: symptoms
-            .mapL((symptom) => SymptomSummaryRow(symptom: symptom)),
+        children: symptoms.mapL(
+          (symptom) => SymptomSummaryRow(symptom: symptom),
+        ),
       );
     }
 
@@ -133,10 +133,10 @@ class SymptomsSection extends ConsumerWidget {
           child: _componentSelector(
             context: context,
             ref: ref,
-            label: symptom.majorComponent.isEmpty
+            label: !symptom.hasMajorComponent
                 ? 'Select major...'
                 : symptom.majorComponent,
-            isEmpty: symptom.majorComponent.isEmpty,
+            isEmpty: !symptom.hasMajorComponent,
             onTap: () => _showMajorPicker(context, ref, index, symptom),
           ),
         ),
@@ -149,7 +149,7 @@ class SymptomsSection extends ConsumerWidget {
                 ? 'Select minor...'
                 : symptom.minorComponent,
             isEmpty: symptom.minorComponent.isEmpty,
-            onTap: symptom.majorComponent.isEmpty
+            onTap: !symptom.hasMajorComponent
                 ? null
                 : () => _showMinorPicker(context, ref, index, symptom),
           ),
@@ -177,7 +177,10 @@ class SymptomsSection extends ConsumerWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.s,
+        ),
         decoration: BoxDecoration(
           color: AppColors.backgroundTertiary,
           borderRadius: BorderRadius.circular(AppRadius.small),
@@ -192,9 +195,7 @@ class SymptomsSection extends ConsumerWidget {
             Expanded(
               child: Text(
                 label,
-                style: isEmpty
-                    ? AppText.inputPlaceholder
-                    : AppText.body.medium,
+                style: isEmpty ? AppText.inputPlaceholder : AppText.body.medium,
                 overflow: TextOverflow.ellipsis,
               ),
             ),

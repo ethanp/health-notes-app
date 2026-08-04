@@ -3,11 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/widgets/grouped_notes_section.dart';
 
-HealthNote noteAt(String id, DateTime dateTime) => HealthNote(
-      id: id,
-      dateTime: dateTime,
-      createdAt: dateTime,
-    );
+HealthNote noteAt(String id, DateTime dateTime) =>
+    HealthNote(id: id, dateTime: dateTime, createdAt: dateTime);
 
 void main() {
   group('GroupedNotesSection', () {
@@ -57,10 +54,7 @@ void main() {
       await tester.pumpWidget(
         CupertinoApp(
           home: CupertinoPageScaffold(
-            child: GroupedNotesSection(
-              notes: const [],
-              cardBuilder: (_) => [],
-            ),
+            child: GroupedNotesSection(notes: const [], cardBuilder: (_) => []),
           ),
         ),
       );
@@ -68,9 +62,7 @@ void main() {
       expect(find.text('No matching notes'), findsOneWidget);
     });
 
-    testWidgets('renders optional header above grouped notes', (
-      tester,
-    ) async {
+    testWidgets('renders optional header above grouped notes', (tester) async {
       final july3 = DateTime(2026, 7, 3, 9, 0);
 
       await tester.pumpWidget(

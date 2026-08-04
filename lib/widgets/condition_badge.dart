@@ -9,7 +9,7 @@ import 'package:health_notes/theme/spacing.dart';
 class ConditionBadge extends ConsumerWidget {
   final String conditionId;
 
-  const ConditionBadge({super.key, required this.conditionId});
+  const ConditionBadge({required this.conditionId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

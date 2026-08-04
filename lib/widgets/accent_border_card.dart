@@ -8,7 +8,6 @@ class AccentBorderCard extends StatelessWidget {
   final EdgeInsetsGeometry margin;
 
   const AccentBorderCard({
-    super.key,
     required this.accentColor,
     required this.child,
     this.onTap,

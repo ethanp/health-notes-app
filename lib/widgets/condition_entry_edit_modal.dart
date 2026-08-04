@@ -9,14 +9,11 @@ class ConditionEntryEditModal extends StatefulWidget {
   final ConditionEntry entry;
   final Future<void> Function(ConditionEntry updatedEntry) onSave;
 
-  const ConditionEntryEditModal({
-    super.key,
-    required this.entry,
-    required this.onSave,
-  });
+  const ConditionEntryEditModal({required this.entry, required this.onSave});
 
   @override
-  State<ConditionEntryEditModal> createState() => _ConditionEntryEditModalState();
+  State<ConditionEntryEditModal> createState() =>
+      _ConditionEntryEditModalState();
 }
 
 class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
@@ -110,10 +107,7 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
                 color: SeverityUtils.discreteCupertinoColor(severity),
                 borderRadius: BorderRadius.circular(AppRadius.medium),
               ),
-              child: Text(
-                '$severity/10',
-                style: AppText.label.medium.white,
-              ),
+              child: Text('$severity/10', style: AppText.label.medium.white),
             ),
           ],
         ),
@@ -160,7 +154,9 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? p.color.withValues(alpha: 0.2) : AppColors.backgroundTertiary,
+          color: isSelected
+              ? p.color.withValues(alpha: 0.2)
+              : AppColors.backgroundTertiary,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? p.color : AppColors.backgroundQuaternary,
@@ -211,7 +207,7 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
 
   Future<void> saveEntry() async {
     setState(() => isSaving = true);
-    
+
     try {
       final updatedEntry = widget.entry.copyWith(
         severity: severity,
@@ -243,4 +239,3 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
     }
   }
 }
-

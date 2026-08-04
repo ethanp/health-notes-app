@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -5,24 +6,16 @@ part 'condition_entry.freezed.dart';
 part 'condition_entry.g.dart';
 
 enum ConditionPhase {
-  onset,
-  worsening,
-  peak,
-  improving;
+  onset(color: Color(0xFFFF9500)), // CupertinoColors.systemOrange (light)
+  worsening(color: Color(0xFFFF3B30)), // CupertinoColors.systemRed (light)
+  peak(color: Color(0xFFD32F2F)),
+  improving(color: Color(0xFF34C759)); // CupertinoColors.systemGreen (light)
 
-  String get displayName => switch (this) {
-    onset => 'Onset',
-    worsening => 'Worsening',
-    peak => 'Peak',
-    improving => 'Improving',
-  };
+  const ConditionPhase({required this.color});
 
-  Color get color => switch (this) {
-    onset => CupertinoColors.systemOrange,
-    worsening => CupertinoColors.systemRed,
-    peak => const Color(0xFFD32F2F),
-    improving => CupertinoColors.systemGreen,
-  };
+  final Color color;
+
+  String get displayName => nameAsCapitalizedWords;
 }
 
 @freezed
@@ -75,4 +68,3 @@ class ConditionEntryDraft {
     this.markResolved = false,
   });
 }
-

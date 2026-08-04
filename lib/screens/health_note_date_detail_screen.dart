@@ -13,7 +13,6 @@ class HealthNoteDateDetailScreen extends StatelessWidget {
   final List<HealthNote> allNotes;
 
   const HealthNoteDateDetailScreen({
-    super.key,
     required this.date,
     required this.allNotes,
   });
@@ -21,9 +20,7 @@ class HealthNoteDateDetailScreen extends StatelessWidget {
   List<HealthNote> get notesForDate {
     final targetDate = date.startOfDay;
     return NoteFilterUtils.sortByDateDescending(
-      allNotes
-          .where((note) => note.dateTime.sameDayAs(targetDate))
-          .toList(),
+      allNotes.where((note) => note.dateTime.sameDayAs(targetDate)).toList(),
     );
   }
 
@@ -115,10 +112,7 @@ class HealthNoteDateDetailScreen extends StatelessWidget {
               color: AppColors.textSecondary,
             ),
             VSpace.m,
-            Text(
-              'No notes for this date',
-              style: AppText.body.medium.primary,
-            ),
+            Text('No notes for this date', style: AppText.body.medium.primary),
             VSpace.s,
             Text(
               'Notes will appear here when you add them',

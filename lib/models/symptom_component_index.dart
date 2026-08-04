@@ -104,4 +104,3 @@ class SymptomComponentIndex {
     return [...pinned, ...recent, ...historical];
   }
 }
-

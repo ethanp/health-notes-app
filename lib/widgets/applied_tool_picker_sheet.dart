@@ -11,7 +11,6 @@ class AppliedToolPickerSheet extends ConsumerStatefulWidget {
   final void Function(HealthTool tool) onSelect;
 
   const AppliedToolPickerSheet({
-    super.key,
     required this.appliedTools,
     required this.onSelect,
   });
@@ -98,9 +97,7 @@ class _AppliedToolPickerSheetState
     return paddingHorizontal(
       Row(
         children: [
-          Expanded(
-            child: Text('Select a tool', style: AppText.headline.small),
-          ),
+          Expanded(child: Text('Select a tool', style: AppText.headline.small)),
           CupertinoButton(
             padding: EdgeInsets.zero,
             onPressed: () => Navigator.of(context).pop(),
@@ -156,8 +153,7 @@ class _AppliedToolPickerSheetState
       },
       loading: () =>
           EnhancedUIComponents.loadingIndicator(message: 'Loading tools...'),
-      error: (e, st) =>
-          Center(child: Text('Error: $e', style: AppText.error)),
+      error: (e, st) => Center(child: Text('Error: $e', style: AppText.error)),
     );
   }
 
@@ -186,10 +182,7 @@ class _AppliedToolPickerSheetState
             ),
             HSpace.m,
             if (isSelected)
-              Text(
-                'Selected',
-                style: AppText.body.small.systemGrey.semibold,
-              ),
+              Text('Selected', style: AppText.body.small.systemGrey.semibold),
           ],
         ),
       ),

@@ -120,11 +120,7 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
   }
 
   @override
-  Widget? dateSummary(
-    DateTime date,
-    double dosage,
-    List<HealthNote> notes,
-  ) {
+  Widget? dateSummary(DateTime date, double dosage, List<HealthNote> notes) {
     final unit = _unitForDrug(notes) ?? 'mg';
     return Text(
       'Total dosage: ${formatDecimalValue(dosage)}$unit',
@@ -148,9 +144,9 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
   }
 
   double _totalDosageForNote(HealthNote note) {
-    return _relevantDoses(note)
-        .map((dose) => dose.dosage)
-        .fold<double>(0, (sum, dosage) => sum + dosage);
+    return _relevantDoses(
+      note,
+    ).map((dose) => dose.dosage).fold<double>(0, (sum, dosage) => sum + dosage);
   }
 
   String? _unitForDrug(List<HealthNote> notes) {
@@ -194,7 +190,9 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
       await notifier.addNote(
         dateTime: DateTime(date.year, date.month, date.day, 12),
         symptomsList: [],
-        drugDoses: [DrugDose(name: widget.drugName, dosage: dosage, unit: unit)],
+        drugDoses: [
+          DrugDose(name: widget.drugName, dosage: dosage, unit: unit),
+        ],
         notes: '',
       );
     }

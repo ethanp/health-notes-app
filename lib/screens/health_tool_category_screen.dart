@@ -16,7 +16,7 @@ import 'package:health_notes/theme/spacing.dart';
 class HealthToolCategoryScreen extends ConsumerStatefulWidget {
   final HealthToolCategory category;
 
-  const HealthToolCategoryScreen({super.key, required this.category});
+  const HealthToolCategoryScreen({required this.category});
 
   @override
   ConsumerState<HealthToolCategoryScreen> createState() =>
@@ -180,11 +180,7 @@ class _HealthToolCategoryScreenState
 
   void _showEditToolForm(HealthTool tool) {
     context.push(
-      HealthToolForm(
-        tool: tool,
-        title: 'Edit Tool',
-        saveButtonText: 'Update',
-      ),
+      HealthToolForm(tool: tool, title: 'Edit Tool', saveButtonText: 'Update'),
     );
   }
 

@@ -128,10 +128,7 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
           context: context,
           builder: (context) => CupertinoAlertDialog(
             title: Text('Error', style: AppText.headline.small),
-            content: Text(
-              'Failed to update note: $e',
-              style: AppText.error,
-            ),
+            content: Text('Failed to update note: $e', style: AppText.error),
             actions: [
               CupertinoDialogAction(
                 child: Text('OK', style: AppText.buttonSecondary),

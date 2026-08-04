@@ -11,7 +11,6 @@ class CheckInDateDetailScreen extends StatefulWidget {
   final List<CheckIn> allCheckIns;
 
   const CheckInDateDetailScreen({
-    super.key,
     required this.date,
     required this.allCheckIns,
   });
@@ -117,10 +116,7 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    checkIn.metricName,
-                    style: AppText.label.large.primary,
-                  ),
+                  Text(checkIn.metricName, style: AppText.label.large.primary),
                   VSpace.xs,
                   Text(
                     AppDateUtils.formatTime(checkIn.dateTime),
@@ -130,7 +126,10 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
               ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm,
+                vertical: AppSpacing.s,
+              ),
               decoration: BoxDecoration(
                 color: AppColors.primary,
                 borderRadius: BorderRadius.circular(AppRadius.large),

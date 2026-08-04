@@ -4,14 +4,18 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'condition.freezed.dart';
 part 'condition.g.dart';
 
+import 'package:ethan_utils/ethan_utils.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'condition.freezed.dart';
+part 'condition.g.dart';
+
 enum ConditionStatus {
   active,
   resolved;
 
-  String get displayName => switch (this) {
-    active => 'Active',
-    resolved => 'Resolved',
-  };
+  String get displayName => nameAsCapitalizedWords;
 }
 
 @freezed
@@ -22,9 +26,13 @@ abstract class Condition with _$Condition {
     required String name,
     @JsonKey(name: 'start_date') required DateTime startDate,
     @JsonKey(name: 'end_date') DateTime? endDate,
-    @JsonKey(name: 'condition_status') @Default(ConditionStatus.active) ConditionStatus status,
+    @JsonKey(name: 'condition_status')
+    @Default(ConditionStatus.active)
+    ConditionStatus status,
     @JsonKey(name: 'color_value') @Default(0xFFE57373) int colorValue,
-    @JsonKey(name: 'icon_code_point') @Default(0xf584) int iconCodePoint, // CupertinoIcons.bandage
+    @JsonKey(name: 'icon_code_point')
+    @Default(0xf584)
+    int iconCodePoint, // CupertinoIcons.bandage
     @Default('') String notes,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
@@ -62,4 +70,3 @@ abstract class Condition with _$Condition {
     'updated_at': updatedAt.toIso8601String(),
   };
 }
-

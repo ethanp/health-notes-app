@@ -7,7 +7,7 @@ import 'package:health_notes/theme/spacing.dart';
 
 /// Compact sync status indicator for app bars
 class CompactSyncStatusWidget extends ConsumerWidget {
-  const CompactSyncStatusWidget({super.key});
+  const CompactSyncStatusWidget();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -74,23 +74,22 @@ class SyncStatusWidget extends ConsumerWidget {
   final VoidCallback? onRetry;
   final Widget? child;
 
-  const SyncStatusWidget.loading({super.key, this.message, this.child})
+  const SyncStatusWidget.loading({this.message, this.child})
     : type = SyncStatusType.loading,
       errorMessage = null,
       onRetry = null;
 
-  const SyncStatusWidget.syncing({super.key, this.message, this.child})
+  const SyncStatusWidget.syncing({this.message, this.child})
     : type = SyncStatusType.syncing,
       errorMessage = null,
       onRetry = null;
 
-  const SyncStatusWidget.section({super.key, this.message, this.child})
+  const SyncStatusWidget.section({this.message, this.child})
     : type = SyncStatusType.section,
       errorMessage = null,
       onRetry = null;
 
   const SyncStatusWidget.error({
-    super.key,
     required this.errorMessage,
     this.onRetry,
     this.child,

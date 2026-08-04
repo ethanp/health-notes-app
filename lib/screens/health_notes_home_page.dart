@@ -7,7 +7,6 @@ import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/screens/filter_modal.dart';
 import 'package:health_notes/screens/health_note_form.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
-import 'package:health_notes/services/search_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/log_out_button.dart';
 import 'package:health_notes/widgets/app_button.dart';
@@ -86,7 +85,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
 
   List<HealthNote> filterNotes(List<HealthNote> notes) {
     return notes.where((note) {
-      bool matchesSearch = SearchService.matchesSearch(note, _searchQuery);
+      bool matchesSearch = note.matchesSearch(_searchQuery);
 
       bool matchesDate =
           _selectedDate == null ||
@@ -255,11 +254,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   }) {
     return Container(
       margin: const EdgeInsets.only(right: AppSpacing.s),
-      child: AppFilterChip(
-        label: label,
-        isActive: isClearAll,
-        onTap: onTap,
-      ),
+      child: AppFilterChip(label: label, isActive: isClearAll, onTap: onTap),
     );
   }
 
@@ -278,10 +273,10 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
         icon: CupertinoIcons.heart_fill,
         iconColor: AppColors.primary,
         action: AppButton(
-              text: 'Add First Note',
-              onPressed: showAddNoteModal,
-              icon: CupertinoIcons.add,
-            ),
+          text: 'Add First Note',
+          onPressed: showAddNoteModal,
+          icon: CupertinoIcons.add,
+        ),
       );
     }
   }

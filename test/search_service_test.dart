@@ -2,10 +2,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
-import 'package:health_notes/services/search_service.dart';
 
 void main() {
-  group('SearchService', () {
+  group('HealthNote.matchesSearch', () {
     late HealthNote testNote;
 
     setUp(() {
@@ -26,59 +25,37 @@ void main() {
     });
 
     test('should match when all query words are found', () {
-      // Test that "headache pain" matches the note with symptoms "headache pain"
-      expect(SearchService.matchesSearch(testNote, 'headache pain'), isTrue);
-
-      // Test that "aspirin medication" matches (aspirin in drugs, medication in notes)
-      expect(
-        SearchService.matchesSearch(testNote, 'aspirin medication'),
-        isTrue,
-      );
+      expect(testNote.matchesSearch('headache pain'), isTrue);
+      expect(testNote.matchesSearch('aspirin medication'), isTrue);
     });
 
     test('should match with stemming', () {
-      // Test that "headaches" (plural) matches "headache" (singular) through stemming
-      expect(SearchService.matchesSearch(testNote, 'headaches'), isTrue);
-
-      // Test that "medications" (plural) matches "medication" (singular) through stemming
-      expect(SearchService.matchesSearch(testNote, 'medications'), isTrue);
+      expect(testNote.matchesSearch('headaches'), isTrue);
+      expect(testNote.matchesSearch('medications'), isTrue);
     });
 
     test('should require ALL query words to be present', () {
-      // Test that "headache fever" should NOT match since "fever" is not in the note
-      expect(SearchService.matchesSearch(testNote, 'headache fever'), isFalse);
-
-      // Test that "aspirin paracetamol" should NOT match since "paracetamol" is not in the note
-      expect(
-        SearchService.matchesSearch(testNote, 'aspirin paracetamol'),
-        isFalse,
-      );
+      expect(testNote.matchesSearch('headache fever'), isFalse);
+      expect(testNote.matchesSearch('aspirin paracetamol'), isFalse);
     });
 
     test('should handle empty search query', () {
-      expect(SearchService.matchesSearch(testNote, ''), isTrue);
-      expect(SearchService.matchesSearch(testNote, '   '), isTrue);
+      expect(testNote.matchesSearch(''), isTrue);
+      expect(testNote.matchesSearch('   '), isTrue);
     });
 
     test('should ignore very short words', () {
-      // Test that single letter words are ignored
-      expect(SearchService.matchesSearch(testNote, 'a b c'), isTrue);
+      expect(testNote.matchesSearch('a b c'), isTrue);
     });
 
     test('should be case insensitive', () {
-      expect(SearchService.matchesSearch(testNote, 'HEADACHE PAIN'), isTrue);
-      expect(
-        SearchService.matchesSearch(testNote, 'Aspirin Medication'),
-        isTrue,
-      );
+      expect(testNote.matchesSearch('HEADACHE PAIN'), isTrue);
+      expect(testNote.matchesSearch('Aspirin Medication'), isTrue);
     });
 
     test('should handle multiple spaces between words', () {
-      expect(SearchService.matchesSearch(testNote, 'headache    pain'), isTrue);
-      expect(
-        SearchService.matchesSearch(testNote, '  aspirin  medication  '),
-        isTrue,
-      );
+      expect(testNote.matchesSearch('headache    pain'), isTrue);
+      expect(testNote.matchesSearch('  aspirin  medication  '), isTrue);
     });
   });
 }

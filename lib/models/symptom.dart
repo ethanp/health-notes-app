@@ -22,6 +22,8 @@ abstract class Symptom with _$Symptom {
 
   bool get hasLinkedCondition => conditionId != null && conditionId!.isNotEmpty;
 
+  bool get hasMajorComponent => majorComponent.isNotEmpty;
+
   String get fullDescription {
     if (majorComponent.isEmpty && minorComponent.isEmpty) {
       return 'Unnamed symptom';

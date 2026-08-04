@@ -19,7 +19,6 @@ class AppliedToolsSection extends StatelessWidget {
   final Function(int, String) onUpdateNote;
 
   const AppliedToolsSection({
-    super.key,
     required this.isEditable,
     required this.appliedTools,
     required this.noteControllers,
@@ -60,8 +59,9 @@ class AppliedToolsSection extends StatelessWidget {
     if (!isEditable) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: appliedTools
-            .mapL((tool) => AppliedToolSummaryRow(appliedTool: tool)),
+        children: appliedTools.mapL(
+          (tool) => AppliedToolSummaryRow(appliedTool: tool),
+        ),
       );
     }
 
@@ -88,9 +88,7 @@ class AppliedToolsSection extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(
-                child: Text(tool.toolName, style: AppText.label.large),
-              ),
+              Expanded(child: Text(tool.toolName, style: AppText.label.large)),
               CupertinoButton(
                 padding: EdgeInsets.zero,
                 onPressed: () => onRemove(index),

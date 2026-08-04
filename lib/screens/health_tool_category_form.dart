@@ -50,7 +50,6 @@ class _HealthToolCategoryFormState
     {'name': 'General', 'value': 'general'},
   ];
 
-
   @override
   void initState() {
     super.initState();
@@ -173,7 +172,10 @@ class _HealthToolCategoryFormState
         return GestureDetector(
           onTap: () => setState(() => _selectedIcon = icon['value']!),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: AppSpacing.s,
+            ),
             decoration: BoxDecoration(
               color: isSelected
                   ? AppColors.primary

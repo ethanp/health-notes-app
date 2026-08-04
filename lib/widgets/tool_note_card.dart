@@ -11,7 +11,7 @@ class ToolNoteCard extends StatelessWidget {
   final HealthNote note;
   final String toolId;
 
-  const ToolNoteCard({super.key, required this.note, required this.toolId});
+  const ToolNoteCard({required this.note, required this.toolId});
 
   @override
   Widget build(BuildContext context) {

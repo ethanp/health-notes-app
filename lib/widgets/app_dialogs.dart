@@ -76,7 +76,6 @@ class AppAlertDialog extends StatelessWidget {
   final String? cancelText;
 
   const AppAlertDialog({
-    super.key,
     required this.title,
     this.content,
     this.contentWidget,

@@ -12,7 +12,6 @@ class HealthNotesActivityCalendar extends StatelessWidget {
   final bool scrollToEnd;
 
   const HealthNotesActivityCalendar({
-    super.key,
     required this.notes,
     required this.onDateTap,
     this.gridHeight,

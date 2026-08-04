@@ -8,7 +8,6 @@ import 'package:health_notes/screens/trends_screen.dart';
 import 'package:health_notes/providers/sync_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
-
 class TabDefinition {
   const TabDefinition({required this.item, required this.view});
   final BottomNavigationBarItem item;

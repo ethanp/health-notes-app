@@ -9,7 +9,6 @@ class ToolActivityCalendar extends StatelessWidget {
   final void Function(BuildContext context, DateTime date, int count) onDateTap;
 
   const ToolActivityCalendar({
-    super.key,
     required this.toolName,
     required this.activityData,
     required this.onDateTap,

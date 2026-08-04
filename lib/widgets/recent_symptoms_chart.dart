@@ -8,7 +8,6 @@ class RecentSymptomsChart extends StatelessWidget {
   final void Function(String) onSymptomTap;
 
   const RecentSymptomsChart({
-    super.key,
     required this.symptomStats,
     required this.onSymptomTap,
   });
@@ -157,4 +156,3 @@ class RecentSymptomsChart extends StatelessWidget {
     );
   }
 }
-

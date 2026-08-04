@@ -54,8 +54,9 @@ class ConditionActivityAggregator {
       activityByDate[dateKey] = ConditionDayData(
         severity: existing?.severity ?? 0,
         symptomCount: (existing?.symptomCount ?? 0) + 1,
-        maxSymptomSeverity:
-            symptomSeverity > currentMax ? symptomSeverity : currentMax,
+        maxSymptomSeverity: symptomSeverity > currentMax
+            ? symptomSeverity
+            : currentMax,
       );
     }
 
@@ -65,10 +66,11 @@ class ConditionActivityAggregator {
   static List<ConditionSeverityPoint> sparklinePoints(
     Map<DateTime, ConditionDayData> activityByDate,
   ) {
-    final activeDays = activityByDate.entries
-        .where((entry) => entry.value.hasActivity)
-        .toList()
-      ..sort((first, second) => first.key.compareTo(second.key));
+    final activeDays =
+        activityByDate.entries
+            .where((entry) => entry.value.hasActivity)
+            .toList()
+          ..sort((first, second) => first.key.compareTo(second.key));
 
     return activeDays
         .map(

@@ -26,5 +26,3 @@ class PinnedSymptomComponentsService {
     await prefs.setString(_storageKey, jsonEncode(json));
   }
 }
-
-

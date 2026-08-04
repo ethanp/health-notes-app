@@ -8,7 +8,6 @@ class UserAvatarWidget extends StatelessWidget {
   final bool showLoadingIndicator;
 
   const UserAvatarWidget({
-    super.key,
     this.avatarUrl,
     this.fullName,
     this.size = 60,

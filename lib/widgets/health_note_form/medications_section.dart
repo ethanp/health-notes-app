@@ -23,7 +23,6 @@ class MedicationsSection extends StatelessWidget {
   final List<DrugDose> allKnownRecommendations;
 
   const MedicationsSection({
-    super.key,
     required this.isEditable,
     required this.drugDoses,
     required this.controllers,
@@ -173,7 +172,9 @@ class MedicationsSection extends StatelessWidget {
           spacing: 8,
           runSpacing: 8,
           children: matchingRecommendations
-              .map((recommendation) => _recommendationChip(index, recommendation))
+              .map(
+                (recommendation) => _recommendationChip(index, recommendation),
+              )
               .toList(),
         ),
       ],

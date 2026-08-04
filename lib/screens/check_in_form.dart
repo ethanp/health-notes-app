@@ -24,7 +24,6 @@ class CheckInForm extends ConsumerStatefulWidget {
   final VoidCallback? onCancel;
 
   const CheckInForm({
-    super.key,
     this.checkIn,
     this.title = 'Add Check-in',
     this.saveButtonText = 'Save',
@@ -59,17 +58,21 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
 
   Future<void> _loadActiveConditions() async {
     if (widget.checkIn != null) return;
-    
-    final activeConditions = await ref.read(conditionsNotifierProvider.notifier).getActiveConditions();
+
+    final activeConditions = await ref
+        .read(conditionsNotifierProvider.notifier)
+        .getActiveConditions();
     if (mounted) {
       setState(() {
         _conditionDrafts.clear();
         for (final condition in activeConditions) {
-          _conditionDrafts.add(ConditionEntryDraft(
-            conditionId: condition.id,
-            conditionName: condition.name,
-            conditionColor: condition.color,
-          ));
+          _conditionDrafts.add(
+            ConditionEntryDraft(
+              conditionId: condition.id,
+              conditionName: condition.name,
+              conditionColor: condition.color,
+            ),
+          );
         }
         _conditionsLoaded = true;
       });
@@ -172,10 +175,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
             color: CupertinoColors.systemRed,
           ),
           VSpace.m,
-          Text(
-            'Failed to load metrics',
-            style: AppText.navTitle,
-          ),
+          Text('Failed to load metrics', style: AppText.navTitle),
           VSpace.s,
           Text(
             error.toString(),
@@ -329,7 +329,11 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                 onPressed: showAddConditionOptions,
                 child: Row(
                   children: [
-                    Icon(CupertinoIcons.add, size: 18, color: CupertinoColors.systemBlue),
+                    Icon(
+                      CupertinoIcons.add,
+                      size: 18,
+                      color: CupertinoColors.systemBlue,
+                    ),
                     HSpace.xs,
                     Text('Add', style: AppText.body.medium.semibold.systemBlue),
                   ],
@@ -451,7 +455,9 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
               ),
               child: Text(
                 '${draft.severity}/10',
-                style: AppText.label.small.copyWith(color: CupertinoColors.white),
+                style: AppText.label.small.copyWith(
+                  color: CupertinoColors.white,
+                ),
               ),
             ),
           ],
@@ -483,9 +489,14 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
             return GestureDetector(
               onTap: () => setState(() => draft.phase = p),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.s,
+                ),
                 decoration: BoxDecoration(
-                  color: isSelected ? p.color.withValues(alpha: 0.2) : AppColors.backgroundQuaternary,
+                  color: isSelected
+                      ? p.color.withValues(alpha: 0.2)
+                      : AppColors.backgroundQuaternary,
                   borderRadius: BorderRadius.circular(AppRadius.large),
                   border: Border.all(
                     color: isSelected ? p.color : AppColors.backgroundQuinary,
@@ -581,27 +592,34 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
 
       if (widget.checkIn != null) {
         final entry = _selectedMetrics.entries.first;
-        await notifier.updateCheckIn(widget.checkIn!.copyWith(
-          metricName: entry.key,
-          rating: entry.value,
-          dateTime: _selectedDateTime,
-        ));
-        checkInId = widget.checkIn!.id;
-      } else {
-        for (final entry in _selectedMetrics.entries) {
-          await notifier.addCheckIn(CheckIn(
-            id: '',
+        await notifier.updateCheckIn(
+          widget.checkIn!.copyWith(
             metricName: entry.key,
             rating: entry.value,
             dateTime: _selectedDateTime,
-            createdAt: DateTime.now(),
-          ));
+          ),
+        );
+        checkInId = widget.checkIn!.id;
+      } else {
+        for (final entry in _selectedMetrics.entries) {
+          await notifier.addCheckIn(
+            CheckIn(
+              id: '',
+              metricName: entry.key,
+              rating: entry.value,
+              dateTime: _selectedDateTime,
+              createdAt: DateTime.now(),
+            ),
+          );
         }
 
         final allCheckIns = await ref.read(checkInsNotifierProvider.future);
         final latestCheckIn = allCheckIns
-            .where((c) => c.dateTime.isAtSameMomentAs(_selectedDateTime) || 
-                          c.dateTime.difference(_selectedDateTime).inSeconds.abs() < 5)
+            .where(
+              (c) =>
+                  c.dateTime.isAtSameMomentAs(_selectedDateTime) ||
+                  c.dateTime.difference(_selectedDateTime).inSeconds.abs() < 5,
+            )
             .toList();
         if (latestCheckIn.isNotEmpty) {
           checkInId = latestCheckIn.first.id;
@@ -611,8 +629,12 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
       }
 
       for (final draft in _conditionDrafts) {
-        final conditionsNotifier = ref.read(conditionsNotifierProvider.notifier);
-        final entriesNotifier = ref.read(conditionEntriesNotifierProvider(draft.conditionId).notifier);
+        final conditionsNotifier = ref.read(
+          conditionsNotifierProvider.notifier,
+        );
+        final entriesNotifier = ref.read(
+          conditionEntriesNotifierProvider(draft.conditionId).notifier,
+        );
 
         await entriesNotifier.addEntry(
           entryDate: _selectedDateTime,
@@ -623,7 +645,10 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
         );
 
         if (draft.markResolved) {
-          await conditionsNotifier.resolveCondition(draft.conditionId, endDate: _selectedDateTime);
+          await conditionsNotifier.resolveCondition(
+            draft.conditionId,
+            endDate: _selectedDateTime,
+          );
         }
       }
 

@@ -21,5 +21,3 @@ Future<SymptomComponentIndex> symptomComponentIndex(Ref ref) async {
 Future<PinnedSymptomComponents> pinnedSymptomComponents(Ref ref) async {
   return ref.watch(pinnedSymptomComponentsNotifierProvider.future);
 }
-
-

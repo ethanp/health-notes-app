@@ -11,7 +11,6 @@ class AppButton extends StatelessWidget {
   final double? width;
 
   const AppButton({
-    super.key,
     required this.text,
     required this.onPressed,
     this.isPrimary = true,
@@ -22,10 +21,10 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconColor =
-        isPrimary ? CupertinoColors.white : AppColors.primary;
-    final textStyle =
-        isPrimary ? AppText.buttonPrimary : AppText.buttonSecondary;
+    final iconColor = isPrimary ? CupertinoColors.white : AppColors.primary;
+    final textStyle = isPrimary
+        ? AppText.buttonPrimary
+        : AppText.buttonSecondary;
 
     return SizedBox(
       width: width,
@@ -39,8 +38,7 @@ class AppButton extends StatelessWidget {
               : AppComponents.secondaryButton,
           child: Center(
             child: isLoading
-                ? const CupertinoActivityIndicator(
-                    color: CupertinoColors.white)
+                ? const CupertinoActivityIndicator(color: CupertinoColors.white)
                 : Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

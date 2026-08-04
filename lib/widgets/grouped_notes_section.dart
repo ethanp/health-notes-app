@@ -12,7 +12,6 @@ class GroupedNotesSection extends StatelessWidget {
   final Widget? header;
 
   const GroupedNotesSection({
-    super.key,
     required this.notes,
     required this.cardBuilder,
     this.header,
@@ -25,8 +24,7 @@ class GroupedNotesSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Health Notes (${notes.length})',
-            style: AppText.headline.small),
+        Text('Health Notes (${notes.length})', style: AppText.headline.small),
         VSpace.sm,
         if (header != null) header!,
         ..._dateGroupedCards(),
@@ -66,8 +64,8 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => EnhancedUIComponents.emptyState(
-        title: 'No matching notes',
-        message: 'Try adjusting your search terms',
-        icon: CupertinoIcons.search,
-      );
+    title: 'No matching notes',
+    message: 'Try adjusting your search terms',
+    icon: CupertinoIcons.search,
+  );
 }

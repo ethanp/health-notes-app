@@ -138,12 +138,7 @@ class SyncService {
         );
         break;
       case 'condition_entries':
-        await _syncConditionEntryOperation(
-          supabase,
-          recordId,
-          operation,
-          data,
-        );
+        await _syncConditionEntryOperation(supabase, recordId, operation, data);
         break;
     }
   }
@@ -356,10 +351,7 @@ class SyncService {
         break;
 
       case 'delete':
-        await supabase
-            .from('condition_entries')
-            .delete()
-            .eq('id', recordId);
+        await supabase.from('condition_entries').delete().eq('id', recordId);
         await ConditionEntriesDao.markAsSynced(recordId);
         break;
     }

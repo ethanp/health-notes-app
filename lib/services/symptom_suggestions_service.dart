@@ -61,7 +61,7 @@ class SymptomSuggestionsService {
         );
 
         if (!suggestionsMap.containsKey(key) &&
-            (symptom.majorComponent.isNotEmpty ||
+            (symptom.hasMajorComponent ||
                 symptom.minorComponent.isNotEmpty)) {
           suggestionsMap[key] = SymptomSuggestion(
             majorComponent: symptom.majorComponent,

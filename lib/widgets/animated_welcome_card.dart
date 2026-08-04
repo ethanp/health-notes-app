@@ -14,7 +14,6 @@ class AnimatedWelcomeCard extends StatefulWidget {
   final bool showAnimation;
 
   const AnimatedWelcomeCard({
-    super.key,
     required this.title,
     required this.message,
     required this.icon,
@@ -152,7 +151,6 @@ class AnimatedProgressCard extends StatefulWidget {
   final IconData? icon;
 
   const AnimatedProgressCard({
-    super.key,
     required this.title,
     required this.message,
     required this.progress,
@@ -226,9 +224,7 @@ class _AnimatedProgressCardState extends State<AnimatedProgressCard>
                 ),
                 HSpace.s,
               ],
-              Expanded(
-                child: Text(widget.title, style: AppText.label.large),
-              ),
+              Expanded(child: Text(widget.title, style: AppText.label.large)),
             ],
           ),
           VSpace.s,
@@ -249,10 +245,7 @@ class _AnimatedProgressCardState extends State<AnimatedProgressCard>
                           color: widget.progressColor ?? AppColors.primary,
                         ),
                       ),
-                      Text(
-                        '${widget.progress * 100}%',
-                        style: AppText.caption,
-                      ),
+                      Text('${widget.progress * 100}%', style: AppText.caption),
                     ],
                   ),
                   VSpace.s,

@@ -41,4 +41,3 @@ void main() {
     expect(list.first['note'], '5m');
   });
 }
-

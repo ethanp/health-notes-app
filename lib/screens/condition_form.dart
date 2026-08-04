@@ -52,10 +52,15 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
   void initState() {
     super.initState();
     nameController = TextEditingController(text: widget.condition?.name ?? '');
-    notesController = TextEditingController(text: widget.condition?.notes ?? '');
+    notesController = TextEditingController(
+      text: widget.condition?.notes ?? '',
+    );
     startDate = widget.condition?.startDate ?? DateTime.now();
-    selectedColorValue = widget.condition?.colorValue ?? ColorPickerGrid.defaultColors.first.toARGB32();
-    selectedIconCodePoint = widget.condition?.iconCodePoint ?? availableIcons.first.codePoint;
+    selectedColorValue =
+        widget.condition?.colorValue ??
+        ColorPickerGrid.defaultColors.first.toARGB32();
+    selectedIconCodePoint =
+        widget.condition?.iconCodePoint ?? availableIcons.first.codePoint;
   }
 
   @override
@@ -137,7 +142,11 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
             decoration: AppComponents.inputField,
             child: Row(
               children: [
-                Icon(CupertinoIcons.calendar, color: AppColors.textSecondary, size: 20),
+                Icon(
+                  CupertinoIcons.calendar,
+                  color: AppColors.textSecondary,
+                  size: 20,
+                ),
                 HSpace.m,
                 Text(
                   DateFormat('EEEE, MMMM d, y').format(startDate),
@@ -160,7 +169,8 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
         ColorPickerGrid(
           colors: ColorPickerGrid.defaultColors,
           selectedColor: Color(selectedColorValue),
-          onColorSelected: (color) => setState(() => selectedColorValue = color.toARGB32()),
+          onColorSelected: (color) =>
+              setState(() => selectedColorValue = color.toARGB32()),
         ),
       ],
     );
@@ -178,7 +188,8 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
           children: availableIcons.map((icon) {
             final isSelected = icon.codePoint == selectedIconCodePoint;
             return GestureDetector(
-              onTap: () => setState(() => selectedIconCodePoint = icon.codePoint),
+              onTap: () =>
+                  setState(() => selectedIconCodePoint = icon.codePoint),
               child: Container(
                 width: 48,
                 height: 48,
@@ -196,7 +207,9 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
                 ),
                 child: Icon(
                   icon,
-                  color: isSelected ? Color(selectedColorValue) : AppColors.textSecondary,
+                  color: isSelected
+                      ? Color(selectedColorValue)
+                      : AppColors.textSecondary,
                   size: 24,
                 ),
               ),
@@ -283,8 +296,9 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
     final existingCondition = await ref
         .read(conditionsNotifierProvider.notifier)
         .getActiveConditionByName(name);
-    
-    if (existingCondition != null && (!isEditing || existingCondition.id != widget.condition!.id)) {
+
+    if (existingCondition != null &&
+        (!isEditing || existingCondition.id != widget.condition!.id)) {
       if (!mounted) return;
       showCupertinoDialog(
         context: context,
@@ -314,15 +328,19 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
           notes: notesController.text.trim(),
           updatedAt: DateTime.now(),
         );
-        await ref.read(conditionsNotifierProvider.notifier).updateCondition(updated);
+        await ref
+            .read(conditionsNotifierProvider.notifier)
+            .updateCondition(updated);
       } else {
-        await ref.read(conditionsNotifierProvider.notifier).addCondition(
-          name: name,
-          startDate: startDate,
-          colorValue: selectedColorValue,
-          iconCodePoint: selectedIconCodePoint,
-          notes: notesController.text.trim(),
-        );
+        await ref
+            .read(conditionsNotifierProvider.notifier)
+            .addCondition(
+              name: name,
+              startDate: startDate,
+              colorValue: selectedColorValue,
+              iconCodePoint: selectedIconCodePoint,
+              notes: notesController.text.trim(),
+            );
       }
 
       if (mounted) {
@@ -351,4 +369,3 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
     }
   }
 }
-

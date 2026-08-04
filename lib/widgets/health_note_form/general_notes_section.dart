@@ -11,7 +11,6 @@ class GeneralNotesSection extends StatelessWidget {
   final Function(String)? onNotesChanged;
 
   const GeneralNotesSection({
-    super.key,
     required this.isEditable,
     this.notesController,
     this.onNotesChanged,

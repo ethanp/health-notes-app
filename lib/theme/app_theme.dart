@@ -99,8 +99,9 @@ class AppText {
       .withColor(CupertinoColors.systemBlue.withValues(alpha: 0.8))
       .size(12);
 
-  static TextStyle get metricTypeUnselected =>
-      body.small.withColor(CupertinoColors.white.withValues(alpha: 0.7)).size(12);
+  static TextStyle get metricTypeUnselected => body.small
+      .withColor(CupertinoColors.white.withValues(alpha: 0.7))
+      .size(12);
 }
 
 class _HeadlineScale {

@@ -10,7 +10,6 @@ class BulkDoseSheet extends StatefulWidget {
   final void Function(double dosage, String unit) onConfirm;
 
   const BulkDoseSheet({
-    super.key,
     required this.drugName,
     required this.initialUnit,
     required this.dates,
@@ -84,8 +83,9 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
                 child: Builder(
                   builder: (context) {
                     final screenHeight = MediaQuery.sizeOf(context).height;
-                    final keyboardInset =
-                        MediaQuery.viewInsetsOf(context).bottom;
+                    final keyboardInset = MediaQuery.viewInsetsOf(
+                      context,
+                    ).bottom;
                     return ConstrainedBox(
                       constraints: BoxConstraints(
                         maxHeight: screenHeight * 0.92,
@@ -155,10 +155,7 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
     return Row(
       children: [
         Expanded(
-          child: Text(
-            'Add ${widget.drugName}',
-            style: AppText.headline.small,
-          ),
+          child: Text('Add ${widget.drugName}', style: AppText.headline.small),
         ),
         CupertinoButton(
           padding: EdgeInsets.zero,
@@ -253,9 +250,7 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
             : AppComponents.secondaryButton,
         child: Center(
           child: Text(
-            _canSubmit
-                ? 'Add to $count $dayWord'
-                : 'Enter a dosage amount',
+            _canSubmit ? 'Add to $count $dayWord' : 'Enter a dosage amount',
             style: _canSubmit
                 ? AppText.buttonPrimary
                 : AppText.body.medium.systemGrey,

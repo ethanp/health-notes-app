@@ -1,20 +1,12 @@
 import 'package:health_notes/models/health_note.dart';
-import 'package:health_notes/services/search_service.dart';
-import 'package:health_notes/services/text_normalizer.dart';
 
 /// Centralized note filtering utilities
 class NoteFilterUtils {
-  static final _normalizer = CaseInsensitiveNormalizer();
-
   /// Filter notes by symptom name
   static List<HealthNote> bySymptom(
     List<HealthNote> notes,
     String symptomName,
-  ) => notes
-      .where(
-        (note) => note.symptomsList.any((s) => s.majorComponent == symptomName),
-      )
-      .toList();
+  ) => notes.where((note) => note.hasSymptomNamed(symptomName)).toList();
 
   /// Filter notes by a specific major/minor symptom pair (sub-symptom)
   static List<HealthNote> bySubSymptom(
@@ -23,46 +15,26 @@ class NoteFilterUtils {
     String minorComponent,
   ) => notes
       .where(
-        (note) => note.symptomsList.any(
-          (symptom) =>
-              symptom.majorComponent == majorComponent &&
-              symptom.minorComponent == minorComponent,
-        ),
+        (note) => note.hasSubSymptom(majorComponent, minorComponent),
       )
       .toList();
 
   /// Filter notes by drug name (case-insensitive)
   static List<HealthNote> byDrug(List<HealthNote> notes, String drugName) =>
-      notes
-          .where(
-            (note) => note.drugDoses.any(
-              (d) => _normalizer.areEqual(d.name, drugName),
-            ),
-          )
-          .toList();
+      notes.where((note) => note.hasDrugNamed(drugName)).toList();
 
   /// Filter notes by tool ID
   static List<HealthNote> byToolId(List<HealthNote> notes, String toolId) =>
-      notes
-          .where((note) => note.appliedTools.any((t) => t.toolId == toolId))
-          .toList();
+      notes.where((note) => note.hasToolId(toolId)).toList();
 
   /// Filter notes by tool name (case-insensitive)
   static List<HealthNote> byToolName(List<HealthNote> notes, String toolName) =>
-      notes
-          .where(
-            (note) => note.appliedTools.any(
-              (t) => _normalizer.areEqual(t.toolName, toolName),
-            ),
-          )
-          .toList();
+      notes.where((note) => note.hasToolNamed(toolName)).toList();
 
-  /// Filter notes by search query using SearchService
+  /// Filter notes by search query
   static List<HealthNote> bySearchQuery(List<HealthNote> notes, String query) {
     if (query.trim().isEmpty) return notes;
-    return notes
-        .where((note) => SearchService.matchesSearch(note, query))
-        .toList();
+    return notes.where((note) => note.matchesSearch(query)).toList();
   }
 
   /// Filter notes by date range

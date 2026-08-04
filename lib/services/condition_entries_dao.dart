@@ -6,7 +6,9 @@ import 'package:health_notes/services/local_database.dart';
 class ConditionEntriesDao {
   static const String _tableName = 'condition_entries';
 
-  static Future<List<ConditionEntry>> getEntriesForCondition(String conditionId) async {
+  static Future<List<ConditionEntry>> getEntriesForCondition(
+    String conditionId,
+  ) async {
     final db = await LocalDatabase.database;
     final List<Map<String, dynamic>> maps = await db.query(
       _tableName,
@@ -29,7 +31,10 @@ class ConditionEntriesDao {
     return _mapToConditionEntry(maps.first);
   }
 
-  static Future<ConditionEntry?> getEntryForDate(String conditionId, DateTime date) async {
+  static Future<ConditionEntry?> getEntryForDate(
+    String conditionId,
+    DateTime date,
+  ) async {
     final db = await LocalDatabase.database;
     final dateStr = date.startOfDay.toIso8601String().split('T')[0];
     final List<Map<String, dynamic>> maps = await db.query(
@@ -42,7 +47,9 @@ class ConditionEntriesDao {
     return _mapToConditionEntry(maps.first);
   }
 
-  static Future<List<ConditionEntry>> getEntriesForCheckIn(String checkInId) async {
+  static Future<List<ConditionEntry>> getEntriesForCheckIn(
+    String checkInId,
+  ) async {
     final db = await LocalDatabase.database;
     final List<Map<String, dynamic>> maps = await db.query(
       _tableName,
@@ -164,7 +171,8 @@ class ConditionEntriesDao {
     final existing = await getEntryById(serverData['id']);
 
     if (existing != null) {
-      final serverUpdatedStr = serverData['updated_at'] ?? serverData['created_at'] ?? now;
+      final serverUpdatedStr =
+          serverData['updated_at'] ?? serverData['created_at'] ?? now;
       final serverUpdated = DateTime.parse(serverUpdatedStr);
       final localUpdated = existing.updatedAt;
 
@@ -217,4 +225,3 @@ class ConditionEntriesDao {
     );
   }
 }
-

@@ -103,16 +103,11 @@ class ConditionsNotifier extends _$ConditionsNotifier {
   Future<void> resolveCondition(String id, {DateTime? endDate}) async {
     final resolveDate = endDate ?? DateTime.now();
     await ConditionsDao.resolveCondition(id, resolveDate);
-    DataUtils.syncService.queueForSync(
-      'conditions',
-      id,
-      'update',
-      {
-        'condition_status': ConditionStatus.resolved.name,
-        'end_date': resolveDate.toIso8601String(),
-        'updated_at': DateTime.now().toIso8601String(),
-      },
-    );
+    DataUtils.syncService.queueForSync('conditions', id, 'update', {
+      'condition_status': ConditionStatus.resolved.name,
+      'end_date': resolveDate.toIso8601String(),
+      'updated_at': DateTime.now().toIso8601String(),
+    });
     ref.invalidateSelf();
   }
 
@@ -198,25 +193,33 @@ Future<List<Condition>> activeConditions(Ref ref) async {
 }
 
 @riverpod
-Future<List<ConditionEntry>> conditionEntriesForCheckIn(Ref ref, String checkInId) async {
+Future<List<ConditionEntry>> conditionEntriesForCheckIn(
+  Ref ref,
+  String checkInId,
+) async {
   return await ConditionEntriesDao.getEntriesForCheckIn(checkInId);
 }
 
 /// Provider that returns all symptoms linked to a specific condition.
 /// Symptoms are linked via conditionId in health notes.
 @riverpod
-Future<List<LinkedSymptom>> symptomsForCondition(Ref ref, String conditionId) async {
+Future<List<LinkedSymptom>> symptomsForCondition(
+  Ref ref,
+  String conditionId,
+) async {
   final healthNotes = await ref.watch(healthNotesNotifierProvider.future);
   final linkedSymptoms = <LinkedSymptom>[];
 
   for (final note in healthNotes) {
     for (final symptom in note.symptomsList) {
       if (symptom.conditionId == conditionId) {
-        linkedSymptoms.add(LinkedSymptom(
-          date: note.dateTime,
-          symptom: symptom,
-          healthNoteId: note.id,
-        ));
+        linkedSymptoms.add(
+          LinkedSymptom(
+            date: note.dateTime,
+            symptom: symptom,
+            healthNoteId: note.id,
+          ),
+        );
       }
     }
   }
@@ -225,4 +228,3 @@ Future<List<LinkedSymptom>> symptomsForCondition(Ref ref, String conditionId) as
   linkedSymptoms.sort((a, b) => b.date.compareTo(a.date));
   return linkedSymptoms;
 }
-

@@ -62,11 +62,7 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
         return entriesAsync.when(
           data: (entries) {
             final linkedSymptoms = linkedSymptomsAsync.valueOrNull ?? [];
-            return conditionDetailContent(
-              condition,
-              entries,
-              linkedSymptoms,
-            );
+            return conditionDetailContent(condition, entries, linkedSymptoms);
           },
           loading: () => CupertinoPageScaffold(
             navigationBar: EnhancedUIComponents.navigationBar(
@@ -233,7 +229,10 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
         ? CupertinoColors.systemOrange
         : CupertinoColors.systemGreen;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.s,
+      ),
       decoration: AppComponents.tintedSolidDecoration(
         color,
         radius: AppRadius.large,
@@ -348,9 +347,7 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
       ..sort((a, b) => b.entryDate.compareTo(a.entryDate));
 
     return Column(
-      children: sortedEntries
-          .map((entry) => entryCard(entry))
-          .toList(),
+      children: sortedEntries.map((entry) => entryCard(entry)).toList(),
     );
   }
 
@@ -516,7 +513,9 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
         entry: entry,
         onSave: (updatedEntry) async {
           await ref
-              .read(conditionEntriesNotifierProvider(widget.conditionId).notifier)
+              .read(
+                conditionEntriesNotifierProvider(widget.conditionId).notifier,
+              )
               .updateEntry(updatedEntry);
           if (sheetContext.mounted) {
             Navigator.of(sheetContext).pop();
@@ -534,23 +533,24 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
     }
 
     final sortedKeys = byDescription.keys.toList()
-      ..sort((a, b) =>
-          byDescription[b]!.length.compareTo(byDescription[a]!.length));
+      ..sort(
+        (a, b) => byDescription[b]!.length.compareTo(byDescription[a]!.length),
+      );
 
     return Column(
       children: sortedKeys.map((description) {
         final occurrences = byDescription[description]!;
         final avgSeverity =
-            occurrences.map((ls) => ls.symptom.severityLevel).reduce(
-                  (a, b) => a + b,
-                ) /
+            occurrences
+                .map((ls) => ls.symptom.severityLevel)
+                .reduce((a, b) => a + b) /
             occurrences.length;
         final avgColor = SeverityUtils.colorForSeverity(avgSeverity.round());
 
         return GestureDetector(
           onTap: () {
             final symptom = occurrences.first.symptom;
-            if (symptom.majorComponent.isEmpty) return;
+            if (!symptom.hasMajorComponent) return;
             if (symptom.minorComponent.isNotEmpty) {
               context.push(
                 SubSymptomTrendsScreen(
@@ -566,19 +566,18 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
           },
           child: Container(
             margin: const EdgeInsets.only(bottom: 6),
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: AppSpacing.s,
+            ),
             decoration: BoxDecoration(
               color: AppColors.backgroundTertiary,
               borderRadius: BorderRadius.circular(AppRadius.small),
-              border: Border(
-                left: BorderSide(color: avgColor, width: 3),
-              ),
+              border: Border(left: BorderSide(color: avgColor, width: 3)),
             ),
             child: Row(
               children: [
-                Expanded(
-                  child: Text(description, style: AppText.body.medium),
-                ),
+                Expanded(child: Text(description, style: AppText.body.medium)),
                 HSpace.s,
                 Text(
                   '${occurrences.length}×',
@@ -621,8 +620,9 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
         '${symptoms.length} symptom${symptoms.length == 1 ? '' : 's'} across ${notes.length} note${notes.length == 1 ? '' : 's'}',
       ),
       noteLabelBuilder: (note) {
-        final noteSymptomCount =
-            symptoms.where((ls) => ls.healthNoteId == note.id).length;
+        final noteSymptomCount = symptoms
+            .where((ls) => ls.healthNoteId == note.id)
+            .length;
         return Text(
           '${DateFormat('h:mm a').format(note.dateTime)}  ·  $noteSymptomCount symptom${noteSymptomCount == 1 ? '' : 's'}',
         );

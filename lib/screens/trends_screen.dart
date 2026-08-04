@@ -361,9 +361,8 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
 
     return HealthNotesActivityCalendar(
       notes: notes,
-      onDateTap: (date) => context.push(
-        HealthNoteDateDetailScreen(date: date, allNotes: notes),
-      ),
+      onDateTap: (date) =>
+          context.push(HealthNoteDateDetailScreen(date: date, allNotes: notes)),
       gridHeight: 320,
       scrollToEnd: true,
     );

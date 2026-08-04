@@ -2,38 +2,28 @@ import 'package:ethan_utils/ethan_utils.dart';
 
 /// Date range filter options for trends data
 enum DateRangeFilter {
-  fourteenDays,
-  sixtyDays,
-  allTime,
-}
+  fourteenDays(label: '14 Days', lookbackDays: 14),
+  sixtyDays(label: '60 Days', lookbackDays: 60),
+  allTime(label: 'All Time', lookbackDays: null);
 
-extension DateRangeFilterExtension on DateRangeFilter {
-  /// Display label for the date range
-  String get label {
-    switch (this) {
-      case DateRangeFilter.fourteenDays:
-        return '14 Days';
-      case DateRangeFilter.sixtyDays:
-        return '60 Days';
-      case DateRangeFilter.allTime:
-        return 'All Time';
-    }
-  }
+  const DateRangeFilter({
+    required this.label,
+    required this.lookbackDays,
+  });
 
-  /// Get the cutoff DateTime for filtering data
-  /// Returns null for allTime (no filtering)
+  final String label;
+
+  /// Days before now for the filter window; null means no cutoff.
+  final int? lookbackDays;
+
+  /// Cutoff DateTime for filtering data. Null for [allTime].
   DateTime? getCutoffDate() {
-    switch (this) {
-      case DateRangeFilter.fourteenDays:
-        return DateTime.now().shiftedByDays(-14);
-      case DateRangeFilter.sixtyDays:
-        return DateTime.now().shiftedByDays(-60);
-      case DateRangeFilter.allTime:
-        return null;
-    }
+    final days = lookbackDays;
+    if (days == null) return null;
+    return DateTime.now().shiftedByDays(-days);
   }
 
-  /// Check if a DateTime is within this date range
+  /// Whether [date] is within this date range.
   bool includesDate(DateTime date) {
     final cutoff = getCutoffDate();
     return cutoff == null || date.isAfter(cutoff);

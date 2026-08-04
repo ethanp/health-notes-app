@@ -19,7 +19,7 @@ import 'package:health_notes/widgets/enhanced_ui_components.dart';
 class SymptomSummaryRow extends ConsumerWidget {
   final Symptom symptom;
 
-  const SymptomSummaryRow({super.key, required this.symptom});
+  const SymptomSummaryRow({required this.symptom});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -27,7 +27,7 @@ class SymptomSummaryRow extends ConsumerWidget {
 
     return AccentBorderCard(
       accentColor: severityColor,
-      onTap: symptom.majorComponent.isEmpty
+      onTap: !symptom.hasMajorComponent
           ? null
           : () => context.push(
               SymptomTrendsScreen(symptomName: symptom.majorComponent),
@@ -72,19 +72,21 @@ class SymptomSummaryRow extends ConsumerWidget {
 
   Widget _nameText() {
     return Text.rich(
-      TextSpan(children: [
-        TextSpan(
-          text: symptom.majorComponent.isNotEmpty
-              ? symptom.majorComponent
-              : 'Unnamed symptom',
-          style: AppText.body.medium.copyWith(fontWeight: FontWeight.w600),
-        ),
-        if (symptom.minorComponent.isNotEmpty)
+      TextSpan(
+        children: [
           TextSpan(
-            text: ' — ${symptom.minorComponent}',
-            style: AppText.body.small.secondary,
+            text: symptom.hasMajorComponent
+                ? symptom.majorComponent
+                : 'Unnamed symptom',
+            style: AppText.body.medium.copyWith(fontWeight: FontWeight.w600),
           ),
-      ]),
+          if (symptom.minorComponent.isNotEmpty)
+            TextSpan(
+              text: ' — ${symptom.minorComponent}',
+              style: AppText.body.small.secondary,
+            ),
+        ],
+      ),
     );
   }
 }
@@ -93,7 +95,7 @@ class SymptomSummaryRow extends ConsumerWidget {
 class MedicationSummaryRow extends StatelessWidget {
   final DrugDose dose;
 
-  const MedicationSummaryRow({super.key, required this.dose});
+  const MedicationSummaryRow({required this.dose});
 
   @override
   Widget build(BuildContext context) {
@@ -107,9 +109,7 @@ class MedicationSummaryRow extends StatelessWidget {
           Expanded(
             child: Text(
               dose.displayName,
-              style: AppText.body.medium.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppText.body.medium.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
           if (dose.dosage > 0) ...[
@@ -129,7 +129,7 @@ class MedicationSummaryRow extends StatelessWidget {
 class AppliedToolSummaryRow extends StatelessWidget {
   final AppliedTool appliedTool;
 
-  const AppliedToolSummaryRow({super.key, required this.appliedTool});
+  const AppliedToolSummaryRow({required this.appliedTool});
 
   @override
   Widget build(BuildContext context) {
@@ -146,9 +146,7 @@ class AppliedToolSummaryRow extends StatelessWidget {
         children: [
           Text(
             appliedTool.toolName,
-            style: AppText.body.medium.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppText.body.medium.copyWith(fontWeight: FontWeight.w600),
           ),
           if (appliedTool.note.isNotEmpty) ...[
             VSpace.xs,

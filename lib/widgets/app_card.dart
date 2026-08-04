@@ -7,7 +7,6 @@ class AppCard extends StatelessWidget {
   final EdgeInsetsGeometry? margin;
 
   const AppCard({
-    super.key,
     required this.child,
     this.padding = const EdgeInsets.all(AppSpacing.m),
     this.margin,

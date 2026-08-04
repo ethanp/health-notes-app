@@ -31,7 +31,8 @@ class _SubSymptomTrendsScreenState
   @override
   String get itemNoun => 'sub-symptom';
 
-  String get _fullLabel => '${widget.majorComponent} — ${widget.minorComponent}';
+  String get _fullLabel =>
+      '${widget.majorComponent} — ${widget.minorComponent}';
 
   @override
   String get title => '$_fullLabel Trends';
@@ -87,9 +88,7 @@ class _SubSymptomTrendsScreenState
   @override
   List<HealthNote> notesForDate(List<HealthNote> notes, DateTime date) {
     final targetDate = date.startOfDay;
-    return notes
-        .where((note) => note.dateTime.sameDayAs(targetDate))
-        .toList();
+    return notes.where((note) => note.dateTime.sameDayAs(targetDate)).toList();
   }
 
   @override
@@ -109,7 +108,10 @@ class _SubSymptomTrendsScreenState
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.s,
+        ),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(AppRadius.large),
@@ -135,17 +137,16 @@ class _SubSymptomTrendsScreenState
     );
     final noteSeverity = symptom?.severityLevel ?? 0;
     return Text.rich(
-      TextSpan(children: [
-        TextSpan(
-          text: AppDateUtils.formatTime(note.dateTime),
-          style: AppText.body.small.bold,
-        ),
-        const TextSpan(text: '  ·  '),
-        TextSpan(
-          text: 'L$noteSeverity',
-          style: AppText.body.small.semibold,
-        ),
-      ]),
+      TextSpan(
+        children: [
+          TextSpan(
+            text: AppDateUtils.formatTime(note.dateTime),
+            style: AppText.body.small.bold,
+          ),
+          const TextSpan(text: '  ·  '),
+          TextSpan(text: 'L$noteSeverity', style: AppText.body.small.semibold),
+        ],
+      ),
     );
   }
 }

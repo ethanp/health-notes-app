@@ -7,7 +7,6 @@ class AppFilterChip extends StatelessWidget {
   final VoidCallback onTap;
 
   const AppFilterChip({
-    super.key,
     required this.label,
     required this.isActive,
     required this.onTap,
@@ -20,16 +19,16 @@ class AppFilterChip extends StatelessWidget {
       child: AnimatedContainer(
         duration: AppAnimation.fast,
         curve: AppAnimation.curve,
-        decoration:
-            isActive ? AppComponents.activeFilterChip : AppComponents.filterChip,
+        decoration: isActive
+            ? AppComponents.activeFilterChip
+            : AppComponents.filterChip,
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.m,
           vertical: AppSpacing.s,
         ),
         child: Text(
           label,
-          style:
-              isActive ? AppText.label.medium.white : AppText.label.medium,
+          style: isActive ? AppText.label.medium.white : AppText.label.medium,
         ),
       ),
     );

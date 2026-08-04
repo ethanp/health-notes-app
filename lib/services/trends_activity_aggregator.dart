@@ -27,24 +27,18 @@ class TrendsActivityAggregator {
   static Map<DateTime, int> maxSeverityPerDay({
     required List<HealthNote> notes,
     required String symptomName,
-  }) =>
-      aggregate<int>(
-        notes: notes,
-        valueExtractor: (note) =>
-            highestSeveritySymptom(note, symptomName)?.severityLevel ?? 0,
-        combiner: (existing, newValue) =>
-            existing > newValue ? existing : newValue,
-      );
+  }) => aggregate<int>(
+    notes: notes,
+    valueExtractor: (note) =>
+        highestSeveritySymptom(note, symptomName)?.severityLevel ?? 0,
+    combiner: (existing, newValue) => existing > newValue ? existing : newValue,
+  );
 
-  static Symptom? highestSeveritySymptom(
-    HealthNote note,
-    String symptomName,
-  ) {
+  static Symptom? highestSeveritySymptom(HealthNote note, String symptomName) {
     Symptom? highest;
     for (final symptom in note.symptomsList) {
       if (symptom.majorComponent != symptomName) continue;
-      if (highest == null ||
-          symptom.severityLevel > highest.severityLevel) {
+      if (highest == null || symptom.severityLevel > highest.severityLevel) {
         highest = symptom;
       }
     }
@@ -55,16 +49,17 @@ class TrendsActivityAggregator {
     required List<HealthNote> notes,
     required String majorComponent,
     required String minorComponent,
-  }) =>
-      aggregate<int>(
-        notes: notes,
-        valueExtractor: (note) =>
-            highestSeveritySubSymptom(note, majorComponent, minorComponent)
-                ?.severityLevel ??
-            0,
-        combiner: (existing, newValue) =>
-            existing > newValue ? existing : newValue,
-      );
+  }) => aggregate<int>(
+    notes: notes,
+    valueExtractor: (note) =>
+        highestSeveritySubSymptom(
+          note,
+          majorComponent,
+          minorComponent,
+        )?.severityLevel ??
+        0,
+    combiner: (existing, newValue) => existing > newValue ? existing : newValue,
+  );
 
   static Symptom? highestSeveritySubSymptom(
     HealthNote note,

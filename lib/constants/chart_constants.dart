@@ -5,7 +5,8 @@ const double kChartPlotHeight = 100.0;
 const double kChartBottomAxisReservedSize = 20.0;
 
 // Total chart container height (plot + bottom labels)
-const double kChartTotalHeight = kChartPlotHeight + kChartBottomAxisReservedSize;
+const double kChartTotalHeight =
+    kChartPlotHeight + kChartBottomAxisReservedSize;
 
 // Ratio of plot area to total container height
 const double kChartPlotAreaRatio = kChartPlotHeight / kChartTotalHeight;

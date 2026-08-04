@@ -73,7 +73,6 @@ class ActivityCalendar<T> extends StatefulWidget {
   final String? multiSelectActionLabel;
 
   const ActivityCalendar({
-    super.key,
     required this.title,
     required this.subtitle,
     required this.activityData,
@@ -315,7 +314,11 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
         sundayOffset + 1,
       );
       final monday = sunday.shiftedByDays(-6);
-      for (int dayOffset = 0; dayOffset < CalendarConstants.daysPerWeek; dayOffset++) {
+      for (
+        int dayOffset = 0;
+        dayOffset < CalendarConstants.daysPerWeek;
+        dayOffset++
+      ) {
         final date = monday.shiftedByDays(dayOffset);
         final value = widget.activityData[date] ?? widget.emptyValue;
         if (value != widget.emptyValue) {
@@ -615,7 +618,11 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
   }
 
   Widget _selectionCheckmark() {
-    return Icon(CupertinoIcons.checkmark_alt, size: 16, color: AppColors.primary);
+    return Icon(
+      CupertinoIcons.checkmark_alt,
+      size: 16,
+      color: AppColors.primary,
+    );
   }
 
   Widget _selectionActionBar() {
@@ -660,7 +667,6 @@ class SeverityActivityCalendar extends StatelessWidget {
   onDateTap;
 
   const SeverityActivityCalendar({
-    super.key,
     required this.itemName,
     required this.activityData,
     required this.onDateTap,
@@ -741,7 +747,6 @@ class DosageActivityCalendar extends StatelessWidget {
   final void Function(List<DateTime> dates)? onMultiSelectConfirmed;
 
   const DosageActivityCalendar({
-    super.key,
     required this.drugName,
     required this.activityData,
     required this.onDateTap,
@@ -805,7 +810,6 @@ class CheckInsActivityCalendar extends StatelessWidget {
   final bool scrollToEnd;
 
   const CheckInsActivityCalendar({
-    super.key,
     required this.checkIns,
     required this.onDateTap,
     this.gridHeight,

@@ -39,11 +39,15 @@ class ConditionsDao {
     return _mapToCondition(maps.first);
   }
 
-  static Future<Condition?> getActiveConditionByName(String userId, String name) async {
+  static Future<Condition?> getActiveConditionByName(
+    String userId,
+    String name,
+  ) async {
     final db = await LocalDatabase.database;
     final List<Map<String, dynamic>> maps = await db.query(
       _tableName,
-      where: 'user_id = ? AND name = ? AND condition_status = ? AND is_deleted = 0',
+      where:
+          'user_id = ? AND name = ? AND condition_status = ? AND is_deleted = 0',
       whereArgs: [userId, name, 'active'],
       limit: 1,
     );
@@ -51,7 +55,10 @@ class ConditionsDao {
     return _mapToCondition(maps.first);
   }
 
-  static Future<void> insertCondition(Condition condition, String userId) async {
+  static Future<void> insertCondition(
+    Condition condition,
+    String userId,
+  ) async {
     final db = await LocalDatabase.database;
     final now = DateTime.now().toIso8601String();
 
@@ -157,7 +164,8 @@ class ConditionsDao {
     final existing = await getConditionById(serverData['id']);
 
     if (existing != null) {
-      final serverUpdatedStr = serverData['updated_at'] ?? serverData['created_at'] ?? now;
+      final serverUpdatedStr =
+          serverData['updated_at'] ?? serverData['created_at'] ?? now;
       final serverUpdated = DateTime.parse(serverUpdatedStr);
       final localUpdated = existing.updatedAt;
 
@@ -218,4 +226,3 @@ class ConditionsDao {
     );
   }
 }
-

@@ -90,26 +90,26 @@ class _SymptomTrendsScreenState
         );
         subSymptomPeaks.update(
           minorComponent,
-          (peak) =>
-              symptom.severityLevel > peak ? symptom.severityLevel : peak,
+          (peak) => symptom.severityLevel > peak ? symptom.severityLevel : peak,
           ifAbsent: () => symptom.severityLevel,
         );
         subSymptomLatest.update(
           minorComponent,
-          (latest) =>
-              note.dateTime.isAfter(latest) ? note.dateTime : latest,
+          (latest) => note.dateTime.isAfter(latest) ? note.dateTime : latest,
           ifAbsent: () => note.dateTime,
         );
       }
     }
 
     final stats = subSymptomCounts.keys
-        .map((minorComponent) => _SubSymptomStat(
-              minorComponent: minorComponent,
-              count: subSymptomCounts[minorComponent]!,
-              peakSeverity: subSymptomPeaks[minorComponent]!,
-              mostRecent: subSymptomLatest[minorComponent]!,
-            ))
+        .map(
+          (minorComponent) => _SubSymptomStat(
+            minorComponent: minorComponent,
+            count: subSymptomCounts[minorComponent]!,
+            peakSeverity: subSymptomPeaks[minorComponent]!,
+            mostRecent: subSymptomLatest[minorComponent]!,
+          ),
+        )
         .toList();
     stats.sort((first, second) => second.count.compareTo(first.count));
     return stats;
@@ -166,9 +166,7 @@ class _SymptomTrendsScreenState
   @override
   List<HealthNote> notesForDate(List<HealthNote> notes, DateTime date) {
     final targetDate = date.startOfDay;
-    return notes
-        .where((note) => note.dateTime.sameDayAs(targetDate))
-        .toList();
+    return notes.where((note) => note.dateTime.sameDayAs(targetDate)).toList();
   }
 
   @override
@@ -188,7 +186,10 @@ class _SymptomTrendsScreenState
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.s,
+        ),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(AppRadius.large),
@@ -214,22 +215,18 @@ class _SymptomTrendsScreenState
     final noteSeverity = symptom?.severityLevel ?? 0;
     final subsymptom = symptom?.minorComponent ?? '';
     return Text.rich(
-      TextSpan(children: [
-        TextSpan(
-          text: AppDateUtils.formatTime(note.dateTime),
-          style: AppText.body.small.bold,
-        ),
-        const TextSpan(text: '  ·  '),
-        TextSpan(
-          text: 'L$noteSeverity',
-          style: AppText.body.small.semibold,
-        ),
-        if (subsymptom.isNotEmpty)
+      TextSpan(
+        children: [
           TextSpan(
-            text: ' $subsymptom',
-            style: AppText.body.small,
+            text: AppDateUtils.formatTime(note.dateTime),
+            style: AppText.body.small.bold,
           ),
-      ]),
+          const TextSpan(text: '  ·  '),
+          TextSpan(text: 'L$noteSeverity', style: AppText.body.small.semibold),
+          if (subsymptom.isNotEmpty)
+            TextSpan(text: ' $subsymptom', style: AppText.body.small),
+        ],
+      ),
     );
   }
 }

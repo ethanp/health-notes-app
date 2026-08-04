@@ -3,7 +3,7 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 
 class LogOutButton extends StatelessWidget {
-  const LogOutButton({super.key});
+  const LogOutButton();
 
   @override
   Widget build(BuildContext context) {
@@ -12,12 +12,8 @@ class LogOutButton extends StatelessWidget {
       onPressed: () => AuthUtils.showSignOutDialog(context),
       child: Text(
         'Log out',
-        style: AppText.body.medium.copyWith(
-          color: CupertinoColors.systemBlue,
-        ),
+        style: AppText.body.medium.copyWith(color: CupertinoColors.systemBlue),
       ),
     );
   }
 }
-
-

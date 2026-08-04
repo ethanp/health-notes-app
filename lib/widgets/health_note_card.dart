@@ -13,7 +13,7 @@ class HealthNoteCard extends StatelessWidget {
   final HealthNote note;
   final VoidCallback onTap;
 
-  const HealthNoteCard({super.key, required this.note, required this.onTap});
+  const HealthNoteCard({required this.note, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +54,9 @@ class HealthNoteCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ...note.validSymptoms.mapL((symptom) => SymptomSummaryRow(symptom: symptom)),
+        ...note.validSymptoms.mapL(
+          (symptom) => SymptomSummaryRow(symptom: symptom),
+        ),
         ...note.validDrugDoses.mapL((dose) => MedicationSummaryRow(dose: dose)),
         ...note.appliedTools.mapL(
           (tool) => AppliedToolSummaryRow(appliedTool: tool),
@@ -81,7 +83,6 @@ class FilterChip extends StatelessWidget {
   final VoidCallback onTap;
 
   const FilterChip({
-    super.key,
     required this.label,
     required this.isActive,
     required this.onTap,
@@ -89,10 +90,6 @@ class FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppFilterChip(
-      label: label,
-      isActive: isActive,
-      onTap: onTap,
-    );
+    return AppFilterChip(label: label, isActive: isActive, onTap: onTap);
   }
 }

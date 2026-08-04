@@ -55,8 +55,9 @@ class ConditionTimelineCard extends ConsumerWidget {
       entries: entries,
       linkedSymptoms: linkedSymptoms,
     );
-    final sparklinePoints =
-        ConditionActivityAggregator.sparklinePoints(activityByDate);
+    final sparklinePoints = ConditionActivityAggregator.sparklinePoints(
+      activityByDate,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -92,10 +93,7 @@ class ConditionTimelineCard extends ConsumerWidget {
             children: [
               Text(condition.name, style: AppText.label.large.primary),
               VSpace.xs,
-              Text(
-                formatDateRange(),
-                style: AppText.body.small.tertiary,
-              ),
+              Text(formatDateRange(), style: AppText.body.small.tertiary),
             ],
           ),
         ),
@@ -116,7 +114,10 @@ class ConditionTimelineCard extends ConsumerWidget {
       ),
       child: Text(
         condition.status.displayName,
-        style: AppText.caption.copyWith(color: color, fontWeight: FontWeight.w600),
+        style: AppText.caption.copyWith(
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
@@ -129,10 +130,7 @@ class ConditionTimelineCard extends ConsumerWidget {
       height: chartHeight,
       child: CustomPaint(
         size: const Size(double.infinity, chartHeight),
-        painter: SeverityChartPainter(
-          points: points,
-          color: condition.color,
-        ),
+        painter: SeverityChartPainter(points: points, color: condition.color),
       ),
     );
   }
@@ -235,13 +233,15 @@ class SeverityChartPainter extends CustomPainter {
     final path = Path();
     final fillPath = Path();
 
-    final stepX =
-        points.length > 1 ? size.width / (points.length - 1) : size.width / 2;
+    final stepX = points.length > 1
+        ? size.width / (points.length - 1)
+        : size.width / 2;
 
     for (var index = 0; index < points.length; index++) {
       final x = points.length > 1 ? index * stepX : size.width / 2;
       final normalizedSeverity = points[index].severity.clamp(1, 10) / 10.0;
-      final y = size.height -
+      final y =
+          size.height -
           (normalizedSeverity * size.height * 0.8) -
           (size.height * 0.1);
 
@@ -268,7 +268,8 @@ class SeverityChartPainter extends CustomPainter {
     for (var index = 0; index < points.length; index++) {
       final x = points.length > 1 ? index * stepX : size.width / 2;
       final normalizedSeverity = points[index].severity.clamp(1, 10) / 10.0;
-      final y = size.height -
+      final y =
+          size.height -
           (normalizedSeverity * size.height * 0.8) -
           (size.height * 0.1);
       canvas.drawCircle(Offset(x, y), 3, dotPaint);

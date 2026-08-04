@@ -1,7 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:health_notes/models/applied_tool.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/symptom.dart';
-import 'package:health_notes/models/applied_tool.dart';
+import 'package:health_notes/services/text_normalizer.dart';
+import 'package:stemmer/stemmer.dart';
 
 part 'health_note.freezed.dart';
 part 'health_note.g.dart';
@@ -35,7 +37,60 @@ abstract class HealthNote with _$HealthNote {
       drugDoses.where((dose) => dose.name.isNotEmpty).toList();
 
   List<Symptom> get validSymptoms =>
-      symptomsList.where((s) => s.majorComponent.isNotEmpty).toList();
+      symptomsList.where((symptom) => symptom.hasMajorComponent).toList();
+
+  bool hasSymptomNamed(String name) =>
+      symptomsList.any((symptom) => symptom.majorComponent == name);
+
+  bool hasSubSymptom(String majorComponent, String minorComponent) =>
+      symptomsList.any(
+        (symptom) =>
+            symptom.majorComponent == majorComponent &&
+            symptom.minorComponent == minorComponent,
+      );
+
+  bool hasDrugNamed(String drugName) {
+    final normalizer = CaseInsensitiveNormalizer();
+    return drugDoses.any(
+      (dose) => normalizer.areEqual(dose.name, drugName),
+    );
+  }
+
+  bool hasToolId(String toolId) =>
+      appliedTools.any((appliedTool) => appliedTool.toolId == toolId);
+
+  bool hasToolNamed(String toolName) {
+    final normalizer = CaseInsensitiveNormalizer();
+    return appliedTools.any(
+      (appliedTool) => normalizer.areEqual(appliedTool.toolName, toolName),
+    );
+  }
+
+  bool matchesSearch(String searchQuery) {
+    if (searchQuery.trim().isEmpty) return true;
+
+    final queryWords = _processSearchText(searchQuery);
+    if (queryWords.isEmpty) return true;
+
+    final noteText = _processSearchText(_searchableText).join(' ');
+    return queryWords.every((queryWord) => noteText.contains(queryWord));
+  }
+
+  String get _searchableText => [
+    ...validSymptoms.map((symptom) => symptom.majorComponent),
+    notes,
+    ...drugDoses.map((dose) => dose.name),
+  ].where((text) => text.isNotEmpty).join(' ');
+
+  static final PorterStemmer _stemmer = PorterStemmer();
+
+  static List<String> _processSearchText(String text) => text
+      .toLowerCase()
+      .split(RegExp(r'\s+'))
+      .map((word) => word.trim())
+      .where((word) => word.isNotEmpty && word.length > 1)
+      .map((word) => _stemmer.stem(word))
+      .toList();
 
   Map<String, dynamic> toJsonForUpdate() {
     return {

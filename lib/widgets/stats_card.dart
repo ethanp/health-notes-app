@@ -6,7 +6,7 @@ import 'package:health_notes/widgets/app_card.dart';
 class StatsCard extends StatelessWidget {
   final List<Widget> statRows;
 
-  const StatsCard({super.key, required this.statRows});
+  const StatsCard({required this.statRows});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,6 @@ class StatRow extends StatelessWidget {
   final VoidCallback? onTap;
 
   const StatRow({
-    super.key,
     required this.label,
     required this.value,
     required this.unit,
@@ -46,7 +45,9 @@ class StatRow extends StatelessWidget {
             children: [
               Text(
                 '$value $unit',
-                style: AppText.body.medium.semibold.withColor(AppColors.primary),
+                style: AppText.body.medium.semibold.withColor(
+                  AppColors.primary,
+                ),
               ),
               if (onTap != null) HSpace.s,
               if (onTap != null)

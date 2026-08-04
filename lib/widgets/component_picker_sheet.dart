@@ -12,7 +12,6 @@ class ComponentPickerSheet extends StatefulWidget {
   final void Function(String name) onCreate;
 
   const ComponentPickerSheet({
-    super.key,
     required this.title,
     this.subtitle,
     required this.components,
@@ -50,7 +49,9 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.backgroundSecondary,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.large)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppRadius.large),
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -165,10 +166,7 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
                   style: AppText.body.medium,
                 ),
               ),
-              Text(
-                '(${component.displayCount})',
-                style: AppText.body.small,
-              ),
+              Text('(${component.displayCount})', style: AppText.body.small),
             ],
           ),
         ),
@@ -196,9 +194,7 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
             HSpace.s,
             Text(
               'Create New',
-              style: AppText.body.medium.copyWith(
-                color: AppColors.primary,
-              ),
+              style: AppText.body.medium.copyWith(color: AppColors.primary),
             ),
           ],
         ),

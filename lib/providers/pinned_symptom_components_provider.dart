@@ -5,7 +5,8 @@ import 'package:health_notes/services/pinned_symptom_components_service.dart';
 part 'pinned_symptom_components_provider.g.dart';
 
 @riverpod
-class PinnedSymptomComponentsNotifier extends _$PinnedSymptomComponentsNotifier {
+class PinnedSymptomComponentsNotifier
+    extends _$PinnedSymptomComponentsNotifier {
   @override
   Future<PinnedSymptomComponents> build() async {
     return PinnedSymptomComponentsService.load();
@@ -28,5 +29,3 @@ class PinnedSymptomComponentsNotifier extends _$PinnedSymptomComponentsNotifier 
     await PinnedSymptomComponentsService.save(updated);
   }
 }
-
-

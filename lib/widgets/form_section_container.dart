@@ -5,11 +5,7 @@ class FormSectionContainer extends StatelessWidget {
   final bool isEditable;
   final Widget child;
 
-  const FormSectionContainer({
-    super.key,
-    required this.isEditable,
-    required this.child,
-  });
+  const FormSectionContainer({required this.isEditable, required this.child});
 
   @override
   Widget build(BuildContext context) {

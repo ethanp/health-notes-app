@@ -9,7 +9,6 @@ class SearchableStatsTable extends StatefulWidget {
   final void Function(String)? onItemTap;
 
   const SearchableStatsTable({
-    super.key,
     required this.searchPlaceholder,
     required this.stats,
     this.onItemTap,
@@ -116,7 +115,10 @@ class _StatsRow extends StatelessWidget {
             child: Text(label, style: AppText.body.medium.white.semibold),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: AppSpacing.s,
+            ),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -150,4 +152,3 @@ class _StatsRow extends StatelessWidget {
     );
   }
 }
-

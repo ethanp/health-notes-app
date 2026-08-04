@@ -130,10 +130,7 @@ class _FilterModalState extends State<FilterModal> {
           Text('Filter by Drug', style: AppText.headline.small),
           VSpace.m,
           if (widget.availableDrugs.isEmpty)
-            Text(
-              'No drugs recorded yet',
-              style: AppText.body.medium.tertiary,
-            )
+            Text('No drugs recorded yet', style: AppText.body.medium.tertiary)
           else
             Wrap(
               spacing: 8,
@@ -230,8 +227,7 @@ class _FilterModalState extends State<FilterModal> {
       ),
       children: months
           .map(
-            (month) =>
-                Center(child: Text(month, style: AppText.body.medium)),
+            (month) => Center(child: Text(month, style: AppText.body.medium)),
           )
           .toList(),
     );
@@ -249,9 +245,7 @@ class _FilterModalState extends State<FilterModal> {
         ),
       ),
       children: days
-          .map(
-            (day) => Center(child: Text(day, style: AppText.body.medium)),
-          )
+          .map((day) => Center(child: Text(day, style: AppText.body.medium)))
           .toList(),
     );
   }
@@ -268,10 +262,7 @@ class _FilterModalState extends State<FilterModal> {
         ),
       ),
       children: years
-          .map(
-            (year) =>
-                Center(child: Text(year, style: AppText.body.medium)),
-          )
+          .map((year) => Center(child: Text(year, style: AppText.body.medium)))
           .toList(),
     );
   }

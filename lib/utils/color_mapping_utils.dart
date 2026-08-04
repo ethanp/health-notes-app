@@ -50,14 +50,18 @@ class ColorMappingUtils {
           CupertinoColors.systemRed.withValues(alpha: 0.1),
           CupertinoColors.systemYellow.withValues(alpha: 0.1),
           CupertinoColors.systemGreen.withValues(alpha: 0.1),
-          CupertinoColors.systemGreen.withValues(alpha: 0.1), // Extend into label area
+          CupertinoColors.systemGreen.withValues(
+            alpha: 0.1,
+          ), // Extend into label area
         ];
       case MetricType.higherIsBetter:
         return [
           CupertinoColors.systemGreen.withValues(alpha: 0.1),
           CupertinoColors.systemYellow.withValues(alpha: 0.1),
           CupertinoColors.systemRed.withValues(alpha: 0.1),
-          CupertinoColors.systemRed.withValues(alpha: 0.1), // Extend into label area
+          CupertinoColors.systemRed.withValues(
+            alpha: 0.1,
+          ), // Extend into label area
         ];
       case MetricType.middleIsBest:
         return [
@@ -66,7 +70,9 @@ class ColorMappingUtils {
           CupertinoColors.systemGreen.withValues(alpha: 0.1),
           CupertinoColors.systemYellow.withValues(alpha: 0.08),
           CupertinoColors.systemRed.withValues(alpha: 0.1),
-          CupertinoColors.systemRed.withValues(alpha: 0.1), // Extend into label area
+          CupertinoColors.systemRed.withValues(
+            alpha: 0.1,
+          ), // Extend into label area
         ];
     }
   }
@@ -80,9 +86,9 @@ class ColorMappingUtils {
       case MetricType.higherIsBetter:
         return [
           0.0,
-          0.5 * kChartPlotAreaRatio,      // Middle of plot area
-          1.0 * kChartPlotAreaRatio,      // Bottom of plot area
-          1.0,                             // Extend final color to bottom of container
+          0.5 * kChartPlotAreaRatio, // Middle of plot area
+          1.0 * kChartPlotAreaRatio, // Bottom of plot area
+          1.0, // Extend final color to bottom of container
         ];
       case MetricType.middleIsBest:
         return [
@@ -90,8 +96,8 @@ class ColorMappingUtils {
           0.25 * kChartPlotAreaRatio,
           0.5 * kChartPlotAreaRatio,
           0.75 * kChartPlotAreaRatio,
-          1.0 * kChartPlotAreaRatio,      // Bottom of plot area
-          1.0,                             // Extend final color to bottom of container
+          1.0 * kChartPlotAreaRatio, // Bottom of plot area
+          1.0, // Extend final color to bottom of container
         ];
     }
   }

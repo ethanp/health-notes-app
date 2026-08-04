@@ -60,9 +60,14 @@ class CheckInsNotifier extends _$CheckInsNotifier {
     final linkedEntries = await ConditionEntriesDao.getEntriesForCheckIn(id);
     for (final entry in linkedEntries) {
       await ConditionEntriesDao.deleteEntry(entry.id);
-      DataUtils.syncService.queueForSync('condition_entries', entry.id, 'delete', {});
+      DataUtils.syncService.queueForSync(
+        'condition_entries',
+        entry.id,
+        'delete',
+        {},
+      );
     }
-    
+
     await CheckInsDao.deleteCheckIn(id);
     DataUtils.syncService.queueForSync('check_ins', id, 'delete', {});
     ref.invalidateSelf();
@@ -70,13 +75,20 @@ class CheckInsNotifier extends _$CheckInsNotifier {
 
   Future<void> deleteCheckInGroup(List<String> checkInIds) async {
     for (final checkInId in checkInIds) {
-      final linkedEntries = await ConditionEntriesDao.getEntriesForCheckIn(checkInId);
+      final linkedEntries = await ConditionEntriesDao.getEntriesForCheckIn(
+        checkInId,
+      );
       for (final entry in linkedEntries) {
         await ConditionEntriesDao.deleteEntry(entry.id);
-        DataUtils.syncService.queueForSync('condition_entries', entry.id, 'delete', {});
+        DataUtils.syncService.queueForSync(
+          'condition_entries',
+          entry.id,
+          'delete',
+          {},
+        );
       }
     }
-    
+
     await CheckInsDao.deleteCheckInGroup(checkInIds);
     for (final id in checkInIds) {
       DataUtils.syncService.queueForSync('check_ins', id, 'delete', {});

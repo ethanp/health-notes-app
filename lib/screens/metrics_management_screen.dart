@@ -15,7 +15,7 @@ import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 
 class MetricsManagementScreen extends ConsumerStatefulWidget {
-  const MetricsManagementScreen({super.key});
+  const MetricsManagementScreen();
 
   @override
   ConsumerState<MetricsManagementScreen> createState() =>
@@ -102,10 +102,7 @@ class _MetricsManagementScreenState
             color: CupertinoColors.systemRed,
           ),
           VSpace.m,
-          Text(
-            'Failed to load metrics',
-            style: AppText.navTitle,
-          ),
+          Text('Failed to load metrics', style: AppText.navTitle),
           VSpace.s,
           Text(
             error.toString(),

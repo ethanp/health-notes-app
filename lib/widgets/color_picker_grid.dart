@@ -60,9 +60,13 @@ class ColorPickerGrid extends StatelessWidget {
         decoration: BoxDecoration(
           color: color,
           shape: useCircles ? BoxShape.circle : BoxShape.rectangle,
-          borderRadius: useCircles ? null : BorderRadius.circular(AppRadius.small),
+          borderRadius: useCircles
+              ? null
+              : BorderRadius.circular(AppRadius.small),
           border: Border.all(
-            color: isSelected ? CupertinoColors.white : CupertinoColors.systemGrey4,
+            color: isSelected
+                ? CupertinoColors.white
+                : CupertinoColors.systemGrey4,
             width: isSelected ? 3 : 1,
           ),
           boxShadow: isSelected ? AppComponents.mediumShadow : null,
@@ -82,6 +86,3 @@ class ColorPickerGrid extends StatelessWidget {
     return a.toARGB32() == b.toARGB32();
   }
 }
-
-
-

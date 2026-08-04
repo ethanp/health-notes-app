@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 class MonthlyNotesChart extends StatelessWidget {
   final Map<String, int> monthlyStats;
 
-  const MonthlyNotesChart({super.key, required this.monthlyStats});
+  const MonthlyNotesChart({required this.monthlyStats});
 
   @override
   Widget build(BuildContext context) {
@@ -167,4 +167,3 @@ class MonthlyNotesChart extends StatelessWidget {
     return monthKey;
   }
 }
-

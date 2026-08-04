@@ -112,7 +112,10 @@ void main() {
     test('matches prefix case-insensitively', () {
       expect(DrugNameNormalizer.matchesPrefix('Ibuprofen', 'ibu'), isTrue);
       expect(DrugNameNormalizer.matchesPrefix('Ibuprofen', 'IBU'), isTrue);
-      expect(DrugNameNormalizer.matchesPrefix('Ibuprofen', 'Ibuprofen'), isTrue);
+      expect(
+        DrugNameNormalizer.matchesPrefix('Ibuprofen', 'Ibuprofen'),
+        isTrue,
+      );
     });
 
     test('trims prefix before matching', () {

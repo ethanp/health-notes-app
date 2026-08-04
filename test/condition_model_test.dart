@@ -22,7 +22,7 @@ void main() {
 
       final json = condition.toJson();
       final from = Condition.fromJson(json);
-      
+
       expect(from.id, condition.id);
       expect(from.userId, condition.userId);
       expect(from.name, condition.name);
@@ -48,7 +48,7 @@ void main() {
 
       final json = condition.toJson();
       final from = Condition.fromJson(json);
-      
+
       expect(from.status, ConditionStatus.resolved);
       expect(from.endDate, isNotNull);
     });
@@ -130,7 +130,7 @@ void main() {
       );
 
       final json = condition.toJsonForUpdate();
-      
+
       expect(json['name'], 'Migraine');
       expect(json['condition_status'], 'active');
       expect(json['color_value'], 0xFFE57373);
@@ -146,4 +146,3 @@ void main() {
     });
   });
 }
-

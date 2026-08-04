@@ -39,17 +39,13 @@ void main() {
       final morningNote = HealthNote(
         id: '1',
         dateTime: day,
-        symptomsList: [
-          const Symptom(majorComponent: 'pain', severityLevel: 4),
-        ],
+        symptomsList: [const Symptom(majorComponent: 'pain', severityLevel: 4)],
         createdAt: day,
       );
       final eveningNote = HealthNote(
         id: '2',
         dateTime: day.add(const Duration(hours: 6)),
-        symptomsList: [
-          const Symptom(majorComponent: 'pain', severityLevel: 7),
-        ],
+        symptomsList: [const Symptom(majorComponent: 'pain', severityLevel: 7)],
         createdAt: day,
       );
 

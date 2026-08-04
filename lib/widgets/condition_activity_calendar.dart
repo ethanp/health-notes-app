@@ -15,10 +15,9 @@ class ConditionActivityCalendar extends StatelessWidget {
   final List<LinkedSymptom> linkedSymptoms;
   final void Function(ConditionEntry entry) onEntryTap;
   final void Function(DateTime date, List<LinkedSymptom> symptoms)?
-      onSymptomTap;
+  onSymptomTap;
 
   const ConditionActivityCalendar({
-    super.key,
     required this.condition,
     required this.entries,
     this.linkedSymptoms = const [],

@@ -146,10 +146,8 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
             loading: () => EnhancedUIComponents.loadingIndicator(
               message: 'Loading categories...',
             ),
-            error: (error, stack) => Text(
-              'Error loading categories: $error',
-              style: AppText.error,
-            ),
+            error: (error, stack) =>
+                Text('Error loading categories: $error', style: AppText.error),
           ),
         ],
       ),

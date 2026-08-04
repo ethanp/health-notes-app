@@ -52,9 +52,8 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
             data: (notes) => buildContent(context, tool, notes),
             loading: () =>
                 const SyncStatusWidget.loading(message: 'Loading notes...'),
-            error: (error, stack) => Center(
-              child: Text('Error: $error', style: AppText.error),
-            ),
+            error: (error, stack) =>
+                Center(child: Text('Error: $error', style: AppText.error)),
           ),
           loading: () =>
               const SyncStatusWidget.loading(message: 'Loading tool...'),
@@ -276,10 +275,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Health Notes (${notes.length})',
-          style: AppText.headline.small,
-        ),
+        Text('Health Notes (${notes.length})', style: AppText.headline.small),
         VSpace.s,
         ...notes.map((note) => ToolNoteCard(note: note, toolId: widget.toolId)),
       ],
@@ -332,8 +328,9 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
       return;
     }
 
-    final notesForDate =
-        allNotes.where((note) => note.dateTime.sameDayAs(date)).toList();
+    final notesForDate = allNotes
+        .where((note) => note.dateTime.sameDayAs(date))
+        .toList();
 
     if (notesForDate.isEmpty) {
       showCupertinoDialog(
@@ -429,7 +426,10 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
 
   Widget usageBadge(int count) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.s),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.s,
+      ),
       decoration: BoxDecoration(
         color: AppColors.primary.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(AppRadius.large),

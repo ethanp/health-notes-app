@@ -16,11 +16,7 @@ class CheckInTrendsChart extends StatefulWidget {
   final List<CheckIn> checkIns;
   final List<CheckInMetric> userMetrics;
 
-  const CheckInTrendsChart({
-    super.key,
-    required this.checkIns,
-    required this.userMetrics,
-  });
+  const CheckInTrendsChart({required this.checkIns, required this.userMetrics});
 
   @override
   State<CheckInTrendsChart> createState() => _CheckInTrendsChartState();
@@ -309,9 +305,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
 
   Widget noDataContainer() {
     return AppCard(
-      child: Center(
-        child: Text('No data', style: AppText.body.small.tertiary),
-      ),
+      child: Center(child: Text('No data', style: AppText.body.small.tertiary)),
     );
   }
 
@@ -398,9 +392,11 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
               space: 4,
               child: Text(
                 DateFormat('MMM d').format(date),
-                style: AppText.body.small.secondary.size(9).copyWith(
-                  color: CupertinoColors.white.withValues(alpha: 0.7),
-                ),
+                style: AppText.body.small.secondary
+                    .size(9)
+                    .copyWith(
+                      color: CupertinoColors.white.withValues(alpha: 0.7),
+                    ),
               ),
             );
           }
@@ -423,9 +419,11 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
             space: 4,
             child: Text(
               '$v',
-              style: AppText.body.small.secondary.size(9).copyWith(
-                color: CupertinoColors.white.withValues(alpha: 0.7),
-              ),
+              style: AppText.body.small.secondary
+                  .size(9)
+                  .copyWith(
+                    color: CupertinoColors.white.withValues(alpha: 0.7),
+                  ),
             ),
           );
         },

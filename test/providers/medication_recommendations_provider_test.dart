@@ -30,65 +30,76 @@ HealthNote createNote(DateTime date, List<DrugDose> doses) {
 }
 
 void main() {
-  test('MedicationRecommendationsProvider returns correct recent and common recommendations', () async {
-    final container = ProviderContainer(
-      overrides: [
-        healthNotesNotifierProvider.overrideWith(() => HealthNotesNotifierMock()),
-      ],
-    );
+  test(
+    'MedicationRecommendationsProvider returns correct recent and common recommendations',
+    () async {
+      final container = ProviderContainer(
+        overrides: [
+          healthNotesNotifierProvider.overrideWith(
+            () => HealthNotesNotifierMock(),
+          ),
+        ],
+      );
 
-    final recommendations = await container.read(medicationRecommendationsProvider.future);
+      final recommendations = await container.read(
+        medicationRecommendationsProvider.future,
+      );
 
-    // Recent: Should be from the latest notes.
-    // Note 3: A, B
-    // Note 2: A, C
-    // Note 1: D, E, F
-    // Order of notes in mock is [Note 3, Note 2, Note 1] (descending date)
-    // Recent logic: Flatten -> (Date3, A), (Date3, B), (Date2, A), (Date2, C), (Date1, D)...
-    // Sort by date desc.
-    // Unique: A, B, C, D, E. (F is 6th, should be dropped if limit is 5)
-    // Wait, A is in Note 3 and Note 2. The most recent one (Note 3) is kept.
-    
-    // Expected Recent: A, B, C, D, E (in that order of recency? Or just unique set?)
-    // The implementation sorts by date desc, then takes unique.
-    // So: A (from Note 3), B (from Note 3), C (from Note 2), D (from Note 1), E (from Note 1).
-    
-    expect(recommendations.recent.length, 5);
-    expect(recommendations.recent[0].name, 'Meds A');
-    expect(recommendations.recent[1].name, 'Meds B');
-    expect(recommendations.recent[2].name, 'Meds C');
-    expect(recommendations.recent[3].name, 'Meds D');
-    expect(recommendations.recent[4].name, 'Meds E');
+      // Recent: Should be from the latest notes.
+      // Note 3: A, B
+      // Note 2: A, C
+      // Note 1: D, E, F
+      // Order of notes in mock is [Note 3, Note 2, Note 1] (descending date)
+      // Recent logic: Flatten -> (Date3, A), (Date3, B), (Date2, A), (Date2, C), (Date1, D)...
+      // Sort by date desc.
+      // Unique: A, B, C, D, E. (F is 6th, should be dropped if limit is 5)
+      // Wait, A is in Note 3 and Note 2. The most recent one (Note 3) is kept.
 
-    // Common: Most frequent.
-    // A: 2 times
-    // B: 1 time
-    // C: 1 time
-    // D: 1 time
-    // E: 1 time
-    // F: 1 time
-    // Top 5: A (2), then others (1).
-    
-    expect(recommendations.common.length, 5);
-    expect(recommendations.common.first.name, 'Meds A');
+      // Expected Recent: A, B, C, D, E (in that order of recency? Or just unique set?)
+      // The implementation sorts by date desc, then takes unique.
+      // So: A (from Note 3), B (from Note 3), C (from Note 2), D (from Note 1), E (from Note 1).
 
-    expect(recommendations.allKnown.length, 6);
-    expect(
-      recommendations.allKnown.map((dose) => dose.name).toSet(),
-      {'Meds A', 'Meds B', 'Meds C', 'Meds D', 'Meds E', 'Meds F'},
-    );
-  });
+      expect(recommendations.recent.length, 5);
+      expect(recommendations.recent[0].name, 'Meds A');
+      expect(recommendations.recent[1].name, 'Meds B');
+      expect(recommendations.recent[2].name, 'Meds C');
+      expect(recommendations.recent[3].name, 'Meds D');
+      expect(recommendations.recent[4].name, 'Meds E');
+
+      // Common: Most frequent.
+      // A: 2 times
+      // B: 1 time
+      // C: 1 time
+      // D: 1 time
+      // E: 1 time
+      // F: 1 time
+      // Top 5: A (2), then others (1).
+
+      expect(recommendations.common.length, 5);
+      expect(recommendations.common.first.name, 'Meds A');
+
+      expect(recommendations.allKnown.length, 6);
+      expect(recommendations.allKnown.map((dose) => dose.name).toSet(), {
+        'Meds A',
+        'Meds B',
+        'Meds C',
+        'Meds D',
+        'Meds E',
+        'Meds F',
+      });
+    },
+  );
 
   test('MedicationRecommendationsFilter narrows to prefix matches', () {
     final allKnown = [doseA, doseB, doseC, doseD, doseE, doseF];
 
     final emptyQueryMatches =
         MedicationRecommendationsFilter.matchingRecommendations(
-      typedName: '',
-      recent: [doseA, doseB],
-      common: [doseA, doseC],
-      allKnown: allKnown,
-    );
+          typedName: '',
+          recent: [doseA, doseB],
+          common: [doseA, doseC],
+          allKnown: allKnown,
+        );
 
     expect(emptyQueryMatches.map((dose) => dose.name).toList(), [
       'Meds A',
@@ -98,11 +109,11 @@ void main() {
 
     final prefixMatches =
         MedicationRecommendationsFilter.matchingRecommendations(
-      typedName: 'meds',
-      recent: [],
-      common: [],
-      allKnown: allKnown,
-    );
+          typedName: 'meds',
+          recent: [],
+          common: [],
+          allKnown: allKnown,
+        );
 
     expect(prefixMatches.map((dose) => dose.name).toList(), [
       'Meds A',

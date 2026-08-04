@@ -61,9 +61,7 @@ class MainScreen extends ConsumerWidget {
               ),
             ),
             error: (error, stack) => CupertinoPageScaffold(
-              child: Center(
-                child: Text('Error: $error', style: AppText.error),
-              ),
+              child: Center(child: Text('Error: $error', style: AppText.error)),
             ),
           ),
     );
