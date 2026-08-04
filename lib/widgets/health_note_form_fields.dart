@@ -23,6 +23,7 @@ class HealthNoteFormFields extends ConsumerStatefulWidget {
   final Function(List<DrugDose>)? onDrugDosesChanged;
 
   const HealthNoteFormFields({
+    super.key,
     this.note,
     required this.isEditable,
     this.onDateTimeChanged,
