@@ -164,7 +164,7 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
           condition: condition,
           entries: entries,
           linkedSymptoms: linkedSymptoms,
-          onEntryTap: (entry) => showEntryEditModal(entry),
+          onEntrySelected: (entry) => showEntryEditModal(entry),
           onSymptomTap: (date, symptoms) =>
               _showSymptomDateDialog(date, symptoms),
         ),

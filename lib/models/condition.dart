@@ -40,7 +40,7 @@ abstract class Condition with _$Condition {
   Color get color => Color(colorValue);
 
   IconData get icon => IconData(
-    iconCodePoint,
+    iconCodePoint, // ignore: non_const_argument_for_const_parameter
     fontFamily: 'CupertinoIcons',
     fontPackage: 'cupertino_icons',
   );

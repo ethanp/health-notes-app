@@ -322,7 +322,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
     }).toList();
 
     return RefreshableListView<GroupedHealthNotes>(
-      onRefresh: () async {
+      onReloadRequested: () async {
         await ref.read(healthNotesNotifierProvider.notifier).refreshNotes();
       },
       items: visibleGroups,

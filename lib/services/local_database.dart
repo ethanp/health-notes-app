@@ -23,13 +23,13 @@ class LocalDatabase {
     return await openDatabase(
       path,
       version: _databaseVersion,
-      onCreate: _onCreate,
-      onUpgrade: _onUpgrade,
+      onCreate: _createTables,
+      onUpgrade: _migrateSchema,
     );
   }
 
   /// Create database tables
-  static Future<void> _onCreate(Database db, int version) async {
+  static Future<void> _createTables(Database db, int version) async {
     await db.execute('''
       CREATE TABLE health_notes (
         id TEXT PRIMARY KEY,
@@ -200,7 +200,7 @@ class LocalDatabase {
   }
 
   /// Handle database upgrades
-  static Future<void> _onUpgrade(
+  static Future<void> _migrateSchema(
     Database db,
     int oldVersion,
     int newVersion,

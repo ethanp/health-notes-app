@@ -88,7 +88,7 @@ class _HealthToolCategoryScreenState
 
   Widget toolsList(List<HealthTool> tools) {
     return RefreshableListView<HealthTool>(
-      onRefresh: () async {
+      onReloadRequested: () async {
         await ref.read(healthToolsNotifierProvider.notifier).refresh();
       },
       items: tools,

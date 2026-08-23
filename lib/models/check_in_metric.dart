@@ -54,7 +54,7 @@ abstract class CheckInMetric with _$CheckInMetric {
   IconData get icon {
     try {
       return IconData(
-        iconCodePoint,
+        iconCodePoint, // ignore: non_const_argument_for_const_parameter
         fontFamily: 'CupertinoIcons',
         fontPackage: 'cupertino_icons',
       );

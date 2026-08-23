@@ -43,7 +43,7 @@ class AuthService {
     }
   }
 
-  static void onGoogleAuthEvent(
+  static void signIntoSupabaseFromGoogle(
     GoogleSignInAuthenticationEvent? authEvent,
   ) async {
     if (authEvent == null) {
@@ -69,7 +69,7 @@ class AuthService {
           .initialize(clientId: clientId, serverClientId: serverClientId)
           .then((_) {
             GoogleSignIn.instance.authenticationEvents
-                .listen(onGoogleAuthEvent)
+                .listen(signIntoSupabaseFromGoogle)
                 .onError((dynamic error) {});
 
             GoogleSignIn.instance.attemptLightweightAuthentication();

@@ -72,7 +72,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
 
   Widget categoriesList(List<HealthToolCategory> categories) {
     return RefreshableListView<HealthToolCategory>(
-      onRefresh: () async {
+      onReloadRequested: () async {
         await ref.read(healthToolCategoriesNotifierProvider.notifier).refresh();
       },
       items: categories,

@@ -32,7 +32,7 @@ class _SymptomTrendsScreenState
   String get itemNoun => 'symptom';
 
   @override
-  Future<void> onRefresh() async {
+  Future<void> reloadNotes() async {
     await ref.read(healthNotesNotifierProvider.notifier).refreshNotes();
   }
 

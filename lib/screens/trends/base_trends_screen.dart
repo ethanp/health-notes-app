@@ -58,7 +58,7 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
   /// Optional extra segments shown after the built-in Calendar and Notes tabs.
   List<TrendsSegment> extraSegments(List<HealthNote> sortedNotes) => [];
 
-  Future<void> onRefresh();
+  Future<void> reloadNotes();
 
   IconData get emptyIcon => CupertinoIcons.exclamationmark_triangle;
 
@@ -130,7 +130,7 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
 
     return CustomScrollView(
       slivers: [
-        CupertinoSliverRefreshControl(onRefresh: onRefresh),
+        CupertinoSliverRefreshControl(onRefresh: reloadNotes),
         SliverPadding(
           padding: const EdgeInsets.all(AppSpacing.m),
           sliver: SliverList(

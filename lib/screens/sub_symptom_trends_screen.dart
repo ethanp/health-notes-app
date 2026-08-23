@@ -38,7 +38,7 @@ class _SubSymptomTrendsScreenState
   String get title => '$_fullLabel Trends';
 
   @override
-  Future<void> onRefresh() async {
+  Future<void> reloadNotes() async {
     await ref.read(healthNotesNotifierProvider.notifier).refreshNotes();
   }
 

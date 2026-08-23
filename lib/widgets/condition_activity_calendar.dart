@@ -13,7 +13,7 @@ class ConditionActivityCalendar extends StatelessWidget {
   final Condition condition;
   final List<ConditionEntry> entries;
   final List<LinkedSymptom> linkedSymptoms;
-  final void Function(ConditionEntry entry) onEntryTap;
+  final void Function(ConditionEntry entry) onEntrySelected;
   final void Function(DateTime date, List<LinkedSymptom> symptoms)?
   onSymptomTap;
 
@@ -21,7 +21,7 @@ class ConditionActivityCalendar extends StatelessWidget {
     required this.condition,
     required this.entries,
     this.linkedSymptoms = const [],
-    required this.onEntryTap,
+    required this.onEntrySelected,
     this.onSymptomTap,
   });
 
@@ -49,7 +49,7 @@ class ConditionActivityCalendar extends StatelessWidget {
       onDateTap: (context, date, dayData) {
         if (dayData.hasEntry) {
           final entry = entryMap[date];
-          if (entry != null) onEntryTap(entry);
+          if (entry != null) onEntrySelected(entry);
         } else if (dayData.hasSymptoms && onSymptomTap != null) {
           onSymptomTap!(date, symptomsByDate[date] ?? []);
         }

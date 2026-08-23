@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
 class RefreshableListView<T> extends ConsumerWidget {
-  final Future<void> Function() onRefresh;
+  final Future<void> Function() onReloadRequested;
   final List<T> items;
   final Widget Function(T) itemBuilder;
   final EdgeInsetsGeometry? padding;
@@ -12,7 +12,7 @@ class RefreshableListView<T> extends ConsumerWidget {
   final ScrollPhysics? physics;
 
   const RefreshableListView({
-    required this.onRefresh,
+    required this.onReloadRequested,
     required this.items,
     required this.itemBuilder,
     this.padding = const EdgeInsets.all(AppSpacing.m),
@@ -28,7 +28,7 @@ class RefreshableListView<T> extends ConsumerWidget {
       primary: primary,
       physics: physics,
       slivers: [
-        CupertinoSliverRefreshControl(onRefresh: onRefresh),
+        CupertinoSliverRefreshControl(onRefresh: onReloadRequested),
         if (padding != null)
           SliverPadding(padding: padding!, sliver: sliverList())
         else

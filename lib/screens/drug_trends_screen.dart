@@ -33,7 +33,7 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
   String get itemNoun => 'drug';
 
   @override
-  Future<void> onRefresh() async {
+  Future<void> reloadNotes() async {
     await ref.read(healthNotesNotifierProvider.notifier).refreshNotes();
   }
 
@@ -63,7 +63,7 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
       onDateTap: (context, date, dosage) =>
           handleDateTap(context, date, dosage, notes),
       unit: unit,
-      onMultiSelectConfirmed: (dates) => _handleBulkAddRequested(dates, unit),
+      onMultiSelectConfirmed: (dates) => _showBulkDoseSheet(dates, unit),
     );
   }
 
@@ -167,7 +167,7 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
         .length;
   }
 
-  void _handleBulkAddRequested(List<DateTime> dates, String unit) {
+  void _showBulkDoseSheet(List<DateTime> dates, String unit) {
     showCupertinoModalPopup<void>(
       context: context,
       builder: (sheetContext) => BulkDoseSheet(
