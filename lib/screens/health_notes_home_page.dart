@@ -1,6 +1,7 @@
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/models/grouped_health_notes.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
@@ -33,7 +34,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   DateTime? _selectedDate;
-  String? _selectedDrug;
+  DrugName? _selectedDrug;
   late AnimationController _animationController;
   late Animation<double> _slideAnimation;
 
@@ -94,14 +95,13 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
               note.dateTime.day == _selectedDate!.day);
 
       bool matchesDrug =
-          _selectedDrug == null ||
-          note.drugDoses.any((dose) => dose.name == _selectedDrug);
+          _selectedDrug == null || note.hasDrug(_selectedDrug!);
 
       return matchesSearch && matchesDate && matchesDrug;
     }).toList();
   }
 
-  List<String> getUniqueDrugs(List<HealthNote> notes) {
+  List<DrugName> getUniqueDrugs(List<HealthNote> notes) {
     return notes
         .expand((note) => note.drugDoses)
         .map((dose) => dose.name)
@@ -235,7 +235,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
             ),
           if (_selectedDrug != null)
             filterChip(
-              'Drug: $_selectedDrug',
+              'Drug: ${_selectedDrug!.display}',
               () => setState(() => _selectedDrug = null),
             ),
           if (_searchQuery.isNotEmpty ||

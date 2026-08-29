@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:health_notes/models/applied_tool.dart';
 import 'package:health_notes/models/drug_dose.dart';
+import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/services/text_normalizer.dart';
 import 'package:stemmer/stemmer.dart';
@@ -49,12 +50,8 @@ abstract class HealthNote with _$HealthNote {
             symptom.minorComponent == minorComponent,
       );
 
-  bool hasDrugNamed(String drugName) {
-    final normalizer = CaseInsensitiveNormalizer();
-    return drugDoses.any(
-      (dose) => normalizer.areEqual(dose.name, drugName),
-    );
-  }
+  bool hasDrug(DrugName drugName) =>
+      drugDoses.any((dose) => dose.name == drugName);
 
   bool hasToolId(String toolId) =>
       appliedTools.any((appliedTool) => appliedTool.toolId == toolId);
@@ -79,7 +76,7 @@ abstract class HealthNote with _$HealthNote {
   String get _searchableText => [
     ...validSymptoms.map((symptom) => symptom.majorComponent),
     notes,
-    ...drugDoses.map((dose) => dose.name),
+    ...drugDoses.map((dose) => dose.name.display),
   ].where((text) => text.isNotEmpty).join(' ');
 
   static final PorterStemmer _stemmer = PorterStemmer();
@@ -91,6 +88,20 @@ abstract class HealthNote with _$HealthNote {
       .where((word) => word.isNotEmpty && word.length > 1)
       .map((word) => _stemmer.stem(word))
       .toList();
+
+  HealthNote withPreferredDrugNames(Map<String, DrugName> preferredByIdentity) {
+    var changed = false;
+    final rewritten = drugDoses.map((dose) {
+      final preferred = preferredByIdentity[dose.name.identity];
+      if (preferred == null || preferred.display == dose.name.display) {
+        return dose;
+      }
+      changed = true;
+      return dose.copyWith(name: preferred);
+    }).toList();
+    if (!changed) return this;
+    return copyWith(drugDoses: rewritten);
+  }
 
   Map<String, dynamic> toJsonForUpdate() {
     return {

@@ -1,5 +1,6 @@
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/providers/auth_provider.dart';
 import 'package:health_notes/screens/auth_screen.dart';
@@ -38,6 +39,11 @@ class MainScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return CupertinoApp(
       title: 'Health Notes',
+      localizationsDelegates: const [
+        DefaultMaterialLocalizations.delegate,
+        DefaultWidgetsLocalizations.delegate,
+        DefaultCupertinoLocalizations.delegate,
+      ],
       theme: const CupertinoThemeData(
         brightness: Brightness.dark,
         primaryColor: AppColors.primary,

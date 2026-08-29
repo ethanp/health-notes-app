@@ -2,6 +2,7 @@ import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in.dart';
+import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/providers/check_ins_provider.dart';
@@ -297,7 +298,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   }
 
   void _openDrugTrends(String drugName) {
-    context.push(DrugTrendsScreen(drugName: drugName));
+    context.push(DrugTrendsScreen(drugName: DrugName(drugName)));
   }
 
   String formatMonth(String monthKey) {
@@ -322,12 +323,15 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   }
 
   Map<String, int> _analyzeDrugUsage(List<HealthNote> notes) {
-    return CaseInsensitiveAggregator.aggregateStrings(
-      notes
-          .expand((note) => note.drugDoses)
-          .map((drug) => drug.name)
-          .where((name) => name.isNotEmpty),
-    );
+    final counts = <DrugName, int>{};
+    for (final dose in notes
+        .expand((note) => note.drugDoses)
+        .where((dose) => dose.name.isNotEmpty)) {
+      counts[dose.name] = (counts[dose.name] ?? 0) + 1;
+    }
+    return {
+      for (final count in counts.entries) count.key.display: count.value,
+    };
   }
 
   Map<String, int> _analyzeMonthlyTrends(List<HealthNote> notes) {

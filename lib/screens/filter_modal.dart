@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/app_filter_chip.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
@@ -7,10 +8,10 @@ import 'package:intl/intl.dart';
 
 class FilterModal extends StatefulWidget {
   final DateTime? selectedDate;
-  final String? selectedDrug;
-  final List<String> availableDrugs;
+  final DrugName? selectedDrug;
+  final List<DrugName> availableDrugs;
   final Function(DateTime?) onDateChanged;
-  final Function(String?) onDrugChanged;
+  final Function(DrugName?) onDrugChanged;
 
   const FilterModal({
     required this.selectedDate,
@@ -26,7 +27,7 @@ class FilterModal extends StatefulWidget {
 
 class _FilterModalState extends State<FilterModal> {
   DateTime? _tempSelectedDate;
-  String? _tempSelectedDrug;
+  DrugName? _tempSelectedDrug;
   bool _isDatePickerVisible = false;
 
   @override
@@ -144,9 +145,9 @@ class _FilterModalState extends State<FilterModal> {
     );
   }
 
-  Widget drugChip(String drug) {
+  Widget drugChip(DrugName drug) {
     return AppFilterChip(
-      label: drug,
+      label: drug.display,
       isActive: _tempSelectedDrug == drug,
       onTap: () => setState(
         () => _tempSelectedDrug = _tempSelectedDrug == drug ? null : drug,

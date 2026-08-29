@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_notes/models/drug_dose.dart';
+import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
 
@@ -16,8 +17,8 @@ void main() {
           Symptom(majorComponent: 'pain', severityLevel: 7),
         ],
         drugDoses: [
-          DrugDose(name: 'aspirin', dosage: 500, unit: 'mg'),
-          DrugDose(name: 'ibuprofen', dosage: 400, unit: 'mg'),
+          DrugDose(name: const DrugName('aspirin'), dosage: 500, unit: 'mg'),
+          DrugDose(name: const DrugName('ibuprofen'), dosage: 400, unit: 'mg'),
         ],
         notes: 'feeling better after taking medication',
         createdAt: DateTime.now(),

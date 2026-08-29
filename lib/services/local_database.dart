@@ -5,7 +5,7 @@ import 'package:path/path.dart';
 /// Local SQLite database service for offline storage
 class LocalDatabase {
   static const String _databaseName = 'health_notes.db';
-  static const int _databaseVersion = 5;
+  static const int _databaseVersion = 6;
 
   static Database? _database;
 
@@ -197,6 +197,8 @@ class LocalDatabase {
     await db.execute(
       'CREATE INDEX idx_condition_entries_sync_status ON condition_entries(sync_status)',
     );
+
+    await _createMedicationSchedulesTable(db);
   }
 
   /// Handle database upgrades
@@ -328,6 +330,39 @@ class LocalDatabase {
         'CREATE INDEX idx_condition_entries_sync_status ON condition_entries(sync_status)',
       );
     }
+
+    if (oldVersion < 6) {
+      await _createMedicationSchedulesTable(db);
+    }
+  }
+
+  static Future<void> _createMedicationSchedulesTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE medication_schedules (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        medication_name TEXT NOT NULL,
+        unit TEXT NOT NULL DEFAULT 'mg',
+        start_date TEXT NOT NULL,
+        end_date TEXT,
+        steps TEXT NOT NULL DEFAULT '[]',
+        notes TEXT NOT NULL DEFAULT '',
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        synced_at TEXT,
+        is_deleted INTEGER DEFAULT 0,
+        sync_status TEXT DEFAULT 'pending'
+      )
+    ''');
+    await db.execute(
+      'CREATE INDEX idx_medication_schedules_user_id ON medication_schedules(user_id)',
+    );
+    await db.execute(
+      'CREATE INDEX idx_medication_schedules_start_date ON medication_schedules(start_date)',
+    );
+    await db.execute(
+      'CREATE INDEX idx_medication_schedules_sync_status ON medication_schedules(sync_status)',
+    );
   }
 
   /// Close the database

@@ -212,7 +212,7 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
                 Text(condition.name, style: AppText.headline.small),
                 VSpace.xs,
                 Text(
-                  formatDateRange(condition),
+                  condition.dateRangeCaption,
                   style: AppText.body.small.tertiary,
                 ),
               ],
@@ -421,15 +421,6 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
       ),
       child: Text('$severity', style: AppText.label.medium.white),
     );
-  }
-
-  String formatDateRange(Condition condition) {
-    final startStr = DateFormat('MMM d, y').format(condition.startDate);
-    if (condition.endDate != null) {
-      final endStr = DateFormat('MMM d, y').format(condition.endDate!);
-      return '$startStr - $endStr';
-    }
-    return 'Started $startStr';
   }
 
   void showActionsMenu(Condition condition) {

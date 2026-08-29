@@ -1,15 +1,18 @@
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:health_notes/models/drug_dose.dart';
+import 'package:health_notes/models/drug_name.dart';
+import 'package:health_notes/models/medication_schedule.dart';
 import 'package:health_notes/providers/medication_recommendations_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/number_formatter.dart';
 import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/form_section_container.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
+import 'package:health_notes/widgets/medication_schedule/due_dose_chip.dart';
 import 'package:health_notes/widgets/note_summary_rows.dart';
-import 'package:health_notes/theme/spacing.dart';
 
 class MedicationsSection extends StatelessWidget {
   final bool isEditable;
@@ -17,10 +20,15 @@ class MedicationsSection extends StatelessWidget {
   final Map<int, DrugDoseControllers> controllers;
   final VoidCallback onAdd;
   final Function(int) onRemove;
-  final Function(int, {String? name, double? dosage, String? unit}) onUpdate;
+  final Function(int, {DrugName? name, double? dosage, String? unit}) onUpdate;
   final List<DrugDose> recentRecommendations;
   final List<DrugDose> commonRecommendations;
   final List<DrugDose> allKnownRecommendations;
+  final List<ScheduledDoseOccurrence> dueOccurrences;
+  final ScheduledDoseOccurrence? nearestDue;
+  final ValueChanged<ScheduledDoseOccurrence>? onDueActivated;
+  final VoidCallback? onManageSchedules;
+  final bool hasSchedules;
 
   const MedicationsSection({
     required this.isEditable,
@@ -32,15 +40,23 @@ class MedicationsSection extends StatelessWidget {
     this.recentRecommendations = const [],
     this.commonRecommendations = const [],
     this.allKnownRecommendations = const [],
+    this.dueOccurrences = const [],
+    this.nearestDue,
+    this.onDueActivated,
+    this.onManageSchedules,
+    this.hasSchedules = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return FormSectionContainer(
-      isEditable: isEditable,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [_header(), VSpace.s, _content(context)],
+    return Material(
+      color: Colors.transparent,
+      child: FormSectionContainer(
+        isEditable: isEditable,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [_header(), VSpace.s, _content(context)],
+        ),
       ),
     );
   }
@@ -49,21 +65,30 @@ class MedicationsSection extends StatelessWidget {
     return EnhancedUIComponents.sectionHeader(
       title: 'Medications',
       trailing: isEditable
-          ? CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: onAdd,
-              child: const Icon(CupertinoIcons.add),
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  tooltip: 'Medication schedules',
+                  onPressed: onManageSchedules,
+                  icon: const Icon(Icons.calendar_month_outlined),
+                ),
+                IconButton(
+                  tooltip: 'Add medication',
+                  onPressed: onAdd,
+                  icon: const Icon(Icons.add),
+                ),
+              ],
             )
           : null,
     );
   }
 
   Widget _content(BuildContext context) {
-    if (drugDoses.isEmpty) {
-      return Text('No medications recorded', style: AppText.body.medium);
-    }
-
     if (!isEditable) {
+      if (drugDoses.isEmpty) {
+        return Text('No medications recorded', style: AppText.body.medium);
+      }
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: drugDoses.mapL((dose) => MedicationSummaryRow(dose: dose)),
@@ -72,11 +97,46 @@ class MedicationsSection extends StatelessWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: drugDoses.asMap().entries.map((entry) {
-        final index = entry.key;
-        final dose = entry.value;
-        return _editableItem(index, dose, controllers[index]!);
-      }).toList(),
+      children: [
+        if (dueOccurrences.isNotEmpty) ...[_dueToday(), VSpace.m],
+        if (drugDoses.isEmpty && dueOccurrences.isEmpty) _emptyEditable(),
+        ...drugDoses.asMap().entries.map((entry) {
+          final index = entry.key;
+          return _editableItem(index, entry.value, controllers[index]!);
+        }),
+      ],
+    );
+  }
+
+  Widget _emptyEditable() {
+    if (!hasSchedules) {
+      return TextButton(
+        onPressed: onManageSchedules,
+        child: const Text('Set up a schedule'),
+      );
+    }
+    return Text('No medications recorded', style: AppText.body.medium);
+  }
+
+  Widget _dueToday() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Due today', style: AppText.label.large.size(12)),
+        VSpace.s,
+        Wrap(
+          spacing: 8,
+          runSpacing: 16,
+          children: dueOccurrences.mapL(
+            (occurrence) => DueDoseChip(
+              occurrence: occurrence,
+              isNearest: nearestDue?.scheduledDoseId == occurrence.scheduledDoseId &&
+                  nearestDue?.scheduleId == occurrence.scheduleId,
+              onActivated: () => onDueActivated?.call(occurrence),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -93,22 +153,18 @@ class MedicationsSection extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: CupertinoTextField(
+                child: TextField(
                   controller: controllers.name,
-                  placeholder: 'Medication name',
-                  placeholderStyle: AppText.inputPlaceholder,
                   style: AppText.input,
-                  onChanged: (value) => onUpdate(index, name: value),
+                  decoration: _inputDecoration(hint: 'Medication name'),
+                  onChanged: (value) => onUpdate(index, name: DrugName(value)),
                 ),
               ),
               HSpace.s,
-              CupertinoButton(
-                padding: EdgeInsets.zero,
+              IconButton(
+                tooltip: 'Remove medication',
                 onPressed: () => onRemove(index),
-                child: const Icon(
-                  CupertinoIcons.delete,
-                  color: AppColors.destructive,
-                ),
+                icon: const Icon(Icons.delete_outline, color: AppColors.destructive),
               ),
             ],
           ),
@@ -116,12 +172,11 @@ class MedicationsSection extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: CupertinoTextField(
+                child: TextField(
                   controller: controllers.dosage,
-                  placeholder: 'Dosage',
-                  placeholderStyle: AppText.inputPlaceholder,
                   style: AppText.input,
                   keyboardType: TextInputType.number,
+                  decoration: _inputDecoration(hint: 'Dosage'),
                   onChanged: (value) {
                     final dosage = double.tryParse(value) ?? 0.0;
                     onUpdate(index, dosage: dosage);
@@ -131,21 +186,33 @@ class MedicationsSection extends StatelessWidget {
               HSpace.s,
               SizedBox(
                 width: 80,
-                child: CupertinoTextField(
+                child: TextField(
                   controller: controllers.unit,
-                  placeholder: 'Unit',
-                  placeholderStyle: AppText.inputPlaceholder,
                   style: AppText.input,
+                  decoration: _inputDecoration(hint: 'Unit'),
                   onChanged: (value) => onUpdate(index, unit: value),
                 ),
               ),
             ],
           ),
-          if (_matchingRecommendations(dose.name).isNotEmpty) ...[
+          if (_matchingRecommendations(dose.name.display).isNotEmpty) ...[
             VSpace.sm,
-            _recommendations(index, dose.name),
+            _recommendations(index, dose.name.display),
           ],
         ],
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration({required String hint}) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: AppText.inputPlaceholder,
+      filled: true,
+      fillColor: AppColors.backgroundTertiary,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppRadius.small),
+        borderSide: const BorderSide(color: AppColors.backgroundQuaternary),
       ),
     );
   }
@@ -160,9 +227,7 @@ class MedicationsSection extends StatelessWidget {
 
   Widget _recommendations(int index, String typedName) {
     final matchingRecommendations = _matchingRecommendations(typedName);
-
     if (matchingRecommendations.isEmpty) return const SizedBox.shrink();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -190,7 +255,7 @@ class MedicationsSection extends StatelessWidget {
           dosage: recommendation.dosage,
           unit: recommendation.unit,
         );
-        controllers[index]?.name.text = recommendation.name;
+        controllers[index]?.name.text = recommendation.name.display;
         controllers[index]?.dosage.text = formatDecimalValue(
           recommendation.dosage,
         );
@@ -204,7 +269,7 @@ class MedicationsSection extends StatelessWidget {
           border: Border.all(color: AppColors.backgroundQuaternary),
         ),
         child: Text(
-          '${recommendation.name} ${recommendation.displayDosage}',
+          '${recommendation.name.display} ${recommendation.displayDosage}',
           style: AppText.body.medium,
         ),
       ),

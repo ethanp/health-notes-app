@@ -5,6 +5,7 @@ import 'package:health_notes/models/grouped_health_notes.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/models/applied_tool.dart';
+import 'package:health_notes/services/canonical_drug_names.dart';
 import 'package:health_notes/services/health_notes_dao.dart';
 import 'package:health_notes/services/offline_repository.dart';
 import 'package:health_notes/providers/auth_provider.dart';
@@ -22,6 +23,7 @@ class HealthNotesNotifier extends _$HealthNotesNotifier {
       throw Exception('User not authenticated');
     }
 
+    await CanonicalDrugNames.rewriteStoredSpellings(user.id);
     return await HealthNotesDao.getAllNotes(user.id);
   }
 

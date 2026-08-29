@@ -9,6 +9,7 @@ import 'package:health_notes/services/condition_entries_dao.dart';
 import 'package:health_notes/services/conditions_dao.dart';
 import 'package:health_notes/services/health_notes_dao.dart';
 import 'package:health_notes/services/local_database.dart';
+import 'package:health_notes/services/medication_schedules_dao.dart';
 import 'package:health_notes/services/user_profile_dao.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -139,6 +140,15 @@ class SyncService {
         break;
       case 'condition_entries':
         await _syncConditionEntryOperation(supabase, recordId, operation, data);
+        break;
+      case 'medication_schedules':
+        await _syncMedicationScheduleOperation(
+          supabase,
+          user.id,
+          recordId,
+          operation,
+          data,
+        );
         break;
     }
   }
@@ -357,6 +367,41 @@ class SyncService {
     }
   }
 
+  Future<void> _syncMedicationScheduleOperation(
+    SupabaseClient supabase,
+    String userId,
+    String recordId,
+    String operation,
+    Map<String, dynamic> data,
+  ) async {
+    switch (operation) {
+      case 'insert':
+        await supabase.from('medication_schedules').insert({
+          'id': recordId,
+          'user_id': userId,
+          ...data,
+        });
+        await MedicationSchedulesDao.markAsSynced(recordId);
+        break;
+      case 'update':
+        await supabase
+            .from('medication_schedules')
+            .update(data)
+            .eq('id', recordId)
+            .eq('user_id', userId);
+        await MedicationSchedulesDao.markAsSynced(recordId);
+        break;
+      case 'delete':
+        await supabase
+            .from('medication_schedules')
+            .delete()
+            .eq('id', recordId)
+            .eq('user_id', userId);
+        await MedicationSchedulesDao.markAsSynced(recordId);
+        break;
+    }
+  }
+
   /// Sync all pending operations
   Future<void> syncAllData(String userId) async {
     if (_isSyncing || !await _isConnected()) return;
@@ -483,6 +528,16 @@ class SyncService {
 
       for (final entryData in conditionEntriesResponse) {
         await ConditionEntriesDao.upsertFromServer(entryData);
+      }
+
+      final schedulesResponse = await supabase
+          .from('medication_schedules')
+          .select()
+          .eq('user_id', userId)
+          .order('start_date', ascending: false);
+
+      for (final scheduleData in schedulesResponse) {
+        await MedicationSchedulesDao.upsertFromServer(scheduleData, userId);
       }
     } catch (e) {
       _emitSyncError('Error pulling latest data: ${e.toString()}');

@@ -1,7 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:health_notes/models/drug_dose.dart';
+import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
-import 'package:health_notes/services/text_normalizer.dart';
 
 part 'medication_recommendations_provider.g.dart';
 
@@ -75,7 +75,7 @@ class MedicationRecommendationsFilter {
   static const maxSuggestions = 10;
 
   static String doseKey(DrugDose dose) =>
-      '${dose.name}|${dose.dosage}|${dose.unit}';
+      '${dose.name.identity}|${dose.dosage}|${dose.unit}';
 
   static List<DrugDose> matchingRecommendations({
     required String typedName,
@@ -83,15 +83,14 @@ class MedicationRecommendationsFilter {
     required List<DrugDose> common,
     required List<DrugDose> allKnown,
   }) {
-    final source = typedName.trim().isEmpty
+    final typed = DrugName(typedName);
+    final source = typed.isEmpty
         ? [...recent, ...common]
-        : allKnown.where(
-            (dose) => DrugNameNormalizer.matchesPrefix(dose.name, typedName),
-          );
+        : allKnown.where((dose) => dose.name.matchesPrefix(typedName));
 
     final deduped = <String, DrugDose>{};
     for (final dose in source) {
-      if (DrugNameNormalizer.areEqual(dose.name, typedName)) continue;
+      if (dose.name == typed) continue;
       deduped.putIfAbsent(doseKey(dose), () => dose);
     }
 

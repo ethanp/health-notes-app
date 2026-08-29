@@ -108,7 +108,9 @@ class MedicationSummaryRow extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              dose.displayName,
+              dose.whenCaption.isEmpty
+                  ? dose.displayName
+                  : '${dose.displayName} · ${dose.whenCaption}',
               style: AppText.body.medium.copyWith(fontWeight: FontWeight.w600),
             ),
           ),

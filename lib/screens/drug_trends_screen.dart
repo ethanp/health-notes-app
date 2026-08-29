@@ -1,11 +1,11 @@
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/drug_dose.dart';
+import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/screens/trends/base_trends_screen.dart';
-import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
@@ -17,9 +17,9 @@ import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/services/trends_activity_aggregator.dart';
 
 class DrugTrendsScreen extends BaseTrendsScreen {
-  final String drugName;
+  final DrugName drugName;
 
-  const DrugTrendsScreen({required this.drugName}) : super(itemName: drugName);
+  DrugTrendsScreen({required this.drugName}) : super(itemName: drugName.display);
 
   @override
   BaseTrendsState<DrugTrendsScreen, double> createState() =>
@@ -27,8 +27,6 @@ class DrugTrendsScreen extends BaseTrendsScreen {
 }
 
 class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
-  final _normalizer = CaseInsensitiveNormalizer();
-
   @override
   String get itemNoun => 'drug';
 
@@ -58,7 +56,7 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
   ) {
     final unit = _unitForDrug(notes) ?? 'mg';
     return DosageActivityCalendar(
-      drugName: widget.drugName,
+      drugName: widget.drugName.display,
       activityData: activityData,
       onDateTap: (context, date, dosage) =>
           handleDateTap(context, date, dosage, notes),
@@ -111,12 +109,12 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
 
   @override
   String noActivityMessage(DateTime date) =>
-      'No ${widget.drugName} was recorded on this date.';
+      'No ${widget.drugName.display} was recorded on this date.';
 
   @override
   String valueOnlyMessage(DateTime date, double dosage) {
     final unit = _unitForDrug([]) ?? 'mg';
-    return 'You took ${formatDecimalValue(dosage)}$unit of ${widget.drugName} on this date.';
+    return 'You took ${formatDecimalValue(dosage)}$unit of ${widget.drugName.display} on this date.';
   }
 
   @override
@@ -139,7 +137,7 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
 
   List<DrugDose> _relevantDoses(HealthNote note) {
     return note.drugDoses
-        .where((drug) => _normalizer.areEqual(drug.name, widget.drugName))
+        .where((dose) => dose.name == widget.drugName)
         .toList();
   }
 
@@ -152,9 +150,7 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
   String? _unitForDrug(List<HealthNote> notes) {
     for (final note in notes) {
       for (final dose in note.drugDoses) {
-        if (_normalizer.areEqual(dose.name, widget.drugName)) {
-          return dose.unit;
-        }
+        if (dose.name == widget.drugName) return dose.unit;
       }
     }
     return null;
@@ -163,7 +159,7 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
   int _calculateTotalDoses(List<HealthNote> notes) {
     return notes
         .expand((note) => note.drugDoses)
-        .where((drug) => _normalizer.areEqual(drug.name, widget.drugName))
+        .where((dose) => dose.name == widget.drugName)
         .length;
   }
 
@@ -171,7 +167,7 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
     showCupertinoModalPopup<void>(
       context: context,
       builder: (sheetContext) => BulkDoseSheet(
-        drugName: widget.drugName,
+        drugName: widget.drugName.display,
         initialUnit: unit,
         dates: dates,
         onConfirm: (dosage, confirmedUnit) =>

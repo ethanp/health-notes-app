@@ -8,7 +8,6 @@ import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:intl/intl.dart';
 
 class ConditionTimelineCard extends ConsumerWidget {
   final Condition condition;
@@ -93,7 +92,10 @@ class ConditionTimelineCard extends ConsumerWidget {
             children: [
               Text(condition.name, style: AppText.label.large.primary),
               VSpace.xs,
-              Text(formatDateRange(), style: AppText.body.small.tertiary),
+              Text(
+                condition.dateRangeCaption,
+                style: AppText.body.small.tertiary,
+              ),
             ],
           ),
         ),
@@ -200,14 +202,6 @@ class ConditionTimelineCard extends ConsumerWidget {
     );
   }
 
-  String formatDateRange() {
-    final startStr = DateFormat('MMM d').format(condition.startDate);
-    if (condition.endDate != null) {
-      final endStr = DateFormat('MMM d').format(condition.endDate!);
-      return '$startStr - $endStr';
-    }
-    return 'Started $startStr';
-  }
 }
 
 class SeverityChartPainter extends CustomPainter {

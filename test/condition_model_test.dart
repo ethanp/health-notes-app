@@ -144,5 +144,65 @@ void main() {
       expect(ConditionStatus.active.displayName, 'Active');
       expect(ConditionStatus.resolved.displayName, 'Resolved');
     });
+
+    test('dateRangeCaption omits year for dates in the current year', () {
+      final currentYear = DateTime.now().year;
+      final condition = _condition(
+        startDate: DateTime(currentYear, 3, 5),
+        endDate: DateTime(currentYear, 3, 12),
+      );
+
+      expect(condition.dateRangeCaption, 'Mar 5 - Mar 12');
+    });
+
+    test('dateRangeCaption adds abbreviated year for prior-year dates', () {
+      final condition = _condition(
+        startDate: DateTime(2023, 12, 16),
+        endDate: DateTime(2024, 1, 4),
+      );
+
+      expect(condition.dateRangeCaption, "Dec 16, '23 - Jan 4, '24");
+    });
+
+    test('dateRangeCaption adds year only on the prior-year side of a range', () {
+      final currentYear = DateTime.now().year;
+      final priorYear = currentYear - 1;
+      final priorSuffix = (priorYear % 100).toString().padLeft(2, '0');
+      final condition = _condition(
+        startDate: DateTime(priorYear, 12, 16),
+        endDate: DateTime(currentYear, 1, 4),
+      );
+
+      expect(
+        condition.dateRangeCaption,
+        "Dec 16, '$priorSuffix - Jan 4",
+      );
+    });
+
+    test('dateRangeCaption for an open-ended condition omits current year', () {
+      final currentYear = DateTime.now().year;
+      final condition = _condition(startDate: DateTime(currentYear, 3, 5));
+
+      expect(condition.dateRangeCaption, 'Started Mar 5');
+    });
+
+    test('dateRangeCaption for an open-ended condition adds prior year', () {
+      final condition = _condition(startDate: DateTime(2023, 12, 16));
+
+      expect(condition.dateRangeCaption, "Started Dec 16, '23");
+    });
   });
+}
+
+Condition _condition({required DateTime startDate, DateTime? endDate}) {
+  return Condition(
+    id: 'c1',
+    userId: 'u1',
+    name: 'Cold',
+    startDate: startDate,
+    endDate: endDate,
+    status: endDate == null ? ConditionStatus.active : ConditionStatus.resolved,
+    createdAt: startDate,
+    updatedAt: endDate ?? startDate,
+  );
 }

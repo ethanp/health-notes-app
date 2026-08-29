@@ -3,6 +3,7 @@ import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/providers/check_ins_provider.dart';
 import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
+import 'package:health_notes/providers/medication_schedules_provider.dart';
 import 'package:health_notes/providers/user_profile_provider.dart';
 import 'package:health_notes/services/connectivity_service.dart';
 import 'package:health_notes/services/offline_repository.dart';
@@ -57,6 +58,7 @@ class SyncNotifier extends _$SyncNotifier {
     ref.invalidate(userProfileNotifierProvider);
     ref.invalidate(groupedHealthNotesProvider);
     ref.invalidate(hasCheckInMetricsProvider);
+    ref.invalidate(medicationSchedulesNotifierProvider);
   }
 }
 

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:health_notes/models/applied_tool.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/drug_dose.dart';
+import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/models/symptom.dart';
 
 void main() {
@@ -24,7 +25,7 @@ void main() {
           additionalNotes: '',
         ),
       ],
-      drugDoses: const [DrugDose(name: 'Ibuprofen', dosage: 200, unit: 'mg')],
+      drugDoses: const [DrugDose(name: DrugName('Ibuprofen'), dosage: 200, unit: 'mg')],
       appliedTools: const [
         AppliedTool(toolId: 't1', toolName: 'Breathing', note: '5m'),
       ],

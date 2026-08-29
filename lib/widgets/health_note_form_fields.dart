@@ -1,19 +1,25 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:health_notes/models/drug_dose.dart';
-import 'package:health_notes/models/health_note.dart';
-import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/models/applied_tool.dart';
+import 'package:health_notes/models/drug_dose.dart';
+import 'package:health_notes/models/drug_name.dart';
+import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/health_tool.dart';
+import 'package:health_notes/models/medication_schedule.dart';
+import 'package:health_notes/models/symptom.dart';
+import 'package:health_notes/providers/health_notes_provider.dart';
+import 'package:health_notes/providers/medication_recommendations_provider.dart';
+import 'package:health_notes/providers/medication_schedules_provider.dart';
+import 'package:health_notes/screens/medication_schedules_screen.dart';
+import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/health_note_form/applied_tools_section.dart';
 import 'package:health_notes/widgets/health_note_form/date_time_section.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
 import 'package:health_notes/widgets/health_note_form/general_notes_section.dart';
 import 'package:health_notes/widgets/health_note_form/medications_section.dart';
 import 'package:health_notes/widgets/health_note_form/symptoms_section.dart';
-import 'package:health_notes/providers/medication_recommendations_provider.dart';
-import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/theme/spacing.dart';
 
 class HealthNoteFormFields extends ConsumerStatefulWidget {
   final HealthNote? note;
@@ -78,7 +84,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
       final dose2 = list2[i];
       return dose1.name == dose2.name &&
           dose1.dosage == dose2.dosage &&
-          dose1.unit == dose2.unit;
+          dose1.unit == dose2.unit &&
+          dose1.fromSchedule == dose2.fromSchedule;
     });
   }
 
@@ -149,6 +156,23 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
   @override
   Widget build(BuildContext context) {
     final recommendations = ref.watch(medicationRecommendationsProvider);
+    final schedules = ref.watch(medicationSchedulesNotifierProvider);
+    final notes = ref.watch(healthNotesNotifierProvider);
+    final waiting = DosesWaitingForNote.forDraft(
+      schedules: schedules.when(
+        data: (data) => data,
+        loading: () => const [],
+        error: (_, _) => const [],
+      ),
+      day: _selectedDateTime,
+      notes: notes.when(
+        data: (data) => data,
+        loading: () => const [],
+        error: (_, _) => const [],
+      ),
+      draftDoses: _drugDoses,
+      excludingNoteId: widget.note?.id,
+    );
 
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.m),
@@ -194,6 +218,16 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
           onAdd: addDrugDose,
           onRemove: removeDrugDose,
           onUpdate: updateDrugDose,
+          dueOccurrences: waiting.waiting,
+          nearestDue: waiting.nearestTo(_selectedDateTime),
+          onDueActivated: addScheduledOccurrence,
+          onManageSchedules: () =>
+              context.push(const MedicationSchedulesScreen()),
+          hasSchedules: schedules.when(
+            data: (data) => data.isNotEmpty,
+            loading: () => false,
+            error: (_, _) => false,
+          ),
         ),
         VSpace.m,
         AppliedToolsSection(
@@ -221,6 +255,16 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
   List<DrugDose> get currentDrugDoses => _drugDoses;
   List<AppliedTool> get currentAppliedTools => _appliedTools;
 
+  void addScheduledOccurrence(ScheduledDoseOccurrence occurrence) {
+    setState(() {
+      final newIndex = _drugDoses.length;
+      final dose = occurrence.asDrugDose;
+      _drugDoses.add(dose);
+      _drugDoseControllers[newIndex] = DrugDoseControllers(dose);
+    });
+    widget.onDrugDosesChanged?.call(_drugDoses);
+  }
+
   void addDrugDose() {
     setState(() {
       final newIndex = _drugDoses.length;
@@ -246,13 +290,14 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     widget.onDrugDosesChanged?.call(_drugDoses);
   }
 
-  void updateDrugDose(int index, {String? name, double? dosage, String? unit}) {
+  void updateDrugDose(int index, {DrugName? name, double? dosage, String? unit}) {
     setState(() {
       final currentDose = _drugDoses[index];
       _drugDoses[index] = DrugDose(
         name: name ?? currentDose.name,
         dosage: dosage ?? currentDose.dosage,
         unit: unit ?? currentDose.unit,
+        fromSchedule: currentDose.fromSchedule,
       );
     });
     widget.onDrugDosesChanged?.call(_drugDoses);

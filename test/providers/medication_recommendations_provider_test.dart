@@ -4,18 +4,19 @@ import 'package:health_notes/providers/medication_recommendations_provider.dart'
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/drug_dose.dart';
+import 'package:health_notes/models/drug_name.dart';
 
 // Mock data
 final date1 = DateTime(2023, 1, 1);
 final date2 = DateTime(2023, 1, 2);
 final date3 = DateTime(2023, 1, 3);
 
-final doseA = DrugDose(name: 'Meds A', dosage: 10, unit: 'mg');
-final doseB = DrugDose(name: 'Meds B', dosage: 20, unit: 'mg');
-final doseC = DrugDose(name: 'Meds C', dosage: 30, unit: 'mg');
-final doseD = DrugDose(name: 'Meds D', dosage: 40, unit: 'mg');
-final doseE = DrugDose(name: 'Meds E', dosage: 50, unit: 'mg');
-final doseF = DrugDose(name: 'Meds F', dosage: 60, unit: 'mg');
+final doseA = DrugDose(name: const DrugName('Meds A'), dosage: 10, unit: 'mg');
+final doseB = DrugDose(name: const DrugName('Meds B'), dosage: 20, unit: 'mg');
+final doseC = DrugDose(name: const DrugName('Meds C'), dosage: 30, unit: 'mg');
+final doseD = DrugDose(name: const DrugName('Meds D'), dosage: 40, unit: 'mg');
+final doseE = DrugDose(name: const DrugName('Meds E'), dosage: 50, unit: 'mg');
+final doseF = DrugDose(name: const DrugName('Meds F'), dosage: 60, unit: 'mg');
 
 HealthNote createNote(DateTime date, List<DrugDose> doses) {
   return HealthNote(
@@ -60,11 +61,11 @@ void main() {
       // So: A (from Note 3), B (from Note 3), C (from Note 2), D (from Note 1), E (from Note 1).
 
       expect(recommendations.recent.length, 5);
-      expect(recommendations.recent[0].name, 'Meds A');
-      expect(recommendations.recent[1].name, 'Meds B');
-      expect(recommendations.recent[2].name, 'Meds C');
-      expect(recommendations.recent[3].name, 'Meds D');
-      expect(recommendations.recent[4].name, 'Meds E');
+      expect(recommendations.recent[0].name, const DrugName('Meds A'));
+      expect(recommendations.recent[1].name, const DrugName('Meds B'));
+      expect(recommendations.recent[2].name, const DrugName('Meds C'));
+      expect(recommendations.recent[3].name, const DrugName('Meds D'));
+      expect(recommendations.recent[4].name, const DrugName('Meds E'));
 
       // Common: Most frequent.
       // A: 2 times
@@ -76,16 +77,16 @@ void main() {
       // Top 5: A (2), then others (1).
 
       expect(recommendations.common.length, 5);
-      expect(recommendations.common.first.name, 'Meds A');
+      expect(recommendations.common.first.name, const DrugName('Meds A'));
 
       expect(recommendations.allKnown.length, 6);
       expect(recommendations.allKnown.map((dose) => dose.name).toSet(), {
-        'Meds A',
-        'Meds B',
-        'Meds C',
-        'Meds D',
-        'Meds E',
-        'Meds F',
+        const DrugName('Meds A'),
+        const DrugName('Meds B'),
+        const DrugName('Meds C'),
+        const DrugName('Meds D'),
+        const DrugName('Meds E'),
+        const DrugName('Meds F'),
       });
     },
   );
@@ -102,9 +103,9 @@ void main() {
         );
 
     expect(emptyQueryMatches.map((dose) => dose.name).toList(), [
-      'Meds A',
-      'Meds B',
-      'Meds C',
+      const DrugName('Meds A'),
+      const DrugName('Meds B'),
+      const DrugName('Meds C'),
     ]);
 
     final prefixMatches =
@@ -116,13 +117,30 @@ void main() {
         );
 
     expect(prefixMatches.map((dose) => dose.name).toList(), [
-      'Meds A',
-      'Meds B',
-      'Meds C',
-      'Meds D',
-      'Meds E',
-      'Meds F',
+      const DrugName('Meds A'),
+      const DrugName('Meds B'),
+      const DrugName('Meds C'),
+      const DrugName('Meds D'),
+      const DrugName('Meds E'),
+      const DrugName('Meds F'),
     ]);
+  });
+
+  test('doseKey merges mixed-case spellings of the same dose', () {
+    final titled = DrugDose(
+      name: const DrugName('Tylenol'),
+      dosage: 500,
+      unit: 'mg',
+    );
+    final lower = DrugDose(
+      name: const DrugName('tylenol'),
+      dosage: 500,
+      unit: 'mg',
+    );
+    expect(
+      MedicationRecommendationsFilter.doseKey(titled),
+      MedicationRecommendationsFilter.doseKey(lower),
+    );
   });
 }
 
