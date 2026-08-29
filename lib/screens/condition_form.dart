@@ -1,10 +1,12 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/providers/conditions_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/color_picker_grid.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:intl/intl.dart';
 
@@ -72,39 +74,40 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.navigationBar(
-        title: widget.title,
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: isSaving ? null : saveCondition,
-          child: isSaving
-              ? const CupertinoActivityIndicator()
-              : Text(widget.saveButtonText),
-        ),
+    return HealthNotesPage(
+      title: widget.title,
+      leading: TextButton(
+        onPressed: () => Navigator.of(context).pop(),
+        child: const Text('Cancel'),
       ),
-      child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.m),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              nameField(),
-              VSpace.l,
-              startDateField(),
-              VSpace.l,
-              colorPicker(),
-              VSpace.l,
-              iconPicker(),
-              VSpace.l,
-              notesField(),
-            ],
+      actions: [
+        if (isSaving)
+          const SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        else
+          TextButton(
+            onPressed: saveCondition,
+            child: Text(widget.saveButtonText),
           ),
+      ],
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.m),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            nameField(),
+            VSpace.l,
+            startDateField(),
+            VSpace.l,
+            colorPicker(),
+            VSpace.l,
+            iconPicker(),
+            VSpace.l,
+            notesField(),
+          ],
         ),
       ),
     );
@@ -114,15 +117,15 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Condition Name', style: AppText.label.medium),
+        Text('Condition Name', style: EText.label.medium),
         VSpace.s,
         CupertinoTextField(
           controller: nameController,
           placeholder: 'e.g., Cold, Migraine, Flare-up',
           padding: const EdgeInsets.all(AppSpacing.m),
           decoration: AppComponents.inputField,
-          style: AppText.input,
-          placeholderStyle: AppText.inputPlaceholder,
+          style: EText.body.medium,
+          placeholderStyle: EText.body.medium.muted,
         ),
       ],
     );
@@ -132,7 +135,7 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Start Date', style: AppText.label.medium),
+        Text('Start Date', style: EText.label.medium),
         VSpace.s,
         CupertinoButton(
           padding: EdgeInsets.zero,
@@ -144,13 +147,13 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
               children: [
                 Icon(
                   CupertinoIcons.calendar,
-                  color: AppColors.textSecondary,
+                  color: EColors.textSecondary,
                   size: 20,
                 ),
                 HSpace.m,
                 Text(
                   DateFormat('EEEE, MMMM d, y').format(startDate),
-                  style: AppText.body.medium,
+                  style: EText.body.medium,
                 ),
               ],
             ),
@@ -164,7 +167,7 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Color', style: AppText.label.medium),
+        Text('Color', style: EText.label.medium),
         VSpace.s,
         ColorPickerGrid(
           colors: ColorPickerGrid.defaultColors,
@@ -180,7 +183,7 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Icon', style: AppText.label.medium),
+        Text('Icon', style: EText.label.medium),
         VSpace.s,
         Wrap(
           spacing: 12,
@@ -196,12 +199,12 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? Color(selectedColorValue).withValues(alpha: 0.2)
-                      : AppColors.backgroundTertiary,
+                      : EColors.surface,
                   borderRadius: BorderRadius.circular(AppRadius.medium),
                   border: Border.all(
                     color: isSelected
                         ? Color(selectedColorValue)
-                        : AppColors.backgroundQuaternary,
+                        : EColors.surfaceRaised,
                     width: isSelected ? 2 : 1,
                   ),
                 ),
@@ -209,7 +212,7 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
                   icon,
                   color: isSelected
                       ? Color(selectedColorValue)
-                      : AppColors.textSecondary,
+                      : EColors.textSecondary,
                   size: 24,
                 ),
               ),
@@ -224,15 +227,15 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Notes', style: AppText.label.medium),
+        Text('Notes', style: EText.label.medium),
         VSpace.s,
         CupertinoTextField(
           controller: notesController,
           placeholder: 'Optional notes about this condition...',
           padding: const EdgeInsets.all(AppSpacing.m),
           decoration: AppComponents.inputField,
-          style: AppText.input,
-          placeholderStyle: AppText.inputPlaceholder,
+          style: EText.body.medium,
+          placeholderStyle: EText.body.medium.muted,
           maxLines: 4,
         ),
       ],
@@ -244,7 +247,7 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
       context: context,
       builder: (context) => Container(
         height: 300,
-        color: AppColors.backgroundSecondary,
+        color: EColors.backgroundLift,
         child: Column(
           children: [
             Row(

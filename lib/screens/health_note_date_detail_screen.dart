@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
@@ -7,6 +8,7 @@ import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
 import 'package:health_notes/widgets/health_note_card.dart';
+import 'package:health_notes/widgets/health_notes_page.dart';
 
 class HealthNoteDateDetailScreen extends StatelessWidget {
   final DateTime date;
@@ -28,30 +30,17 @@ class HealthNoteDateDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final filteredNotes = notesForDate;
 
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text('Health Notes', style: AppText.body.large.primary),
-        backgroundColor: AppColors.backgroundSecondary,
-        border: Border.all(
-          color: AppColors.textSecondary.withValues(alpha: 0.2),
-        ),
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => Navigator.of(context).pop(),
-          child: Icon(CupertinoIcons.back, color: AppColors.textSecondary),
-        ),
-      ),
-      child: SafeArea(
-        child: Column(
-          children: [
-            dateHeader(context),
-            Expanded(
-              child: filteredNotes.isEmpty
-                  ? emptyState()
-                  : notesList(context, filteredNotes),
-            ),
-          ],
-        ),
+    return HealthNotesPage(
+      title: 'Health Notes',
+      body: Column(
+        children: [
+          dateHeader(context),
+          Expanded(
+            child: filteredNotes.isEmpty
+                ? emptyState()
+                : notesList(context, filteredNotes),
+          ),
+        ],
       ),
     );
   }
@@ -60,10 +49,10 @@ class HealthNoteDateDetailScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.m),
       decoration: BoxDecoration(
-        color: AppColors.backgroundSecondary,
+        color: EColors.backgroundLift,
         border: Border(
           bottom: BorderSide(
-            color: AppColors.textSecondary.withValues(alpha: 0.2),
+            color: EColors.textSecondary.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),
@@ -73,12 +62,12 @@ class HealthNoteDateDetailScreen extends StatelessWidget {
         children: [
           Text(
             AppDateUtils.formatLongDate(date),
-            style: AppText.headline.small.primary,
+            style: EText.headline.small.primary,
           ),
           CupertinoButton(
             padding: EdgeInsets.zero,
             onPressed: () => Navigator.of(context).pop(),
-            child: Icon(CupertinoIcons.xmark, color: AppColors.textSecondary),
+            child: Icon(CupertinoIcons.xmark, color: EColors.textSecondary),
           ),
         ],
       ),
@@ -109,14 +98,14 @@ class HealthNoteDateDetailScreen extends StatelessWidget {
             Icon(
               CupertinoIcons.calendar,
               size: 48,
-              color: AppColors.textSecondary,
+              color: EColors.textSecondary,
             ),
             VSpace.m,
-            Text('No notes for this date', style: AppText.body.medium.primary),
+            Text('No notes for this date', style: EText.body.medium.primary),
             VSpace.s,
             Text(
               'Notes will appear here when you add them',
-              style: AppText.body.small.secondary,
+              style: EText.body.small.secondary,
               textAlign: TextAlign.center,
             ),
           ],

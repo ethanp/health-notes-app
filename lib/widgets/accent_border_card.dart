@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
@@ -21,7 +22,7 @@ class AccentBorderCard extends StatelessWidget {
       margin: margin,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.backgroundTertiary,
+        color: EColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.small),
         border: Border(left: BorderSide(color: accentColor, width: 3)),
       ),

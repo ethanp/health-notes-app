@@ -48,6 +48,8 @@ abstract class DrugDose with _$DrugDose {
   String get displayName =>
       name.isEmpty ? 'Unnamed medication' : name.display;
   String get displayDosage => '${formatDecimalValue(dosage)}$unit';
+  String get suggestionLabel => '$displayName $displayDosage';
+  String get strengthIdentity => '${name.identity}|$dosage|$unit';
   String get whenCaption => fromSchedule?.whenCaption ?? '';
   String get fullDisplay {
     if (whenCaption.isEmpty) return '$displayName - $displayDosage';

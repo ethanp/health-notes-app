@@ -1,7 +1,7 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/widgets/app_card.dart';
 
 class StatsCard extends StatelessWidget {
   final List<Widget> statRows;
@@ -10,7 +10,7 @@ class StatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: statRows,
@@ -39,14 +39,14 @@ class StatRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: Text(label, style: AppText.body.medium.white)),
+          Expanded(child: Text(label, style: EText.body.medium.white)),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 '$value $unit',
-                style: AppText.body.medium.semibold.withColor(
-                  AppColors.primary,
+                style: EText.body.medium.semibold.withColor(
+                  EColors.accent,
                 ),
               ),
               if (onTap != null) HSpace.s,

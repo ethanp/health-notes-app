@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,7 +8,6 @@ import 'package:health_notes/screens/medication_schedule_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/date_utils.dart';
-import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/medication_schedule/schedule_scaffold.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 
@@ -65,12 +65,10 @@ class MedicationScheduleDetailScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.m),
         children: [
-          Text(schedule.sentence, style: AppText.headline.small),
-          VSpace.s,
-          Text(schedule.listCaption, style: AppText.body.medium.tertiary),
+          Text(schedule.listCaption, style: EText.body.medium.tertiary),
           if (schedule.notes.isNotEmpty) ...[
             VSpace.s,
-            Text(schedule.notes, style: AppText.body.medium),
+            Text(schedule.notes, style: EText.body.medium),
           ],
           VSpace.l,
           ..._stepCards(schedule),
@@ -130,18 +128,18 @@ class MedicationScheduleDetailScreen extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: AppSpacing.s),
       child: Opacity(
         opacity: isPast ? 0.55 : 1,
-        child: AppCard(
+        child: ECard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 step.sentenceFragment(unit: schedule.unit, omitWhen: false),
-                style: AppText.label.large.copyWith(
-                  color: isCurrent ? AppColors.secondary : AppColors.textPrimary,
+                style: EText.label.large.copyWith(
+                  color: isCurrent ? EColors.accentGlow : EColors.textPrimary,
                 ),
               ),
               VSpace.xs,
-              Text(_rangeCaption(range), style: AppText.caption.tertiary),
+              Text(_rangeCaption(range), style: EText.caption.tertiary),
             ],
           ),
         ),

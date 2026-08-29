@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/drug_dose.dart';
@@ -6,7 +7,6 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/screens/trends/base_trends_screen.dart';
-import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
 import 'package:health_notes/utils/number_formatter.dart';
@@ -87,7 +87,7 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
           alignment: Alignment.centerRight,
           child: Text(
             'Total doses: $totalDoses',
-            style: AppText.body.small.systemGrey,
+            style: EText.body.small.muted,
           ),
         ),
         VSpace.sm,
@@ -122,7 +122,7 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
     final unit = _unitForDrug(notes) ?? 'mg';
     return Text(
       'Total dosage: ${formatDecimalValue(dosage)}$unit',
-      style: AppText.body.medium.semibold,
+      style: EText.body.medium.semibold,
     );
   }
 

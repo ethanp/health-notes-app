@@ -1,7 +1,7 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:health_notes/models/check_in_metric.dart';
-import 'package:health_notes/theme/app_theme.dart';
 
 part 'check_in.freezed.dart';
 part 'check_in.g.dart';
@@ -42,7 +42,7 @@ abstract class CheckIn with _$CheckIn {
 
   /// Get the color for this check-in's metric (requires CheckInMetric to be passed)
   Color getMetricColor(CheckInMetric? metric) =>
-      metric?.color ?? AppColors.primary;
+      metric?.color ?? EColors.accent;
 
   /// Get the icon for this check-in's metric (requires CheckInMetric to be passed)
   IconData getMetricIcon(CheckInMetric? metric) =>

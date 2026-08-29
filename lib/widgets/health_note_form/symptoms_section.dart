@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,9 +11,7 @@ import 'package:health_notes/providers/symptom_component_provider.dart';
 import 'package:health_notes/screens/condition_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/component_picker_sheet.dart';
-import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/condition_badge.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/form_section_container.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
 import 'package:health_notes/widgets/note_summary_rows.dart';
@@ -61,7 +60,7 @@ class SymptomsSection extends ConsumerWidget {
   }
 
   Widget _header() {
-    return EnhancedUIComponents.sectionHeader(
+    return ESectionHeader(
       title: 'Symptoms',
       trailing: isEditable
           ? CupertinoButton(
@@ -75,7 +74,7 @@ class SymptomsSection extends ConsumerWidget {
 
   Widget _content(BuildContext context, WidgetRef ref) {
     if (symptoms.isEmpty) {
-      return Text('No symptoms recorded', style: AppText.body.medium);
+      return Text('No symptoms recorded', style: EText.body.medium);
     }
 
     if (!isEditable) {
@@ -104,7 +103,7 @@ class SymptomsSection extends ConsumerWidget {
     Symptom symptom,
     SymptomControllers controllers,
   ) {
-    return AppCard(
+    return ECard(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,12 +181,12 @@ class SymptomsSection extends ConsumerWidget {
           vertical: AppSpacing.s,
         ),
         decoration: BoxDecoration(
-          color: AppColors.backgroundTertiary,
+          color: EColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.small),
           border: Border.all(
             color: onTap == null
-                ? AppColors.textQuaternary.withValues(alpha: 0.3)
-                : AppColors.textQuaternary,
+                ? EColors.textMuted.withValues(alpha: 0.3)
+                : EColors.textMuted,
           ),
         ),
         child: Row(
@@ -195,7 +194,7 @@ class SymptomsSection extends ConsumerWidget {
             Expanded(
               child: Text(
                 label,
-                style: isEmpty ? AppText.inputPlaceholder : AppText.body.medium,
+                style: isEmpty ? EText.body.medium.muted : EText.body.medium,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -203,8 +202,8 @@ class SymptomsSection extends ConsumerWidget {
               CupertinoIcons.chevron_down,
               size: 14,
               color: onTap == null
-                  ? AppColors.textQuaternary.withValues(alpha: 0.3)
-                  : AppColors.textQuaternary,
+                  ? EColors.textMuted.withValues(alpha: 0.3)
+                  : EColors.textMuted,
             ),
           ],
         ),
@@ -403,7 +402,7 @@ class SymptomsSection extends ConsumerWidget {
   ) {
     return Row(
       children: [
-        Text('Severity:', style: AppText.label.medium),
+        Text('Severity:', style: EText.label.medium),
         HSpace.m,
         Expanded(
           child: CupertinoSlider(
@@ -422,7 +421,7 @@ class SymptomsSection extends ConsumerWidget {
           width: 40,
           child: Text(
             '${symptom.severityLevel}',
-            style: AppText.body.medium,
+            style: EText.body.medium,
             textAlign: TextAlign.center,
           ),
         ),
@@ -446,7 +445,7 @@ class SymptomsSection extends ConsumerWidget {
             onPressed: () => onUpdate(index, conditionId: ''),
             child: Text(
               'Remove',
-              style: AppText.caption.copyWith(
+              style: EText.caption.copyWith(
                 color: CupertinoColors.destructiveRed,
               ),
             ),
@@ -469,7 +468,7 @@ class SymptomsSection extends ConsumerWidget {
           HSpace.xs,
           Text(
             '+ Link Condition',
-            style: AppText.body.small.copyWith(
+            style: EText.body.small.copyWith(
               color: CupertinoColors.systemBlue,
             ),
           ),
@@ -552,8 +551,8 @@ class SymptomsSection extends ConsumerWidget {
     return CupertinoTextField(
       controller: controllers.additionalNotes,
       placeholder: 'Additional notes (optional)',
-      placeholderStyle: AppText.inputPlaceholder,
-      style: AppText.input,
+      placeholderStyle: EText.body.medium.muted,
+      style: EText.body.medium,
       maxLines: 2,
       onChanged: (value) => onUpdate(index, additionalNotes: value),
     );

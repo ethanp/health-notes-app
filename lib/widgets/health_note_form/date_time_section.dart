@@ -1,6 +1,6 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:intl/intl.dart';
 
@@ -22,11 +22,11 @@ class DateTimeSection extends StatelessWidget {
   }
 
   Widget _editableLayout() {
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Date & Time', style: AppText.headline.small),
+          Text('Date & Time', style: EText.headline.small),
           VSpace.m,
           Container(
             height: 200,
@@ -34,7 +34,7 @@ class DateTimeSection extends StatelessWidget {
             child: CupertinoDatePicker(
               mode: CupertinoDatePickerMode.dateAndTime,
               initialDateTime: selectedDateTime,
-              backgroundColor: AppColors.backgroundTertiary,
+              backgroundColor: EColors.surface,
               onDateTimeChanged: onDateTimeChanged,
             ),
           ),
@@ -44,19 +44,19 @@ class DateTimeSection extends StatelessWidget {
   }
 
   Widget _readOnlyLayout() {
-    return AppCard(
+    return ECard(
       child: Row(
         children: [
           Expanded(
             child: Text(
               DateFormat('EEEE, MMMM d, yyyy').format(selectedDateTime),
-              style: AppText.body.large.primary,
+              style: EText.body.large.primary,
             ),
           ),
           HSpace.m,
           Text(
             DateFormat('h:mm a').format(selectedDateTime),
-            style: AppText.body.medium.tertiary,
+            style: EText.body.medium.tertiary,
           ),
         ],
       ),

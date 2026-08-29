@@ -1,9 +1,9 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/widgets/app_card.dart';
 
 class AnimatedWelcomeCard extends StatefulWidget {
   final String title;
@@ -91,10 +91,10 @@ class _AnimatedWelcomeCardState extends State<AnimatedWelcomeCard>
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            (widget.iconColor ?? AppColors.primary).withValues(
+                            (widget.iconColor ?? EColors.accent).withValues(
                               alpha: 0.1,
                             ),
-                            (widget.iconColor ?? AppColors.primary).withValues(
+                            (widget.iconColor ?? EColors.accent).withValues(
                               alpha: 0.05,
                             ),
                           ],
@@ -106,7 +106,7 @@ class _AnimatedWelcomeCardState extends State<AnimatedWelcomeCard>
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: (widget.iconColor ?? AppColors.primary)
+                            color: (widget.iconColor ?? EColors.accent)
                                 .withValues(alpha: 0.2),
                             blurRadius: 20,
                             offset: const Offset(0, 8),
@@ -116,7 +116,7 @@ class _AnimatedWelcomeCardState extends State<AnimatedWelcomeCard>
                       child: Icon(
                         widget.icon,
                         size: 64,
-                        color: widget.iconColor ?? AppColors.primary,
+                        color: widget.iconColor ?? EColors.accent,
                       ),
                     ),
                   ),
@@ -126,13 +126,13 @@ class _AnimatedWelcomeCardState extends State<AnimatedWelcomeCard>
             VSpace.l,
             Text(
               widget.title,
-              style: AppText.headline.medium,
+              style: EText.headline.medium,
               textAlign: TextAlign.center,
             ),
             VSpace.m,
             Text(
               widget.message,
-              style: AppText.body.medium.secondary,
+              style: EText.body.medium.secondary,
               textAlign: TextAlign.center,
             ),
             if (widget.action != null) ...[VSpace.l, widget.action!],
@@ -210,7 +210,7 @@ class _AnimatedProgressCardState extends State<AnimatedProgressCard>
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -219,16 +219,16 @@ class _AnimatedProgressCardState extends State<AnimatedProgressCard>
               if (widget.icon != null) ...[
                 Icon(
                   widget.icon,
-                  color: widget.progressColor ?? AppColors.primary,
+                  color: widget.progressColor ?? EColors.accent,
                   size: 24,
                 ),
                 HSpace.s,
               ],
-              Expanded(child: Text(widget.title, style: AppText.label.large)),
+              Expanded(child: Text(widget.title, style: EText.label.large)),
             ],
           ),
           VSpace.s,
-          Text(widget.message, style: AppText.body.small.tertiary),
+          Text(widget.message, style: EText.body.small.tertiary),
           VSpace.m,
           AnimatedBuilder(
             animation: _progressAnimation,
@@ -241,18 +241,18 @@ class _AnimatedProgressCardState extends State<AnimatedProgressCard>
                     children: [
                       Text(
                         '${(_progressAnimation.value * 100).toInt()}%',
-                        style: AppText.label.medium.copyWith(
-                          color: widget.progressColor ?? AppColors.primary,
+                        style: EText.label.medium.copyWith(
+                          color: widget.progressColor ?? EColors.accent,
                         ),
                       ),
-                      Text('${widget.progress * 100}%', style: AppText.caption),
+                      Text('${widget.progress * 100}%', style: EText.caption),
                     ],
                   ),
                   VSpace.s,
                   Container(
                     height: 8,
                     decoration: BoxDecoration(
-                      color: AppColors.backgroundQuaternary,
+                      color: EColors.surfaceRaised,
                       borderRadius: BorderRadius.circular(AppRadius.small),
                     ),
                     child: FractionallySizedBox(
@@ -262,8 +262,8 @@ class _AnimatedProgressCardState extends State<AnimatedProgressCard>
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              widget.progressColor ?? AppColors.primary,
-                              (widget.progressColor ?? AppColors.primary)
+                              widget.progressColor ?? EColors.accent,
+                              (widget.progressColor ?? EColors.accent)
                                   .withValues(alpha: 0.7),
                             ],
                             begin: Alignment.centerLeft,

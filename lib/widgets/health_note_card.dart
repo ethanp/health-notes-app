@@ -1,10 +1,9 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
-import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/date_utils.dart';
-import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/app_filter_chip.dart';
 import 'package:health_notes/widgets/note_summary_rows.dart';
 
@@ -20,7 +19,7 @@ class HealthNoteCard extends StatelessWidget {
     return CupertinoButton(
       padding: EdgeInsets.zero,
       onPressed: onTap,
-      child: AppCard(
+      child: ECard(
         margin: const EdgeInsets.only(bottom: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,7 +37,7 @@ class HealthNoteCard extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Text(
         AppDateUtils.formatTime(note.dateTime),
-        style: AppText.body.small.systemGrey,
+        style: EText.body.small.muted,
       ),
     );
   }
@@ -69,7 +68,7 @@ class HealthNoteCard extends StatelessWidget {
   Widget _buildGeneralNotes() {
     return Text(
       note.notes,
-      style: AppText.body.small,
+      style: EText.body.small,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
     );

@@ -1,15 +1,17 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/models/medication_schedule.dart';
 import 'package:health_notes/providers/auth_provider.dart';
+import 'package:health_notes/providers/medication_recommendations_provider.dart';
 import 'package:health_notes/providers/medication_schedules_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/data_utils.dart';
 import 'package:health_notes/utils/date_utils.dart';
-import 'package:health_notes/widgets/app_card.dart';
+import 'package:health_notes/widgets/medication_suggestion_chips.dart';
 import 'package:health_notes/widgets/medication_schedule/schedule_scaffold.dart';
 
 enum _CourseShape { taper, dailyTimes }
@@ -29,6 +31,7 @@ class _MedicationScheduleFormState
   late final TextEditingController _nameController;
   late final TextEditingController _unitController;
   late final TextEditingController _notesController;
+  late final ScrollController _editorScrollController;
   late DateTime _startDate;
   late List<_StepDraft> _steps;
   _CourseShape? _courseShape;
@@ -52,6 +55,7 @@ class _MedicationScheduleFormState
     if (existing != null) {
       _courseShape = _shapeFrom(existing);
     }
+    _editorScrollController = ScrollController();
   }
 
   @override
@@ -59,6 +63,7 @@ class _MedicationScheduleFormState
     _nameController.dispose();
     _unitController.dispose();
     _notesController.dispose();
+    _editorScrollController.dispose();
     _steps.forEach((step) => step.dispose());
     super.dispose();
   }
@@ -87,7 +92,7 @@ class _MedicationScheduleFormState
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.m),
       children: [
-        Text('What kind of course?', style: AppText.headline.small),
+        Text('What kind of course?', style: EText.headline.small),
         VSpace.m,
         _starterCard(
           title: 'Taper',
@@ -115,13 +120,13 @@ class _MedicationScheduleFormState
         child: InkWell(
           onTap: onActivated,
           borderRadius: BorderRadius.circular(AppRadius.medium),
-          child: AppCard(
+          child: ECard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: AppText.label.large.primary),
+                Text(title, style: EText.label.large.primary),
                 VSpace.s,
-                Text(caption, style: AppText.body.medium.tertiary),
+                Text(caption, style: EText.body.medium.tertiary),
               ],
             ),
           ),
@@ -132,14 +137,19 @@ class _MedicationScheduleFormState
 
   Widget _editor() {
     return ListView(
+      controller: _editorScrollController,
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      padding: const EdgeInsets.all(AppSpacing.m),
+      padding: _editorPadding,
       children: [
         if (_previewSentence.isNotEmpty) ...[
-          Text(_previewSentence, style: AppText.headline.small),
+          Text(_previewSentence, style: EText.headline.small),
           VSpace.l,
         ],
         _labeledField(label: 'Medication', controller: _nameController),
+        MedicationNameSuggestionChips(
+          typedName: _nameController.text,
+          onNameSelected: _selectSuggestedMedicationName,
+        ),
         VSpace.m,
         _labeledField(label: 'Unit', controller: _unitController),
         VSpace.m,
@@ -153,8 +163,18 @@ class _MedicationScheduleFormState
         VSpace.l,
         if (_courseShape == _CourseShape.taper) ..._taperEditor(),
         if (_courseShape == _CourseShape.dailyTimes) ..._timesEditor(),
-        VSpace.of(40),
       ],
+    );
+  }
+
+  EdgeInsets get _editorPadding {
+    return EdgeInsets.fromLTRB(
+      AppSpacing.m,
+      AppSpacing.m,
+      AppSpacing.m,
+      AppSpacing.l +
+          ETabBar.occupiedHeight +
+          MediaQuery.paddingOf(context).bottom,
     );
   }
 
@@ -166,11 +186,11 @@ class _MedicationScheduleFormState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppText.label.medium),
+        Text(label, style: EText.label.medium),
         VSpace.s,
         TextField(
           controller: controller,
-          style: AppText.input,
+          style: EText.body.medium,
           decoration: _fieldDecoration(hint: hint),
           onChanged: (_) => setState(() {}),
         ),
@@ -182,7 +202,7 @@ class _MedicationScheduleFormState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Start date', style: AppText.label.medium),
+        Text('Start date', style: EText.label.medium),
         VSpace.s,
         OutlinedButton(
           onPressed: _pickStartDate,
@@ -198,12 +218,12 @@ class _MedicationScheduleFormState
         if (stepIndex > 0)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.s),
-            child: Text('then', style: AppText.label.medium.tertiary),
+            child: Text('then', style: EText.label.medium.tertiary),
           ),
         _taperStepCard(stepIndex),
       ],
       VSpace.m,
-      TextButton(
+      OutlinedButton(
         onPressed: _addTaperStep,
         child: const Text('Then'),
       ),
@@ -213,7 +233,7 @@ class _MedicationScheduleFormState
   Widget _taperStepCard(int stepIndex) {
     final step = _steps[stepIndex];
     final dose = step.doses.first;
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -225,7 +245,7 @@ class _MedicationScheduleFormState
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
-                  style: AppText.input,
+                  style: EText.body.medium,
                   decoration: _fieldDecoration(hint: '40'),
                   onChanged: (_) => setState(() {}),
                 ),
@@ -242,7 +262,7 @@ class _MedicationScheduleFormState
                 child: TextField(
                   controller: step.duration,
                   keyboardType: TextInputType.number,
-                  style: AppText.input,
+                  style: EText.body.medium,
                   decoration: _fieldDecoration(hint: '7'),
                   onChanged: (_) => setState(() {}),
                 ),
@@ -257,7 +277,7 @@ class _MedicationScheduleFormState
               child: IconButton(
                 tooltip: 'Remove step',
                 onPressed: () => _removeStep(stepIndex),
-                icon: const Icon(Icons.delete_outline, color: AppColors.destructive),
+                icon: const Icon(Icons.delete_outline, color: EColors.danger),
               ),
             ),
         ],
@@ -276,12 +296,12 @@ class _MedicationScheduleFormState
           label: Text(
             part.pluralLabel,
             style: isSelected
-                ? AppText.label.medium
-                : AppText.label.medium.white,
+                ? EText.label.medium
+                : EText.label.medium.white,
           ),
           selected: isSelected,
-          backgroundColor: AppColors.backgroundQuaternary,
-          selectedColor: AppColors.secondary.withValues(alpha: 0.35),
+          backgroundColor: EColors.surfaceRaised,
+          selectedColor: EColors.accentGlow.withValues(alpha: 0.35),
           onSelected: (_) => setState(() {
             dose.when = DoseWhen.partOfDay(part);
           }),
@@ -307,14 +327,14 @@ class _MedicationScheduleFormState
 
   Widget _timeDoseCard(_StepDraft step, int doseIndex) {
     final dose = step.doses[doseIndex];
-    return AppCard(
+    return ECard(
       child: Row(
         children: [
           Expanded(
             child: TextField(
               controller: dose.amount,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              style: AppText.input,
+              style: EText.body.medium,
               decoration: _fieldDecoration(hint: '200'),
               onChanged: (_) => setState(() {}),
             ),
@@ -332,7 +352,7 @@ class _MedicationScheduleFormState
             IconButton(
               tooltip: 'Remove time',
               onPressed: () => _removeClockDose(doseIndex),
-              icon: const Icon(Icons.delete_outline, color: AppColors.destructive),
+              icon: const Icon(Icons.delete_outline, color: EColors.danger),
             ),
         ],
       ),
@@ -342,18 +362,41 @@ class _MedicationScheduleFormState
   InputDecoration _fieldDecoration({String? hint}) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: AppText.inputPlaceholder,
+      hintStyle: EText.body.medium.muted,
       filled: true,
-      fillColor: AppColors.backgroundTertiary,
+      fillColor: EColors.surface,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.m,
         vertical: AppSpacing.s,
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppRadius.small),
-        borderSide: const BorderSide(color: AppColors.backgroundQuaternary),
+        borderSide: const BorderSide(color: EColors.surfaceRaised),
       ),
     );
+  }
+
+  void _selectSuggestedMedicationName(DrugName name) {
+    _nameController.text = name.display;
+    final String? unit = _unitForSuggestedName(name);
+    if (unit != null) _unitController.text = unit;
+    setState(() {});
+  }
+
+  String? _unitForSuggestedName(DrugName name) {
+    final MedicationRecommendationsState? recommendations =
+        ref.read(medicationRecommendationsProvider).asData?.value;
+    final String? fromNotes = recommendations?.unitForName(name);
+    if (fromNotes != null) return fromNotes;
+    final List<MedicationSchedule> schedules =
+        ref.read(medicationSchedulesNotifierProvider).asData?.value ??
+        const [];
+    for (final schedule in schedules) {
+      if (schedule.medicationName == name && schedule.unit.isNotEmpty) {
+        return schedule.unit;
+      }
+    }
+    return null;
   }
 
   void _startAs(_CourseShape shape) {
@@ -376,6 +419,18 @@ class _MedicationScheduleFormState
     setState(() {
       _steps.add(_StepDraft.taper(when: previousWhen));
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _revealThenButton();
+    });
+  }
+
+  void _revealThenButton() {
+    if (!mounted || !_editorScrollController.hasClients) return;
+    _editorScrollController.animateTo(
+      _editorScrollController.position.maxScrollExtent,
+      duration: AppAnimation.medium,
+      curve: AppAnimation.slideCurve,
+    );
   }
 
   void _addClockDose() {

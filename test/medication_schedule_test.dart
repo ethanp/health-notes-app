@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/drug_name.dart';
@@ -75,6 +76,101 @@ void main() {
       updatedAt: createdAt,
     );
   }
+
+  MedicationSchedule morningCourse({
+    required DateTime startDate,
+    required int durationDays,
+  }) {
+    return MedicationSchedule(
+      id: 'cap-1',
+      userId: 'user-1',
+      medicationName: const DrugName('Prednisone'),
+      startDate: startDate,
+      steps: [
+        ScheduleStep(
+          id: 'step-40',
+          durationDays: durationDays,
+          doses: [
+            ScheduledDose(
+              id: 'dose-40',
+              amount: 40,
+              when: const DoseWhen.partOfDay(PartOfDay.morning),
+            ),
+          ],
+        ),
+      ],
+      createdAt: createdAt,
+      updatedAt: createdAt,
+    );
+  }
+
+  group('listCaption', () {
+    test('active course includes today dose and month-day range', () {
+      final today = DateTime.now().startOfDay;
+      final start = today.shiftedByDays(-2);
+      final schedule = morningCourse(startDate: start, durationDays: 16);
+      final last = start.shiftedByDays(15);
+      expect(
+        schedule.listCaption,
+        'Day 3 of 16 · Today: 40mg morning · '
+        '${start.monthDayCaption} - ${last.monthDayCaption}',
+      );
+    });
+
+    test('open-ended course omits of-N and uses the start day only', () {
+      final today = DateTime.now().startOfDay;
+      final start = today.shiftedByDays(-5);
+      final schedule = MedicationSchedule(
+        id: 'open-1',
+        userId: 'user-1',
+        medicationName: const DrugName('Gabapentin'),
+        startDate: start,
+        steps: [
+          ScheduleStep(
+            id: 'step-daily',
+            doses: [
+              ScheduledDose(
+                id: 'slot-am',
+                amount: 200,
+                when: const DoseWhen.clock(hour: 10, minute: 30),
+              ),
+              ScheduledDose(
+                id: 'slot-afternoon',
+                amount: 200,
+                when: const DoseWhen.clock(hour: 16, minute: 30),
+              ),
+            ],
+          ),
+        ],
+        createdAt: createdAt,
+        updatedAt: createdAt,
+      );
+      expect(
+        schedule.listCaption,
+        'Day 6 · Today: 200mg at 10:30 AM, 200mg at 4:30 PM · '
+        '${start.monthDayCaption}',
+      );
+    });
+
+    test('upcoming course names the start day', () {
+      final start = DateTime.now().startOfDay.shiftedByDays(3);
+      expect(
+        morningCourse(startDate: start, durationDays: 10).listCaption,
+        'Starts ${start.monthDayCaption}',
+      );
+    });
+
+    test('ended course drops Today and keeps the date range', () {
+      final today = DateTime.now().startOfDay;
+      final start = today.shiftedByDays(-20);
+      final schedule = morningCourse(startDate: start, durationDays: 10);
+      final last = start.shiftedByDays(9);
+      expect(
+        schedule.listCaption,
+        'Day 10 of 10 · ${start.monthDayCaption} - ${last.monthDayCaption}',
+      );
+    });
+  });
 
   group('sentence', () {
     test('reads a taper as a course of days', () {

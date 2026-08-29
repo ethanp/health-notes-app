@@ -1,5 +1,5 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/providers/auth_provider.dart';
@@ -8,9 +8,6 @@ import 'package:health_notes/screens/main_tab_screen.dart';
 import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/services/connectivity_service.dart';
 import 'package:health_notes/services/local_database.dart';
-import 'package:health_notes/theme/app_theme.dart';
-
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -30,43 +27,27 @@ void main() async {
   runApp(const ProviderScope(child: MainScreen()));
 }
 
-/// Top-level widget in the whole app.
-/// Shows the appropriate UI based on whether the user is logged-in or not.
 class MainScreen extends ConsumerWidget {
   const MainScreen();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return CupertinoApp(
+    return MaterialApp(
       title: 'Health Notes',
-      localizationsDelegates: const [
-        DefaultMaterialLocalizations.delegate,
-        DefaultWidgetsLocalizations.delegate,
-        DefaultCupertinoLocalizations.delegate,
-      ],
-      theme: const CupertinoThemeData(
-        brightness: Brightness.dark,
-        primaryColor: AppColors.primary,
-        scaffoldBackgroundColor: AppColors.backgroundPrimary,
-        barBackgroundColor: AppColors.backgroundSecondary,
-        textTheme: CupertinoTextThemeData(
-          primaryColor: AppColors.primary,
-          textStyle: TextStyle(color: AppColors.textPrimary),
-        ),
-      ),
+      theme: ETheme.build(),
       debugShowCheckedModeBanner: false,
       home: ref
           .watch(isAuthenticatedProvider)
           .when(
             data: (isAuthenticated) =>
                 isAuthenticated ? const MainTabScreen() : const AuthScreen(),
-            loading: () => CupertinoPageScaffold(
-              child: EnhancedUIComponents.loadingIndicator(
-                message: 'Initializing app...',
-              ),
+            loading: () => const EScaffoldShell(
+              contentMaxWidth: double.infinity,
+              body: ELoadingState(message: 'Initializing app...'),
             ),
-            error: (error, stack) => CupertinoPageScaffold(
-              child: Center(child: Text('Error: $error', style: AppText.error)),
+            error: (error, stack) => EScaffoldShell(
+              contentMaxWidth: double.infinity,
+              body: Center(child: Text('Error: $error', style: EText.error)),
             ),
           ),
     );

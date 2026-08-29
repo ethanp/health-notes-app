@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,8 +11,8 @@ import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
-import 'package:health_notes/widgets/app_card.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/health_notes_page.dart';
+import 'package:health_notes/widgets/health_notes_search_field.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 import 'package:health_notes/widgets/tool_activity_calendar.dart';
 import 'package:health_notes/widgets/tool_note_card.dart';
@@ -42,24 +43,20 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
     final toolAsync = ref.watch(toolByIdProvider(widget.toolId));
     final notesAsync = ref.watch(healthNotesNotifierProvider);
 
-    return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.navigationBar(
-        title: widget.toolName ?? 'Tool Details',
-      ),
-      child: SafeArea(
-        child: toolAsync.when(
-          data: (tool) => notesAsync.when(
-            data: (notes) => buildContent(context, tool, notes),
-            loading: () =>
-                const SyncStatusWidget.loading(message: 'Loading notes...'),
-            error: (error, stack) =>
-                Center(child: Text('Error: $error', style: AppText.error)),
-          ),
+    return HealthNotesPage(
+      title: widget.toolName ?? 'Tool Details',
+      body: toolAsync.when(
+        data: (tool) => notesAsync.when(
+          data: (notes) => buildContent(context, tool, notes),
           loading: () =>
-              const SyncStatusWidget.loading(message: 'Loading tool...'),
+              const SyncStatusWidget.loading(message: 'Loading notes...'),
           error: (error, stack) =>
-              Center(child: Text('Error: $error', style: AppText.error)),
+              Center(child: Text('Error: $error', style: EText.error)),
         ),
+        loading: () =>
+            const SyncStatusWidget.loading(message: 'Loading tool...'),
+        error: (error, stack) =>
+            Center(child: Text('Error: $error', style: EText.error)),
       ),
     );
   }
@@ -72,7 +69,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
     final toolNotes = NoteFilterUtils.byToolId(allNotes, widget.toolId);
 
     if (toolNotes.isEmpty) {
-      return EnhancedUIComponents.emptyState(
+      return EEmptyState(
         title: 'No usage history',
         message: 'This tool hasn\'t been applied to any health notes yet',
         icon: CupertinoIcons.wrench,
@@ -117,7 +114,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
   Widget toolHeaderCard(HealthTool tool) {
     final categoryAsync = ref.watch(categoryByIdProvider(tool.categoryId));
 
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -127,13 +124,13 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
                 width: 48,
                 height: 48,
                 decoration: AppComponents.tintedSolidDecoration(
-                  AppColors.primary,
+                  EColors.accent,
                   radius: AppRadius.medium,
                   borderWidth: 0,
                 ),
                 child: Icon(
                   CupertinoIcons.wrench,
-                  color: AppColors.primary,
+                  color: EColors.accent,
                   size: 24,
                 ),
               ),
@@ -142,7 +139,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(tool.name, style: AppText.headline.small),
+                    Text(tool.name, style: EText.headline.small),
                     VSpace.xs,
                     categoryAsync.when(
                       data: (category) => category != null
@@ -158,7 +155,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
           ),
           if (tool.description.isNotEmpty) ...[
             VSpace.m,
-            Text(tool.description, style: AppText.body.medium.secondary),
+            Text(tool.description, style: EText.body.medium.secondary),
           ],
         ],
       ),
@@ -169,10 +166,10 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.backgroundTertiary,
+        color: EColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.small),
       ),
-      child: Text(category.name, style: AppText.caption),
+      child: Text(category.name, style: EText.caption),
     );
   }
 
@@ -192,11 +189,11 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
         : 1.0;
     final avgPerMonth = (totalUses / monthsSpan).toStringAsFixed(1);
 
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Statistics', style: AppText.label.large.primary),
+          Text('Statistics', style: EText.label.large.primary),
           VSpace.m,
           Row(
             children: [
@@ -234,15 +231,15 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
-        color: AppColors.backgroundTertiary,
+        color: EColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.small),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: AppText.caption),
+          Text(label, style: EText.caption),
           VSpace.xs,
-          Text(value, style: AppText.headline.medium),
+          Text(value, style: EText.headline.medium),
         ],
       ),
     );
@@ -252,9 +249,9 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Search Notes', style: AppText.label.large),
+        Text('Search Notes', style: EText.label.large),
         VSpace.s,
-        EnhancedUIComponents.searchField(
+        HealthNotesSearchField(
           controller: searchController,
           placeholder: 'Search notes...',
           onChanged: (query) => setState(() => searchQuery = query),
@@ -265,7 +262,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
 
   Widget notesSection(List<HealthNote> notes) {
     if (notes.isEmpty) {
-      return EnhancedUIComponents.emptyState(
+      return EEmptyState(
         title: 'No matching notes',
         message: 'Try adjusting your search terms',
         icon: CupertinoIcons.search,
@@ -275,7 +272,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Health Notes (${notes.length})', style: AppText.headline.small),
+        Text('Health Notes (${notes.length})', style: EText.headline.small),
         VSpace.s,
         ...notes.map((note) => ToolNoteCard(note: note, toolId: widget.toolId)),
       ],
@@ -366,7 +363,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
               usageBadge(count),
               if (appliedTool.note.isNotEmpty) ...[
                 VSpace.m,
-                Text(appliedTool.note, style: AppText.body.medium.white),
+                Text(appliedTool.note, style: EText.body.medium.white),
               ],
             ],
           ),
@@ -398,7 +395,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
               VSpace.m,
               Text(
                 'Applied in ${notesForDate.length} note${notesForDate.length == 1 ? '' : 's'}',
-                style: AppText.body.medium.white,
+                style: EText.body.medium.white,
               ),
             ],
           ),
@@ -431,17 +428,17 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
         vertical: AppSpacing.s,
       ),
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.2),
+        color: EColors.accent.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(AppRadius.large),
         border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.4),
+          color: EColors.accent.withValues(alpha: 0.4),
           width: 1,
         ),
       ),
       child: Text(
         '$count use${count == 1 ? '' : 's'}',
-        style: AppText.label.medium.copyWith(
-          color: AppColors.primary,
+        style: EText.label.medium.copyWith(
+          color: EColors.accent,
           fontWeight: FontWeight.w600,
         ),
       ),

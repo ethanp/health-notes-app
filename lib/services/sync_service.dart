@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:health_notes/services/check_in_metrics_dao.dart';
 import 'package:health_notes/services/check_ins_dao.dart';
 import 'package:health_notes/services/condition_entries_dao.dart';
@@ -12,6 +13,8 @@ import 'package:health_notes/services/local_database.dart';
 import 'package:health_notes/services/medication_schedules_dao.dart';
 import 'package:health_notes/services/user_profile_dao.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+const _logger = ELogger('SyncService');
 
 /// Service responsible for syncing local data with Supabase
 class SyncService {
@@ -154,6 +157,7 @@ class SyncService {
   }
 
   void _emitSyncError(String message) {
+    _logger.error(message);
     _syncErrorController.add(message);
   }
 

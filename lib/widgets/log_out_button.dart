@@ -1,5 +1,4 @@
-import 'package:flutter/cupertino.dart';
-import 'package:health_notes/theme/app_theme.dart';
+import 'package:flutter/material.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 
 class LogOutButton extends StatelessWidget {
@@ -7,13 +6,9 @@ class LogOutButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoButton(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+    return TextButton(
       onPressed: () => AuthUtils.showSignOutDialog(context),
-      child: Text(
-        'Log out',
-        style: AppText.body.medium.copyWith(color: CupertinoColors.systemBlue),
-      ),
+      child: const Text('Log out'),
     );
   }
 }

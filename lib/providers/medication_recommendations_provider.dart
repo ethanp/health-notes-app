@@ -5,6 +5,13 @@ import 'package:health_notes/providers/health_notes_provider.dart';
 
 part 'medication_recommendations_provider.g.dart';
 
+class _NotedDose {
+  const _NotedDose({required this.notedAt, required this.dose});
+
+  final DateTime notedAt;
+  final DrugDose dose;
+}
+
 @riverpod
 class MedicationRecommendations extends _$MedicationRecommendations {
   @override
@@ -16,20 +23,19 @@ class MedicationRecommendations extends _$MedicationRecommendations {
         .where((dose) => dose.isValid)
         .toList();
 
-    final noteDosePairs = notes.expand((note) {
+    final notedDoses = notes.expand((note) {
       return note.drugDoses
           .where((dose) => dose.isValid)
-          .map((dose) => (note.dateTime, dose));
+          .map((dose) => _NotedDose(notedAt: note.dateTime, dose: dose));
     }).toList();
 
-    noteDosePairs.sort((a, b) => b.$1.compareTo(a.$1));
+    notedDoses.sort((left, right) => right.notedAt.compareTo(left.notedAt));
 
     final recentDoses = <String, DrugDose>{};
-    for (final pair in noteDosePairs) {
-      final dose = pair.$2;
-      final key = MedicationRecommendationsFilter.doseKey(dose);
+    for (final notedDose in notedDoses) {
+      final key = notedDose.dose.strengthIdentity;
       if (!recentDoses.containsKey(key)) {
-        recentDoses[key] = dose;
+        recentDoses[key] = notedDose.dose;
         if (recentDoses.length >= 5) break;
       }
     }
@@ -38,13 +44,13 @@ class MedicationRecommendations extends _$MedicationRecommendations {
     final uniqueDoses = <String, DrugDose>{};
 
     for (final dose in allDoses) {
-      final key = MedicationRecommendationsFilter.doseKey(dose);
+      final key = dose.strengthIdentity;
       frequency[key] = (frequency[key] ?? 0) + 1;
       uniqueDoses[key] = dose;
     }
 
     final sortedKeys = frequency.keys.toList()
-      ..sort((a, b) => frequency[b]!.compareTo(frequency[a]!));
+      ..sort((left, right) => frequency[right]!.compareTo(frequency[left]!));
 
     final commonDoses = sortedKeys
         .take(5)
@@ -60,6 +66,8 @@ class MedicationRecommendations extends _$MedicationRecommendations {
 }
 
 class MedicationRecommendationsState {
+  static const maxSuggestions = 10;
+
   final List<DrugDose> recent;
   final List<DrugDose> common;
   final List<DrugDose> allKnown;
@@ -69,31 +77,57 @@ class MedicationRecommendationsState {
     required this.common,
     required this.allKnown,
   });
-}
 
-class MedicationRecommendationsFilter {
-  static const maxSuggestions = 10;
-
-  static String doseKey(DrugDose dose) =>
-      '${dose.name.identity}|${dose.dosage}|${dose.unit}';
-
-  static List<DrugDose> matchingRecommendations({
-    required String typedName,
-    required List<DrugDose> recent,
-    required List<DrugDose> common,
-    required List<DrugDose> allKnown,
-  }) {
+  List<DrugDose> matchingDoses(String typedName) {
     final typed = DrugName(typedName);
-    final source = typed.isEmpty
+    final candidateDoses = typed.isEmpty
         ? [...recent, ...common]
         : allKnown.where((dose) => dose.name.matchesPrefix(typedName));
 
     final deduped = <String, DrugDose>{};
-    for (final dose in source) {
+    for (final dose in candidateDoses) {
       if (dose.name == typed) continue;
-      deduped.putIfAbsent(doseKey(dose), () => dose);
+      deduped.putIfAbsent(dose.strengthIdentity, () => dose);
     }
 
     return deduped.values.take(maxSuggestions).toList();
+  }
+
+  List<DrugName> matchingNames(
+    String typedName, {
+    List<DrugName> additionalNames = const [],
+  }) {
+    final typed = DrugName(typedName);
+    final extraNames = typed.isEmpty
+        ? additionalNames
+        : additionalNames.where((name) => name.matchesPrefix(typedName));
+    return _uniqueNames([
+      ...matchingDoses(typedName).map((dose) => dose.name),
+      ...extraNames,
+    ], skipping: typed);
+  }
+
+  String? unitForName(DrugName name) {
+    for (final dose in allKnown) {
+      if (dose.name == name && dose.unit.isNotEmpty) return dose.unit;
+    }
+    return null;
+  }
+
+  List<DrugName> _uniqueNames(
+    Iterable<DrugName> candidateNames, {
+    required DrugName skipping,
+  }) {
+    final Map<String, DrugName> preferredSpellings =
+        DrugName.preferredByIdentity(candidateNames);
+    final seenIdentities = <String>{};
+    final suggestedNames = <DrugName>[];
+    for (final name in candidateNames) {
+      if (name.isEmpty || name == skipping) continue;
+      if (!seenIdentities.add(name.identity)) continue;
+      suggestedNames.add(preferredSpellings[name.identity]!);
+      if (suggestedNames.length >= maxSuggestions) break;
+    }
+    return suggestedNames;
   }
 }

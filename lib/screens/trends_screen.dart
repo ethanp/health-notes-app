@@ -1,5 +1,7 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/drug_name.dart';
@@ -15,7 +17,6 @@ import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/log_out_button.dart';
 import 'package:health_notes/widgets/check_in_trends_chart.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 import 'package:health_notes/widgets/monthly_notes_chart.dart';
 import 'package:health_notes/widgets/recent_symptoms_chart.dart';
@@ -46,29 +47,21 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     final checkInsAsync = ref.watch(checkInsNotifierProvider);
     final userMetricsAsync = ref.watch(checkInMetricsNotifierProvider);
 
-    return CupertinoPageScaffold(
-      navigationBar: trendsNavigationBar(),
-      child: SafeArea(
-        child: trendsBody(healthNotesAsync, checkInsAsync, userMetricsAsync),
-      ),
-    );
-  }
-
-  ObstructingPreferredSizeWidget trendsNavigationBar() {
-    return EnhancedUIComponents.navigationBar(
-      title: 'Trends',
-      leading: const LogOutButton(),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+    return EScaffoldShell(
+      contentMaxWidth: double.infinity,
+      appBar: EAppHeader(
+        title: 'Trends',
+        leading: const LogOutButton(),
+        actions: [
           const CompactSyncStatusWidget(),
-          CupertinoButton(
-            padding: EdgeInsets.zero,
+          IconButton(
+            tooltip: 'Add check-in',
             onPressed: () => context.push(const CheckInForm()),
-            child: const Icon(CupertinoIcons.add),
+            icon: const Icon(Icons.add),
           ),
         ],
       ),
+      body: trendsBody(healthNotesAsync, checkInsAsync, userMetricsAsync),
     );
   }
 
@@ -150,7 +143,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
         ),
         SliverFillRemaining(
           hasScrollBody: false,
-          child: EnhancedUIComponents.emptyState(
+          child: EEmptyState(
             title: 'No data for trends yet',
             message: 'Add some health notes to see analytics',
             icon: CupertinoIcons.chart_bar,
@@ -257,7 +250,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   }
 
   Widget sectionHeader(String title) {
-    return EnhancedUIComponents.sectionHeader(title: title);
+    return ESectionHeader(title: title);
   }
 
   Widget recentSymptomTrendsCard(Map<String, int> recentTrends) {
@@ -266,7 +259,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
         statRows: [
           Text(
             'No recent symptoms recorded',
-            style: AppText.body.medium.systemGrey,
+            style: EText.body.medium.muted,
           ),
         ],
       );
@@ -284,7 +277,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
         statRows: [
           Text(
             'No monthly data available',
-            style: AppText.body.medium.systemGrey,
+            style: EText.body.medium.muted,
           ),
         ],
       );
@@ -395,7 +388,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
             statRows: [
               Text(
                 'No check-in data available',
-                style: AppText.body.medium.systemGrey,
+                style: EText.body.medium.muted,
               ),
             ],
           );

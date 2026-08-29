@@ -1,11 +1,11 @@
-import 'package:flutter/cupertino.dart';
+import 'package:ethan_ui/ethan_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
-import 'package:health_notes/theme/app_theme.dart';
-
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/health_note_form_fields.dart';
+import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 
 class HealthNoteViewScreen extends ConsumerStatefulWidget {
@@ -26,42 +26,40 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isEditing) {
-      return CupertinoPageScaffold(
-        navigationBar: EnhancedUIComponents.navigationBar(
-          title: 'Edit Note',
-          leading: CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: cancelEdit,
-            child: const Text('Cancel'),
-          ),
-          trailing: CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: _isLoading ? null : saveChanges,
-            child: _isLoading
-                ? const CupertinoActivityIndicator()
-                : const Text('Save'),
-          ),
+      return HealthNotesPage(
+        title: 'Edit Note',
+        leading: TextButton(
+          onPressed: cancelEdit,
+          child: const Text('Cancel'),
         ),
-        child: SafeArea(
-          child: HealthNoteFormFields(
-            key: _formFieldsKey,
-            note: widget.note,
-            isEditable: true,
-          ),
+        actions: [
+          if (_isLoading)
+            const SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          else
+            TextButton(onPressed: saveChanges, child: const Text('Save')),
+        ],
+        body: HealthNoteFormFields(
+          key: _formFieldsKey,
+          note: widget.note,
+          isEditable: true,
         ),
       );
     }
 
-    return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.navigationBar(
-        title: 'Health Note',
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
+    return HealthNotesPage(
+      title: 'Health Note',
+      actions: [
+        IconButton(
+          tooltip: 'Edit',
           onPressed: toggleEditMode,
-          child: const Icon(CupertinoIcons.pencil),
+          icon: const Icon(Icons.edit_outlined),
         ),
-      ),
-      child: SafeArea(child: viewMode()),
+      ],
+      body: viewMode(),
     );
   }
 
@@ -80,7 +78,7 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
       loading: () =>
           const SyncStatusWidget.loading(message: 'Loading note data...'),
       error: (error, stack) => Center(
-        child: Text('Error loading note: $error', style: AppText.error),
+        child: Text('Error loading note: $error', style: EText.error),
       ),
     );
   }
@@ -124,17 +122,11 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
       }
     } catch (e) {
       if (mounted) {
-        showCupertinoDialog(
+        showDialog(
           context: context,
-          builder: (context) => CupertinoAlertDialog(
-            title: Text('Error', style: AppText.headline.small),
-            content: Text('Failed to update note: $e', style: AppText.error),
-            actions: [
-              CupertinoDialogAction(
-                child: Text('OK', style: AppText.buttonSecondary),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
+          builder: (context) => AppAlertDialogs.error(
+            title: 'Error',
+            content: 'Failed to update note: $e',
           ),
         );
       }

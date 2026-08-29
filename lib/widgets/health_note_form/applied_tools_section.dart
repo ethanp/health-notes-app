@@ -1,11 +1,10 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/applied_tool.dart';
 import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/applied_tool_picker_sheet.dart';
-import 'package:health_notes/widgets/app_card.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/form_section_container.dart';
 import 'package:health_notes/widgets/note_summary_rows.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -39,7 +38,7 @@ class AppliedToolsSection extends StatelessWidget {
   }
 
   Widget _header(BuildContext context) {
-    return EnhancedUIComponents.sectionHeader(
+    return ESectionHeader(
       title: 'Applied Tools',
       trailing: isEditable
           ? CupertinoButton(
@@ -53,7 +52,7 @@ class AppliedToolsSection extends StatelessWidget {
 
   Widget _content(BuildContext context) {
     if (appliedTools.isEmpty) {
-      return Text('No tools applied', style: AppText.body.medium);
+      return Text('No tools applied', style: EText.body.medium);
     }
 
     if (!isEditable) {
@@ -81,20 +80,20 @@ class AppliedToolsSection extends StatelessWidget {
     AppliedTool tool,
     TextEditingController noteController,
   ) {
-    return AppCard(
+    return ECard(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Expanded(child: Text(tool.toolName, style: AppText.label.large)),
+              Expanded(child: Text(tool.toolName, style: EText.label.large)),
               CupertinoButton(
                 padding: EdgeInsets.zero,
                 onPressed: () => onRemove(index),
                 child: const Icon(
                   CupertinoIcons.delete,
-                  color: AppColors.destructive,
+                  color: EColors.danger,
                 ),
               ),
             ],
@@ -103,8 +102,8 @@ class AppliedToolsSection extends StatelessWidget {
           CupertinoTextField(
             controller: noteController,
             placeholder: 'Note for this tool (optional)',
-            placeholderStyle: AppText.inputPlaceholder,
-            style: AppText.input,
+            placeholderStyle: EText.body.medium.muted,
+            style: EText.body.medium,
             maxLines: 2,
             onChanged: (value) => onUpdateNote(index, value),
           ),

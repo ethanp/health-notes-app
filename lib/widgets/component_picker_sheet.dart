@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/symptom_component.dart';
 import 'package:health_notes/theme/app_theme.dart';
@@ -48,7 +49,7 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
 
     return Container(
       decoration: const BoxDecoration(
-        color: AppColors.backgroundSecondary,
+        color: EColors.backgroundLift,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(AppRadius.large),
         ),
@@ -61,15 +62,15 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
             width: 36,
             height: 4,
             decoration: BoxDecoration(
-              color: AppColors.textQuaternary,
+              color: EColors.textMuted,
               borderRadius: BorderRadius.circular(AppRadius.xs),
             ),
           ),
           VSpace.m,
-          Text(widget.title, style: AppText.headline.small),
+          Text(widget.title, style: EText.headline.small),
           if (widget.subtitle != null) ...[
             VSpace.xs,
-            Text(widget.subtitle!, style: AppText.body.small),
+            Text(widget.subtitle!, style: EText.body.small),
           ],
           VSpace.m,
           Padding(
@@ -77,7 +78,7 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
             child: CupertinoSearchTextField(
               controller: _searchController,
               placeholder: 'Search...',
-              style: AppText.body.medium,
+              style: EText.body.medium,
               onChanged: (value) => setState(() => _searchQuery = value),
             ),
           ),
@@ -106,7 +107,7 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
                   Center(
                     child: Text(
                       'No matches',
-                      style: AppText.body.medium.secondary,
+                      style: EText.body.medium.secondary,
                     ),
                   ),
                   VSpace.m,
@@ -124,7 +125,7 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
   Widget _sectionHeader(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Text(text, style: AppText.label.small),
+      child: Text(text, style: EText.label.small),
     );
   }
 
@@ -142,7 +143,7 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
             vertical: AppSpacing.sm,
           ),
           decoration: BoxDecoration(
-            color: AppColors.backgroundTertiary,
+            color: EColors.surface,
             borderRadius: BorderRadius.circular(AppRadius.medium),
           ),
           child: Row(
@@ -155,18 +156,18 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
                       : CupertinoIcons.star,
                   size: 20,
                   color: component.isPinned
-                      ? AppColors.accentWarm
-                      : AppColors.textQuaternary,
+                      ? EColors.warning
+                      : EColors.textMuted,
                 ),
               ),
               HSpace.m,
               Expanded(
                 child: Text(
                   component.name.isEmpty ? '(none)' : component.name,
-                  style: AppText.body.medium,
+                  style: EText.body.medium,
                 ),
               ),
-              Text('(${component.displayCount})', style: AppText.body.small),
+              Text('(${component.displayCount})', style: EText.body.small),
             ],
           ),
         ),
@@ -183,18 +184,18 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
           vertical: AppSpacing.sm,
         ),
         decoration: BoxDecoration(
-          color: AppColors.backgroundTertiary,
+          color: EColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.medium),
-          border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+          border: Border.all(color: EColors.accent.withValues(alpha: 0.3)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(CupertinoIcons.add, size: 18, color: AppColors.primary),
+            Icon(CupertinoIcons.add, size: 18, color: EColors.accent),
             HSpace.s,
             Text(
               'Create New',
-              style: AppText.body.medium.copyWith(color: AppColors.primary),
+              style: EText.body.medium.copyWith(color: EColors.accent),
             ),
           ],
         ),

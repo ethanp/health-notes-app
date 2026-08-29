@@ -1,11 +1,13 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/grouped_notes_section.dart';
+import 'package:health_notes/widgets/health_notes_page.dart';
+import 'package:health_notes/widgets/health_notes_search_field.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/theme/spacing.dart';
 
@@ -89,23 +91,13 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
   Widget build(BuildContext context) {
     final healthNotesAsync = ref.watch(healthNotesNotifierProvider);
 
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(title),
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Icon(CupertinoIcons.back),
-        ),
-      ),
-      child: SafeArea(
-        child: healthNotesAsync.when(
-          data: (notes) => buildContent(notes),
-          loading: () =>
-              EnhancedUIComponents.loadingIndicator(message: loadingMessage),
-          error: (error, stack) =>
-              Center(child: Text('Error: $error', style: AppText.error)),
-        ),
+    return HealthNotesPage(
+      title: title,
+      body: healthNotesAsync.when(
+        data: (notes) => buildContent(notes),
+        loading: () => ELoadingState(message: loadingMessage),
+        error: (error, stack) =>
+            Center(child: Text('Error: $error', style: EText.error)),
       ),
     );
   }
@@ -114,7 +106,7 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
     final scopedNotes = filterSourceNotes(notes);
 
     if (scopedNotes.isEmpty) {
-      return EnhancedUIComponents.emptyState(
+      return EEmptyState(
         title: emptyTitle,
         message: emptyMessage,
         icon: emptyIcon,
@@ -197,9 +189,9 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Search Notes', style: AppText.label.large),
+        Text('Search Notes', style: EText.label.large),
         VSpace.sm,
-        EnhancedUIComponents.searchField(
+        HealthNotesSearchField(
           controller: searchController,
           placeholder: searchPlaceholder,
           onChanged: (query) => setState(() => searchQuery = query),

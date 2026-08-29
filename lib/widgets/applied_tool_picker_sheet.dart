@@ -1,9 +1,10 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/health_notes_search_field.dart';
 import 'package:health_notes/theme/spacing.dart';
 
 class AppliedToolPickerSheet extends ConsumerStatefulWidget {
@@ -58,7 +59,7 @@ class _AppliedToolPickerSheetState
                 topRight: Radius.circular(AppRadius.extraLarge),
               ),
               child: Container(
-                color: AppColors.backgroundSecondary,
+                color: EColors.backgroundLift,
                 child: SafeArea(top: false, child: sheetContent()),
               ),
             ),
@@ -87,7 +88,7 @@ class _AppliedToolPickerSheetState
       width: 40,
       height: 4,
       decoration: BoxDecoration(
-        color: AppColors.backgroundQuinary,
+        color: EColors.borderStrong,
         borderRadius: BorderRadius.circular(AppRadius.xs),
       ),
     );
@@ -97,7 +98,7 @@ class _AppliedToolPickerSheetState
     return paddingHorizontal(
       Row(
         children: [
-          Expanded(child: Text('Select a tool', style: AppText.headline.small)),
+          Expanded(child: Text('Select a tool', style: EText.headline.small)),
           CupertinoButton(
             padding: EdgeInsets.zero,
             onPressed: () => Navigator.of(context).pop(),
@@ -109,15 +110,16 @@ class _AppliedToolPickerSheetState
   }
 
   Widget searchField() {
-    return EnhancedUIComponents.searchField(
+    return HealthNotesSearchField(
       controller: _searchController,
       placeholder: 'Search tools',
       onChanged: (_) => setState(() {}),
-      showSuffix: _searchController.text.isNotEmpty,
-      onSuffixTap: () {
-        _searchController.clear();
-        setState(() {});
-      },
+      onClear: _searchController.text.isNotEmpty
+          ? () {
+              _searchController.clear();
+              setState(() {});
+            }
+          : null,
     );
   }
 
@@ -131,9 +133,9 @@ class _AppliedToolPickerSheetState
             : tools.where((t) => t.name.toLowerCase().contains(q)).toList();
 
         if (filtered.isEmpty) {
-          return EnhancedUIComponents.emptyState(
+          return EEmptyState(
             title: 'No tools found',
-            message: 'Try a different search or add tools in My Tools',
+            message: 'Try a different search or add tools in Library → Tools',
             icon: CupertinoIcons.search,
           );
         }
@@ -152,8 +154,8 @@ class _AppliedToolPickerSheetState
         );
       },
       loading: () =>
-          EnhancedUIComponents.loadingIndicator(message: 'Loading tools...'),
-      error: (e, st) => Center(child: Text('Error: $e', style: AppText.error)),
+          ELoadingState(message: 'Loading tools...'),
+      error: (e, st) => Center(child: Text('Error: $e', style: EText.error)),
     );
   }
 
@@ -169,11 +171,11 @@ class _AppliedToolPickerSheetState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(tool.name, style: AppText.label.large),
+                  Text(tool.name, style: EText.label.large),
                   VSpace.xs,
                   Text(
                     tool.description,
-                    style: AppText.body.small.secondary,
+                    style: EText.body.small.secondary,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -182,7 +184,7 @@ class _AppliedToolPickerSheetState
             ),
             HSpace.m,
             if (isSelected)
-              Text('Selected', style: AppText.body.small.systemGrey.semibold),
+              Text('Selected', style: EText.body.small.muted.semibold),
           ],
         ),
       ),

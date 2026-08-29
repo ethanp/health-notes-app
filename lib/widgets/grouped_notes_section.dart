@@ -1,9 +1,8 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
-import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/date_utils.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/theme/spacing.dart';
 
 class GroupedNotesSection extends StatelessWidget {
@@ -24,7 +23,7 @@ class GroupedNotesSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Health Notes (${notes.length})', style: AppText.headline.small),
+        Text('Health Notes (${notes.length})', style: EText.headline.small),
         VSpace.sm,
         if (header != null) header!,
         ..._dateGroupedCards(),
@@ -53,7 +52,7 @@ class GroupedNotesSection extends StatelessWidget {
   }
 
   Widget _dateHeader(DateTime date, int count) =>
-      EnhancedUIComponents.sectionHeader(
+      ESectionHeader(
         title: AppDateUtils.formatShortDate(date),
         subtitle: '$count note${count == 1 ? '' : 's'}',
       );
@@ -63,7 +62,7 @@ class _EmptyState extends StatelessWidget {
   const _EmptyState();
 
   @override
-  Widget build(BuildContext context) => EnhancedUIComponents.emptyState(
+  Widget build(BuildContext context) => EEmptyState(
     title: 'No matching notes',
     message: 'Try adjusting your search terms',
     icon: CupertinoIcons.search,

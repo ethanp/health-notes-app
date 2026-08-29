@@ -1,6 +1,6 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/theme/spacing.dart';
 
 class SearchableStatsTable extends StatefulWidget {
@@ -38,21 +38,21 @@ class _SearchableStatsTableState extends State<SearchableStatsTable> {
   Widget build(BuildContext context) {
     final filtered = _filter();
 
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CupertinoSearchTextField(
             controller: _searchController,
             placeholder: widget.searchPlaceholder,
-            placeholderStyle: AppText.inputPlaceholder,
-            style: AppText.input,
+            placeholderStyle: EText.body.medium.muted,
+            style: EText.body.medium,
             onChanged: (query) => setState(() => _searchQuery = query),
           ),
           VSpace.s,
           Text(
             '${widget.stats.length} total',
-            style: AppText.body.small.systemGrey,
+            style: EText.body.small.muted,
           ),
           VSpace.s,
           _buildList(filtered),
@@ -112,7 +112,7 @@ class _StatsRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: Text(label, style: AppText.body.medium.white.semibold),
+            child: Text(label, style: EText.body.medium.white.semibold),
           ),
           Container(
             padding: const EdgeInsets.symmetric(
@@ -122,19 +122,19 @@ class _StatsRow extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.primary.withValues(alpha: 0.2),
-                  AppColors.primary.withValues(alpha: 0.1),
+                  EColors.accent.withValues(alpha: 0.2),
+                  EColors.accent.withValues(alpha: 0.1),
                 ],
               ),
               borderRadius: BorderRadius.circular(AppRadius.large),
               border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.3),
+                color: EColors.accent.withValues(alpha: 0.3),
               ),
             ),
             child: Text(
               '$count',
-              style: AppText.label.small.copyWith(
-                color: AppColors.primary,
+              style: EText.label.small.copyWith(
+                color: EColors.accent,
                 fontWeight: FontWeight.w600,
               ),
             ),

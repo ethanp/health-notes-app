@@ -9,7 +9,6 @@ import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/models/medication_schedule.dart';
 import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
-import 'package:health_notes/providers/medication_recommendations_provider.dart';
 import 'package:health_notes/providers/medication_schedules_provider.dart';
 import 'package:health_notes/screens/medication_schedules_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
@@ -155,7 +154,6 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
 
   @override
   Widget build(BuildContext context) {
-    final recommendations = ref.watch(medicationRecommendationsProvider);
     final schedules = ref.watch(medicationSchedulesNotifierProvider);
     final notes = ref.watch(healthNotesNotifierProvider);
     final waiting = DosesWaitingForNote.forDraft(
@@ -200,21 +198,6 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
           isEditable: widget.isEditable,
           drugDoses: _drugDoses,
           controllers: _drugDoseControllers,
-          recentRecommendations: recommendations.when(
-            data: (data) => data.recent,
-            loading: () => [],
-            error: (_, _) => [],
-          ),
-          commonRecommendations: recommendations.when(
-            data: (data) => data.common,
-            loading: () => [],
-            error: (_, _) => [],
-          ),
-          allKnownRecommendations: recommendations.when(
-            data: (data) => data.allKnown,
-            loading: () => [],
-            error: (_, _) => [],
-          ),
           onAdd: addDrugDose,
           onRemove: removeDrugDose,
           onUpdate: updateDrugDose,

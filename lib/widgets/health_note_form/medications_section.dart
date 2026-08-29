@@ -1,17 +1,16 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/models/medication_schedule.dart';
-import 'package:health_notes/providers/medication_recommendations_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/number_formatter.dart';
-import 'package:health_notes/widgets/app_card.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/form_section_container.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
 import 'package:health_notes/widgets/medication_schedule/due_dose_chip.dart';
+import 'package:health_notes/widgets/medication_suggestion_chips.dart';
 import 'package:health_notes/widgets/note_summary_rows.dart';
 
 class MedicationsSection extends StatelessWidget {
@@ -21,9 +20,6 @@ class MedicationsSection extends StatelessWidget {
   final VoidCallback onAdd;
   final Function(int) onRemove;
   final Function(int, {DrugName? name, double? dosage, String? unit}) onUpdate;
-  final List<DrugDose> recentRecommendations;
-  final List<DrugDose> commonRecommendations;
-  final List<DrugDose> allKnownRecommendations;
   final List<ScheduledDoseOccurrence> dueOccurrences;
   final ScheduledDoseOccurrence? nearestDue;
   final ValueChanged<ScheduledDoseOccurrence>? onDueActivated;
@@ -37,9 +33,6 @@ class MedicationsSection extends StatelessWidget {
     required this.onAdd,
     required this.onRemove,
     required this.onUpdate,
-    this.recentRecommendations = const [],
-    this.commonRecommendations = const [],
-    this.allKnownRecommendations = const [],
     this.dueOccurrences = const [],
     this.nearestDue,
     this.onDueActivated,
@@ -62,7 +55,7 @@ class MedicationsSection extends StatelessWidget {
   }
 
   Widget _header() {
-    return EnhancedUIComponents.sectionHeader(
+    return ESectionHeader(
       title: 'Medications',
       trailing: isEditable
           ? Row(
@@ -87,7 +80,7 @@ class MedicationsSection extends StatelessWidget {
   Widget _content(BuildContext context) {
     if (!isEditable) {
       if (drugDoses.isEmpty) {
-        return Text('No medications recorded', style: AppText.body.medium);
+        return Text('No medications recorded', style: EText.body.medium);
       }
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,14 +108,14 @@ class MedicationsSection extends StatelessWidget {
         child: const Text('Set up a schedule'),
       );
     }
-    return Text('No medications recorded', style: AppText.body.medium);
+    return Text('No medications recorded', style: EText.body.medium);
   }
 
   Widget _dueToday() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Due today', style: AppText.label.large.size(12)),
+        Text('Due today', style: EText.label.large.size(12)),
         VSpace.s,
         Wrap(
           spacing: 8,
@@ -143,9 +136,9 @@ class MedicationsSection extends StatelessWidget {
   Widget _editableItem(
     int index,
     DrugDose dose,
-    DrugDoseControllers controllers,
+    DrugDoseControllers doseControllers,
   ) {
-    return AppCard(
+    return ECard(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,8 +147,8 @@ class MedicationsSection extends StatelessWidget {
             children: [
               Expanded(
                 child: TextField(
-                  controller: controllers.name,
-                  style: AppText.input,
+                  controller: doseControllers.name,
+                  style: EText.body.medium,
                   decoration: _inputDecoration(hint: 'Medication name'),
                   onChanged: (value) => onUpdate(index, name: DrugName(value)),
                 ),
@@ -164,7 +157,7 @@ class MedicationsSection extends StatelessWidget {
               IconButton(
                 tooltip: 'Remove medication',
                 onPressed: () => onRemove(index),
-                icon: const Icon(Icons.delete_outline, color: AppColors.destructive),
+                icon: const Icon(Icons.delete_outline, color: EColors.danger),
               ),
             ],
           ),
@@ -173,8 +166,8 @@ class MedicationsSection extends StatelessWidget {
             children: [
               Expanded(
                 child: TextField(
-                  controller: controllers.dosage,
-                  style: AppText.input,
+                  controller: doseControllers.dosage,
+                  style: EText.body.medium,
                   keyboardType: TextInputType.number,
                   decoration: _inputDecoration(hint: 'Dosage'),
                   onChanged: (value) {
@@ -187,91 +180,47 @@ class MedicationsSection extends StatelessWidget {
               SizedBox(
                 width: 80,
                 child: TextField(
-                  controller: controllers.unit,
-                  style: AppText.input,
+                  controller: doseControllers.unit,
+                  style: EText.body.medium,
                   decoration: _inputDecoration(hint: 'Unit'),
                   onChanged: (value) => onUpdate(index, unit: value),
                 ),
               ),
             ],
           ),
-          if (_matchingRecommendations(dose.name.display).isNotEmpty) ...[
-            VSpace.sm,
-            _recommendations(index, dose.name.display),
-          ],
+          MedicationDoseSuggestionChips(
+            typedName: dose.name.display,
+            onDoseSelected: (recommendation) =>
+                _applySuggestedDose(index, recommendation),
+          ),
         ],
       ),
     );
   }
 
+  void _applySuggestedDose(int index, DrugDose recommendation) {
+    onUpdate(
+      index,
+      name: recommendation.name,
+      dosage: recommendation.dosage,
+      unit: recommendation.unit,
+    );
+    controllers[index]?.name.text = recommendation.name.display;
+    controllers[index]?.dosage.text = formatDecimalValue(
+      recommendation.dosage,
+    );
+    controllers[index]?.unit.text = recommendation.unit;
+  }
+
   InputDecoration _inputDecoration({required String hint}) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: AppText.inputPlaceholder,
+      hintStyle: EText.body.medium.muted,
       filled: true,
-      fillColor: AppColors.backgroundTertiary,
+      fillColor: EColors.surface,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppRadius.small),
-        borderSide: const BorderSide(color: AppColors.backgroundQuaternary),
-      ),
-    );
-  }
-
-  List<DrugDose> _matchingRecommendations(String typedName) =>
-      MedicationRecommendationsFilter.matchingRecommendations(
-        typedName: typedName,
-        recent: recentRecommendations,
-        common: commonRecommendations,
-        allKnown: allKnownRecommendations,
-      );
-
-  Widget _recommendations(int index, String typedName) {
-    final matchingRecommendations = _matchingRecommendations(typedName);
-    if (matchingRecommendations.isEmpty) return const SizedBox.shrink();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Suggested', style: AppText.label.large.size(12)),
-        VSpace.xs,
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: matchingRecommendations
-              .map(
-                (recommendation) => _recommendationChip(index, recommendation),
-              )
-              .toList(),
-        ),
-      ],
-    );
-  }
-
-  Widget _recommendationChip(int index, DrugDose recommendation) {
-    return GestureDetector(
-      onTap: () {
-        onUpdate(
-          index,
-          name: recommendation.name,
-          dosage: recommendation.dosage,
-          unit: recommendation.unit,
-        );
-        controllers[index]?.name.text = recommendation.name.display;
-        controllers[index]?.dosage.text = formatDecimalValue(
-          recommendation.dosage,
-        );
-        controllers[index]?.unit.text = recommendation.unit;
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: AppColors.backgroundTertiary,
-          borderRadius: BorderRadius.circular(AppRadius.small),
-          border: Border.all(color: AppColors.backgroundQuaternary),
-        ),
-        child: Text(
-          '${recommendation.name.display} ${recommendation.displayDosage}',
-          style: AppText.body.medium,
-        ),
+        borderSide: const BorderSide(color: EColors.surfaceRaised),
       ),
     );
   }

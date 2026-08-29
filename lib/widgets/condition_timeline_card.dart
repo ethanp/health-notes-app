@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/condition.dart';
@@ -5,7 +6,6 @@ import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/providers/conditions_provider.dart';
 import 'package:health_notes/services/condition_activity_aggregator.dart';
 import 'package:health_notes/utils/date_utils.dart';
-import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 
@@ -23,7 +23,7 @@ class ConditionTimelineCard extends ConsumerWidget {
       symptomsForConditionProvider(condition.id),
     );
 
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -66,7 +66,7 @@ class ConditionTimelineCard extends ConsumerWidget {
           VSpace.xs,
           Text(
             activityCaption(entries, linkedSymptoms),
-            style: AppText.caption.tertiary,
+            style: EText.caption.tertiary,
           ),
         ],
       ],
@@ -90,11 +90,11 @@ class ConditionTimelineCard extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(condition.name, style: AppText.label.large.primary),
+              Text(condition.name, style: EText.label.large.primary),
               VSpace.xs,
               Text(
                 condition.dateRangeCaption,
-                style: AppText.body.small.tertiary,
+                style: EText.body.small.tertiary,
               ),
             ],
           ),
@@ -116,7 +116,7 @@ class ConditionTimelineCard extends ConsumerWidget {
       ),
       child: Text(
         condition.status.displayName,
-        style: AppText.caption.copyWith(
+        style: EText.caption.copyWith(
           color: color,
           fontWeight: FontWeight.w600,
         ),
@@ -141,7 +141,7 @@ class ConditionTimelineCard extends ConsumerWidget {
     return Container(
       height: 40,
       decoration: BoxDecoration(
-        color: AppColors.backgroundTertiary,
+        color: EColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.small),
       ),
     );
@@ -151,7 +151,7 @@ class ConditionTimelineCard extends ConsumerWidget {
     return Container(
       height: 40,
       decoration: BoxDecoration(
-        color: AppColors.backgroundTertiary,
+        color: EColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.small),
       ),
       child: Row(
@@ -160,10 +160,10 @@ class ConditionTimelineCard extends ConsumerWidget {
           Icon(
             CupertinoIcons.chart_bar,
             size: 14,
-            color: AppColors.textQuaternary,
+            color: EColors.textMuted,
           ),
           HSpace.xs,
-          Text('No activity yet', style: AppText.caption.quaternary),
+          Text('No activity yet', style: EText.caption.quaternary),
         ],
       ),
     );
@@ -191,12 +191,12 @@ class ConditionTimelineCard extends ConsumerWidget {
       children: [
         Text(
           '${condition.durationDays} day${condition.durationDays == 1 ? '' : 's'}',
-          style: AppText.caption.quaternary,
+          style: EText.caption.quaternary,
         ),
         Icon(
           CupertinoIcons.chevron_right,
           size: 14,
-          color: AppColors.textQuaternary,
+          color: EColors.textMuted,
         ),
       ],
     );

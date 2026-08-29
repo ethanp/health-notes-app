@@ -1,8 +1,10 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/app_filter_chip.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:intl/intl.dart';
 
@@ -39,30 +41,29 @@ class _FilterModalState extends State<FilterModal> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.navigationBar(
-        title: 'Filters',
-        leading: CupertinoNavigationBarBackButton(
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: applyFilters,
-          child: Text('Apply', style: AppText.buttonSecondary),
-        ),
+    return HealthNotesPage(
+      title: 'Filters',
+      leading: IconButton(
+        tooltip: 'Back',
+        onPressed: () => Navigator.of(context).pop(),
+        icon: const Icon(Icons.arrow_back_rounded),
       ),
-      child: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.m),
-          children: [
-            VSpace.of(20),
-            dateFilterSection(),
-            VSpace.of(20),
-            drugFilterSection(),
-            if (_isDatePickerVisible) ...[VSpace.of(20), datePickerOverlay()],
-            VSpace.of(40),
-          ],
+      actions: [
+        TextButton(
+          onPressed: applyFilters,
+          child: Text('Apply', style: EText.body.medium.semibold.accent),
         ),
+      ],
+      body: ListView(
+        padding: const EdgeInsets.all(AppSpacing.m),
+        children: [
+          VSpace.of(20),
+          dateFilterSection(),
+          VSpace.of(20),
+          drugFilterSection(),
+          if (_isDatePickerVisible) ...[VSpace.of(20), datePickerOverlay()],
+          VSpace.of(40),
+        ],
       ),
     );
   }
@@ -74,7 +75,7 @@ class _FilterModalState extends State<FilterModal> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Filter by Date', style: AppText.headline.small),
+          Text('Filter by Date', style: EText.headline.small),
           VSpace.m,
           Row(
             children: [
@@ -101,8 +102,8 @@ class _FilterModalState extends State<FilterModal> {
             ? DateFormat('M/d/yyyy').format(_tempSelectedDate!)
             : 'Select Date',
         style: _tempSelectedDate != null
-            ? AppText.buttonPrimary
-            : AppText.body.medium,
+            ? EText.body.medium.semibold.white
+            : EText.body.medium,
       ),
     );
   }
@@ -128,10 +129,10 @@ class _FilterModalState extends State<FilterModal> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Filter by Drug', style: AppText.headline.small),
+          Text('Filter by Drug', style: EText.headline.small),
           VSpace.m,
           if (widget.availableDrugs.isEmpty)
-            Text('No drugs recorded yet', style: AppText.body.medium.tertiary)
+            Text('No drugs recorded yet', style: EText.body.medium.tertiary)
           else
             Wrap(
               spacing: 8,
@@ -165,7 +166,7 @@ class _FilterModalState extends State<FilterModal> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Select Date', style: AppText.headline.small),
+              Text('Select Date', style: EText.headline.small),
               CupertinoButton(
                 padding: EdgeInsets.zero,
                 onPressed: () => setState(() => _isDatePickerVisible = false),
@@ -228,7 +229,7 @@ class _FilterModalState extends State<FilterModal> {
       ),
       children: months
           .map(
-            (month) => Center(child: Text(month, style: AppText.body.medium)),
+            (month) => Center(child: Text(month, style: EText.body.medium)),
           )
           .toList(),
     );
@@ -246,7 +247,7 @@ class _FilterModalState extends State<FilterModal> {
         ),
       ),
       children: days
-          .map((day) => Center(child: Text(day, style: AppText.body.medium)))
+          .map((day) => Center(child: Text(day, style: EText.body.medium)))
           .toList(),
     );
   }
@@ -263,7 +264,7 @@ class _FilterModalState extends State<FilterModal> {
         ),
       ),
       children: years
-          .map((year) => Center(child: Text(year, style: AppText.body.medium)))
+          .map((year) => Center(child: Text(year, style: EText.body.medium)))
           .toList(),
     );
   }

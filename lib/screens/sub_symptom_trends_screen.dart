@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
@@ -119,7 +120,7 @@ class _SubSymptomTrendsScreenState
         ),
         child: Text(
           'Peak: Level $severity — $description',
-          style: AppText.label.medium.copyWith(
+          style: EText.label.medium.copyWith(
             color: color,
             fontWeight: FontWeight.w600,
           ),
@@ -141,10 +142,10 @@ class _SubSymptomTrendsScreenState
         children: [
           TextSpan(
             text: AppDateUtils.formatTime(note.dateTime),
-            style: AppText.body.small.bold,
+            style: EText.body.small.bold,
           ),
           const TextSpan(text: '  ·  '),
-          TextSpan(text: 'L$noteSeverity', style: AppText.body.small.semibold),
+          TextSpan(text: 'L$noteSeverity', style: EText.body.small.semibold),
         ],
       ),
     );

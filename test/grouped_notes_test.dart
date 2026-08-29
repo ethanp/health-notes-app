@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+import 'package:ethan_ui/ethan_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/widgets/grouped_notes_section.dart';
@@ -21,9 +22,10 @@ void main() {
       ];
 
       await tester.pumpWidget(
-        CupertinoApp(
-          home: CupertinoPageScaffold(
-            child: SingleChildScrollView(
+        MaterialApp(
+          theme: ETheme.build(),
+          home: Scaffold(
+            body: SingleChildScrollView(
               child: GroupedNotesSection(
                 notes: notes,
                 cardBuilder: (dayNotes) =>
@@ -52,9 +54,10 @@ void main() {
 
     testWidgets('shows empty state when notes is empty', (tester) async {
       await tester.pumpWidget(
-        CupertinoApp(
-          home: CupertinoPageScaffold(
-            child: GroupedNotesSection(notes: const [], cardBuilder: (_) => []),
+        MaterialApp(
+          theme: ETheme.build(),
+          home: Scaffold(
+            body: GroupedNotesSection(notes: const [], cardBuilder: (_) => []),
           ),
         ),
       );
@@ -66,9 +69,10 @@ void main() {
       final july3 = DateTime(2026, 7, 3, 9, 0);
 
       await tester.pumpWidget(
-        CupertinoApp(
-          home: CupertinoPageScaffold(
-            child: SingleChildScrollView(
+        MaterialApp(
+          theme: ETheme.build(),
+          home: Scaffold(
+            body: SingleChildScrollView(
               child: GroupedNotesSection(
                 notes: [noteAt('1', july3)],
                 cardBuilder: (dayNotes) =>

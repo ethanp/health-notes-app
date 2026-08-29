@@ -1,18 +1,16 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_tool_category.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/screens/health_tool_category_form.dart';
 import 'package:health_notes/screens/health_tool_category_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
-
-import 'package:health_notes/widgets/log_out_button.dart';
-import 'package:health_notes/widgets/app_button.dart';
-import 'package:health_notes/widgets/app_card.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
-import 'package:health_notes/widgets/refreshable_list_view.dart';
 import 'package:health_notes/theme/spacing.dart';
+import 'package:health_notes/widgets/health_notes_page.dart';
+import 'package:health_notes/widgets/refreshable_list_view.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 
 class MyToolsScreen extends ConsumerStatefulWidget {
@@ -27,45 +25,37 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
   Widget build(BuildContext context) {
     final categoriesAsync = ref.watch(healthToolCategoriesNotifierProvider);
 
-    return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.navigationBar(
-        title: 'My Tools',
-        leading: const LogOutButton(),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const CompactSyncStatusWidget(),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: () => _showAddCategoryForm(),
-              child: const Icon(CupertinoIcons.add),
-            ),
-          ],
+    return HealthNotesPage(
+      title: 'Tools',
+      actions: [
+        const CompactSyncStatusWidget(),
+        IconButton(
+          tooltip: 'Add category',
+          onPressed: _showAddCategoryForm,
+          icon: const Icon(Icons.add),
         ),
-      ),
-      child: SafeArea(
-        child: categoriesAsync.when(
-          data: (categories) =>
-              categories.isEmpty ? emptyState() : categoriesList(categories),
-          loading: () => const SyncStatusWidget.loading(
-            message: 'Loading your health tools...',
-          ),
-          error: (error, stack) =>
-              Center(child: Text('Error: $error', style: AppText.error)),
+      ],
+      body: categoriesAsync.when(
+        data: (categories) =>
+            categories.isEmpty ? emptyState() : categoriesList(categories),
+        loading: () => const SyncStatusWidget.loading(
+          message: 'Loading your health tools...',
         ),
+        error: (error, stack) =>
+            Center(child: Text('Error: $error', style: EText.error)),
       ),
     );
   }
 
   Widget emptyState() {
-    return EnhancedUIComponents.emptyState(
+    return EEmptyState(
       title: 'No health tools yet',
       message: 'Create your first health tool category to get started',
-      icon: CupertinoIcons.wrench,
-      action: AppButton(
-        text: 'Add Category',
-        onPressed: () => _showAddCategoryForm(),
-        icon: CupertinoIcons.add,
+      icon: Icons.handyman_outlined,
+      action: FilledButton.icon(
+        onPressed: _showAddCategoryForm,
+        icon: const Icon(Icons.add),
+        label: const Text('Add Category'),
       ),
     );
   }
@@ -82,7 +72,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
   }
 
   Widget categoryCard(HealthToolCategory category) {
-    return AppCard(
+    return ECard(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       padding: EdgeInsets.zero,
       child: CupertinoButton(
@@ -109,7 +99,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
 
   Color _parseColor(String colorHex) {
     final parsed = int.tryParse(colorHex.replaceAll('#', '0xFF'));
-    return parsed != null ? Color(parsed) : AppColors.primary;
+    return parsed != null ? Color(parsed) : EColors.accent;
   }
 
   IconData _getIconData(String iconName) {
@@ -159,11 +149,11 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(category.name, style: AppText.label.large),
+        Text(category.name, style: EText.label.large),
         VSpace.xs,
         Text(
           category.description,
-          style: AppText.body.medium.tertiary,
+          style: EText.body.medium.tertiary,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),

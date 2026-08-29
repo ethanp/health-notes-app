@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,7 +30,7 @@ class MedicationSchedulesScreen extends ConsumerWidget {
       ],
       body: schedulesAsync.when(
         data: (schedules) => schedules.isEmpty
-            ? _emptyState(context)
+            ? _emptyState(context, ref)
             : _schedulesList(context, ref, schedules),
         loading: () =>
             const SyncStatusWidget.loading(message: 'Loading schedules...'),
@@ -41,29 +42,46 @@ class MedicationSchedulesScreen extends ConsumerWidget {
     );
   }
 
-  Widget _emptyState(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.l),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.medication_outlined, size: 48, color: AppColors.secondary),
-            VSpace.m,
-            Text('No schedules yet', style: AppText.headline.small),
-            VSpace.s,
-            Text(
-              'A taper like prednisone, or times each day like gabapentin.',
-              style: AppText.body.medium.tertiary,
-              textAlign: TextAlign.center,
-            ),
-            VSpace.l,
-            FilledButton(
-              onPressed: () => _showScheduleForm(context),
-              child: const Text('Set up a schedule'),
-            ),
-          ],
-        ),
+  Widget _emptyState(BuildContext context, WidgetRef ref) {
+    return RefreshIndicator(
+      onRefresh: () => ref.read(syncNotifierProvider.notifier).syncAllData(),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.l),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.medication_outlined,
+                        size: 48,
+                        color: EColors.accentGlow,
+                      ),
+                      VSpace.m,
+                      Text('No schedules yet', style: EText.headline.small),
+                      VSpace.s,
+                      Text(
+                        'A taper like prednisone, or times each day like gabapentin.',
+                        style: EText.body.medium.tertiary,
+                        textAlign: TextAlign.center,
+                      ),
+                      VSpace.l,
+                      FilledButton(
+                        onPressed: () => _showScheduleForm(context),
+                        child: const Text('Set up a schedule'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -78,6 +96,7 @@ class MedicationSchedulesScreen extends ConsumerWidget {
     return RefreshIndicator(
       onRefresh: () => ref.read(syncNotifierProvider.notifier).syncAllData(),
       child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(AppSpacing.m),
         children: [
           ..._section(context, title: 'Active', schedules: active),
@@ -95,7 +114,7 @@ class MedicationSchedulesScreen extends ConsumerWidget {
   }) {
     if (schedules.isEmpty) return [];
     return [
-      Text(title, style: AppText.label.large.primary),
+      Text(title, style: EText.label.large.primary),
       VSpace.s,
       ...schedules.map(
         (schedule) => ScheduleCard(

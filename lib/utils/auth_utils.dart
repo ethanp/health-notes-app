@@ -1,7 +1,7 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/services/auth_service.dart';
-import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/providers/user_profile_provider.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -30,12 +30,12 @@ class AuthUtils {
                   VSpace.s,
                   Text(
                     userProfile?.fullName ?? 'User',
-                    style: AppText.body.medium.semibold,
+                    style: EText.body.medium.semibold,
                   ),
                   VSpace.m,
                   Text(
                     'Are you sure you want to sign out?',
-                    style: AppText.body.medium,
+                    style: EText.body.medium,
                   ),
                 ],
               ),

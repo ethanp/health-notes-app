@@ -1,5 +1,7 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/providers/auth_provider.dart';
@@ -8,9 +10,8 @@ import 'package:health_notes/providers/sync_provider.dart';
 import 'package:health_notes/screens/metric_edit_screen.dart';
 import 'package:health_notes/services/offline_repository.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 
@@ -28,40 +29,23 @@ class _MetricsManagementScreenState
   Widget build(BuildContext context) {
     final metricsAsync = ref.watch(checkInMetricsNotifierProvider);
 
-    return CupertinoPageScaffold(
-      navigationBar: managementNavigationBar(),
-      child: SafeArea(child: metricsBody(metricsAsync)),
-    );
-  }
-
-  ObstructingPreferredSizeWidget managementNavigationBar() {
-    return EnhancedUIComponents.navigationBar(
+    return HealthNotesPage(
       title: 'Manage Metrics',
-      leading: CupertinoButton(
-        padding: EdgeInsets.zero,
+      leading: TextButton(
         onPressed: () => Navigator.of(context).pop(),
         child: const Text('Done'),
       ),
-      trailing: managementActions(),
-    );
-  }
-
-  Widget managementActions() {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
+      actions: [
         const CompactSyncStatusWidget(),
-        HSpace.s,
-        CupertinoButton(
-          padding: EdgeInsets.zero,
+        IconButton(
+          tooltip: 'Sync',
           onPressed: () async {
             await ref.read(syncNotifierProvider.notifier).forceSyncAllData();
           },
-          child: const Icon(CupertinoIcons.arrow_2_circlepath),
+          icon: const Icon(Icons.sync),
         ),
-        HSpace.of(6),
-        CupertinoButton(
-          padding: EdgeInsets.zero,
+        IconButton(
+          tooltip: 'Resync metrics',
           onPressed: () async {
             final user = await ref.read(currentUserProvider.future);
             final userId = user?.id;
@@ -71,15 +55,15 @@ class _MetricsManagementScreenState
               await ref.read(syncNotifierProvider.notifier).forceSyncAllData();
             }
           },
-          child: const Icon(CupertinoIcons.arrow_up_arrow_down_circle),
+          icon: const Icon(Icons.swap_vert_circle_outlined),
         ),
-        HSpace.of(6),
-        CupertinoButton(
-          padding: EdgeInsets.zero,
+        IconButton(
+          tooltip: 'Add metric',
           onPressed: () => _showAddMetricDialog(context),
-          child: const Icon(CupertinoIcons.add),
+          icon: const Icon(Icons.add),
         ),
       ],
+      body: metricsBody(metricsAsync),
     );
   }
 
@@ -102,11 +86,11 @@ class _MetricsManagementScreenState
             color: CupertinoColors.systemRed,
           ),
           VSpace.m,
-          Text('Failed to load metrics', style: AppText.navTitle),
+          Text('Failed to load metrics', style: EText.headline.small),
           VSpace.s,
           Text(
             error.toString(),
-            style: AppText.body.medium,
+            style: EText.body.medium,
             textAlign: TextAlign.center,
           ),
           VSpace.m,
@@ -131,11 +115,11 @@ class _MetricsManagementScreenState
               color: CupertinoColors.systemGrey,
             ),
             VSpace.m,
-            Text('No metrics yet', style: AppText.navTitle),
+            Text('No metrics yet', style: EText.headline.small),
             VSpace.s,
             Text(
               'Add your first metric to start tracking your health',
-              style: AppText.body.medium,
+              style: EText.body.medium,
               textAlign: TextAlign.center,
             ),
             VSpace.l,
@@ -160,7 +144,7 @@ class _MetricsManagementScreenState
     return Container(
       key: ValueKey(metric.id),
       margin: const EdgeInsets.only(bottom: 6),
-      child: AppCard(
+      child: ECard(
         margin: const EdgeInsets.all(AppSpacing.m),
         child: CupertinoListTile(
           padding: const EdgeInsets.symmetric(

@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -77,7 +78,7 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
               topRight: Radius.circular(AppRadius.extraLarge),
             ),
             child: Container(
-              color: AppColors.backgroundSecondary,
+              color: EColors.backgroundLift,
               child: SafeArea(
                 top: false,
                 child: Builder(
@@ -144,7 +145,7 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
         width: 40,
         height: 4,
         decoration: BoxDecoration(
-          color: AppColors.backgroundQuinary,
+          color: EColors.borderStrong,
           borderRadius: BorderRadius.circular(AppRadius.xs),
         ),
       ),
@@ -155,7 +156,7 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
     return Row(
       children: [
         Expanded(
-          child: Text('Add ${widget.drugName}', style: AppText.headline.small),
+          child: Text('Add ${widget.drugName}', style: EText.headline.small),
         ),
         CupertinoButton(
           padding: EdgeInsets.zero,
@@ -177,7 +178,7 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
     final overflowSuffix = count > 3 ? ' +${count - 3} more' : '';
     return Text(
       '$count $dayWord: $preview$overflowSuffix',
-      style: AppText.body.small.systemGrey,
+      style: EText.body.small.muted,
     );
   }
 
@@ -185,23 +186,23 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Dosage amount', style: AppText.label.medium),
+        Text('Dosage amount', style: EText.label.medium),
         VSpace.s,
         CupertinoTextField(
           controller: _dosageController,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           placeholder: 'e.g. 10',
           autofocus: true,
-          style: AppText.body.medium,
-          placeholderStyle: AppText.body.medium.systemGrey,
+          style: EText.body.medium,
+          placeholderStyle: EText.body.medium.muted,
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.m,
             vertical: AppSpacing.sm,
           ),
           decoration: BoxDecoration(
-            color: AppColors.backgroundTertiary,
+            color: EColors.surface,
             borderRadius: BorderRadius.circular(AppRadius.small),
-            border: Border.all(color: AppColors.backgroundQuaternary),
+            border: Border.all(color: EColors.surfaceRaised),
           ),
           onChanged: (_) => setState(() {}),
           onSubmitted: (_) => _submit(),
@@ -214,21 +215,21 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Unit', style: AppText.label.medium),
+        Text('Unit', style: EText.label.medium),
         VSpace.s,
         CupertinoTextField(
           controller: _unitController,
           placeholder: 'mg',
-          style: AppText.body.medium,
-          placeholderStyle: AppText.body.medium.systemGrey,
+          style: EText.body.medium,
+          placeholderStyle: EText.body.medium.muted,
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.m,
             vertical: AppSpacing.sm,
           ),
           decoration: BoxDecoration(
-            color: AppColors.backgroundTertiary,
+            color: EColors.surface,
             borderRadius: BorderRadius.circular(AppRadius.small),
-            border: Border.all(color: AppColors.backgroundQuaternary),
+            border: Border.all(color: EColors.surfaceRaised),
           ),
           onChanged: (_) => setState(() {}),
           onSubmitted: (_) => _submit(),
@@ -252,8 +253,8 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
           child: Text(
             _canSubmit ? 'Add to $count $dayWord' : 'Enter a dosage amount',
             style: _canSubmit
-                ? AppText.buttonPrimary
-                : AppText.body.medium.systemGrey,
+                ? EText.body.medium.semibold.white
+                : EText.body.medium.muted,
           ),
         ),
       ),

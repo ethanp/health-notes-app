@@ -1,7 +1,6 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/accent_border_card.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/form_section_container.dart';
 import 'package:health_notes/theme/spacing.dart';
 
@@ -28,7 +27,7 @@ class GeneralNotesSection extends StatelessWidget {
   }
 
   Widget _header() {
-    return EnhancedUIComponents.sectionHeader(title: 'Notes');
+    return ESectionHeader(title: 'Notes');
   }
 
   Widget _content() {
@@ -36,21 +35,21 @@ class GeneralNotesSection extends StatelessWidget {
       return CupertinoTextField(
         controller: notesController,
         placeholder: 'Additional Notes (optional)',
-        placeholderStyle: AppText.inputPlaceholder,
-        style: AppText.input,
+        placeholderStyle: EText.body.medium.muted,
+        style: EText.body.medium,
         maxLines: 4,
         onChanged: onNotesChanged,
       );
     }
 
     if (notesController?.text.isNotEmpty != true) {
-      return Text('No additional notes', style: AppText.body.medium);
+      return Text('No additional notes', style: EText.body.medium);
     }
 
     return AccentBorderCard(
-      accentColor: AppColors.primary,
+      accentColor: EColors.accent,
       margin: EdgeInsets.zero,
-      child: Text(notesController!.text, style: AppText.body.medium),
+      child: Text(notesController!.text, style: EText.body.medium),
     );
   }
 }

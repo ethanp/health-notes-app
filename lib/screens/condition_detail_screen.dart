@@ -1,5 +1,7 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/models/condition_entry.dart';
@@ -14,8 +16,8 @@ import 'package:health_notes/utils/severity_utils.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/condition_activity_calendar.dart';
 import 'package:health_notes/widgets/condition_entry_edit_modal.dart';
-import 'package:health_notes/widgets/app_card.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/health_notes_page.dart';
+import 'package:health_notes/widgets/status_tint_chip.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 import 'package:intl/intl.dart';
@@ -51,11 +53,9 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
             .where((c) => c.id == widget.conditionId)
             .firstOrNull;
         if (condition == null) {
-          return CupertinoPageScaffold(
-            navigationBar: EnhancedUIComponents.navigationBar(
-              title: 'Condition',
-            ),
-            child: const Center(child: Text('Condition not found')),
+          return const HealthNotesPage(
+            title: 'Condition',
+            body: Center(child: Text('Condition not found')),
           );
         }
 
@@ -64,19 +64,15 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
             final linkedSymptoms = linkedSymptomsAsync.valueOrNull ?? [];
             return conditionDetailContent(condition, entries, linkedSymptoms);
           },
-          loading: () => CupertinoPageScaffold(
-            navigationBar: EnhancedUIComponents.navigationBar(
-              title: condition.name,
-            ),
-            child: const SyncStatusWidget.loading(
+          loading: () => HealthNotesPage(
+            title: condition.name,
+            body: const SyncStatusWidget.loading(
               message: 'Loading entries...',
             ),
           ),
-          error: (error, stack) => CupertinoPageScaffold(
-            navigationBar: EnhancedUIComponents.navigationBar(
-              title: condition.name,
-            ),
-            child: SyncStatusWidget.error(
+          error: (error, stack) => HealthNotesPage(
+            title: condition.name,
+            body: SyncStatusWidget.error(
               errorMessage: 'Error: $error',
               onRetry: () => ref.invalidate(
                 conditionEntriesNotifierProvider(widget.conditionId),
@@ -85,13 +81,13 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
           ),
         );
       },
-      loading: () => CupertinoPageScaffold(
-        navigationBar: EnhancedUIComponents.navigationBar(title: 'Loading...'),
-        child: const SyncStatusWidget.loading(message: 'Loading condition...'),
+      loading: () => const HealthNotesPage(
+        title: 'Loading...',
+        body: SyncStatusWidget.loading(message: 'Loading condition...'),
       ),
-      error: (error, stack) => CupertinoPageScaffold(
-        navigationBar: EnhancedUIComponents.navigationBar(title: 'Error'),
-        child: Center(child: Text('Error: $error', style: AppText.error)),
+      error: (error, stack) => HealthNotesPage(
+        title: 'Error',
+        body: Center(child: Text('Error: $error', style: EText.error)),
       ),
     );
   }
@@ -101,21 +97,20 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
     List<ConditionEntry> entries,
     List<LinkedSymptom> linkedSymptoms,
   ) {
-    return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.navigationBar(
-        title: condition.name,
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
+    return HealthNotesPage(
+      title: condition.name,
+      actions: [
+        IconButton(
+          tooltip: 'More',
           onPressed: () => showActionsMenu(condition),
-          child: const Icon(CupertinoIcons.ellipsis_vertical),
+          icon: const Icon(Icons.more_vert),
         ),
-      ),
-      child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.m),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      ],
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.m),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
               conditionHeader(condition),
               VSpace.l,
               statisticsSection(condition, entries, linkedSymptoms),
@@ -124,7 +119,6 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
               VSpace.l,
               ...selectedViewContent(condition, entries, linkedSymptoms),
             ],
-          ),
         ),
       ),
     );
@@ -178,12 +172,12 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
     List<LinkedSymptom> linkedSymptoms,
   ) {
     return [
-      EnhancedUIComponents.sectionHeader(title: 'Daily Entries'),
+      ESectionHeader(title: 'Daily Entries'),
       VSpace.s,
       entriesList(entries, linkedSymptoms),
       if (linkedSymptoms.isNotEmpty) ...[
         VSpace.l,
-        EnhancedUIComponents.sectionHeader(title: 'Linked Symptoms'),
+        ESectionHeader(title: 'Linked Symptoms'),
         VSpace.s,
         linkedSymptomsBreakdown(linkedSymptoms),
       ],
@@ -191,7 +185,7 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
   }
 
   Widget conditionHeader(Condition condition) {
-    return AppCard(
+    return ECard(
       child: Row(
         children: [
           Container(
@@ -209,11 +203,11 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(condition.name, style: AppText.headline.small),
+                Text(condition.name, style: EText.headline.small),
                 VSpace.xs,
                 Text(
                   condition.dateRangeCaption,
-                  style: AppText.body.small.tertiary,
+                  style: EText.body.small.tertiary,
                 ),
               ],
             ),
@@ -239,7 +233,7 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
       ),
       child: Text(
         condition.status.displayName,
-        style: AppText.label.medium.copyWith(color: color),
+        style: EText.label.medium.copyWith(color: color),
       ),
     );
   }
@@ -254,11 +248,11 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
         : entries.map((e) => e.severity).reduce((a, b) => a + b) /
               entries.length;
 
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Statistics', style: AppText.label.large.primary),
+          Text('Statistics', style: EText.label.large.primary),
           VSpace.m,
           Row(
             children: [
@@ -304,21 +298,21 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
-        color: AppColors.backgroundTertiary,
+        color: EColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.small),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: AppText.caption),
+          Text(label, style: EText.caption),
           VSpace.xs,
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(value, style: AppText.headline.medium),
+              Text(value, style: EText.headline.medium),
               HSpace.xs,
-              Text(unit, style: AppText.caption),
+              Text(unit, style: EText.caption),
             ],
           ),
         ],
@@ -331,13 +325,13 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
     List<LinkedSymptom> linkedSymptoms,
   ) {
     if (entries.isEmpty) {
-      return AppCard(
+      return ECard(
         child: Center(
           child: Text(
             linkedSymptoms.isNotEmpty
                 ? 'No check-in entries yet'
                 : 'No entries yet. Add entries via check-ins.',
-            style: AppText.body.medium.systemGrey,
+            style: EText.body.medium.muted,
           ),
         ),
       );
@@ -357,7 +351,7 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: () => showEntryEditModal(entry),
-        child: AppCard(
+        child: ECard(
           child: Row(
             children: [
               Column(
@@ -365,7 +359,7 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
                 children: [
                   Text(
                     DateFormat('EEE, MMM d').format(entry.entryDate),
-                    style: AppText.label.medium,
+                    style: EText.label.medium,
                   ),
                   VSpace.xs,
                   Row(
@@ -376,7 +370,7 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
                         Icon(
                           CupertinoIcons.text_bubble,
                           size: 14,
-                          color: AppColors.textQuaternary,
+                          color: EColors.textMuted,
                         ),
                       ],
                     ],
@@ -389,7 +383,7 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
               Icon(
                 CupertinoIcons.chevron_right,
                 size: 14,
-                color: AppColors.textQuaternary,
+                color: EColors.textMuted,
               ),
             ],
           ),
@@ -407,7 +401,7 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
       ),
       child: Text(
         phase.displayName,
-        style: AppText.caption.copyWith(color: phase.color),
+        style: EText.caption.copyWith(color: phase.color),
       ),
     );
   }
@@ -419,7 +413,7 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
         color: SeverityUtils.discreteCupertinoColor(severity),
         borderRadius: BorderRadius.circular(AppRadius.medium),
       ),
-      child: Text('$severity', style: AppText.label.medium.white),
+      child: Text('$severity', style: EText.label.medium.white),
     );
   }
 
@@ -562,20 +556,20 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
               vertical: AppSpacing.s,
             ),
             decoration: BoxDecoration(
-              color: AppColors.backgroundTertiary,
+              color: EColors.surface,
               borderRadius: BorderRadius.circular(AppRadius.small),
               border: Border(left: BorderSide(color: avgColor, width: 3)),
             ),
             child: Row(
               children: [
-                Expanded(child: Text(description, style: AppText.body.medium)),
+                Expanded(child: Text(description, style: EText.body.medium)),
                 HSpace.s,
                 Text(
                   '${occurrences.length}×',
-                  style: AppText.body.small.secondary,
+                  style: EText.body.small.secondary,
                 ),
                 HSpace.s,
-                EnhancedUIComponents.statusIndicator(
+                StatusTintChip(
                   text: 'avg ${avgSeverity.toStringAsFixed(1)}',
                   color: avgColor,
                 ),

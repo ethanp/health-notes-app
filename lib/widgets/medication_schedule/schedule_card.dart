@@ -1,8 +1,8 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:health_notes/models/medication_schedule.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/widgets/app_card.dart';
 
 class ScheduleCard extends StatelessWidget {
   final MedicationSchedule schedule;
@@ -19,7 +19,7 @@ class ScheduleCard extends StatelessWidget {
         child: InkWell(
           onTap: onActivated,
           borderRadius: BorderRadius.circular(AppRadius.medium),
-          child: AppCard(child: _cardBody()),
+          child: ECard(child: _cardBody()),
         ),
       ),
     );
@@ -31,12 +31,12 @@ class ScheduleCard extends StatelessWidget {
       children: [
         Text(
           schedule.medicationName.display,
-          style: AppText.label.large.primary,
+          style: EText.label.large.primary,
         ),
         VSpace.s,
-        Text(schedule.sentence, style: AppText.body.medium),
+        Text(schedule.sentence, style: EText.body.medium),
         VSpace.xs,
-        Text(schedule.listCaption, style: AppText.caption.tertiary),
+        Text(schedule.listCaption, style: EText.caption.tertiary),
       ],
     );
   }

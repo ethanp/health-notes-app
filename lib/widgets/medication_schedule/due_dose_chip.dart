@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:health_notes/models/medication_schedule.dart';
 import 'package:health_notes/theme/app_theme.dart';
@@ -39,10 +40,10 @@ class DueDoseChip extends StatelessWidget {
             vertical: AppSpacing.s,
           ),
           decoration: AppComponents.tintedSolidDecoration(
-            AppColors.secondary,
+            EColors.accentGlow,
           ).copyWith(
             border: const Border(
-              left: BorderSide(color: AppColors.secondary, width: 3),
+              left: BorderSide(color: EColors.accentGlow, width: 3),
             ),
           ),
           child: _labels(),
@@ -58,16 +59,16 @@ class DueDoseChip extends StatelessWidget {
       children: [
         Text(
           occurrence.medicationName.display,
-          style: AppText.label.medium.primary,
+          style: EText.label.medium.primary,
         ),
         Text(
           '${occurrence.amountCaption} · ${occurrence.whenCaption}',
-          style: AppText.body.small.copyWith(fontWeight: FontWeight.w600),
+          style: EText.body.small.copyWith(fontWeight: FontWeight.w600),
         ),
         if (occurrence.stepProgressCaption != null)
           Text(
             occurrence.stepProgressCaption!,
-            style: AppText.caption.tertiary,
+            style: EText.caption.tertiary,
           ),
       ],
     );
@@ -81,7 +82,7 @@ class DueDoseChip extends StatelessWidget {
       child: Center(
         child: Text(
           'now',
-          style: AppText.label.small.copyWith(color: AppColors.secondary),
+          style: EText.label.small.copyWith(color: EColors.accentGlow),
         ),
       ),
     );

@@ -1,7 +1,6 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/widgets/app_card.dart';
 
 class RecentSymptomsChart extends StatelessWidget {
   final Map<String, int> symptomStats;
@@ -24,7 +23,7 @@ class RecentSymptomsChart extends StatelessWidget {
         .map((e) => e.value)
         .reduce((a, b) => a > b ? a : b);
 
-    return AppCard(
+    return ECard(
       child: SizedBox(
         height: 200,
         child: BarChart(
@@ -45,12 +44,12 @@ class RecentSymptomsChart extends StatelessWidget {
                 }
               },
               touchTooltipData: BarTouchTooltipData(
-                getTooltipColor: (group) => AppColors.backgroundSecondary,
+                getTooltipColor: (group) => EColors.backgroundLift,
                 getTooltipItem: (group, groupIndex, rod, rodIndex) {
                   final symptom = topSymptoms[groupIndex];
                   return BarTooltipItem(
                     '${symptom.key}\n',
-                    AppText.body.small.copyWith(
+                    EText.body.small.copyWith(
                       color: CupertinoColors.white,
                       fontWeight: FontWeight.w600,
                       fontSize: 11,
@@ -58,8 +57,8 @@ class RecentSymptomsChart extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: '${symptom.value} times',
-                        style: AppText.body.small.copyWith(
-                          color: AppColors.primary,
+                        style: EText.body.small.copyWith(
+                          color: EColors.accent,
                           fontSize: 10,
                         ),
                       ),
@@ -91,7 +90,7 @@ class RecentSymptomsChart extends StatelessWidget {
                         angle: -0.5,
                         child: Text(
                           label,
-                          style: AppText.body.small.copyWith(
+                          style: EText.body.small.copyWith(
                             color: CupertinoColors.white.withValues(alpha: 0.9),
                             fontSize: 11,
                           ),
@@ -114,7 +113,7 @@ class RecentSymptomsChart extends StatelessWidget {
                   getTitlesWidget: (value, meta) {
                     return Text(
                       value.toInt().toString(),
-                      style: AppText.body.tiny.systemGrey,
+                      style: EText.body.tiny.muted,
                     );
                   },
                 ),
@@ -139,7 +138,7 @@ class RecentSymptomsChart extends StatelessWidget {
                 barRods: [
                   BarChartRodData(
                     toY: entry.value.value.toDouble(),
-                    color: AppColors.primary,
+                    color: EColors.accent,
                     width: 16,
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(4),

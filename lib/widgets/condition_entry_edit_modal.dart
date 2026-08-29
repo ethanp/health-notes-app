@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/theme/app_theme.dart';
@@ -41,7 +42,7 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.backgroundSecondary,
+        color: EColors.backgroundLift,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SafeArea(
@@ -72,11 +73,11 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit Entry', style: AppText.headline.small),
+            Text('Edit Entry', style: EText.headline.small),
             VSpace.xs,
             Text(
               DateFormat('EEEE, MMMM d, y').format(widget.entry.entryDate),
-              style: AppText.body.small.tertiary,
+              style: EText.body.small.tertiary,
             ),
           ],
         ),
@@ -85,7 +86,7 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
           onPressed: () => Navigator.of(context).pop(),
           child: Icon(
             CupertinoIcons.xmark_circle_fill,
-            color: AppColors.textQuaternary,
+            color: EColors.textMuted,
             size: 28,
           ),
         ),
@@ -100,14 +101,14 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Severity', style: AppText.label.medium),
+            Text('Severity', style: EText.label.medium),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: SeverityUtils.discreteCupertinoColor(severity),
                 borderRadius: BorderRadius.circular(AppRadius.medium),
               ),
-              child: Text('$severity/10', style: AppText.label.medium.white),
+              child: Text('$severity/10', style: EText.label.medium.white),
             ),
           ],
         ),
@@ -124,8 +125,8 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Mild', style: AppText.caption.quaternary),
-            Text('Severe', style: AppText.caption.quaternary),
+            Text('Mild', style: EText.caption.quaternary),
+            Text('Severe', style: EText.caption.quaternary),
           ],
         ),
       ],
@@ -136,7 +137,7 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Phase', style: AppText.label.medium),
+        Text('Phase', style: EText.label.medium),
         VSpace.s,
         Wrap(
           spacing: 8,
@@ -156,17 +157,17 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
         decoration: BoxDecoration(
           color: isSelected
               ? p.color.withValues(alpha: 0.2)
-              : AppColors.backgroundTertiary,
+              : EColors.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? p.color : AppColors.backgroundQuaternary,
+            color: isSelected ? p.color : EColors.surfaceRaised,
             width: isSelected ? 2 : 1,
           ),
         ),
         child: Text(
           p.displayName,
-          style: AppText.label.medium.copyWith(
-            color: isSelected ? p.color : AppColors.textSecondary,
+          style: EText.label.medium.copyWith(
+            color: isSelected ? p.color : EColors.textSecondary,
           ),
         ),
       ),
@@ -177,15 +178,15 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Notes', style: AppText.label.medium),
+        Text('Notes', style: EText.label.medium),
         VSpace.s,
         CupertinoTextField(
           controller: notesController,
           placeholder: 'Optional notes for this entry...',
           padding: const EdgeInsets.all(AppSpacing.sm),
           decoration: AppComponents.inputField,
-          style: AppText.input,
-          placeholderStyle: AppText.inputPlaceholder,
+          style: EText.body.medium,
+          placeholderStyle: EText.body.medium.muted,
           maxLines: 3,
         ),
       ],
@@ -196,7 +197,7 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
     return SizedBox(
       width: double.infinity,
       child: CupertinoButton(
-        color: AppColors.primary,
+        color: EColors.accent,
         onPressed: isSaving ? null : saveEntry,
         child: isSaving
             ? const CupertinoActivityIndicator(color: CupertinoColors.white)

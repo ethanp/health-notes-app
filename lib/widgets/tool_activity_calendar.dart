@@ -1,5 +1,5 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
 import 'package:health_notes/theme/spacing.dart';
 
@@ -34,22 +34,22 @@ class ToolActivityCalendar extends StatelessWidget {
   }
 
   Color usageColor(int count) {
-    if (count == 0) return AppColors.backgroundPrimary.withValues(alpha: 0.1);
-    if (maxCount == 0) return AppColors.primary.withValues(alpha: 0.1);
+    if (count == 0) return EColors.background.withValues(alpha: 0.1);
+    if (maxCount == 0) return EColors.accent.withValues(alpha: 0.1);
     return intensityColor(count / maxCount);
   }
 
   Widget usageLegend() {
     return Row(
       children: [
-        Text('Less', style: AppText.body.small.systemGrey),
+        Text('Less', style: EText.body.small.muted),
         HSpace.s,
         ...intensityGradientSquares(),
         HSpace.s,
-        Text('More', style: AppText.body.small.systemGrey),
+        Text('More', style: EText.body.small.muted),
         const Spacer(),
         if (maxCount > 0)
-          Text('Max: $maxCount/day', style: AppText.body.small.systemGrey),
+          Text('Max: $maxCount/day', style: EText.body.small.muted),
       ],
     );
   }

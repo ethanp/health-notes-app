@@ -1,7 +1,6 @@
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:intl/intl.dart';
 
 part 'condition.freezed.dart';
 part 'condition.g.dart';
@@ -54,15 +53,8 @@ abstract class Condition with _$Condition {
   bool get isResolved => status == ConditionStatus.resolved;
 
   String get dateRangeCaption {
-    if (endDate == null) return 'Started ${_monthDayCaption(startDate)}';
-    return '${_monthDayCaption(startDate)} - ${_monthDayCaption(endDate!)}';
-  }
-
-  String _monthDayCaption(DateTime date) {
-    if (date.year >= DateTime.now().year) {
-      return DateFormat('MMM d').format(date);
-    }
-    return DateFormat("MMM d, ''yy").format(date);
+    if (endDate == null) return 'Started ${startDate.monthDayCaption}';
+    return '${startDate.monthDayCaption} - ${endDate!.monthDayCaption}';
   }
 
   Map<String, dynamic> toJsonForUpdate() => {

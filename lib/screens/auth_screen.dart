@@ -1,9 +1,10 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/widgets/app_button.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
@@ -57,7 +58,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     return AnimatedContainer(
       duration: AppAnimation.slow,
       decoration: const BoxDecoration(
-        gradient: AppComponents.backgroundGradient,
+        gradient: EColors.scaffoldGradient,
       ),
       child: SafeArea(
         child: Padding(
@@ -88,8 +89,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppColors.primary.withValues(alpha: 0.1),
-              AppColors.primary.withValues(alpha: 0.05),
+              EColors.accent.withValues(alpha: 0.1),
+              EColors.accent.withValues(alpha: 0.05),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -99,7 +100,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
         child: const Icon(
           CupertinoIcons.heart_fill,
           size: 80,
-          color: AppColors.primary,
+          color: EColors.accent,
         ),
       ),
     );
@@ -109,17 +110,17 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     final Widget title = Text(
       'Health Notes',
       textAlign: TextAlign.center,
-      style: AppText.headline.large,
+      style: EText.headline.large,
     );
     final Widget subtitle = Text(
       'Your personal health companion',
       textAlign: TextAlign.center,
-      style: AppText.body.large.secondary,
+      style: EText.body.large.secondary,
     );
     final Widget briefInfo = Text(
       'Extract insights about your health patterns by performing self-surveys.',
       textAlign: TextAlign.center,
-      style: AppText.body.medium.tertiary,
+      style: EText.body.medium.tertiary,
     );
     return SlideTransition(
       position: _slideAnimation,
@@ -145,17 +146,26 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
       child: Text(
         'Your health data stays private and secure',
         textAlign: TextAlign.center,
-        style: AppText.caption.quaternary,
+        style: EText.caption.quaternary,
       ),
     );
   }
 
   Widget signInButton() {
-    return AppButton(
-      text: 'Continue with Google',
-      onPressed: () => signInButtonPressed(),
-      isLoading: _isLoading,
-      icon: CupertinoIcons.globe,
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: FilledButton.icon(
+        onPressed: _isLoading ? null : signInButtonPressed,
+        icon: _isLoading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Icon(Icons.public),
+        label: const Text('Continue with Google'),
+      ),
     );
   }
 

@@ -1,6 +1,6 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/color_mapping_utils.dart';
 
 part 'check_in_metric.freezed.dart';
@@ -39,7 +39,7 @@ abstract class CheckInMetric with _$CheckInMetric {
       userId: userId,
       name: name,
       type: type,
-      colorValue: (color ?? AppColors.primary).toARGB32(),
+      colorValue: (color ?? EColors.accent).toARGB32(),
       iconCodePoint: (icon ?? CupertinoIcons.circle).codePoint,
       sortOrder: sortOrder ?? 0,
       createdAt: DateTime.now(),
@@ -98,13 +98,13 @@ enum MetricType {
 /// Default color palette for new metrics
 class MetricColorPalette {
   static const List<Color> colors = [
-    AppColors.primary,
-    AppColors.secondary,
-    AppColors.accent,
-    AppColors.accentWarm,
-    AppColors.success,
-    AppColors.warning,
-    AppColors.destructive,
+    EColors.accent,
+    EColors.accentGlow,
+    EColors.success,
+    EColors.warning,
+    EColors.success,
+    EColors.warning,
+    EColors.danger,
     CupertinoColors.systemPurple,
     CupertinoColors.systemTeal,
     CupertinoColors.systemIndigo,

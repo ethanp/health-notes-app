@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   ethan_utils:
     path: ../ethan_utils
+  ethan_ui:
+    path: ../ethan_ui
   cupertino_icons: ^1.0.8
   supabase_flutter: ^2.8.0
   flutter_dotenv: ^6.0.0

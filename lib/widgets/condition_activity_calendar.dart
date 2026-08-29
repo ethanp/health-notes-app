@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/condition.dart';
@@ -61,7 +62,7 @@ class ConditionActivityCalendar extends StatelessWidget {
 
   Color _colorForDay(ConditionDayData dayData) {
     if (!dayData.hasActivity) {
-      return AppColors.backgroundPrimary.withValues(alpha: 0.1);
+      return EColors.background.withValues(alpha: 0.1);
     }
     return SeverityUtils.colorForSeverity(dayData.primaryValue);
   }
@@ -81,7 +82,7 @@ class ConditionActivityCalendar extends StatelessWidget {
   Widget _legend() {
     return Row(
       children: [
-        Text('Mild', style: AppText.body.small.systemGrey),
+        Text('Mild', style: EText.body.small.muted),
         HSpace.s,
         ...List.generate(5, (index) {
           final severity = (index + 1) * 2;
@@ -96,7 +97,7 @@ class ConditionActivityCalendar extends StatelessWidget {
           );
         }),
         HSpace.s,
-        Text('Severe', style: AppText.body.small.systemGrey),
+        Text('Severe', style: EText.body.small.muted),
       ],
     );
   }

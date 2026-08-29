@@ -1,7 +1,6 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/widgets/app_card.dart';
 import 'package:intl/intl.dart';
 
 class MonthlyNotesChart extends StatelessWidget {
@@ -21,7 +20,7 @@ class MonthlyNotesChart extends StatelessWidget {
       return FlSpot(e.key.toDouble(), e.value.value.toDouble());
     }).toList();
 
-    return AppCard(
+    return ECard(
       child: SizedBox(
         height: 180,
         child: LineChart(
@@ -59,7 +58,7 @@ class MonthlyNotesChart extends StatelessWidget {
                       space: 4,
                       child: Text(
                         _formatMonthShort(monthKey),
-                        style: AppText.body.tiny.systemGrey,
+                        style: EText.body.tiny.muted,
                       ),
                     );
                   },
@@ -76,7 +75,7 @@ class MonthlyNotesChart extends StatelessWidget {
                   getTitlesWidget: (value, meta) {
                     return Text(
                       value.toInt().toString(),
-                      style: AppText.body.tiny.systemGrey,
+                      style: EText.body.tiny.muted,
                     );
                   },
                 ),
@@ -91,7 +90,7 @@ class MonthlyNotesChart extends StatelessWidget {
               LineChartBarData(
                 spots: spots,
                 isCurved: true,
-                color: AppColors.primary,
+                color: EColors.accent,
                 barWidth: 2,
                 isStrokeCapRound: true,
                 dotData: FlDotData(
@@ -99,35 +98,35 @@ class MonthlyNotesChart extends StatelessWidget {
                   getDotPainter: (spot, percent, barData, index) =>
                       FlDotCirclePainter(
                         radius: 4,
-                        color: AppColors.primary,
+                        color: EColors.accent,
                         strokeWidth: 1.5,
                         strokeColor: CupertinoColors.white,
                       ),
                 ),
                 belowBarData: BarAreaData(
                   show: true,
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: EColors.accent.withValues(alpha: 0.1),
                 ),
               ),
             ],
             lineTouchData: LineTouchData(
               touchTooltipData: LineTouchTooltipData(
-                getTooltipColor: (spot) => AppColors.backgroundSecondary,
+                getTooltipColor: (spot) => EColors.backgroundLift,
                 getTooltipItems: (spots) => spots.map((spot) {
                   final idx = spot.x.toInt();
                   final monthKey = sortedMonths[idx].key;
                   final count = spot.y.toInt();
                   return LineTooltipItem(
                     '$count notes\n',
-                    AppText.body.small.copyWith(
-                      color: AppColors.primary,
+                    EText.body.small.copyWith(
+                      color: EColors.accent,
                       fontWeight: FontWeight.w600,
                       fontSize: 11,
                     ),
                     children: [
                       TextSpan(
                         text: _formatMonthFull(monthKey),
-                        style: AppText.body.small.copyWith(
+                        style: EText.body.small.copyWith(
                           color: CupertinoColors.white,
                           fontSize: 10,
                         ),

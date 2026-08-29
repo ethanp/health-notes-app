@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,7 +39,7 @@ class ConditionBadge extends ConsumerWidget {
                 HSpace.xs,
                 Text(
                   condition.name,
-                  style: AppText.caption.copyWith(color: condition.color),
+                  style: EText.caption.copyWith(color: condition.color),
                 ),
               ],
             ),

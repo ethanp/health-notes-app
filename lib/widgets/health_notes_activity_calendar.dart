@@ -1,7 +1,7 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
-import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
 import 'package:health_notes/theme/spacing.dart';
 
@@ -55,14 +55,14 @@ class HealthNotesActivityCalendar extends StatelessWidget {
   Widget noteActivityLegend(int maxCount) {
     return Row(
       children: [
-        Text('Less', style: AppText.body.small.systemGrey),
+        Text('Less', style: EText.body.small.muted),
         HSpace.s,
         ...intensityGradientSquares(),
         HSpace.s,
-        Text('More', style: AppText.body.small.systemGrey),
+        Text('More', style: EText.body.small.muted),
         const Spacer(),
         if (maxCount > 0)
-          Text('Max: $maxCount/day', style: AppText.body.small.systemGrey),
+          Text('Max: $maxCount/day', style: EText.body.small.muted),
       ],
     );
   }

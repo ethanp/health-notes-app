@@ -1,5 +1,7 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/models/grouped_health_notes.dart';
@@ -10,10 +12,9 @@ import 'package:health_notes/screens/health_note_form.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/log_out_button.dart';
-import 'package:health_notes/widgets/app_button.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/app_filter_chip.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/health_notes_search_field.dart';
 import 'package:health_notes/widgets/health_note_card.dart';
 import 'package:health_notes/widgets/animated_welcome_card.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
@@ -62,9 +63,8 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   }
 
   void showAddNoteModal() {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) => const HealthNoteForm(
+    context.push(
+      const HealthNoteForm(
         title: 'Add Health Note',
         saveButtonText: 'Save',
       ),
@@ -115,34 +115,29 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   Widget build(BuildContext context) {
     final groupedNotesAsync = ref.watch(groupedHealthNotesProvider);
 
-    return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.navigationBar(
+    return EScaffoldShell(
+      contentMaxWidth: double.infinity,
+      appBar: EAppHeader(
         title: 'Health Notes',
         leading: const LogOutButton(),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const CompactSyncStatusWidget(),
-            HSpace.s,
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: showAddNoteModal,
-              child: const Icon(CupertinoIcons.add),
-            ),
-          ],
-        ),
-      ),
-      child: SafeArea(
-        child: groupedNotesAsync.when(
-          data: (groupedNotes) => groupedNotes.isEmpty
-              ? emptyTable()
-              : filteredContent(groupedNotes),
-          loading: () => const SyncStatusWidget.loading(
-            message: 'Loading your health notes...',
+        actions: [
+          const CompactSyncStatusWidget(),
+          IconButton(
+            tooltip: 'Add note',
+            onPressed: showAddNoteModal,
+            icon: const Icon(Icons.add),
           ),
-          error: (error, stack) =>
-              Center(child: Text('Error: $error', style: AppText.error)),
+        ],
+      ),
+      body: groupedNotesAsync.when(
+        data: (groupedNotes) => groupedNotes.isEmpty
+            ? emptyTable()
+            : filteredContent(groupedNotes),
+        loading: () => const SyncStatusWidget.loading(
+          message: 'Loading your health notes...',
         ),
+        error: (error, stack) =>
+            Center(child: Text('Error: $error', style: EText.error)),
       ),
     );
   }
@@ -180,26 +175,23 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
       child: Row(
         children: [
           Expanded(
-            child: EnhancedUIComponents.searchField(
+            child: HealthNotesSearchField(
               controller: _searchController,
               placeholder: 'Search your health notes...',
               onChanged: (value) => setState(() => _searchQuery = value),
-              onSuffixTap: _searchQuery.isNotEmpty
+              onClear: _searchQuery.isNotEmpty
                   ? () => setState(() {
                       _searchQuery = '';
                       _searchController.clear();
                     })
                   : null,
-              showSuffix: _searchQuery.isNotEmpty,
             ),
           ),
           HSpace.s,
-          AppButton(
-            text: '',
+          IconButton(
+            tooltip: 'Filters',
             onPressed: () => showFilterModal(),
-            isPrimary: false,
-            icon: CupertinoIcons.slider_horizontal_3,
-            width: 48,
+            icon: const Icon(Icons.tune),
           ),
         ],
       ),
@@ -207,9 +199,8 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   }
 
   void showFilterModal() {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) => FilterModal(
+    context.push(
+      FilterModal(
         selectedDate: _selectedDate,
         selectedDrug: _selectedDrug,
         availableDrugs: getUniqueDrugs(
@@ -260,7 +251,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
 
   Widget noResultsMessage(bool hasActiveFilters) {
     if (hasActiveFilters) {
-      return EnhancedUIComponents.emptyState(
+      return EEmptyState(
         title: 'No matches found',
         message:
             'Try adjusting your search or filters to find what you\'re looking for',
@@ -271,11 +262,11 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
         title: 'Welcome to Health Notes',
         message: 'Start tracking your health journey by adding your first note',
         icon: CupertinoIcons.heart_fill,
-        iconColor: AppColors.primary,
-        action: AppButton(
-          text: 'Add First Note',
+        iconColor: EColors.accent,
+        action: FilledButton.icon(
           onPressed: showAddNoteModal,
-          icon: CupertinoIcons.add,
+          icon: const Icon(Icons.add),
+          label: const Text('Add First Note'),
         ),
       );
     }
@@ -297,11 +288,11 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
             message:
                 'Start tracking your health journey by adding your first note',
             icon: CupertinoIcons.heart_fill,
-            iconColor: AppColors.primary,
-            action: AppButton(
-              text: 'Add First Note',
+            iconColor: EColors.accent,
+            action: FilledButton.icon(
               onPressed: showAddNoteModal,
-              icon: CupertinoIcons.add,
+              icon: const Icon(Icons.add),
+              label: const Text('Add First Note'),
             ),
           ),
         ),
@@ -348,7 +339,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   }
 
   Widget groupHeader(DateTime date, int count) {
-    return EnhancedUIComponents.sectionHeader(
+    return ESectionHeader(
       title: _formatGroupDate(date),
       subtitle: '$count note${count == 1 ? '' : 's'}',
     );
@@ -372,7 +363,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
         vertical: AppSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: AppColors.destructive,
+        color: EColors.danger,
         borderRadius: BorderRadius.circular(AppRadius.medium),
       ),
       alignment: Alignment.centerRight,

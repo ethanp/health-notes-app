@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/providers/sync_provider.dart';
@@ -120,8 +121,8 @@ class SyncStatusWidget extends ConsumerWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.primary.withValues(alpha: 0.1),
-                  AppColors.primary.withValues(alpha: 0.05),
+                  EColors.accent.withValues(alpha: 0.1),
+                  EColors.accent.withValues(alpha: 0.05),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -130,14 +131,14 @@ class SyncStatusWidget extends ConsumerWidget {
             ),
             child: const CupertinoActivityIndicator(
               radius: 20,
-              color: AppColors.primary,
+              color: EColors.accent,
             ),
           ),
           if (message != null) ...[
             VSpace.m,
             Text(
               message!,
-              style: AppText.body.medium,
+              style: EText.body.medium,
               textAlign: TextAlign.center,
             ),
           ],
@@ -195,13 +196,13 @@ class SyncStatusWidget extends ConsumerWidget {
         VSpace.m,
         Text(
           'No internet connection',
-          style: AppText.headline.small,
+          style: EText.headline.small,
           textAlign: TextAlign.center,
         ),
         VSpace.s,
         Text(
           'Data will sync when connection is restored',
-          style: AppText.body.medium.systemGrey,
+          style: EText.body.medium.muted,
           textAlign: TextAlign.center,
         ),
       ];
@@ -217,13 +218,13 @@ class SyncStatusWidget extends ConsumerWidget {
         VSpace.m,
         Text(
           'Sync Error',
-          style: AppText.headline.small,
+          style: EText.headline.small,
           textAlign: TextAlign.center,
         ),
         VSpace.s,
         Text(
           syncError,
-          style: AppText.body.medium.systemGrey,
+          style: EText.body.medium.muted,
           textAlign: TextAlign.center,
         ),
         if (onRetry != null) ...[
@@ -238,18 +239,18 @@ class SyncStatusWidget extends ConsumerWidget {
 
     if (isSyncing) {
       return [
-        const CupertinoActivityIndicator(radius: 24, color: AppColors.primary),
+        const CupertinoActivityIndicator(radius: 24, color: EColors.accent),
         VSpace.m,
         Text(
           'Syncing data...',
-          style: AppText.headline.small,
+          style: EText.headline.small,
           textAlign: TextAlign.center,
         ),
         if (message != null) ...[
           VSpace.s,
           Text(
             message!,
-            style: AppText.body.medium.systemGrey,
+            style: EText.body.medium.muted,
             textAlign: TextAlign.center,
           ),
         ],
@@ -265,7 +266,7 @@ class SyncStatusWidget extends ConsumerWidget {
       VSpace.m,
       Text(
         'Data in sync',
-        style: AppText.headline.small,
+        style: EText.headline.small,
         textAlign: TextAlign.center,
       ),
     ];
@@ -289,7 +290,7 @@ class SyncStatusWidget extends ConsumerWidget {
           Expanded(
             child: Text(
               message ?? 'Loading...',
-              style: AppText.body.medium.systemGrey,
+              style: EText.body.medium.muted,
             ),
           ),
         ],
@@ -328,14 +329,14 @@ class SyncStatusWidget extends ConsumerWidget {
             VSpace.m,
             Text(
               'Error',
-              style: AppText.headline.small,
+              style: EText.headline.small,
               textAlign: TextAlign.center,
             ),
             if (errorMessage != null) ...[
               VSpace.s,
               Text(
                 errorMessage!,
-                style: AppText.body.medium.systemGrey,
+                style: EText.body.medium.muted,
                 textAlign: TextAlign.center,
               ),
             ],

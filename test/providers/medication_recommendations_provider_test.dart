@@ -6,7 +6,6 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/drug_name.dart';
 
-// Mock data
 final date1 = DateTime(2023, 1, 1);
 final date2 = DateTime(2023, 1, 2);
 final date3 = DateTime(2023, 1, 3);
@@ -42,45 +41,22 @@ void main() {
         ],
       );
 
-      final recommendations = await container.read(
+      final catalog = await container.read(
         medicationRecommendationsProvider.future,
       );
 
-      // Recent: Should be from the latest notes.
-      // Note 3: A, B
-      // Note 2: A, C
-      // Note 1: D, E, F
-      // Order of notes in mock is [Note 3, Note 2, Note 1] (descending date)
-      // Recent logic: Flatten -> (Date3, A), (Date3, B), (Date2, A), (Date2, C), (Date1, D)...
-      // Sort by date desc.
-      // Unique: A, B, C, D, E. (F is 6th, should be dropped if limit is 5)
-      // Wait, A is in Note 3 and Note 2. The most recent one (Note 3) is kept.
+      expect(catalog.recent.length, 5);
+      expect(catalog.recent[0].name, const DrugName('Meds A'));
+      expect(catalog.recent[1].name, const DrugName('Meds B'));
+      expect(catalog.recent[2].name, const DrugName('Meds C'));
+      expect(catalog.recent[3].name, const DrugName('Meds D'));
+      expect(catalog.recent[4].name, const DrugName('Meds E'));
 
-      // Expected Recent: A, B, C, D, E (in that order of recency? Or just unique set?)
-      // The implementation sorts by date desc, then takes unique.
-      // So: A (from Note 3), B (from Note 3), C (from Note 2), D (from Note 1), E (from Note 1).
+      expect(catalog.common.length, 5);
+      expect(catalog.common.first.name, const DrugName('Meds A'));
 
-      expect(recommendations.recent.length, 5);
-      expect(recommendations.recent[0].name, const DrugName('Meds A'));
-      expect(recommendations.recent[1].name, const DrugName('Meds B'));
-      expect(recommendations.recent[2].name, const DrugName('Meds C'));
-      expect(recommendations.recent[3].name, const DrugName('Meds D'));
-      expect(recommendations.recent[4].name, const DrugName('Meds E'));
-
-      // Common: Most frequent.
-      // A: 2 times
-      // B: 1 time
-      // C: 1 time
-      // D: 1 time
-      // E: 1 time
-      // F: 1 time
-      // Top 5: A (2), then others (1).
-
-      expect(recommendations.common.length, 5);
-      expect(recommendations.common.first.name, const DrugName('Meds A'));
-
-      expect(recommendations.allKnown.length, 6);
-      expect(recommendations.allKnown.map((dose) => dose.name).toSet(), {
+      expect(catalog.allKnown.length, 6);
+      expect(catalog.allKnown.map((dose) => dose.name).toSet(), {
         const DrugName('Meds A'),
         const DrugName('Meds B'),
         const DrugName('Meds C'),
@@ -91,32 +67,21 @@ void main() {
     },
   );
 
-  test('MedicationRecommendationsFilter narrows to prefix matches', () {
+  test('matchingDoses narrows to prefix matches', () {
     final allKnown = [doseA, doseB, doseC, doseD, doseE, doseF];
+    final catalog = MedicationRecommendationsState(
+      recent: [doseA, doseB],
+      common: [doseA, doseC],
+      allKnown: allKnown,
+    );
 
-    final emptyQueryMatches =
-        MedicationRecommendationsFilter.matchingRecommendations(
-          typedName: '',
-          recent: [doseA, doseB],
-          common: [doseA, doseC],
-          allKnown: allKnown,
-        );
-
-    expect(emptyQueryMatches.map((dose) => dose.name).toList(), [
+    expect(catalog.matchingDoses('').map((dose) => dose.name).toList(), [
       const DrugName('Meds A'),
       const DrugName('Meds B'),
       const DrugName('Meds C'),
     ]);
 
-    final prefixMatches =
-        MedicationRecommendationsFilter.matchingRecommendations(
-          typedName: 'meds',
-          recent: [],
-          common: [],
-          allKnown: allKnown,
-        );
-
-    expect(prefixMatches.map((dose) => dose.name).toList(), [
+    expect(catalog.matchingDoses('meds').map((dose) => dose.name).toList(), [
       const DrugName('Meds A'),
       const DrugName('Meds B'),
       const DrugName('Meds C'),
@@ -126,7 +91,78 @@ void main() {
     ]);
   });
 
-  test('doseKey merges mixed-case spellings of the same dose', () {
+  test('matchingNames dedupes and includes additional schedule names', () {
+    final catalog = MedicationRecommendationsState(
+      recent: const [],
+      common: const [],
+      allKnown: [doseA, doseB],
+    );
+
+    expect(
+      catalog.matchingNames(
+        'meds',
+        additionalNames: [
+          const DrugName('Meds A'),
+          const DrugName('Meds G'),
+        ],
+      ),
+      [
+        const DrugName('Meds A'),
+        const DrugName('Meds B'),
+        const DrugName('Meds G'),
+      ],
+    );
+  });
+
+  test('matchingNames when empty uses recent, common, then additional', () {
+    final catalog = MedicationRecommendationsState(
+      recent: [doseA, doseB],
+      common: [doseA, doseC],
+      allKnown: [doseA, doseB, doseC, doseD],
+    );
+
+    expect(
+      catalog.matchingNames(
+        '',
+        additionalNames: [const DrugName('Meds G')],
+      ),
+      [
+        const DrugName('Meds A'),
+        const DrugName('Meds B'),
+        const DrugName('Meds C'),
+        const DrugName('Meds G'),
+      ],
+    );
+  });
+
+  test('matchingNames skips the exact typed name', () {
+    final catalog = MedicationRecommendationsState(
+      recent: const [],
+      common: const [],
+      allKnown: [
+        doseA,
+        DrugDose(name: const DrugName('Meds AB'), dosage: 5, unit: 'mg'),
+      ],
+    );
+
+    expect(catalog.matchingNames('Meds A'), [const DrugName('Meds AB')]);
+    expect(catalog.matchingNames('Meds AB'), isEmpty);
+  });
+
+  test('unitForName returns the known unit for a name', () {
+    final catalog = MedicationRecommendationsState(
+      recent: const [],
+      common: const [],
+      allKnown: [
+        DrugDose(name: const DrugName('Vitamin D'), dosage: 2000, unit: 'IU'),
+      ],
+    );
+
+    expect(catalog.unitForName(const DrugName('Vitamin D')), 'IU');
+    expect(catalog.unitForName(const DrugName('Unknown')), isNull);
+  });
+
+  test('strengthIdentity merges mixed-case spellings of the same dose', () {
     final titled = DrugDose(
       name: const DrugName('Tylenol'),
       dosage: 500,
@@ -137,10 +173,7 @@ void main() {
       dosage: 500,
       unit: 'mg',
     );
-    expect(
-      MedicationRecommendationsFilter.doseKey(titled),
-      MedicationRecommendationsFilter.doseKey(lower),
-    );
+    expect(titled.strengthIdentity, lower.strengthIdentity);
   });
 }
 

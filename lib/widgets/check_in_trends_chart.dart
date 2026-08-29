@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,7 +8,6 @@ import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/models/date_range_filter.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/utils/color_mapping_utils.dart';
 import 'package:intl/intl.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -50,7 +50,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
 
     final metrics = _sortedMetricNames();
     return trendsChartContainer(
-      header: Text('Trends', style: AppText.headline.small),
+      header: Text('Trends', style: EText.headline.small),
       dateRangeSelector: dateRangeSelector(),
       indicator: improvementZonesIndicator(),
       charts: splitCharts(metrics),
@@ -58,13 +58,13 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
   }
 
   Widget emptyChartContainer() {
-    return AppCard(
+    return ECard(
       child: SizedBox(
         height: 450,
         child: Center(
           child: Text(
             'No check-in data available',
-            style: AppText.body.medium.tertiary,
+            style: EText.body.medium.tertiary,
           ),
         ),
       ),
@@ -130,11 +130,11 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
           color: isHidden
-              ? AppColors.backgroundSecondary
+              ? EColors.backgroundLift
               : color.withValues(alpha: 0.08),
           border: Border.all(
             color: isHidden
-                ? AppColors.backgroundQuaternary
+                ? EColors.surfaceRaised
                 : color.withValues(alpha: 0.2),
           ),
           borderRadius: BorderRadius.circular(AppRadius.large),
@@ -145,13 +145,13 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
             Icon(
               metricObj.icon,
               size: 14,
-              color: isHidden ? AppColors.textTertiary : color,
+              color: isHidden ? EColors.textTertiary : color,
             ),
             HSpace.of(5),
             Text(
               metric,
-              style: AppText.body.small.copyWith(
-                color: isHidden ? AppColors.textTertiary : color,
+              style: EText.body.small.copyWith(
+                color: isHidden ? EColors.textTertiary : color,
                 fontWeight: FontWeight.w500,
                 fontSize: 12,
               ),
@@ -192,7 +192,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
           Expanded(
             child: Text(
               'Green zones: 1-3 (Lower is Better), 4-7 (Middle is Best), 8-10 (Higher is Better)',
-              style: AppText.body.tiny.withColor(CupertinoColors.systemGreen),
+              style: EText.body.tiny.withColor(CupertinoColors.systemGreen),
             ),
           ),
         ],
@@ -234,7 +234,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
       children: [
         Text(
           _getTypeDisplayName(type),
-          style: AppText.body.small.semibold.primary.size(13),
+          style: EText.body.small.semibold.primary.size(13),
         ),
         VSpace.of(6),
         legendForType(type, typeMetrics),
@@ -304,8 +304,8 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
   }
 
   Widget noDataContainer() {
-    return AppCard(
-      child: Center(child: Text('No data', style: AppText.body.small.tertiary)),
+    return ECard(
+      child: Center(child: Text('No data', style: EText.body.small.tertiary)),
     );
   }
 
@@ -392,7 +392,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
               space: 4,
               child: Text(
                 DateFormat('MMM d').format(date),
-                style: AppText.body.small.secondary
+                style: EText.body.small.secondary
                     .size(9)
                     .copyWith(
                       color: CupertinoColors.white.withValues(alpha: 0.7),
@@ -419,7 +419,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
             space: 4,
             child: Text(
               '$v',
-              style: AppText.body.small.secondary
+              style: EText.body.small.secondary
                   .size(9)
                   .copyWith(
                     color: CupertinoColors.white.withValues(alpha: 0.7),
@@ -537,7 +537,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     return LineTouchData(
       enabled: true,
       touchTooltipData: LineTouchTooltipData(
-        getTooltipColor: (spot) => AppColors.backgroundSecondary,
+        getTooltipColor: (spot) => EColors.backgroundLift,
         fitInsideHorizontally: true,
         fitInsideVertically: true,
         getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
@@ -553,7 +553,7 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
 
             return LineTooltipItem(
               '$metric: $rating',
-              AppText.body.small.copyWith(
+              EText.body.small.copyWith(
                 color: metricObj.color,
                 fontWeight: FontWeight.w600,
                 fontSize: 10,
@@ -569,16 +569,16 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.backgroundTertiary,
+        color: EColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.small),
       ),
       child: CupertinoSegmentedControl<DateRangeFilter>(
         groupValue: _selectedDateRange,
         padding: const EdgeInsets.all(2),
-        borderColor: AppColors.backgroundQuaternary,
-        selectedColor: AppColors.primary,
+        borderColor: EColors.surfaceRaised,
+        selectedColor: EColors.accent,
         unselectedColor: Colors.transparent,
-        pressedColor: AppColors.primary.withValues(alpha: 0.4),
+        pressedColor: EColors.accent.withValues(alpha: 0.4),
         onValueChanged: (value) {
           setState(() {
             _selectedDateRange = value;
@@ -598,8 +598,8 @@ class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Text(
         filter.label,
-        style: AppText.body.small.copyWith(
-          color: isSelected ? CupertinoColors.white : AppColors.textSecondary,
+        style: EText.body.small.copyWith(
+          color: isSelected ? CupertinoColors.white : EColors.textSecondary,
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
         ),
       ),

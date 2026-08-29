@@ -3,7 +3,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/models/health_note.dart';
-import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/number_formatter.dart';
 import 'package:intl/intl.dart';
 
@@ -165,10 +164,10 @@ abstract class MedicationSchedule with _$MedicationSchedule {
   bool get hasEnded => !isListedAsActive;
 
   String get listCaption {
-    if (isUpcoming) {
-      return 'Starts ${AppDateUtils.formatShortDate(startDay)}';
-    }
-    return progressOn(DateTime.now())?.caption ?? sentence;
+    if (isUpcoming) return 'Starts ${startDay.monthDayCaption}';
+    final progress = progressOn(DateTime.now());
+    if (progress != null) return progress.caption;
+    return _endedCaption;
   }
 
   ScheduleStep? stepOn(DateTime day) {
@@ -258,13 +257,34 @@ abstract class MedicationSchedule with _$MedicationSchedule {
     required int? totalDays,
     required ScheduleStep step,
   }) {
-    if (totalDays == null) {
-      return 'since ${AppDateUtils.formatShortDate(startDay)}';
+    final dayPhrase = totalDays == null
+        ? 'Day $dayNumber'
+        : 'Day $dayNumber of $totalDays';
+    return '$dayPhrase · Today: ${_todayDosePhrase(step)} · $_courseDateRangeCaption';
+  }
+
+  String _todayDosePhrase(ScheduleStep step) {
+    if (step.doses.isEmpty) return '';
+    if (step.doses.length == 1) {
+      final dose = step.doses.first;
+      return '${dose.amountCaption(unit)} ${dose.when.caption}';
     }
-    final doseWord = step.doses.length == 1
-        ? step.doses.first.when.caption
-        : 'doses';
-    return 'Day $dayNumber of $totalDays · ${step.doses.first.amountCaption(unit)} $doseWord';
+    return step.doses
+        .map((dose) => dose.timedAmountCaption(unit))
+        .join(', ');
+  }
+
+  String get _courseDateRangeCaption {
+    final last = lastCoveredDay;
+    if (last == null) return startDay.monthDayCaption;
+    return '${startDay.monthDayCaption} - ${last.monthDayCaption}';
+  }
+
+  String get _endedCaption {
+    final last = lastCoveredDay;
+    if (last == null) return startDay.monthDayCaption;
+    final totalDays = _calendarDaysBetween(startDay, last) + 1;
+    return 'Day $totalDays of $totalDays · $_courseDateRangeCaption';
   }
 
   int _calendarDaysFromStart(DateTime day) =>

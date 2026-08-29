@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
@@ -131,15 +132,15 @@ class _SymptomTrendsScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(stat.minorComponent, style: AppText.body.medium),
+                Text(stat.minorComponent, style: EText.body.medium),
                 Text(
                   AppDateUtils.formatShortDate(stat.mostRecent),
-                  style: AppText.body.small.systemGrey,
+                  style: EText.body.small.muted,
                 ),
               ],
             ),
           ),
-          Text('${stat.count}×', style: AppText.body.small.secondary),
+          Text('${stat.count}×', style: EText.body.small.secondary),
           HSpace.s,
           const Icon(
             CupertinoIcons.chevron_right,
@@ -197,7 +198,7 @@ class _SymptomTrendsScreenState
         ),
         child: Text(
           'Peak: Level $severity — $description',
-          style: AppText.label.medium.copyWith(
+          style: EText.label.medium.copyWith(
             color: color,
             fontWeight: FontWeight.w600,
           ),
@@ -219,12 +220,12 @@ class _SymptomTrendsScreenState
         children: [
           TextSpan(
             text: AppDateUtils.formatTime(note.dateTime),
-            style: AppText.body.small.bold,
+            style: EText.body.small.bold,
           ),
           const TextSpan(text: '  ·  '),
-          TextSpan(text: 'L$noteSeverity', style: AppText.body.small.semibold),
+          TextSpan(text: 'L$noteSeverity', style: EText.body.small.semibold),
           if (subsymptom.isNotEmpty)
-            TextSpan(text: ' $subsymptom', style: AppText.body.small),
+            TextSpan(text: ' $subsymptom', style: EText.body.small),
         ],
       ),
     );

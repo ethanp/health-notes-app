@@ -1,10 +1,11 @@
+import 'package:health_notes/theme/activity_calendar_colors.dart';
+import 'package:ethan_ui/ethan_ui.dart';
 import 'dart:math' as math;
 
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/utils/number_formatter.dart';
@@ -51,8 +52,8 @@ Color intensityColor(
   double alphaMax = 0.9,
 }) {
   return Color.lerp(
-    AppColors.primary.withValues(alpha: alphaMin),
-    AppColors.primary.withValues(alpha: alphaMax),
+    EColors.accent.withValues(alpha: alphaMin),
+    EColors.accent.withValues(alpha: alphaMax),
     intensity,
   )!;
 }
@@ -122,13 +123,13 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.title, style: AppText.headline.small),
+          Text(widget.title, style: EText.headline.small),
           VSpace.s,
-          Text(widget.subtitle, style: AppText.body.small.systemGrey),
+          Text(widget.subtitle, style: EText.body.small.muted),
           VSpace.m,
           widget.legendBuilder(),
           VSpace.m,
@@ -222,7 +223,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
   Widget monthHeader(String monthName) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 2, left: 4),
-      child: Text(monthName, style: AppText.body.small.systemGrey.semibold),
+      child: Text(monthName, style: EText.body.small.muted.semibold),
     );
   }
 
@@ -239,7 +240,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
             child: Text(
               label,
               textAlign: TextAlign.center,
-              style: AppText.body.small.copyWith(
+              style: EText.body.small.copyWith(
                 color: CupertinoColors.systemGrey,
                 fontSize: 9,
               ),
@@ -378,7 +379,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
         child: Text(
           '$activeDays',
           textAlign: TextAlign.center,
-          style: AppText.body.small.copyWith(
+          style: EText.body.small.copyWith(
             color: CupertinoColors.white,
             fontSize: CalendarConstants.summaryFontSize,
             fontWeight: FontWeight.w600,
@@ -397,7 +398,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
     return Text(
       display,
       textAlign: TextAlign.right,
-      style: AppText.body.small.copyWith(
+      style: EText.body.small.copyWith(
         color: Color.lerp(
           CupertinoColors.systemGrey.withValues(alpha: 0.5),
           CupertinoColors.white,
@@ -459,7 +460,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
         style: TextStyle(
           fontSize: 8,
           fontWeight: FontWeight.w500,
-          color: AppColors.backgroundPrimary,
+          color: EColors.background,
         ),
       ),
     );
@@ -475,10 +476,10 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
     return BoxDecoration(
       color: hasActivity
           ? color
-          : AppColors.backgroundPrimary.withValues(alpha: 0.1),
+          : EColors.background.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(6),
       border: Border.all(
-        color: isToday ? AppColors.todayBorder : cellBorderColor(value),
+        color: isToday ? ActivityCalendarColors.todayBorder : cellBorderColor(value),
         width: isToday ? 1.5 : (hasActivity ? 1 : 0.5),
       ),
       boxShadow: hasActivity ? [dayCellShadow(color)] : null,
@@ -537,12 +538,12 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
             VSpace.m,
             Text(
               'No activity data available',
-              style: AppText.body.medium.systemGrey.semibold,
+              style: EText.body.medium.muted.semibold,
             ),
             VSpace.s,
             Text(
               'Start recording data to see trends',
-              style: AppText.body.small.copyWith(
+              style: EText.body.small.copyWith(
                 color: CupertinoColors.systemGrey.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
@@ -572,7 +573,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
 
   TextStyle cellTextStyle(T value) {
     if (value == widget.emptyValue) {
-      return AppText.label.small.copyWith(
+      return EText.label.small.copyWith(
         color: CupertinoColors.systemGrey.withValues(alpha: 0.6),
       );
     }
@@ -582,7 +583,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
         ? CupertinoColors.black
         : CupertinoColors.white;
 
-    return AppText.label.small.copyWith(color: textColor);
+    return EText.label.small.copyWith(color: textColor);
   }
 
   void _enterSelectionMode(DateTime date) {
@@ -611,9 +612,9 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
 
   BoxDecoration _selectedCellDecoration(DateTime date) {
     return BoxDecoration(
-      color: AppColors.primary.withValues(alpha: 0.25),
+      color: EColors.accent.withValues(alpha: 0.25),
       borderRadius: BorderRadius.circular(6),
-      border: Border.all(color: AppColors.primary, width: 2.0),
+      border: Border.all(color: EColors.accent, width: 2.0),
     );
   }
 
@@ -621,7 +622,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
     return Icon(
       CupertinoIcons.checkmark_alt,
       size: 16,
-      color: AppColors.primary,
+      color: EColors.accent,
     );
   }
 
@@ -637,7 +638,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
           padding: EdgeInsets.zero,
           minimumSize: Size.zero,
           onPressed: _exitSelectionMode,
-          child: Text('Cancel', style: AppText.body.medium.systemGrey),
+          child: Text('Cancel', style: EText.body.medium.muted),
         ),
         CupertinoButton(
           padding: EdgeInsets.zero,
@@ -651,8 +652,8 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
           child: Text(
             '$selectedCount $dayWord · $label',
             style: selectedCount > 0
-                ? AppText.body.medium.semibold.withColor(AppColors.primary)
-                : AppText.body.medium.systemGrey,
+                ? EText.body.medium.semibold.withColor(EColors.accent)
+                : EText.body.medium.muted,
           ),
         ),
       ],
@@ -692,7 +693,7 @@ class SeverityActivityCalendar extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Severity Levels:', style: AppText.body.medium.white.semibold),
+        Text('Severity Levels:', style: EText.body.medium.white.semibold),
         VSpace.s,
         Wrap(
           spacing: 12,
@@ -729,7 +730,7 @@ class SeverityActivityCalendar extends StatelessWidget {
         HSpace.xs,
         Text(
           label,
-          style: AppText.body.small.copyWith(
+          style: EText.body.small.copyWith(
             color: CupertinoColors.white.withValues(alpha: 0.8),
           ),
         ),
@@ -778,25 +779,25 @@ class DosageActivityCalendar extends StatelessWidget {
 
   Color dosageColor(double dosage) {
     if (dosage == 0.0) {
-      return AppColors.backgroundPrimary.withValues(alpha: 0.3);
+      return EColors.background.withValues(alpha: 0.3);
     }
-    if (maxDosage == 0.0) return AppColors.primary.withValues(alpha: 0.1);
+    if (maxDosage == 0.0) return EColors.accent.withValues(alpha: 0.1);
     return intensityColor(dosage / maxDosage, alphaMin: 0.1, alphaMax: 0.8);
   }
 
   Widget dosageLegend() {
     return Row(
       children: [
-        Text('Less', style: AppText.body.small.systemGrey),
+        Text('Less', style: EText.body.small.muted),
         HSpace.s,
         ...intensityGradientSquares(alphaMin: 0.1, alphaMax: 0.8),
         HSpace.s,
-        Text('More', style: AppText.body.small.systemGrey),
+        Text('More', style: EText.body.small.muted),
         const Spacer(),
         if (maxDosage > 0)
           Text(
             'Max: ${formatDecimalValue(maxDosage)}$unit',
-            style: AppText.body.small.systemGrey,
+            style: EText.body.small.muted,
           ),
       ],
     );
@@ -851,22 +852,22 @@ class CheckInsActivityCalendar extends StatelessWidget {
   }
 
   static Color checkInsColor(int count, int maxCount) {
-    if (count == 0) return AppColors.backgroundPrimary.withValues(alpha: 0.1);
-    if (maxCount == 0) return AppColors.primary.withValues(alpha: 0.1);
+    if (count == 0) return EColors.background.withValues(alpha: 0.1);
+    if (maxCount == 0) return EColors.accent.withValues(alpha: 0.1);
     return intensityColor(count / maxCount);
   }
 
   Widget checkInsLegend(int maxCount) {
     return Row(
       children: [
-        Text('Less', style: AppText.body.small.systemGrey),
+        Text('Less', style: EText.body.small.muted),
         HSpace.s,
         ...intensityGradientSquares(),
         HSpace.s,
-        Text('More', style: AppText.body.small.systemGrey),
+        Text('More', style: EText.body.small.muted),
         const Spacer(),
         if (maxCount > 0)
-          Text('Max: $maxCount/day', style: AppText.body.small.systemGrey),
+          Text('Max: $maxCount/day', style: EText.body.small.muted),
       ],
     );
   }

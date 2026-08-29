@@ -1,9 +1,9 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/date_utils.dart';
 
@@ -25,7 +25,7 @@ class ToolNoteCard extends StatelessWidget {
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: () => context.push(HealthNoteViewScreen(note: note)),
-        child: AppCard(
+        child: ECard(
           child: Row(
             children: [
               Expanded(
@@ -34,7 +34,7 @@ class ToolNoteCard extends StatelessWidget {
                   children: [
                     Text(
                       AppDateUtils.formatLongDate(note.dateTime),
-                      style: AppText.label.medium,
+                      style: EText.label.medium,
                     ),
                     VSpace.xs,
                     Row(
@@ -42,12 +42,12 @@ class ToolNoteCard extends StatelessWidget {
                         Icon(
                           CupertinoIcons.wrench,
                           size: 14,
-                          color: AppColors.primary,
+                          color: EColors.accent,
                         ),
                         HSpace.xs,
                         Text(
                           appliedTool.toolName,
-                          style: AppText.body.medium.primary,
+                          style: EText.body.medium.primary,
                         ),
                       ],
                     ),
@@ -55,7 +55,7 @@ class ToolNoteCard extends StatelessWidget {
                       VSpace.xs,
                       Text(
                         appliedTool.note,
-                        style: AppText.body.small.secondary,
+                        style: EText.body.small.secondary,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -64,7 +64,7 @@ class ToolNoteCard extends StatelessWidget {
                       VSpace.xs,
                       Text(
                         note.notes,
-                        style: AppText.body.small.tertiary,
+                        style: EText.body.small.tertiary,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -76,7 +76,7 @@ class ToolNoteCard extends StatelessWidget {
               Icon(
                 CupertinoIcons.chevron_right,
                 size: 14,
-                color: AppColors.textQuaternary,
+                color: EColors.textMuted,
               ),
             ],
           ),

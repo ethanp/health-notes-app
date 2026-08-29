@@ -1,5 +1,7 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/check_in_metric.dart';
@@ -11,9 +13,8 @@ import 'package:health_notes/screens/condition_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/data_utils.dart';
 import 'package:health_notes/utils/severity_utils.dart';
-import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/theme/spacing.dart';
 
 class CheckInForm extends ConsumerStatefulWidget {
@@ -83,25 +84,26 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   Widget build(BuildContext context) {
     final userMetricsAsync = ref.watch(checkInMetricsNotifierProvider);
 
-    return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.navigationBar(
-        title: widget.title,
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: widget.onCancel ?? () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: _isLoading || _selectedMetrics.isEmpty
-              ? null
-              : saveCheckIn,
-          child: _isLoading
-              ? const CupertinoActivityIndicator()
-              : Text(widget.saveButtonText),
-        ),
+    return HealthNotesPage(
+      title: widget.title,
+      leading: TextButton(
+        onPressed: widget.onCancel ?? () => Navigator.of(context).pop(),
+        child: const Text('Cancel'),
       ),
-      child: SafeArea(child: checkInFormBody(userMetricsAsync)),
+      actions: [
+        if (_isLoading)
+          const SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        else
+          TextButton(
+            onPressed: _selectedMetrics.isEmpty ? null : saveCheckIn,
+            child: Text(widget.saveButtonText),
+          ),
+      ],
+      body: checkInFormBody(userMetricsAsync),
     );
   }
 
@@ -143,7 +145,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   }
 
   Widget noMetricsAvailable() {
-    return AppCard(
+    return ECard(
       child: Column(
         children: [
           const Icon(
@@ -152,11 +154,11 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
             color: CupertinoColors.systemGrey,
           ),
           VSpace.m,
-          Text('No metrics available', style: AppText.navTitle),
+          Text('No metrics available', style: EText.headline.small),
           VSpace.s,
           Text(
             'Add some metrics to start tracking your health',
-            style: AppText.body.medium,
+            style: EText.body.medium,
             textAlign: TextAlign.center,
           ),
         ],
@@ -175,11 +177,11 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
             color: CupertinoColors.systemRed,
           ),
           VSpace.m,
-          Text('Failed to load metrics', style: AppText.navTitle),
+          Text('Failed to load metrics', style: EText.headline.small),
           VSpace.s,
           Text(
             error.toString(),
-            style: AppText.body.medium,
+            style: EText.body.medium,
             textAlign: TextAlign.center,
           ),
           VSpace.m,
@@ -193,11 +195,11 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   }
 
   Widget metricSlidersSection(List<CheckInMetric> userMetrics) {
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Your Ratings', style: AppText.headline.small),
+          Text('Your Ratings', style: EText.headline.small),
           VSpace.m,
           ..._selectedMetrics.entries.map(
             (entry) => metricRatingSelector(entry, userMetrics),
@@ -233,9 +235,9 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
       children: [
         _ratingPill(metric, rating),
         HSpace.m,
-        Icon(metric.icon, size: 20, color: AppColors.textPrimary),
+        Icon(metric.icon, size: 20, color: EColors.textPrimary),
         HSpace.sm,
-        Expanded(child: Text(metric.name, style: AppText.label.large)),
+        Expanded(child: Text(metric.name, style: EText.label.large)),
         CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () => setState(() => _selectedMetrics.remove(metricName)),
@@ -252,7 +254,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   Widget ratingSliderRow(String metricName, int rating) {
     return Row(
       children: [
-        Text('1', style: AppText.body.small.tertiary),
+        Text('1', style: EText.body.small.tertiary),
         Expanded(
           child: CupertinoSlider(
             value: rating.toDouble(),
@@ -263,7 +265,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                 setState(() => _selectedMetrics[metricName] = value.round()),
           ),
         ),
-        Text('10', style: AppText.body.small.tertiary),
+        Text('10', style: EText.body.small.tertiary),
       ],
     );
   }
@@ -281,7 +283,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
           ),
           child: Text(
             '$rating',
-            style: AppText.body.small.copyWith(
+            style: EText.body.small.copyWith(
               color: ratingColor,
               fontWeight: FontWeight.w700,
             ),
@@ -292,11 +294,11 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   }
 
   Widget dateTimeSection() {
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Date & Time', style: AppText.headline.small),
+          Text('Date & Time', style: EText.headline.small),
           VSpace.m,
           Container(
             height: 200,
@@ -304,7 +306,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
             child: CupertinoDatePicker(
               mode: CupertinoDatePickerMode.dateAndTime,
               initialDateTime: _selectedDateTime,
-              backgroundColor: AppColors.backgroundTertiary,
+              backgroundColor: EColors.surface,
               onDateTimeChanged: (DateTime newDateTime) {
                 setState(() => _selectedDateTime = newDateTime);
               },
@@ -316,14 +318,14 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
   }
 
   Widget conditionsSection() {
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Active Conditions', style: AppText.headline.small),
+              Text('Active Conditions', style: EText.headline.small),
               CupertinoButton(
                 padding: EdgeInsets.zero,
                 onPressed: showAddConditionOptions,
@@ -335,7 +337,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                       color: CupertinoColors.systemBlue,
                     ),
                     HSpace.xs,
-                    Text('Add', style: AppText.body.medium.semibold.systemBlue),
+                    Text('Add', style: EText.body.medium.semibold.accent),
                   ],
                 ),
               ),
@@ -344,7 +346,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
           VSpace.s,
           Text(
             'Log entries for active conditions',
-            style: AppText.body.small.tertiary,
+            style: EText.body.small.tertiary,
           ),
           VSpace.m,
           if (!_conditionsLoaded)
@@ -364,13 +366,13 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.m),
       decoration: BoxDecoration(
-        color: AppColors.backgroundTertiary,
+        color: EColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.small),
       ),
       child: Center(
         child: Text(
           'No active conditions to log',
-          style: AppText.body.medium.systemGrey,
+          style: EText.body.medium.muted,
         ),
       ),
     );
@@ -381,7 +383,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
-        color: AppColors.backgroundTertiary,
+        color: EColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.small),
         border: Border.all(
           color: draft.conditionColor.withValues(alpha: 0.3),
@@ -424,7 +426,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
         ),
         HSpace.s,
         Expanded(
-          child: Text(draft.conditionName, style: AppText.label.large.primary),
+          child: Text(draft.conditionName, style: EText.label.large.primary),
         ),
         CupertinoButton(
           padding: EdgeInsets.zero,
@@ -446,7 +448,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Severity', style: AppText.label.medium),
+            Text('Severity', style: EText.label.medium),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
@@ -455,7 +457,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
               ),
               child: Text(
                 '${draft.severity}/10',
-                style: AppText.label.small.copyWith(
+                style: EText.label.small.copyWith(
                   color: CupertinoColors.white,
                 ),
               ),
@@ -479,7 +481,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Phase', style: AppText.label.medium),
+        Text('Phase', style: EText.label.medium),
         VSpace.xs,
         Wrap(
           spacing: 6,
@@ -496,17 +498,17 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? p.color.withValues(alpha: 0.2)
-                      : AppColors.backgroundQuaternary,
+                      : EColors.surfaceRaised,
                   borderRadius: BorderRadius.circular(AppRadius.large),
                   border: Border.all(
-                    color: isSelected ? p.color : AppColors.backgroundQuinary,
+                    color: isSelected ? p.color : EColors.borderStrong,
                     width: isSelected ? 1.5 : 1,
                   ),
                 ),
                 child: Text(
                   p.displayName,
-                  style: AppText.caption.copyWith(
-                    color: isSelected ? p.color : AppColors.textSecondary,
+                  style: EText.caption.copyWith(
+                    color: isSelected ? p.color : EColors.textSecondary,
                   ),
                 ),
               ),
@@ -521,17 +523,17 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Notes', style: AppText.label.medium),
+        Text('Notes', style: EText.label.medium),
         VSpace.xs,
         CupertinoTextField(
           placeholder: 'Optional notes for this condition...',
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppColors.backgroundQuaternary,
+            color: EColors.surfaceRaised,
             borderRadius: BorderRadius.circular(AppRadius.small),
           ),
-          style: AppText.body.small,
-          placeholderStyle: AppText.inputPlaceholder.size(13),
+          style: EText.body.small,
+          placeholderStyle: EText.body.medium.muted.size(13),
           maxLines: 2,
           onChanged: (value) => draft.notes = value,
         ),
@@ -551,7 +553,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
         Expanded(
           child: Text(
             'Mark as resolved after this entry',
-            style: AppText.body.small.secondary,
+            style: EText.body.small.secondary,
           ),
         ),
       ],

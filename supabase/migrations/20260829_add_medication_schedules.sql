@@ -48,3 +48,8 @@ CREATE TRIGGER set_medication_schedules_updated_at
     BEFORE UPDATE ON public.medication_schedules
     FOR EACH ROW
     EXECUTE FUNCTION public.handle_updated_at();
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.medication_schedules
+    TO authenticated, service_role;
+
+NOTIFY pgrst, 'reload schema';

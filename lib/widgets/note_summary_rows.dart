@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,12 +8,11 @@ import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/screens/drug_trends_screen.dart';
 import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/screens/tool_detail_screen.dart';
-import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/severity_utils.dart';
 import 'package:health_notes/widgets/accent_border_card.dart';
 import 'package:health_notes/widgets/condition_badge.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/status_tint_chip.dart';
 
 /// Shared left-accent row for a single symptom, used in note lists and the
 /// health note detail view.
@@ -40,7 +40,7 @@ class SymptomSummaryRow extends ConsumerWidget {
               Expanded(child: _nameText()),
               if (symptom.severityLevel > 0) ...[
                 HSpace.s,
-                EnhancedUIComponents.statusIndicator(
+                StatusTintChip(
                   text: '${symptom.severityLevel}',
                   color: severityColor,
                 ),
@@ -60,7 +60,7 @@ class SymptomSummaryRow extends ConsumerWidget {
                 if (symptom.additionalNotes.isNotEmpty)
                   Text(
                     symptom.additionalNotes,
-                    style: AppText.body.small.secondary,
+                    style: EText.body.small.secondary,
                   ),
               ],
             ),
@@ -78,12 +78,12 @@ class SymptomSummaryRow extends ConsumerWidget {
             text: symptom.hasMajorComponent
                 ? symptom.majorComponent
                 : 'Unnamed symptom',
-            style: AppText.body.medium.copyWith(fontWeight: FontWeight.w600),
+            style: EText.body.medium.copyWith(fontWeight: FontWeight.w600),
           ),
           if (symptom.minorComponent.isNotEmpty)
             TextSpan(
               text: ' — ${symptom.minorComponent}',
-              style: AppText.body.small.secondary,
+              style: EText.body.small.secondary,
             ),
         ],
       ),
@@ -100,7 +100,7 @@ class MedicationSummaryRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AccentBorderCard(
-      accentColor: AppColors.secondary,
+      accentColor: EColors.accentGlow,
       onTap: dose.name.isEmpty
           ? null
           : () => context.push(DrugTrendsScreen(drugName: dose.name)),
@@ -111,14 +111,14 @@ class MedicationSummaryRow extends StatelessWidget {
               dose.whenCaption.isEmpty
                   ? dose.displayName
                   : '${dose.displayName} · ${dose.whenCaption}',
-              style: AppText.body.medium.copyWith(fontWeight: FontWeight.w600),
+              style: EText.body.medium.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
           if (dose.dosage > 0) ...[
             HSpace.s,
-            EnhancedUIComponents.statusIndicator(
+            StatusTintChip(
               text: dose.displayDosage,
-              color: AppColors.secondary,
+              color: EColors.accentGlow,
             ),
           ],
         ],
@@ -136,7 +136,7 @@ class AppliedToolSummaryRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AccentBorderCard(
-      accentColor: AppColors.accentWarm,
+      accentColor: EColors.warning,
       onTap: () => context.push(
         ToolDetailScreen(
           toolId: appliedTool.toolId,
@@ -148,11 +148,11 @@ class AppliedToolSummaryRow extends StatelessWidget {
         children: [
           Text(
             appliedTool.toolName,
-            style: AppText.body.medium.copyWith(fontWeight: FontWeight.w600),
+            style: EText.body.medium.copyWith(fontWeight: FontWeight.w600),
           ),
           if (appliedTool.note.isNotEmpty) ...[
             VSpace.xs,
-            Text(appliedTool.note, style: AppText.body.small.secondary),
+            Text(appliedTool.note, style: EText.body.small.secondary),
           ],
         ],
       ),

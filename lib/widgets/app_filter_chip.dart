@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
@@ -28,7 +29,7 @@ class AppFilterChip extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: isActive ? AppText.label.medium.white : AppText.label.medium,
+          style: isActive ? EText.label.medium.white : EText.label.medium,
         ),
       ),
     );

@@ -1,13 +1,14 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/color_picker_grid.dart';
-import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/theme/spacing.dart';
 
 class MetricEditScreen extends ConsumerStatefulWidget {
@@ -47,23 +48,26 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.navigationBar(
-        title: widget.metric == null ? 'Add Metric' : 'Edit Metric',
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: _isLoading ? null : _saveMetric,
-          child: _isLoading
-              ? const CupertinoActivityIndicator()
-              : Text(widget.metric == null ? 'Add' : 'Save'),
-        ),
+    return HealthNotesPage(
+      title: widget.metric == null ? 'Add Metric' : 'Edit Metric',
+      leading: TextButton(
+        onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
+        child: const Text('Cancel'),
       ),
-      child: SafeArea(child: metricEditForm()),
+      actions: [
+        if (_isLoading)
+          const SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        else
+          TextButton(
+            onPressed: _saveMetric,
+            child: Text(widget.metric == null ? 'Add' : 'Save'),
+          ),
+      ],
+      body: metricEditForm(),
     );
   }
 
@@ -86,7 +90,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
   }
 
   Widget nameSection() {
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -115,7 +119,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
   }
 
   Widget typeSection() {
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -183,15 +187,15 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
                     Text(
                       _getMetricTypeDisplayName(type),
                       style: isSelected
-                          ? AppText.body.medium.semibold.systemBlue
-                          : AppText.body.medium.white,
+                          ? EText.body.medium.semibold.accent
+                          : EText.body.medium.white,
                     ),
                     VSpace.of(2),
                     Text(
                       type.description,
                       style: isSelected
-                          ? AppText.metricTypeSelected
-                          : AppText.metricTypeUnselected,
+                          ? EText.body.small.accent.size(12)
+                          : EText.body.small.white.size(12),
                     ),
                   ],
                 ),
@@ -204,7 +208,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
   }
 
   Widget colorSection() {
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -227,7 +231,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
   }
 
   Widget iconSection() {
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

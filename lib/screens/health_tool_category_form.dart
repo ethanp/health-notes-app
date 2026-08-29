@@ -1,11 +1,12 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_tool_category.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/color_picker_grid.dart';
-import 'package:health_notes/widgets/app_card.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/theme/spacing.dart';
 
 class HealthToolCategoryForm extends ConsumerStatefulWidget {
@@ -69,53 +70,54 @@ class _HealthToolCategoryFormState
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.navigationBar(
-        title: widget.title,
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: widget.onCancel ?? () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: _isLoading ? null : saveCategory,
-          child: _isLoading
-              ? const CupertinoActivityIndicator()
-              : Text(widget.saveButtonText),
-        ),
+    return HealthNotesPage(
+      title: widget.title,
+      leading: TextButton(
+        onPressed: widget.onCancel ?? () => Navigator.of(context).pop(),
+        child: const Text('Cancel'),
       ),
-      child: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(AppSpacing.m),
-            children: [
-              nameSection(),
-              VSpace.m,
-              descriptionSection(),
-              VSpace.m,
-              iconSection(),
-              VSpace.m,
-              colorSection(),
-            ],
+      actions: [
+        if (_isLoading)
+          const SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        else
+          TextButton(
+            onPressed: saveCategory,
+            child: Text(widget.saveButtonText),
           ),
+      ],
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(AppSpacing.m),
+          children: [
+            nameSection(),
+            VSpace.m,
+            descriptionSection(),
+            VSpace.m,
+            iconSection(),
+            VSpace.m,
+            colorSection(),
+          ],
         ),
       ),
     );
   }
 
   Widget nameSection() {
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Category Name', style: AppText.headline.small),
+          Text('Category Name', style: EText.headline.small),
           VSpace.m,
           CupertinoTextField(
             controller: _nameController,
             placeholder: 'Enter category name',
-            style: AppText.input,
+            style: EText.body.medium,
             decoration: AppComponents.inputField,
             padding: const EdgeInsets.all(AppSpacing.sm),
           ),
@@ -125,21 +127,21 @@ class _HealthToolCategoryFormState
   }
 
   Widget descriptionSection() {
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Description', style: AppText.headline.small),
+          Text('Description', style: EText.headline.small),
           VSpace.s,
           Text(
             'Describe what this category is for',
-            style: AppText.body.medium.tertiary,
+            style: EText.body.medium.tertiary,
           ),
           VSpace.m,
           CupertinoTextField(
             controller: _descriptionController,
             placeholder: 'Enter description...',
-            style: AppText.input,
+            style: EText.body.medium,
             decoration: AppComponents.inputField,
             padding: const EdgeInsets.all(AppSpacing.sm),
             maxLines: 3,
@@ -151,11 +153,11 @@ class _HealthToolCategoryFormState
   }
 
   Widget iconSection() {
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Icon', style: AppText.headline.small),
+          Text('Icon', style: EText.headline.small),
           VSpace.m,
           iconChoices(),
         ],
@@ -178,21 +180,21 @@ class _HealthToolCategoryFormState
             ),
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppColors.primary
-                  : AppColors.backgroundTertiary,
+                  ? EColors.accent
+                  : EColors.surface,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: isSelected
-                    ? AppColors.primary
-                    : AppColors.backgroundTertiary,
+                    ? EColors.accent
+                    : EColors.surface,
               ),
             ),
             child: Text(
               icon['name']!,
-              style: AppText.body.small.copyWith(
+              style: EText.body.small.copyWith(
                 color: isSelected
                     ? CupertinoColors.white
-                    : AppColors.textPrimary,
+                    : EColors.textPrimary,
               ),
             ),
           ),
@@ -202,11 +204,11 @@ class _HealthToolCategoryFormState
   }
 
   Widget colorSection() {
-    return AppCard(
+    return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Color', style: AppText.headline.small),
+          Text('Color', style: EText.headline.small),
           VSpace.m,
           colorChoices(),
         ],
@@ -227,7 +229,7 @@ class _HealthToolCategoryFormState
 
   Color _parseColor(String colorHex) {
     final parsed = int.tryParse(colorHex.replaceAll('#', '0xFF'));
-    return parsed != null ? Color(parsed) : AppColors.primary;
+    return parsed != null ? Color(parsed) : EColors.accent;
   }
 
   String _colorToHex(Color color) {

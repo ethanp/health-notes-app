@@ -1,10 +1,10 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
 import 'package:health_notes/widgets/health_note_form_fields.dart';
+import 'package:health_notes/widgets/health_notes_page.dart';
 
 class HealthNoteForm extends ConsumerStatefulWidget {
   final HealthNote? note;
@@ -45,30 +45,28 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
               )
         : widget.note;
 
-    return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.navigationBar(
-        title: widget.title,
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: widget.onCancel ?? () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: _isLoading ? null : saveNote,
-          child: _isLoading
-              ? const CupertinoActivityIndicator()
-              : Text(widget.saveButtonText),
-        ),
+    return HealthNotesPage(
+      title: widget.title,
+      leading: TextButton(
+        onPressed: widget.onCancel ?? () => Navigator.of(context).pop(),
+        child: const Text('Cancel'),
       ),
-      child: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: HealthNoteFormFields(
-            key: _formFieldsKey,
-            note: currentNote,
-            isEditable: true,
-          ),
+      actions: [
+        if (_isLoading)
+          const SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        else
+          TextButton(onPressed: saveNote, child: Text(widget.saveButtonText)),
+      ],
+      body: Form(
+        key: _formKey,
+        child: HealthNoteFormFields(
+          key: _formFieldsKey,
+          note: currentNote,
+          isEditable: true,
         ),
       ),
     );
@@ -99,7 +97,7 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
       }
     } catch (e) {
       if (mounted) {
-        showCupertinoDialog(
+        showDialog(
           context: context,
           builder: (context) => AppAlertDialogs.error(
             title: 'Error',

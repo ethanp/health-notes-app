@@ -1,9 +1,11 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/screens/check_in_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
+import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/utils/date_utils.dart';
 
 class CheckInDateDetailScreen extends StatefulWidget {
@@ -71,10 +73,10 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.m),
       decoration: BoxDecoration(
-        color: AppColors.backgroundSecondary,
+        color: EColors.backgroundLift,
         border: Border(
           bottom: BorderSide(
-            color: AppColors.textSecondary.withValues(alpha: 0.2),
+            color: EColors.textSecondary.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),
@@ -84,12 +86,12 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
         children: [
           Text(
             AppDateUtils.formatLongDate(widget.date),
-            style: AppText.headline.small.primary,
+            style: EText.headline.small.primary,
           ),
           CupertinoButton(
             padding: EdgeInsets.zero,
             onPressed: () => Navigator.of(context).pop(),
-            child: Icon(CupertinoIcons.xmark, color: AppColors.textSecondary),
+            child: Icon(CupertinoIcons.xmark, color: EColors.textSecondary),
           ),
         ],
       ),
@@ -100,10 +102,10 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       decoration: BoxDecoration(
-        color: AppColors.backgroundSecondary,
+        color: EColors.backgroundLift,
         borderRadius: BorderRadius.circular(AppRadius.medium),
         border: Border.all(
-          color: AppColors.textSecondary.withValues(alpha: 0.1),
+          color: EColors.textSecondary.withValues(alpha: 0.1),
           width: 1,
         ),
       ),
@@ -116,11 +118,11 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(checkIn.metricName, style: AppText.label.large.primary),
+                  Text(checkIn.metricName, style: EText.label.large.primary),
                   VSpace.xs,
                   Text(
                     AppDateUtils.formatTime(checkIn.dateTime),
-                    style: AppText.body.small.secondary,
+                    style: EText.body.small.secondary,
                   ),
                 ],
               ),
@@ -131,12 +133,12 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
                 vertical: AppSpacing.s,
               ),
               decoration: BoxDecoration(
-                color: AppColors.primary,
+                color: EColors.accent,
                 borderRadius: BorderRadius.circular(AppRadius.large),
               ),
               child: Text(
                 '${checkIn.rating}',
-                style: AppText.buttonPrimary.bold,
+                style: EText.body.medium.semibold.white.bold,
               ),
             ),
           ],
@@ -170,17 +172,17 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
             Icon(
               CupertinoIcons.calendar,
               size: 48,
-              color: AppColors.textSecondary,
+              color: EColors.textSecondary,
             ),
             VSpace.m,
             Text(
               'No check-ins for this date',
-              style: AppText.body.medium.primary,
+              style: EText.body.medium.primary,
             ),
             VSpace.s,
             Text(
               'Check-ins will appear here when you add them',
-              style: AppText.body.small.secondary,
+              style: EText.body.small.secondary,
               textAlign: TextAlign.center,
             ),
           ],
@@ -191,28 +193,13 @@ class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: headerNavigationBar(),
-      child: SafeArea(
-        child: Column(
-          children: [
-            header(),
-            Expanded(child: checkInsList()),
-          ],
-        ),
-      ),
-    );
-  }
-
-  ObstructingPreferredSizeWidget headerNavigationBar() {
-    return CupertinoNavigationBar(
-      middle: Text('Check-ins', style: AppText.body.large.primary),
-      backgroundColor: AppColors.backgroundSecondary,
-      border: Border.all(color: AppColors.textSecondary.withValues(alpha: 0.2)),
-      leading: CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: () => Navigator.of(context).pop(),
-        child: Icon(CupertinoIcons.back, color: AppColors.textSecondary),
+    return HealthNotesPage(
+      title: 'Check-ins',
+      body: Column(
+        children: [
+          header(),
+          Expanded(child: checkInsList()),
+        ],
       ),
     );
   }

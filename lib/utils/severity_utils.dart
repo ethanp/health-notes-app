@@ -1,5 +1,5 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:health_notes/theme/app_theme.dart';
 
 /// Centralized severity calculation and display logic
 class SeverityUtils {
@@ -10,7 +10,7 @@ class SeverityUtils {
   /// Uses HSL color space to create a gradient from green (low) to red (high)
   static Color colorForSeverity(int severity) {
     if (severity == 0) {
-      return AppColors.backgroundPrimary.withValues(alpha: 0.3);
+      return EColors.background.withValues(alpha: 0.3);
     }
 
     final normalized = (severity / maxSeverity).clamp(0.0, 1.0);

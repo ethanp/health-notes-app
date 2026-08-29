@@ -1,15 +1,15 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/models/health_tool_category.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/screens/health_tool_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/widgets/app_button.dart';
-import 'package:health_notes/widgets/app_card.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
-import 'package:health_notes/widgets/enhanced_ui_components.dart';
+import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
 import 'package:health_notes/theme/spacing.dart';
 
@@ -29,16 +29,16 @@ class _HealthToolCategoryScreenState
   Widget build(BuildContext context) {
     final toolsAsync = ref.watch(toolsByCategoryProvider(widget.category.id));
 
-    return CupertinoPageScaffold(
-      navigationBar: EnhancedUIComponents.navigationBar(
-        title: widget.category.name,
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
+    return HealthNotesPage(
+      title: widget.category.name,
+      actions: [
+        IconButton(
+          tooltip: 'Add tool',
           onPressed: () => _showAddToolForm(),
-          child: const Icon(CupertinoIcons.add),
+          icon: const Icon(Icons.add),
         ),
-      ),
-      child: SafeArea(child: categoryBody(toolsAsync)),
+      ],
+      body: categoryBody(toolsAsync),
     );
   }
 
@@ -52,12 +52,12 @@ class _HealthToolCategoryScreenState
   }
 
   Widget categoryHeader() {
-    return AppCard(
+    return ECard(
       margin: const EdgeInsets.all(AppSpacing.m),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.category.description, style: AppText.body.medium),
+          Text(widget.category.description, style: EText.body.medium),
         ],
       ),
     );
@@ -67,21 +67,21 @@ class _HealthToolCategoryScreenState
     return toolsAsync.when(
       data: (tools) => tools.isEmpty ? emptyState() : toolsList(tools),
       loading: () =>
-          EnhancedUIComponents.loadingIndicator(message: 'Loading tools...'),
+          ELoadingState(message: 'Loading tools...'),
       error: (error, stack) =>
-          Center(child: Text('Error: $error', style: AppText.error)),
+          Center(child: Text('Error: $error', style: EText.error)),
     );
   }
 
   Widget emptyState() {
-    return EnhancedUIComponents.emptyState(
+    return EEmptyState(
       title: 'No tools for ${widget.category.name}',
       message: 'Add your first tool to get started',
       icon: CupertinoIcons.wrench,
-      action: AppButton(
-        text: 'Add Tool',
+      action: FilledButton.icon(
         onPressed: () => _showAddToolForm(),
-        icon: CupertinoIcons.add,
+        icon: const Icon(Icons.add),
+        label: const Text('Add Tool'),
       ),
     );
   }
@@ -98,7 +98,7 @@ class _HealthToolCategoryScreenState
   }
 
   Widget toolCard(HealthTool tool) {
-    return AppCard(
+    return ECard(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       padding: EdgeInsets.zero,
       child: CupertinoButton(
@@ -118,7 +118,7 @@ class _HealthToolCategoryScreenState
   Widget toolHeader(HealthTool tool) {
     return Row(
       children: [
-        Expanded(child: Text(tool.name, style: AppText.label.large)),
+        Expanded(child: Text(tool.name, style: EText.label.large)),
         const Icon(
           CupertinoIcons.chevron_right,
           color: CupertinoColors.systemGrey,
@@ -131,7 +131,7 @@ class _HealthToolCategoryScreenState
   Widget toolDescription(HealthTool tool) {
     return Text(
       tool.description,
-      style: AppText.body.medium.tertiary,
+      style: EText.body.medium.tertiary,
       maxLines: 3,
       overflow: TextOverflow.ellipsis,
     );
