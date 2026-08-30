@@ -22,15 +22,14 @@ import 'package:health_notes/widgets/sync_status_widget.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:intl/intl.dart';
 
-class HealthNotesHomePage extends ConsumerStatefulWidget {
-  const HealthNotesHomePage();
-
+class const HealthNotesHomePage() extends ConsumerStatefulWidget {
   @override
   ConsumerState<HealthNotesHomePage> createState() =>
       _HealthNotesHomePageState();
 }
 
-class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
+class _HealthNotesHomePageState()
+    extends ConsumerState<HealthNotesHomePage>
     with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -64,10 +63,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
 
   void showAddNoteModal() {
     context.push(
-      const HealthNoteForm(
-        title: 'Add Health Note',
-        saveButtonText: 'Save',
-      ),
+      const HealthNoteForm(title: 'Add Health Note', saveButtonText: 'Save'),
     );
   }
 
@@ -94,8 +90,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
               note.dateTime.month == _selectedDate!.month &&
               note.dateTime.day == _selectedDate!.day);
 
-      bool matchesDrug =
-          _selectedDrug == null || note.hasDrug(_selectedDrug!);
+      bool matchesDrug = _selectedDrug == null || note.hasDrug(_selectedDrug!);
 
       return matchesSearch && matchesDate && matchesDrug;
     }).toList();
@@ -130,9 +125,8 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
         ],
       ),
       body: groupedNotesAsync.when(
-        data: (groupedNotes) => groupedNotes.isEmpty
-            ? emptyTable()
-            : filteredContent(groupedNotes),
+        data: (groupedNotes) =>
+            groupedNotes.isEmpty ? emptyTable() : filteredContent(groupedNotes),
         loading: () => const SyncStatusWidget.loading(
           message: 'Loading your health notes...',
         ),
@@ -204,7 +198,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
         selectedDate: _selectedDate,
         selectedDrug: _selectedDrug,
         availableDrugs: getUniqueDrugs(
-          ref.read(healthNotesNotifierProvider).value ?? [],
+          ref.read(healthNotesProvider).value ?? [],
         ),
         onDateChanged: (date) => setState(() => _selectedDate = date),
         onDrugChanged: (drug) => setState(() => _selectedDrug = drug),
@@ -253,8 +247,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
     if (hasActiveFilters) {
       return EEmptyState(
         title: 'No matches found',
-        message:
-            'Try adjusting your search or filters to find what you\'re looking for',
+        message: 'Try adjusting your search or filters to find what you\'re looking for',
         icon: CupertinoIcons.search,
       );
     } else {
@@ -278,7 +271,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
       slivers: [
         CupertinoSliverRefreshControl(
           onRefresh: () async {
-            await ref.read(healthNotesNotifierProvider.notifier).refreshNotes();
+            await ref.read(healthNotesProvider.notifier).refreshNotes();
           },
         ),
         SliverFillRemaining(
@@ -314,7 +307,7 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
 
     return RefreshableListView<GroupedHealthNotes>(
       onReloadRequested: () async {
-        await ref.read(healthNotesNotifierProvider.notifier).refreshNotes();
+        await ref.read(healthNotesProvider.notifier).refreshNotes();
       },
       items: visibleGroups,
       itemBuilder: (group) => groupedNotesSection(group, filteredNoteIds),
@@ -406,6 +399,6 @@ class _HealthNotesHomePageState extends ConsumerState<HealthNotesHomePage>
   }
 
   void deleteNote(String noteId) {
-    ref.read(healthNotesNotifierProvider.notifier).deleteNote(noteId);
+    ref.read(healthNotesProvider.notifier).deleteNote(noteId);
   }
 }

@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/models/condition_entry.dart';
@@ -12,20 +11,14 @@ import 'package:health_notes/utils/data_utils.dart';
 part 'conditions_provider.g.dart';
 
 /// A symptom linked to a condition, with date information from the health note.
-class LinkedSymptom {
-  final DateTime date;
-  final Symptom symptom;
-  final String healthNoteId;
-
-  const LinkedSymptom({
-    required this.date,
-    required this.symptom,
-    required this.healthNoteId,
-  });
-}
+class const LinkedSymptom({
+  required final DateTime date,
+  required final Symptom symptom,
+  required final String healthNoteId,
+});
 
 @riverpod
-class ConditionsNotifier extends _$ConditionsNotifier {
+class ConditionsNotifier() extends _$ConditionsNotifier {
   @override
   Future<List<Condition>> build() async {
     final user = await ref.watch(currentUserProvider.future);
@@ -124,7 +117,7 @@ class ConditionsNotifier extends _$ConditionsNotifier {
 }
 
 @riverpod
-class ConditionEntriesNotifier extends _$ConditionEntriesNotifier {
+class ConditionEntriesNotifier() extends _$ConditionEntriesNotifier {
   @override
   Future<List<ConditionEntry>> build(String conditionId) async {
     return await ConditionEntriesDao.getEntriesForCondition(conditionId);
@@ -207,7 +200,7 @@ Future<List<LinkedSymptom>> symptomsForCondition(
   Ref ref,
   String conditionId,
 ) async {
-  final healthNotes = await ref.watch(healthNotesNotifierProvider.future);
+  final healthNotes = await ref.watch(healthNotesProvider.future);
   final linkedSymptoms = <LinkedSymptom>[];
 
   for (final note in healthNotes) {

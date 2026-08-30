@@ -75,7 +75,10 @@ abstract class CheckInMetric with _$CheckInMetric {
   }
 }
 
-enum MetricType {
+enum MetricType({
+  required final String description,
+  required final Color Function(int) getRatingColor,
+}) {
   lowerIsBetter(
     description: 'Lower values are better',
     getRatingColor: ColorMappingUtils.lowerIsBetterColor,
@@ -87,12 +90,7 @@ enum MetricType {
   higherIsBetter(
     description: 'Higher values are better',
     getRatingColor: ColorMappingUtils.higherIsBetterColor,
-  );
-
-  final String description;
-  final Color Function(int) getRatingColor;
-
-  const MetricType({required this.description, required this.getRatingColor});
+  ),
 }
 
 /// Default color palette for new metrics

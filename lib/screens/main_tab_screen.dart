@@ -6,17 +6,11 @@ import 'package:health_notes/screens/health_notes_home_page.dart';
 import 'package:health_notes/screens/library_screen.dart';
 import 'package:health_notes/screens/trends_screen.dart';
 
-class MainTab {
-  const MainTab({
-    required this.icon,
-    required this.label,
-    required this.screen,
-  });
-
-  final IconData icon;
-  final String label;
-  final Widget screen;
-}
+class const MainTab({
+  required final IconData icon,
+  required final String label,
+  required final Widget screen,
+});
 
 const _mainTabs = <MainTab>[
   MainTab(
@@ -36,14 +30,12 @@ const _mainTabs = <MainTab>[
   ),
 ];
 
-class MainTabScreen extends ConsumerStatefulWidget {
-  const MainTabScreen();
-
+class const MainTabScreen() extends ConsumerStatefulWidget {
   @override
   ConsumerState<MainTabScreen> createState() => _MainTabScreenState();
 }
 
-class _MainTabScreenState extends ConsumerState<MainTabScreen> {
+class _MainTabScreenState() extends ConsumerState<MainTabScreen> {
   int _selectedTabIndex = 0;
   final _navigatorKeys = List<GlobalKey<NavigatorState>>.generate(
     _mainTabs.length,
@@ -55,7 +47,7 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
-        await ref.read(syncNotifierProvider.notifier).forceSyncAllData();
+        await ref.read(syncProvider.notifier).forceSyncAllData();
       } catch (_) {}
     });
   }
@@ -71,7 +63,9 @@ class _MainTabScreenState extends ConsumerState<MainTabScreen> {
         ],
         onSelected: (index) {
           if (index == _selectedTabIndex) {
-            _navigatorKeys[index].currentState?.popUntil((route) => route.isFirst);
+            _navigatorKeys[index].currentState?.popUntil(
+              (route) => route.isFirst,
+            );
             return;
           }
           setState(() => _selectedTabIndex = index);

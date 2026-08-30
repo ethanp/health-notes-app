@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 
 /// Centralized date formatting utilities for consistent date display
-class AppDateUtils {
+class AppDateUtils() {
   /// Format date as "MMM dd, yyyy" (e.g., "Jan 15, 2024")
   static String formatShortDate(DateTime date) =>
       DateFormat('MMM dd, yyyy').format(date);

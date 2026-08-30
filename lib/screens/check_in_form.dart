@@ -17,26 +17,18 @@ import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class CheckInForm extends ConsumerStatefulWidget {
-  final CheckIn? checkIn;
-  final String title;
-  final String saveButtonText;
-  final VoidCallback? onSuccess;
-  final VoidCallback? onCancel;
-
-  const CheckInForm({
-    this.checkIn,
-    this.title = 'Add Check-in',
-    this.saveButtonText = 'Save',
-    this.onSuccess,
-    this.onCancel,
-  });
-
+class const CheckInForm({
+  final CheckIn? checkIn,
+  final String title = 'Add Check-in',
+  final String saveButtonText = 'Save',
+  final VoidCallback? onSuccess,
+  final VoidCallback? onCancel,
+}) extends ConsumerStatefulWidget {
   @override
   ConsumerState<CheckInForm> createState() => _CheckInFormState();
 }
 
-class _CheckInFormState extends ConsumerState<CheckInForm> {
+class _CheckInFormState() extends ConsumerState<CheckInForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late DateTime _selectedDateTime;
   bool _isLoading = false;
@@ -61,7 +53,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     if (widget.checkIn != null) return;
 
     final activeConditions = await ref
-        .read(conditionsNotifierProvider.notifier)
+        .read(conditionsProvider.notifier)
         .getActiveConditions();
     if (mounted) {
       setState(() {
@@ -82,7 +74,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
 
   @override
   Widget build(BuildContext context) {
-    final userMetricsAsync = ref.watch(checkInMetricsNotifierProvider);
+    final userMetricsAsync = ref.watch(checkInMetricsProvider);
 
     return HealthNotesPage(
       title: widget.title,
@@ -186,7 +178,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
           ),
           VSpace.m,
           CupertinoButton.filled(
-            onPressed: () => ref.invalidate(checkInMetricsNotifierProvider),
+            onPressed: () => ref.invalidate(checkInMetricsProvider),
             child: const Text('Retry'),
           ),
         ],
@@ -457,9 +449,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
               ),
               child: Text(
                 '${draft.severity}/10',
-                style: EText.label.small.copyWith(
-                  color: CupertinoColors.white,
-                ),
+                style: EText.label.small.copyWith(color: CupertinoColors.white),
               ),
             ),
           ],
@@ -589,7 +579,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
     setState(() => _isLoading = true);
 
     try {
-      final notifier = ref.read(checkInsNotifierProvider.notifier);
+      final notifier = ref.read(checkInsProvider.notifier);
       late String checkInId;
 
       if (widget.checkIn != null) {
@@ -615,7 +605,7 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
           );
         }
 
-        final allCheckIns = await ref.read(checkInsNotifierProvider.future);
+        final allCheckIns = await ref.read(checkInsProvider.future);
         final latestCheckIn = allCheckIns
             .where(
               (c) =>
@@ -631,11 +621,9 @@ class _CheckInFormState extends ConsumerState<CheckInForm> {
       }
 
       for (final draft in _conditionDrafts) {
-        final conditionsNotifier = ref.read(
-          conditionsNotifierProvider.notifier,
-        );
+        final conditionsNotifier = ref.read(conditionsProvider.notifier);
         final entriesNotifier = ref.read(
-          conditionEntriesNotifierProvider(draft.conditionId).notifier,
+          conditionEntriesProvider(draft.conditionId).notifier,
         );
 
         await entriesNotifier.addEntry(

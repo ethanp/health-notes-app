@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:health_notes/services/check_in_metrics_dao.dart';
 import 'package:health_notes/services/sync_service.dart';
 
-class OfflineRepository {
+class OfflineRepository() {
   static final _syncService = SyncService();
 
   static Future<void> syncAllData(String userId) async {

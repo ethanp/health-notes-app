@@ -3,11 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class StatsCard extends StatelessWidget {
-  final List<Widget> statRows;
-
-  const StatsCard({required this.statRows});
-
+class const StatsCard({required final List<Widget> statRows})
+    extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ECard(
@@ -19,19 +16,12 @@ class StatsCard extends StatelessWidget {
   }
 }
 
-class StatRow extends StatelessWidget {
-  final String label;
-  final int value;
-  final String unit;
-  final VoidCallback? onTap;
-
-  const StatRow({
-    required this.label,
-    required this.value,
-    required this.unit,
-    this.onTap,
-  });
-
+class const StatRow({
+  required final String label,
+  required final int value,
+  required final String unit,
+  final VoidCallback? onTap,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final row = Padding(
@@ -45,9 +35,7 @@ class StatRow extends StatelessWidget {
             children: [
               Text(
                 '$value $unit',
-                style: EText.body.medium.semibold.withColor(
-                  EColors.accent,
-                ),
+                style: EText.body.medium.semibold.withColor(EColors.accent),
               ),
               if (onTap != null) HSpace.s,
               if (onTap != null)

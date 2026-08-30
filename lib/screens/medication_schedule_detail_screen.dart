@@ -8,17 +8,15 @@ import 'package:health_notes/screens/medication_schedule_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/date_utils.dart';
+import 'package:health_notes/widgets/medication_schedule/schedule_kind_chip.dart';
 import 'package:health_notes/widgets/medication_schedule/schedule_scaffold.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 
-class MedicationScheduleDetailScreen extends ConsumerWidget {
-  final String scheduleId;
-
-  const MedicationScheduleDetailScreen({required this.scheduleId});
-
+class const MedicationScheduleDetailScreen({required final String scheduleId})
+    extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final schedulesAsync = ref.watch(medicationSchedulesNotifierProvider);
+    final schedulesAsync = ref.watch(medicationSchedulesProvider);
     return schedulesAsync.when(
       data: (schedules) {
         final schedule = schedules
@@ -40,7 +38,7 @@ class MedicationScheduleDetailScreen extends ConsumerWidget {
         title: 'Schedule',
         body: SyncStatusWidget.error(
           errorMessage: 'Error: $error',
-          onRetry: () => ref.invalidate(medicationSchedulesNotifierProvider),
+          onRetry: () => ref.invalidate(medicationSchedulesProvider),
         ),
       ),
     );
@@ -56,16 +54,26 @@ class MedicationScheduleDetailScreen extends ConsumerWidget {
       actions: [
         IconButton(
           tooltip: 'Edit schedule',
-          onPressed: () => context.push(
-            MedicationScheduleForm(existing: schedule),
-          ),
+          onPressed: () =>
+              context.push(MedicationScheduleForm(existing: schedule)),
           icon: const Icon(Icons.edit),
         ),
       ],
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.m),
         children: [
-          Text(schedule.listCaption, style: EText.body.medium.tertiary),
+          Row(
+            children: [
+              ScheduleKindChip(kind: schedule.kind),
+              HSpace.s,
+              Expanded(
+                child: Text(
+                  schedule.listCaption,
+                  style: EText.body.medium.tertiary,
+                ),
+              ),
+            ],
+          ),
           if (schedule.notes.isNotEmpty) ...[
             VSpace.s,
             Text(schedule.notes, style: EText.body.medium),
@@ -96,11 +104,7 @@ class MedicationScheduleDetailScreen extends ConsumerWidget {
               cursor.day + step.durationDays! - 1,
             );
       cards.add(
-        _stepCard(
-          schedule,
-          step,
-          _StepDateRange(start: cursor, end: stepEnd),
-        ),
+        _stepCard(schedule, step, _StepDateRange(start: cursor, end: stepEnd)),
       );
       if (step.durationDays != null) {
         cursor = DateTime(
@@ -159,15 +163,13 @@ class MedicationScheduleDetailScreen extends ConsumerWidget {
     MedicationSchedule schedule,
   ) async {
     await ref
-        .read(medicationSchedulesNotifierProvider.notifier)
+        .read(medicationSchedulesProvider.notifier)
         .stopSchedule(schedule.id);
     if (context.mounted) context.pop();
   }
 }
 
-class _StepDateRange {
-  const _StepDateRange({required this.start, required this.end});
-
-  final DateTime start;
-  final DateTime? end;
-}
+class const _StepDateRange({
+  required final DateTime start,
+  required final DateTime? end,
+});

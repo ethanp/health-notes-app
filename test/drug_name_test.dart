@@ -5,10 +5,7 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/medication_schedule.dart';
 import 'package:health_notes/services/canonical_drug_names.dart';
 
-HealthNote _note({
-  required String id,
-  required List<DrugDose> drugDoses,
-}) {
+HealthNote _note({required String id, required List<DrugDose> drugDoses}) {
   final at = DateTime(2026, 1, 1);
   return HealthNote(
     id: id,

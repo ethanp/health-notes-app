@@ -5,18 +5,16 @@ import 'package:health_notes/providers/health_notes_provider.dart';
 
 part 'medication_recommendations_provider.g.dart';
 
-class _NotedDose {
-  const _NotedDose({required this.notedAt, required this.dose});
-
-  final DateTime notedAt;
-  final DrugDose dose;
-}
+class const _NotedDose({
+  required final DateTime notedAt,
+  required final DrugDose dose,
+});
 
 @riverpod
-class MedicationRecommendations extends _$MedicationRecommendations {
+class MedicationRecommendations() extends _$MedicationRecommendations {
   @override
   Future<MedicationRecommendationsState> build() async {
-    final notes = await ref.watch(healthNotesNotifierProvider.future);
+    final notes = await ref.watch(healthNotesProvider.future);
 
     final allDoses = notes
         .expand((note) => note.drugDoses)
@@ -65,18 +63,12 @@ class MedicationRecommendations extends _$MedicationRecommendations {
   }
 }
 
-class MedicationRecommendationsState {
+class const MedicationRecommendationsState({
+  required final List<DrugDose> recent,
+  required final List<DrugDose> common,
+  required final List<DrugDose> allKnown,
+}) {
   static const maxSuggestions = 10;
-
-  final List<DrugDose> recent;
-  final List<DrugDose> common;
-  final List<DrugDose> allKnown;
-
-  const MedicationRecommendationsState({
-    required this.recent,
-    required this.common,
-    required this.allKnown,
-  });
 
   List<DrugDose> matchingDoses(String typedName) {
     final typed = DrugName(typedName);

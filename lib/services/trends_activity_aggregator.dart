@@ -2,7 +2,7 @@ import 'package:ethan_utils/ethan_utils.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
 
-class TrendsActivityAggregator {
+class TrendsActivityAggregator() {
   static Map<DateTime, T> aggregate<T>({
     required List<HealthNote> notes,
     required T Function(HealthNote note) valueExtractor,

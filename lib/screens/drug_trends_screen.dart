@@ -16,23 +16,24 @@ import 'package:health_notes/widgets/health_note_card.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/services/trends_activity_aggregator.dart';
 
-class DrugTrendsScreen extends BaseTrendsScreen {
-  final DrugName drugName;
-
-  DrugTrendsScreen({required this.drugName}) : super(itemName: drugName.display);
+class const DrugTrendsScreen({required final DrugName drugName})
+    extends BaseTrendsScreen {
+  @override
+  String get itemName => drugName.display;
 
   @override
   BaseTrendsState<DrugTrendsScreen, double> createState() =>
       _DrugTrendsScreenState();
 }
 
-class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
+class _DrugTrendsScreenState()
+    extends BaseTrendsState<DrugTrendsScreen, double> {
   @override
   String get itemNoun => 'drug';
 
   @override
   Future<void> reloadNotes() async {
-    await ref.read(healthNotesNotifierProvider.notifier).refreshNotes();
+    await ref.read(healthNotesProvider.notifier).refreshNotes();
   }
 
   @override
@@ -142,9 +143,9 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
   }
 
   double _totalDosageForNote(HealthNote note) {
-    return _relevantDoses(
-      note,
-    ).map((dose) => dose.dosage).fold<double>(0, (sum, dosage) => sum + dosage);
+    return _relevantDoses(note)
+        .map((dose) => dose.dosage)
+        .fold<double>(0, (sum, dosage) => sum + dosage);
   }
 
   String? _unitForDrug(List<HealthNote> notes) {
@@ -181,7 +182,7 @@ class _DrugTrendsScreenState extends BaseTrendsState<DrugTrendsScreen, double> {
     double dosage,
     String unit,
   ) async {
-    final notifier = ref.read(healthNotesNotifierProvider.notifier);
+    final notifier = ref.read(healthNotesProvider.notifier);
     for (final date in dates) {
       await notifier.addNote(
         dateTime: DateTime(date.year, date.month, date.day, 12),

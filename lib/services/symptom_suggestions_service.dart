@@ -2,17 +2,11 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/services/text_normalizer.dart';
 
-class SymptomSuggestion {
-  final String majorComponent;
-  final String minorComponent;
-  final int lastSeverityLevel;
-
-  const SymptomSuggestion({
-    required this.majorComponent,
-    required this.minorComponent,
-    required this.lastSeverityLevel,
-  });
-
+class const SymptomSuggestion({
+  required final String majorComponent,
+  required final String minorComponent,
+  required final int lastSeverityLevel,
+}) {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -43,7 +37,7 @@ class SymptomSuggestion {
   }
 }
 
-class SymptomSuggestionsService {
+class SymptomSuggestionsService() {
   /// Returns the 3 most recent unique (major, minor) component pairs from health notes
   static List<SymptomSuggestion> getRecentSymptomSuggestions(
     List<HealthNote> notes,
@@ -61,8 +55,7 @@ class SymptomSuggestionsService {
         );
 
         if (!suggestionsMap.containsKey(key) &&
-            (symptom.hasMajorComponent ||
-                symptom.minorComponent.isNotEmpty)) {
+            (symptom.hasMajorComponent || symptom.minorComponent.isNotEmpty)) {
           suggestionsMap[key] = SymptomSuggestion(
             majorComponent: symptom.majorComponent,
             minorComponent: symptom.minorComponent,

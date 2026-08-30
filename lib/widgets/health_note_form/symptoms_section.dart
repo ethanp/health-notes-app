@@ -17,13 +17,13 @@ import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
 import 'package:health_notes/widgets/note_summary_rows.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class SymptomsSection extends ConsumerWidget {
-  final bool isEditable;
-  final List<Symptom> symptoms;
-  final Map<int, SymptomControllers> controllers;
-  final VoidCallback onAdd;
-  final Function(int) onRemove;
-  final Function(
+class const SymptomsSection({
+  required final bool isEditable,
+  required final List<Symptom> symptoms,
+  required final Map<int, SymptomControllers> controllers,
+  required final VoidCallback onAdd,
+  required final Function(int) onRemove,
+  required final Function(
     int, {
     int? severityLevel,
     String? majorComponent,
@@ -31,23 +31,14 @@ class SymptomsSection extends ConsumerWidget {
     String? additionalNotes,
     String? conditionId,
   })
-  onUpdate;
-
-  const SymptomsSection({
-    required this.isEditable,
-    required this.symptoms,
-    required this.controllers,
-    required this.onAdd,
-    required this.onRemove,
-    required this.onUpdate,
-  });
-
+  onUpdate,
+}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Pre-load providers so they're ready when user taps a selector
     if (isEditable) {
       ref.watch(symptomComponentIndexProvider);
-      ref.watch(conditionsNotifierProvider);
+      ref.watch(conditionsProvider);
     }
 
     return FormSectionContainer(
@@ -218,63 +209,40 @@ class SymptomsSection extends ConsumerWidget {
     Symptom symptom,
   ) {
     final indexAsync = ref.read(symptomComponentIndexProvider);
-    final componentIndex = indexAsync.valueOrNull;
+    final componentIndex = indexAsync.value;
 
-    if (componentIndex == null) {
-      // Still loading - show empty picker that allows creating new
-      showCupertinoModalPopup(
-        context: context,
-        builder: (context) => SizedBox(
-          height: MediaQuery.of(context).size.height * 0.7,
-          child: ComponentPickerSheet(
-            title: 'Select Major Component',
-            components: const [],
-            onSelect: (_) {},
-            onTogglePin: (_) {},
-            onCreate: (name) {
-              onUpdate(index, majorComponent: name, minorComponent: '');
-            },
-          ),
-        ),
-      );
-      return;
-    }
-
-    final components = componentIndex.getMajorComponents();
-    final conditionsAsync = ref.read(conditionsNotifierProvider);
+    final conditionsAsync = ref.read(conditionsProvider);
     final activeConditionIds = conditionsAsync.maybeWhen(
-      data: (conditions) =>
-          conditions.where((c) => c.isActive).map((c) => c.id).toSet(),
+      data: (conditions) => conditions
+          .where((condition) => condition.isActive)
+          .map((condition) => condition.id)
+          .toSet(),
       orElse: () => <String>{},
     );
 
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) => SizedBox(
-        height: MediaQuery.of(context).size.height * 0.7,
-        child: ComponentPickerSheet(
-          title: 'Select Major Component',
-          components: components,
-          onSelect: (name) {
-            onUpdate(index, majorComponent: name);
-            _autoPopulateMinorAndCondition(
-              ref,
-              index,
-              name,
-              componentIndex,
-              activeConditionIds,
-            );
-          },
-          onTogglePin: (component) {
-            ref
-                .read(pinnedSymptomComponentsNotifierProvider.notifier)
-                .toggleMajorPin(component.normalizedName);
-          },
-          onCreate: (name) {
-            onUpdate(index, majorComponent: name, minorComponent: '');
-          },
-        ),
-      ),
+    ComponentPickerSheet.show(
+      context,
+      title: 'Select Major Component',
+      components: componentIndex?.getMajorComponents() ?? const [],
+      onSelect: (name) {
+        onUpdate(index, majorComponent: name);
+        if (componentIndex == null) return;
+        _autoPopulateMinorAndCondition(
+          ref,
+          index,
+          name,
+          componentIndex,
+          activeConditionIds,
+        );
+      },
+      onTogglePin: (component) {
+        ref
+            .read(pinnedSymptomComponentsProvider.notifier)
+            .toggleMajorPin(component.normalizedName);
+      },
+      onCreate: (name) {
+        onUpdate(index, majorComponent: name, minorComponent: '');
+      },
     );
   }
 
@@ -285,70 +253,47 @@ class SymptomsSection extends ConsumerWidget {
     Symptom symptom,
   ) {
     final indexAsync = ref.read(symptomComponentIndexProvider);
-    final componentIndex = indexAsync.valueOrNull;
+    final componentIndex = indexAsync.value;
 
-    if (componentIndex == null) {
-      showCupertinoModalPopup(
-        context: context,
-        builder: (context) => SizedBox(
-          height: MediaQuery.of(context).size.height * 0.7,
-          child: ComponentPickerSheet(
-            title: 'Select Minor Component',
-            subtitle: symptom.majorComponent,
-            components: const [],
-            onSelect: (_) {},
-            onTogglePin: (_) {},
-            onCreate: (name) {
-              onUpdate(index, minorComponent: name);
-            },
-          ),
-        ),
-      );
-      return;
-    }
-
-    final components = componentIndex.getMinorComponents(
-      symptom.majorComponent,
-    );
-    final conditionsAsync = ref.read(conditionsNotifierProvider);
+    final conditionsAsync = ref.read(conditionsProvider);
     final activeConditionIds = conditionsAsync.maybeWhen(
-      data: (conditions) =>
-          conditions.where((c) => c.isActive).map((c) => c.id).toSet(),
+      data: (conditions) => conditions
+          .where((condition) => condition.isActive)
+          .map((condition) => condition.id)
+          .toSet(),
       orElse: () => <String>{},
     );
 
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) => SizedBox(
-        height: MediaQuery.of(context).size.height * 0.7,
-        child: ComponentPickerSheet(
-          title: 'Select Minor Component',
-          subtitle: symptom.majorComponent,
-          components: components,
-          onSelect: (name) {
-            onUpdate(index, minorComponent: name);
-            _autoLinkCondition(
-              ref,
-              index,
-              symptom.majorComponent,
-              name,
-              componentIndex,
-              activeConditionIds,
+    ComponentPickerSheet.show(
+      context,
+      title: 'Select Minor Component',
+      subtitle: symptom.majorComponent,
+      components:
+          componentIndex?.getMinorComponents(symptom.majorComponent) ??
+          const [],
+      onSelect: (name) {
+        onUpdate(index, minorComponent: name);
+        if (componentIndex == null) return;
+        _autoLinkCondition(
+          ref,
+          index,
+          symptom.majorComponent,
+          name,
+          componentIndex,
+          activeConditionIds,
+        );
+      },
+      onTogglePin: (component) {
+        ref
+            .read(pinnedSymptomComponentsProvider.notifier)
+            .toggleMinorPin(
+              symptom.majorComponent.trim().toLowerCase(),
+              component.normalizedName,
             );
-          },
-          onTogglePin: (component) {
-            ref
-                .read(pinnedSymptomComponentsNotifierProvider.notifier)
-                .toggleMinorPin(
-                  symptom.majorComponent.trim().toLowerCase(),
-                  component.normalizedName,
-                );
-          },
-          onCreate: (name) {
-            onUpdate(index, minorComponent: name);
-          },
-        ),
-      ),
+      },
+      onCreate: (name) {
+        onUpdate(index, minorComponent: name);
+      },
     );
   }
 
@@ -468,9 +413,7 @@ class SymptomsSection extends ConsumerWidget {
           HSpace.xs,
           Text(
             '+ Link Condition',
-            style: EText.body.small.copyWith(
-              color: CupertinoColors.systemBlue,
-            ),
+            style: EText.body.small.copyWith(color: CupertinoColors.systemBlue),
           ),
         ],
       ),
@@ -478,7 +421,7 @@ class SymptomsSection extends ConsumerWidget {
   }
 
   void _showConditionPicker(BuildContext context, WidgetRef ref, int index) {
-    final conditionsAsync = ref.read(conditionsNotifierProvider);
+    final conditionsAsync = ref.read(conditionsProvider);
 
     conditionsAsync.when(
       data: (conditions) {

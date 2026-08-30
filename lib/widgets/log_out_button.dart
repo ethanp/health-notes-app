@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:health_notes/utils/auth_utils.dart';
 
-class LogOutButton extends StatelessWidget {
-  const LogOutButton();
-
+class const LogOutButton() extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(

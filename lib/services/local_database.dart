@@ -1,9 +1,10 @@
 import 'dart:async';
+
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 /// Local SQLite database service for offline storage
-class LocalDatabase {
+class LocalDatabase() {
   static const String _databaseName = 'health_notes.db';
   static const int _databaseVersion = 6;
 
@@ -397,7 +398,12 @@ class LocalDatabase {
 }
 
 /// Sync status enum
-enum SyncStatus { pending, syncing, synced, failed }
+enum SyncStatus() {
+  pending,
+  syncing,
+  synced,
+  failed,
+}
 
 /// Extension to convert SyncStatus to/from string
 extension SyncStatusExtension on SyncStatus {

@@ -7,14 +7,11 @@ import 'package:health_notes/screens/condition_detail_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class ConditionBadge extends ConsumerWidget {
-  final String conditionId;
-
-  const ConditionBadge({required this.conditionId});
-
+class const ConditionBadge({required final String conditionId})
+    extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final conditionsAsync = ref.watch(conditionsNotifierProvider);
+    final conditionsAsync = ref.watch(conditionsProvider);
 
     return conditionsAsync.when(
       data: (conditions) {

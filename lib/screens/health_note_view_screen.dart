@@ -8,17 +8,14 @@ import 'package:health_notes/widgets/health_note_form_fields.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 
-class HealthNoteViewScreen extends ConsumerStatefulWidget {
-  final HealthNote note;
-
-  const HealthNoteViewScreen({required this.note});
-
+class const HealthNoteViewScreen({required final HealthNote note})
+    extends ConsumerStatefulWidget {
   @override
   ConsumerState<HealthNoteViewScreen> createState() =>
       _HealthNoteViewScreenState();
 }
 
-class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
+class _HealthNoteViewScreenState() extends ConsumerState<HealthNoteViewScreen> {
   bool _isEditing = false;
   bool _isLoading = false;
   final _formFieldsKey = GlobalKey<HealthNoteFormFieldsState>();
@@ -28,10 +25,7 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
     if (_isEditing) {
       return HealthNotesPage(
         title: 'Edit Note',
-        leading: TextButton(
-          onPressed: cancelEdit,
-          child: const Text('Cancel'),
-        ),
+        leading: TextButton(onPressed: cancelEdit, child: const Text('Cancel')),
         actions: [
           if (_isLoading)
             const SizedBox(
@@ -64,7 +58,7 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
   }
 
   Widget viewMode() {
-    final notesAsync = ref.watch(healthNotesNotifierProvider);
+    final notesAsync = ref.watch(healthNotesProvider);
 
     return notesAsync.when(
       data: (notes) {
@@ -77,9 +71,8 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
       },
       loading: () =>
           const SyncStatusWidget.loading(message: 'Loading note data...'),
-      error: (error, stack) => Center(
-        child: Text('Error loading note: $error', style: EText.error),
-      ),
+      error: (error, stack) =>
+          Center(child: Text('Error loading note: $error', style: EText.error)),
     );
   }
 
@@ -105,7 +98,7 @@ class _HealthNoteViewScreenState extends ConsumerState<HealthNoteViewScreen> {
       if (formFieldsState == null) return;
 
       await ref
-          .read(healthNotesNotifierProvider.notifier)
+          .read(healthNotesProvider.notifier)
           .updateNote(
             id: widget.note.id,
             dateTime: formFieldsState.currentDateTime,

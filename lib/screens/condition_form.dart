@@ -10,22 +10,16 @@ import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:intl/intl.dart';
 
-class ConditionForm extends ConsumerStatefulWidget {
-  final Condition? condition;
-  final String title;
-  final String saveButtonText;
-
-  const ConditionForm({
-    this.condition,
-    this.title = 'New Condition',
-    this.saveButtonText = 'Save',
-  });
-
+class const ConditionForm({
+  final Condition? condition,
+  final String title = 'New Condition',
+  final String saveButtonText = 'Save',
+}) extends ConsumerStatefulWidget {
   @override
   ConsumerState<ConditionForm> createState() => _ConditionFormState();
 }
 
-class _ConditionFormState extends ConsumerState<ConditionForm> {
+class _ConditionFormState() extends ConsumerState<ConditionForm> {
   late TextEditingController nameController;
   late TextEditingController notesController;
   late DateTime startDate;
@@ -297,7 +291,7 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
     }
 
     final existingCondition = await ref
-        .read(conditionsNotifierProvider.notifier)
+        .read(conditionsProvider.notifier)
         .getActiveConditionByName(name);
 
     if (existingCondition != null &&
@@ -331,12 +325,10 @@ class _ConditionFormState extends ConsumerState<ConditionForm> {
           notes: notesController.text.trim(),
           updatedAt: DateTime.now(),
         );
-        await ref
-            .read(conditionsNotifierProvider.notifier)
-            .updateCondition(updated);
+        await ref.read(conditionsProvider.notifier).updateCondition(updated);
       } else {
         await ref
-            .read(conditionsNotifierProvider.notifier)
+            .read(conditionsProvider.notifier)
             .addCondition(
               name: name,
               startDate: startDate,

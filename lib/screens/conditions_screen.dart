@@ -13,12 +13,10 @@ import 'package:health_notes/widgets/condition_timeline_card.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 
-class ConditionsScreen extends ConsumerWidget {
-  const ConditionsScreen();
-
+class const ConditionsScreen() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final conditionsAsync = ref.watch(conditionsNotifierProvider);
+    final conditionsAsync = ref.watch(conditionsProvider);
 
     return HealthNotesPage(
       title: 'Conditions',
@@ -38,7 +36,7 @@ class ConditionsScreen extends ConsumerWidget {
             const SyncStatusWidget.loading(message: 'Loading conditions...'),
         error: (error, stack) => SyncStatusWidget.error(
           errorMessage: 'Error: $error',
-          onRetry: () => ref.invalidate(conditionsNotifierProvider),
+          onRetry: () => ref.invalidate(conditionsProvider),
         ),
       ),
     );
@@ -68,8 +66,7 @@ class ConditionsScreen extends ConsumerWidget {
     return CustomScrollView(
       slivers: [
         CupertinoSliverRefreshControl(
-          onRefresh: () =>
-              ref.read(syncNotifierProvider.notifier).syncAllData(),
+          onRefresh: () => ref.read(syncProvider.notifier).syncAllData(),
         ),
         if (activeConditions.isNotEmpty) ...[
           SliverPadding(

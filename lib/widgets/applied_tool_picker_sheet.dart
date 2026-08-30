@@ -7,21 +7,16 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/health_notes_search_field.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class AppliedToolPickerSheet extends ConsumerStatefulWidget {
-  final List<dynamic> appliedTools;
-  final void Function(HealthTool tool) onSelect;
-
-  const AppliedToolPickerSheet({
-    required this.appliedTools,
-    required this.onSelect,
-  });
-
+class const AppliedToolPickerSheet({
+  required final List<dynamic> appliedTools,
+  required final void Function(HealthTool tool) onSelect,
+}) extends ConsumerStatefulWidget {
   @override
   ConsumerState<AppliedToolPickerSheet> createState() =>
       _AppliedToolPickerSheetState();
 }
 
-class _AppliedToolPickerSheetState
+class _AppliedToolPickerSheetState()
     extends ConsumerState<AppliedToolPickerSheet> {
   final TextEditingController _searchController = TextEditingController();
   double _dragOffset = 0.0;
@@ -124,7 +119,7 @@ class _AppliedToolPickerSheetState
   }
 
   Widget toolsList() {
-    final toolsAsync = ref.watch(healthToolsNotifierProvider);
+    final toolsAsync = ref.watch(healthToolsProvider);
     return toolsAsync.when(
       data: (tools) {
         final q = _searchController.text.trim().toLowerCase();
@@ -153,8 +148,7 @@ class _AppliedToolPickerSheetState
           },
         );
       },
-      loading: () =>
-          ELoadingState(message: 'Loading tools...'),
+      loading: () => ELoadingState(message: 'Loading tools...'),
       error: (e, st) => Center(child: Text('Error: $e', style: EText.error)),
     );
   }

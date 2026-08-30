@@ -13,14 +13,12 @@ import 'package:health_notes/widgets/medication_schedule/schedule_card.dart';
 import 'package:health_notes/widgets/medication_schedule/schedule_scaffold.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 
-class MedicationSchedulesScreen extends ConsumerWidget {
-  const MedicationSchedulesScreen();
-
+class const MedicationSchedulesScreen() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final schedulesAsync = ref.watch(medicationSchedulesNotifierProvider);
+    final schedulesAsync = ref.watch(medicationSchedulesProvider);
     return MedicationScheduleScaffold(
-      title: 'Medication schedules',
+      title: 'Schedules',
       actions: [
         IconButton(
           tooltip: 'Add schedule',
@@ -36,7 +34,7 @@ class MedicationSchedulesScreen extends ConsumerWidget {
             const SyncStatusWidget.loading(message: 'Loading schedules...'),
         error: (error, stack) => SyncStatusWidget.error(
           errorMessage: 'Error: $error',
-          onRetry: () => ref.invalidate(medicationSchedulesNotifierProvider),
+          onRetry: () => ref.invalidate(medicationSchedulesProvider),
         ),
       ),
     );
@@ -44,7 +42,7 @@ class MedicationSchedulesScreen extends ConsumerWidget {
 
   Widget _emptyState(BuildContext context, WidgetRef ref) {
     return RefreshIndicator(
-      onRefresh: () => ref.read(syncNotifierProvider.notifier).syncAllData(),
+      onRefresh: () => ref.read(syncProvider.notifier).syncAllData(),
       child: LayoutBuilder(
         builder: (context, constraints) {
           return ListView(
@@ -91,10 +89,12 @@ class MedicationSchedulesScreen extends ConsumerWidget {
     WidgetRef ref,
     List<MedicationSchedule> schedules,
   ) {
-    final active = schedules.where((schedule) => schedule.isListedAsActive).toList();
+    final active = schedules
+        .where((schedule) => schedule.isListedAsActive)
+        .toList();
     final ended = schedules.where((schedule) => schedule.hasEnded).toList();
     return RefreshIndicator(
-      onRefresh: () => ref.read(syncNotifierProvider.notifier).syncAllData(),
+      onRefresh: () => ref.read(syncProvider.notifier).syncAllData(),
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(AppSpacing.m),

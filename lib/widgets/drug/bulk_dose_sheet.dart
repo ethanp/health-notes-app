@@ -4,24 +4,17 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/date_utils.dart';
 
-class BulkDoseSheet extends StatefulWidget {
-  final String drugName;
-  final String initialUnit;
-  final List<DateTime> dates;
-  final void Function(double dosage, String unit) onConfirm;
-
-  const BulkDoseSheet({
-    required this.drugName,
-    required this.initialUnit,
-    required this.dates,
-    required this.onConfirm,
-  });
-
+class const BulkDoseSheet({
+  required final String drugName,
+  required final String initialUnit,
+  required final List<DateTime> dates,
+  required final void Function(double dosage, String unit) onConfirm,
+}) extends StatefulWidget {
   @override
   State<BulkDoseSheet> createState() => _BulkDoseSheetState();
 }
 
-class _BulkDoseSheetState extends State<BulkDoseSheet> {
+class _BulkDoseSheetState() extends State<BulkDoseSheet> {
   late final TextEditingController _dosageController;
   late final TextEditingController _unitController;
   double _dragOffset = 0.0;
@@ -84,9 +77,8 @@ class _BulkDoseSheetState extends State<BulkDoseSheet> {
                 child: Builder(
                   builder: (context) {
                     final screenHeight = MediaQuery.sizeOf(context).height;
-                    final keyboardInset = MediaQuery.viewInsetsOf(
-                      context,
-                    ).bottom;
+                    final keyboardInset = MediaQuery.viewInsetsOf(context)
+                        .bottom;
                     return ConstrainedBox(
                       constraints: BoxConstraints(
                         maxHeight: screenHeight * 0.92,

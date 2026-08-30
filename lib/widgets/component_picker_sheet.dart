@@ -1,31 +1,55 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:health_notes/models/symptom_component.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
+import 'package:health_notes/widgets/health_notes_search_field.dart';
 
-class ComponentPickerSheet extends StatefulWidget {
-  final String title;
-  final String? subtitle;
-  final List<SymptomComponent> components;
-  final void Function(String name) onSelect;
-  final void Function(SymptomComponent component) onTogglePin;
-  final void Function(String name) onCreate;
-
-  const ComponentPickerSheet({
-    required this.title,
-    this.subtitle,
-    required this.components,
-    required this.onSelect,
-    required this.onTogglePin,
-    required this.onCreate,
-  });
+class const ComponentPickerSheet({
+  required final String title,
+  final String? subtitle,
+  required final List<SymptomComponent> components,
+  required final void Function(String name) onSelect,
+  required final void Function(SymptomComponent component) onTogglePin,
+  required final void Function(String name) onCreate,
+}) extends StatefulWidget {
+  static Future<void> show(
+    BuildContext context, {
+    required String title,
+    String? subtitle,
+    required List<SymptomComponent> components,
+    required void Function(String name) onSelect,
+    required void Function(SymptomComponent component) onTogglePin,
+    required void Function(String name) onCreate,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: EColors.backgroundLift,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppRadius.large),
+        ),
+      ),
+      builder: (sheetContext) => SizedBox(
+        height: MediaQuery.sizeOf(sheetContext).height * 0.7,
+        child: ComponentPickerSheet(
+          title: title,
+          subtitle: subtitle,
+          components: components,
+          onSelect: onSelect,
+          onTogglePin: onTogglePin,
+          onCreate: onCreate,
+        ),
+      ),
+    );
+  }
 
   @override
   State<ComponentPickerSheet> createState() => _ComponentPickerSheetState();
 }
 
-class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
+class _ComponentPickerSheetState() extends State<ComponentPickerSheet> {
   final _searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -39,86 +63,83 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
     if (_searchQuery.isEmpty) return widget.components;
     final query = _searchQuery.toLowerCase();
     return widget.components
-        .where((c) => c.normalizedName.contains(query))
+        .where((component) => component.normalizedName.contains(query))
         .toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final grouped = _groupBySection(filteredComponents);
-
-    return Container(
-      decoration: const BoxDecoration(
-        color: EColors.backgroundLift,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(AppRadius.large),
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          VSpace.m,
-          Container(
-            width: 36,
-            height: 4,
-            decoration: BoxDecoration(
-              color: EColors.textMuted,
-              borderRadius: BorderRadius.circular(AppRadius.xs),
-            ),
-          ),
-          VSpace.m,
-          Text(widget.title, style: EText.headline.small),
-          if (widget.subtitle != null) ...[
-            VSpace.xs,
-            Text(widget.subtitle!, style: EText.body.small),
-          ],
-          VSpace.m,
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: CupertinoSearchTextField(
-              controller: _searchController,
-              placeholder: 'Search...',
-              style: EText.body.medium,
-              onChanged: (value) => setState(() => _searchQuery = value),
-            ),
-          ),
-          VSpace.m,
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                if (grouped.pinned.isNotEmpty) ...[
-                  _sectionHeader('PINNED'),
-                  ...grouped.pinned.map(_componentRow),
-                  VSpace.m,
-                ],
-                if (grouped.recent.isNotEmpty) ...[
-                  _sectionHeader('RECENT'),
-                  ...grouped.recent.map(_componentRow),
-                  VSpace.m,
-                ],
-                if (grouped.historical.isNotEmpty) ...[
-                  _sectionHeader('HISTORICAL'),
-                  ...grouped.historical.map(_componentRow),
-                  VSpace.m,
-                ],
-                if (filteredComponents.isEmpty) ...[
-                  VSpace.l,
-                  Center(
-                    child: Text(
-                      'No matches',
-                      style: EText.body.medium.secondary,
-                    ),
-                  ),
-                  VSpace.m,
-                ],
-                _createNewRow(),
-                VSpace.xl,
-              ],
-            ),
-          ),
+    final _GroupedComponents sections = _groupBySection(filteredComponents);
+    return Column(
+      children: [
+        VSpace.m,
+        _grabber(),
+        VSpace.m,
+        Text(widget.title, style: EText.headline.small),
+        if (widget.subtitle != null) ...[
+          VSpace.xs,
+          Text(widget.subtitle!, style: EText.body.small),
         ],
+        VSpace.m,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: HealthNotesSearchField(
+            controller: _searchController,
+            placeholder: 'Search...',
+            onChanged: (value) => setState(() => _searchQuery = value),
+            onClear: _searchQuery.isEmpty
+                ? null
+                : () {
+                    _searchController.clear();
+                    setState(() => _searchQuery = '');
+                  },
+          ),
+        ),
+        VSpace.m,
+        Expanded(child: _componentList(sections)),
+      ],
+    );
+  }
+
+  Widget _grabber() {
+    return Container(
+      width: 36,
+      height: 4,
+      decoration: BoxDecoration(
+        color: EColors.textMuted,
+        borderRadius: BorderRadius.circular(AppRadius.xs),
       ),
+    );
+  }
+
+  Widget _componentList(_GroupedComponents sections) {
+    return ListView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      children: [
+        if (sections.pinned.isNotEmpty) ...[
+          _sectionHeader('PINNED'),
+          ...sections.pinned.map(_componentRow),
+          VSpace.m,
+        ],
+        if (sections.recent.isNotEmpty) ...[
+          _sectionHeader('RECENT'),
+          ...sections.recent.map(_componentRow),
+          VSpace.m,
+        ],
+        if (sections.historical.isNotEmpty) ...[
+          _sectionHeader('HISTORICAL'),
+          ...sections.historical.map(_componentRow),
+          VSpace.m,
+        ],
+        if (filteredComponents.isEmpty) ...[
+          VSpace.l,
+          Center(child: Text('No matches', style: EText.body.medium.secondary)),
+          VSpace.m,
+        ],
+        _createNewRow(),
+        VSpace.xl,
+      ],
     );
   }
 
@@ -132,43 +153,42 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
   Widget _componentRow(SymptomComponent component) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: GestureDetector(
-        onTap: () {
-          widget.onSelect(component.name);
-          Navigator.of(context).pop();
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.m,
-            vertical: AppSpacing.sm,
-          ),
-          decoration: BoxDecoration(
-            color: EColors.surface,
-            borderRadius: BorderRadius.circular(AppRadius.medium),
-          ),
-          child: Row(
-            children: [
-              GestureDetector(
-                onTap: () => widget.onTogglePin(component),
-                child: Icon(
-                  component.isPinned
-                      ? CupertinoIcons.star_fill
-                      : CupertinoIcons.star,
-                  size: 20,
-                  color: component.isPinned
-                      ? EColors.warning
-                      : EColors.textMuted,
+      child: Material(
+        color: EColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.medium),
+        child: InkWell(
+          onTap: () {
+            widget.onSelect(component.name);
+            Navigator.of(context).pop();
+          },
+          borderRadius: BorderRadius.circular(AppRadius.medium),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.m,
+              vertical: AppSpacing.sm,
+            ),
+            child: Row(
+              children: [
+                InkWell(
+                  onTap: () => widget.onTogglePin(component),
+                  child: Icon(
+                    component.isPinned ? Icons.star : Icons.star_border,
+                    size: 20,
+                    color: component.isPinned
+                        ? EColors.warning
+                        : EColors.textMuted,
+                  ),
                 ),
-              ),
-              HSpace.m,
-              Expanded(
-                child: Text(
-                  component.name.isEmpty ? '(none)' : component.name,
-                  style: EText.body.medium,
+                HSpace.m,
+                Expanded(
+                  child: Text(
+                    component.name.isEmpty ? '(none)' : component.name,
+                    style: EText.body.medium,
+                  ),
                 ),
-              ),
-              Text('(${component.displayCount})', style: EText.body.small),
-            ],
+                Text('(${component.displayCount})', style: EText.body.small),
+              ],
+            ),
           ),
         ),
       ),
@@ -176,73 +196,71 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
   }
 
   Widget _createNewRow() {
-    return GestureDetector(
-      onTap: () => _showCreateDialog(context),
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.m,
-          vertical: AppSpacing.sm,
-        ),
-        decoration: BoxDecoration(
-          color: EColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.medium),
-          border: Border.all(color: EColors.accent.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(CupertinoIcons.add, size: 18, color: EColors.accent),
-            HSpace.s,
-            Text(
-              'Create New',
-              style: EText.body.medium.copyWith(color: EColors.accent),
-            ),
-          ],
+    return Material(
+      color: EColors.surface,
+      borderRadius: BorderRadius.circular(AppRadius.medium),
+      child: InkWell(
+        onTap: () => _showCreateDialog(context),
+        borderRadius: BorderRadius.circular(AppRadius.medium),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.m,
+            vertical: AppSpacing.sm,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRadius.medium),
+            border: Border.all(color: EColors.accent.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.add, size: 18, color: EColors.accent),
+              HSpace.s,
+              Text(
+                'Create New',
+                style: EText.body.medium.copyWith(color: EColors.accent),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   void _showCreateDialog(BuildContext context) {
-    final controller = TextEditingController(
+    final nameController = TextEditingController(
       text: _searchQuery.isNotEmpty ? _searchQuery : '',
     );
 
-    showCupertinoDialog(
+    showDialog<void>(
       context: context,
-      builder: (context) => CupertinoAlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(
           'New ${widget.subtitle != null ? "Minor" : "Major"} Component',
         ),
-        content: Padding(
-          padding: const EdgeInsets.only(top: 16),
-          child: CupertinoTextField(
-            controller: controller,
-            placeholder: 'Enter name...',
-            autofocus: true,
-          ),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(hintText: 'Enter name...'),
+          autofocus: true,
         ),
         actions: [
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            onPressed: () => Navigator.of(context).pop(),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Cancel'),
           ),
-          CupertinoDialogAction(
-            isDefaultAction: true,
+          TextButton(
             onPressed: () {
-              final name = controller.text.trim();
-              if (name.isNotEmpty) {
-                Navigator.of(context).pop();
-                Navigator.of(this.context).pop();
-                widget.onCreate(name);
-              }
+              final name = nameController.text.trim();
+              if (name.isEmpty) return;
+              Navigator.of(dialogContext).pop();
+              Navigator.of(this.context).pop();
+              widget.onCreate(name);
             },
             child: const Text('Save'),
           ),
         ],
       ),
-    );
+    ).whenComplete(nameController.dispose);
   }
 
   _GroupedComponents _groupBySection(List<SymptomComponent> components) {
@@ -250,14 +268,14 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
     final recent = <SymptomComponent>[];
     final historical = <SymptomComponent>[];
 
-    for (final c in components) {
-      switch (c.section) {
+    for (final component in components) {
+      switch (component.section) {
         case ComponentSection.pinned:
-          pinned.add(c);
+          pinned.add(component);
         case ComponentSection.recent:
-          recent.add(c);
+          recent.add(component);
         case ComponentSection.historical:
-          historical.add(c);
+          historical.add(component);
       }
     }
 
@@ -269,14 +287,8 @@ class _ComponentPickerSheetState extends State<ComponentPickerSheet> {
   }
 }
 
-class _GroupedComponents {
-  final List<SymptomComponent> pinned;
-  final List<SymptomComponent> recent;
-  final List<SymptomComponent> historical;
-
-  _GroupedComponents({
-    required this.pinned,
-    required this.recent,
-    required this.historical,
-  });
-}
+class _GroupedComponents({
+  required final List<SymptomComponent> pinned,
+  required final List<SymptomComponent> recent,
+  required final List<SymptomComponent> historical,
+});

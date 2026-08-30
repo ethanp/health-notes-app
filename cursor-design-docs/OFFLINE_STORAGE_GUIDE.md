@@ -178,7 +178,7 @@ await OfflineRepository.forceSyncAllData(userId);
 ### Monitoring Sync Status
 ```dart
 // Watch sync status
-ref.watch(syncNotifierProvider);
+ref.watch(syncProvider);
 
 // Listen to sync stream
 OfflineRepository.syncStatusStream.listen((isSyncing) {

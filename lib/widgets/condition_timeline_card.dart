@@ -9,16 +9,11 @@ import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class ConditionTimelineCard extends ConsumerWidget {
-  final Condition condition;
-
-  const ConditionTimelineCard({required this.condition});
-
+class const ConditionTimelineCard({required final Condition condition})
+    extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final entriesAsync = ref.watch(
-      conditionEntriesNotifierProvider(condition.id),
-    );
+    final entriesAsync = ref.watch(conditionEntriesProvider(condition.id));
     final linkedSymptomsAsync = ref.watch(
       symptomsForConditionProvider(condition.id),
     );
@@ -157,11 +152,7 @@ class ConditionTimelineCard extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            CupertinoIcons.chart_bar,
-            size: 14,
-            color: EColors.textMuted,
-          ),
+          Icon(CupertinoIcons.chart_bar, size: 14, color: EColors.textMuted),
           HSpace.xs,
           Text('No activity yet', style: EText.caption.quaternary),
         ],
@@ -193,23 +184,16 @@ class ConditionTimelineCard extends ConsumerWidget {
           '${condition.durationDays} day${condition.durationDays == 1 ? '' : 's'}',
           style: EText.caption.quaternary,
         ),
-        Icon(
-          CupertinoIcons.chevron_right,
-          size: 14,
-          color: EColors.textMuted,
-        ),
+        Icon(CupertinoIcons.chevron_right, size: 14, color: EColors.textMuted),
       ],
     );
   }
-
 }
 
-class SeverityChartPainter extends CustomPainter {
-  final List<ConditionSeverityPoint> points;
-  final Color color;
-
-  SeverityChartPainter({required this.points, required this.color});
-
+class SeverityChartPainter({
+  required final List<ConditionSeverityPoint> points,
+  required final Color color,
+}) extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (points.isEmpty) return;

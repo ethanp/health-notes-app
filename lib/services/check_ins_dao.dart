@@ -3,7 +3,7 @@ import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/services/local_database.dart';
 
 /// Data Access Object for Check Ins
-class CheckInsDao {
+class CheckInsDao() {
   static const String _tableName = 'check_ins';
 
   /// Get all check ins for a user

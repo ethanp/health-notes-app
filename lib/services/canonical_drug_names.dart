@@ -5,19 +5,14 @@ import 'package:health_notes/services/health_notes_dao.dart';
 import 'package:health_notes/services/medication_schedules_dao.dart';
 import 'package:health_notes/utils/data_utils.dart';
 
-class PreferredDrugNameRewrite {
-  const PreferredDrugNameRewrite({
-    required this.notes,
-    required this.schedules,
-  });
-
-  final List<HealthNote> notes;
-  final List<MedicationSchedule> schedules;
-
+class const PreferredDrugNameRewrite({
+  required final List<HealthNote> notes,
+  required final List<MedicationSchedule> schedules,
+}) {
   bool get isEmpty => notes.isEmpty && schedules.isEmpty;
 }
 
-class CanonicalDrugNames {
+class CanonicalDrugNames() {
   static PreferredDrugNameRewrite pendingRewrites({
     required List<HealthNote> notes,
     required List<MedicationSchedule> schedules,

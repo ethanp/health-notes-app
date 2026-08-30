@@ -6,26 +6,18 @@ import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/health_note_form_fields.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
 
-class HealthNoteForm extends ConsumerStatefulWidget {
-  final HealthNote? note;
-  final String title;
-  final String saveButtonText;
-  final Function()? onCancel;
-  final Function()? onSuccess;
-
-  const HealthNoteForm({
-    this.note,
-    required this.title,
-    required this.saveButtonText,
-    this.onCancel,
-    this.onSuccess,
-  });
-
+class const HealthNoteForm({
+  final HealthNote? note,
+  required final String title,
+  required final String saveButtonText,
+  final Function()? onCancel,
+  final Function()? onSuccess,
+}) extends ConsumerStatefulWidget {
   @override
   ConsumerState<HealthNoteForm> createState() => _HealthNoteFormState();
 }
 
-class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
+class _HealthNoteFormState() extends ConsumerState<HealthNoteForm> {
   final _formKey = GlobalKey<FormState>();
   final _formFieldsKey = GlobalKey<HealthNoteFormFieldsState>();
   bool _isLoading = false;
@@ -34,7 +26,7 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
   Widget build(BuildContext context) {
     final currentNote = widget.note != null
         ? ref
-              .watch(healthNotesNotifierProvider)
+              .watch(healthNotesProvider)
               .when(
                 data: (notes) => notes.firstWhere(
                   (note) => note.id == widget.note!.id,
@@ -140,7 +132,7 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
 
   Future<void> _persistExistingNote(HealthNote updatedNote) async {
     await ref
-        .read(healthNotesNotifierProvider.notifier)
+        .read(healthNotesProvider.notifier)
         .updateNote(
           id: widget.note!.id,
           dateTime: updatedNote.dateTime,
@@ -153,7 +145,7 @@ class _HealthNoteFormState extends ConsumerState<HealthNoteForm> {
 
   Future<void> _persistNewNote(HealthNote updatedNote) async {
     await ref
-        .read(healthNotesNotifierProvider.notifier)
+        .read(healthNotesProvider.notifier)
         .addNote(
           dateTime: updatedNote.dateTime,
           symptomsList: updatedNote.validSymptoms,

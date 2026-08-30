@@ -7,13 +7,13 @@ import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/user_avatar_widget.dart';
 
-class AuthUtils {
+class AuthUtils() {
   static Future<void> showSignOutDialog(BuildContext context) async {
     final shouldSignOut = await showCupertinoDialog<bool>(
       context: context,
       builder: (context) => Consumer(
         builder: (context, ref, child) {
-          final userProfileAsync = ref.watch(userProfileNotifierProvider);
+          final userProfileAsync = ref.watch(userProfileProvider);
 
           return userProfileAsync.when(
             data: (userProfile) => AppAlertDialogs.custom(

@@ -22,26 +22,27 @@ import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 import 'package:intl/intl.dart';
 
-class ConditionDetailScreen extends ConsumerStatefulWidget {
-  final String conditionId;
-
-  const ConditionDetailScreen({required this.conditionId});
-
+class const ConditionDetailScreen({required final String conditionId})
+    extends ConsumerStatefulWidget {
   @override
   ConsumerState<ConditionDetailScreen> createState() =>
       _ConditionDetailScreenState();
 }
 
-enum ConditionDetailView { calendar, activity }
+enum ConditionDetailView() {
+  calendar,
+  activity,
+}
 
-class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
+class _ConditionDetailScreenState()
+    extends ConsumerState<ConditionDetailScreen> {
   ConditionDetailView selectedView = ConditionDetailView.calendar;
 
   @override
   Widget build(BuildContext context) {
-    final conditionsAsync = ref.watch(conditionsNotifierProvider);
+    final conditionsAsync = ref.watch(conditionsProvider);
     final entriesAsync = ref.watch(
-      conditionEntriesNotifierProvider(widget.conditionId),
+      conditionEntriesProvider(widget.conditionId),
     );
     final linkedSymptomsAsync = ref.watch(
       symptomsForConditionProvider(widget.conditionId),
@@ -61,22 +62,19 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
 
         return entriesAsync.when(
           data: (entries) {
-            final linkedSymptoms = linkedSymptomsAsync.valueOrNull ?? [];
+            final linkedSymptoms = linkedSymptomsAsync.value ?? [];
             return conditionDetailContent(condition, entries, linkedSymptoms);
           },
           loading: () => HealthNotesPage(
             title: condition.name,
-            body: const SyncStatusWidget.loading(
-              message: 'Loading entries...',
-            ),
+            body: const SyncStatusWidget.loading(message: 'Loading entries...'),
           ),
           error: (error, stack) => HealthNotesPage(
             title: condition.name,
             body: SyncStatusWidget.error(
               errorMessage: 'Error: $error',
-              onRetry: () => ref.invalidate(
-                conditionEntriesNotifierProvider(widget.conditionId),
-              ),
+              onRetry: () =>
+                  ref.invalidate(conditionEntriesProvider(widget.conditionId)),
             ),
           ),
         );
@@ -111,14 +109,14 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-              conditionHeader(condition),
-              VSpace.l,
-              statisticsSection(condition, entries, linkedSymptoms),
-              VSpace.l,
-              viewSelector(),
-              VSpace.l,
-              ...selectedViewContent(condition, entries, linkedSymptoms),
-            ],
+            conditionHeader(condition),
+            VSpace.l,
+            statisticsSection(condition, entries, linkedSymptoms),
+            VSpace.l,
+            viewSelector(),
+            VSpace.l,
+            ...selectedViewContent(condition, entries, linkedSymptoms),
+          ],
         ),
       ),
     );
@@ -442,7 +440,7 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
               onPressed: () async {
                 Navigator.of(sheetContext).pop();
                 await ref
-                    .read(conditionsNotifierProvider.notifier)
+                    .read(conditionsProvider.notifier)
                     .resolveCondition(widget.conditionId);
               },
               child: const Text('Mark as Resolved'),
@@ -473,7 +471,7 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
               );
               if (confirmed == true) {
                 await ref
-                    .read(conditionsNotifierProvider.notifier)
+                    .read(conditionsProvider.notifier)
                     .deleteCondition(widget.conditionId);
                 if (mounted) {
                   Navigator.of(context).pop();
@@ -498,9 +496,7 @@ class _ConditionDetailScreenState extends ConsumerState<ConditionDetailScreen> {
         entry: entry,
         onSave: (updatedEntry) async {
           await ref
-              .read(
-                conditionEntriesNotifierProvider(widget.conditionId).notifier,
-              )
+              .read(conditionEntriesProvider(widget.conditionId).notifier)
               .updateEntry(updatedEntry);
           if (sheetContext.mounted) {
             Navigator.of(sheetContext).pop();

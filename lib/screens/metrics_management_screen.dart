@@ -15,19 +15,17 @@ import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 
-class MetricsManagementScreen extends ConsumerStatefulWidget {
-  const MetricsManagementScreen();
-
+class const MetricsManagementScreen() extends ConsumerStatefulWidget {
   @override
   ConsumerState<MetricsManagementScreen> createState() =>
       _MetricsManagementScreenState();
 }
 
-class _MetricsManagementScreenState
+class _MetricsManagementScreenState()
     extends ConsumerState<MetricsManagementScreen> {
   @override
   Widget build(BuildContext context) {
-    final metricsAsync = ref.watch(checkInMetricsNotifierProvider);
+    final metricsAsync = ref.watch(checkInMetricsProvider);
 
     return HealthNotesPage(
       title: 'Manage Metrics',
@@ -40,7 +38,7 @@ class _MetricsManagementScreenState
         IconButton(
           tooltip: 'Sync',
           onPressed: () async {
-            await ref.read(syncNotifierProvider.notifier).forceSyncAllData();
+            await ref.read(syncProvider.notifier).forceSyncAllData();
           },
           icon: const Icon(Icons.sync),
         ),
@@ -52,7 +50,7 @@ class _MetricsManagementScreenState
             if (userId != null) {
               await OfflineRepository.resyncAllCheckInMetrics(userId);
               await OfflineRepository.pushLocalOnly();
-              await ref.read(syncNotifierProvider.notifier).forceSyncAllData();
+              await ref.read(syncProvider.notifier).forceSyncAllData();
             }
           },
           icon: const Icon(Icons.swap_vert_circle_outlined),
@@ -95,7 +93,7 @@ class _MetricsManagementScreenState
           ),
           VSpace.m,
           CupertinoButton.filled(
-            onPressed: () => ref.invalidate(checkInMetricsNotifierProvider),
+            onPressed: () => ref.invalidate(checkInMetricsProvider),
             child: const Text('Retry'),
           ),
         ],
@@ -175,18 +173,16 @@ class _MetricsManagementScreenState
   Widget metricTitle(CheckInMetric metric) {
     return Text(
       metric.name,
-      style: CupertinoTheme.of(
-        context,
-      ).textTheme.textStyle.copyWith(fontWeight: FontWeight.w600),
+      style: CupertinoTheme.of(context).textTheme.textStyle
+          .copyWith(fontWeight: FontWeight.w600),
     );
   }
 
   Widget metricSubtitle(CheckInMetric metric) {
     return Text(
       metric.type.description,
-      style: CupertinoTheme.of(
-        context,
-      ).textTheme.textStyle.copyWith(color: CupertinoColors.systemGrey),
+      style: CupertinoTheme.of(context).textTheme.textStyle
+          .copyWith(color: CupertinoColors.systemGrey),
     );
   }
 
@@ -239,7 +235,7 @@ class _MetricsManagementScreenState
     ).then((result) async {
       if (result == true) {
         await ref
-            .read(checkInMetricsNotifierProvider.notifier)
+            .read(checkInMetricsProvider.notifier)
             .deleteCheckInMetric(metric.id);
       }
     });

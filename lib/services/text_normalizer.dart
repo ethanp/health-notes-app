@@ -1,10 +1,10 @@
-abstract class TextNormalizer {
+abstract class TextNormalizer() {
   String normalize(String text);
   bool areEqual(String text1, String text2);
   bool contains(String text, String searchTerm);
 }
 
-class CaseInsensitiveNormalizer implements TextNormalizer {
+class CaseInsensitiveNormalizer() implements TextNormalizer {
   @override
   String normalize(String text) => text.trim().toLowerCase();
 
@@ -17,7 +17,7 @@ class CaseInsensitiveNormalizer implements TextNormalizer {
       normalize(text).contains(normalize(searchTerm));
 }
 
-class SymptomNormalizer {
+class SymptomNormalizer() {
   static final TextNormalizer _normalizer = CaseInsensitiveNormalizer();
 
   static String generateKey(String majorComponent, String minorComponent) =>
@@ -46,7 +46,7 @@ class SymptomNormalizer {
   }
 }
 
-class MetricNameNormalizer {
+class MetricNameNormalizer() {
   static final TextNormalizer _normalizer = CaseInsensitiveNormalizer();
 
   static String normalize(String name) => _normalizer.normalize(name);
@@ -57,7 +57,7 @@ class MetricNameNormalizer {
   static bool isValidName(String name) => normalize(name).isNotEmpty;
 }
 
-class CaseInsensitiveAggregator<T> {
+class CaseInsensitiveAggregator<T>() {
   static final TextNormalizer _normalizer = CaseInsensitiveNormalizer();
 
   static Map<String, int> aggregateStrings(Iterable<String> items) {

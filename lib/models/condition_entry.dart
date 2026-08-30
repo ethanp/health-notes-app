@@ -5,15 +5,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'condition_entry.freezed.dart';
 part 'condition_entry.g.dart';
 
-enum ConditionPhase {
+enum ConditionPhase({required final Color color}) {
   onset(color: Color(0xFFFF9500)), // CupertinoColors.systemOrange (light)
   worsening(color: Color(0xFFFF3B30)), // CupertinoColors.systemRed (light)
   peak(color: Color(0xFFD32F2F)),
   improving(color: Color(0xFF34C759)); // CupertinoColors.systemGreen (light)
-
-  const ConditionPhase({required this.color});
-
-  final Color color;
 
   String get displayName => nameAsCapitalizedWords;
 }

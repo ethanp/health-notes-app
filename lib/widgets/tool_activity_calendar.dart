@@ -3,17 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class ToolActivityCalendar extends StatelessWidget {
-  final String toolName;
-  final Map<DateTime, int> activityData;
-  final void Function(BuildContext context, DateTime date, int count) onDateTap;
-
-  const ToolActivityCalendar({
-    required this.toolName,
-    required this.activityData,
-    required this.onDateTap,
-  });
-
+class const ToolActivityCalendar({
+  required final String toolName,
+  required final Map<DateTime, int> activityData,
+  required final void Function(BuildContext context, DateTime date, int count)
+  onDateTap,
+}) extends StatelessWidget {
   int get maxCount => activityData.values.isEmpty
       ? 0
       : activityData.values.reduce((a, b) => a > b ? a : b);

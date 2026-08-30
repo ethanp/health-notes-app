@@ -2,19 +2,12 @@ import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
-class HealthNotesSearchField extends StatelessWidget {
-  const HealthNotesSearchField({
-    required this.controller,
-    required this.placeholder,
-    required this.onChanged,
-    this.onClear,
-  });
-
-  final TextEditingController controller;
-  final String placeholder;
-  final ValueChanged<String> onChanged;
-  final VoidCallback? onClear;
-
+class const HealthNotesSearchField({
+  required final TextEditingController controller,
+  required final String placeholder,
+  required final ValueChanged<String> onChanged,
+  final VoidCallback? onClear,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(

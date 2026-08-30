@@ -2,25 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
-class RefreshableListView<T> extends ConsumerWidget {
-  final Future<void> Function() onReloadRequested;
-  final List<T> items;
-  final Widget Function(T) itemBuilder;
-  final EdgeInsetsGeometry? padding;
-  final ScrollController? controller;
-  final bool? primary;
-  final ScrollPhysics? physics;
-
-  const RefreshableListView({
-    required this.onReloadRequested,
-    required this.items,
-    required this.itemBuilder,
-    this.padding = const EdgeInsets.all(AppSpacing.m),
-    this.controller,
-    this.primary = true,
-    this.physics = const AlwaysScrollableScrollPhysics(),
-  });
-
+class const RefreshableListView<T>({
+  required final Future<void> Function() onReloadRequested,
+  required final List<T> items,
+  required final Widget Function(T) itemBuilder,
+  final EdgeInsetsGeometry? padding = const EdgeInsets.all(AppSpacing.m),
+  final ScrollController? controller,
+  final bool? primary = true,
+  final ScrollPhysics? physics = const AlwaysScrollableScrollPhysics(),
+}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return CustomScrollView(

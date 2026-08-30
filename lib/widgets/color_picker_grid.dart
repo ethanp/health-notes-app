@@ -1,23 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
-class ColorPickerGrid extends StatelessWidget {
-  final List<Color> colors;
-  final Color selectedColor;
-  final ValueChanged<Color> onColorSelected;
-  final bool useCircles;
-  final double itemSize;
-  final double spacing;
-
-  const ColorPickerGrid({
-    required this.colors,
-    required this.selectedColor,
-    required this.onColorSelected,
-    this.useCircles = true,
-    this.itemSize = 40,
-    this.spacing = 12,
-  });
-
+class const ColorPickerGrid({
+  required final List<Color> colors,
+  required final Color selectedColor,
+  required final ValueChanged<Color> onColorSelected,
+  final bool useCircles = true,
+  final double itemSize = 40,
+  final double spacing = 12,
+}) extends StatelessWidget {
   static List<Color> get defaultColors => const [
     Color(0xFFE57373),
     Color(0xFFFFB74D),

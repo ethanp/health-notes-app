@@ -3,7 +3,7 @@ import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/constants/chart_constants.dart';
 
 /// Utility class for color mapping based on metric semantics
-class ColorMappingUtils {
+class ColorMappingUtils() {
   /// Maps a rating value to a color using a gradient from red to green
   /// Rating should be 1-10, where 1 = red and 10 = green
   static Color ratingToColor(int rating) {

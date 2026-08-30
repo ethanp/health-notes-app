@@ -9,28 +9,19 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class HealthToolForm extends ConsumerStatefulWidget {
-  final HealthTool? tool;
-  final HealthToolCategory? category;
-  final String title;
-  final String saveButtonText;
-  final Function()? onCancel;
-  final Function()? onSuccess;
-
-  const HealthToolForm({
-    this.tool,
-    this.category,
-    required this.title,
-    required this.saveButtonText,
-    this.onCancel,
-    this.onSuccess,
-  });
-
+class const HealthToolForm({
+  final HealthTool? tool,
+  final HealthToolCategory? category,
+  required final String title,
+  required final String saveButtonText,
+  final Function()? onCancel,
+  final Function()? onSuccess,
+}) extends ConsumerStatefulWidget {
   @override
   ConsumerState<HealthToolForm> createState() => _HealthToolFormState();
 }
 
-class _HealthToolFormState extends ConsumerState<HealthToolForm> {
+class _HealthToolFormState() extends ConsumerState<HealthToolForm> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -54,7 +45,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
 
   @override
   Widget build(BuildContext context) {
-    final categoriesAsync = ref.watch(healthToolCategoriesNotifierProvider);
+    final categoriesAsync = ref.watch(healthToolCategoriesProvider);
 
     return HealthNotesPage(
       title: widget.title,
@@ -70,10 +61,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
             child: CircularProgressIndicator(strokeWidth: 2),
           )
         else
-          TextButton(
-            onPressed: saveTool,
-            child: Text(widget.saveButtonText),
-          ),
+          TextButton(onPressed: saveTool, child: Text(widget.saveButtonText)),
       ],
       body: Form(
         key: _formKey,
@@ -145,9 +133,7 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
           VSpace.m,
           categoriesAsync.when(
             data: (categories) => categoryContent(categories),
-            loading: () => ELoadingState(
-              message: 'Loading categories...',
-            ),
+            loading: () => ELoadingState(message: 'Loading categories...'),
             error: (error, stack) =>
                 Text('Error loading categories: $error', style: EText.error),
           ),
@@ -223,9 +209,9 @@ class _HealthToolFormState extends ConsumerState<HealthToolForm> {
       final tool = _composeTool();
 
       if (widget.tool != null) {
-        await ref.read(healthToolsNotifierProvider.notifier).updateTool(tool);
+        await ref.read(healthToolsProvider.notifier).updateTool(tool);
       } else {
-        await ref.read(healthToolsNotifierProvider.notifier).addTool(tool);
+        await ref.read(healthToolsProvider.notifier).addTool(tool);
       }
 
       if (mounted) {

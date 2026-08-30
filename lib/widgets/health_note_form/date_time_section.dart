@@ -4,17 +4,11 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:intl/intl.dart';
 
-class DateTimeSection extends StatelessWidget {
-  final bool isEditable;
-  final DateTime selectedDateTime;
-  final Function(DateTime) onDateTimeChanged;
-
-  const DateTimeSection({
-    required this.isEditable,
-    required this.selectedDateTime,
-    required this.onDateTimeChanged,
-  });
-
+class const DateTimeSection({
+  required final bool isEditable,
+  required final DateTime selectedDateTime,
+  required final Function(DateTime) onDateTimeChanged,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isEditable) return _editableLayout();

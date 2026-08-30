@@ -10,22 +10,14 @@ import 'package:health_notes/utils/severity_utils.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class ConditionActivityCalendar extends StatelessWidget {
-  final Condition condition;
-  final List<ConditionEntry> entries;
-  final List<LinkedSymptom> linkedSymptoms;
-  final void Function(ConditionEntry entry) onEntrySelected;
+class const ConditionActivityCalendar({
+  required final Condition condition,
+  required final List<ConditionEntry> entries,
+  final List<LinkedSymptom> linkedSymptoms = const [],
+  required final void Function(ConditionEntry entry) onEntrySelected,
   final void Function(DateTime date, List<LinkedSymptom> symptoms)?
-  onSymptomTap;
-
-  const ConditionActivityCalendar({
-    required this.condition,
-    required this.entries,
-    this.linkedSymptoms = const [],
-    required this.onEntrySelected,
-    this.onSymptomTap,
-  });
-
+  onSymptomTap,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final activityData = ConditionActivityAggregator.byDate(

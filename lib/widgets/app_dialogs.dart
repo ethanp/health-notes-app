@@ -67,25 +67,19 @@ void showDateInfoDialog({
   );
 }
 
-class AppAlertDialog extends StatelessWidget {
-  final String title;
-  final String? content;
-  final Widget? contentWidget;
-  final List<AppAlertDialogAction> actions;
-  final bool showCancelButton;
-  final String? cancelText;
-
-  const AppAlertDialog({
-    required this.title,
-    this.content,
-    this.contentWidget,
-    required this.actions,
-    this.showCancelButton = false,
-    this.cancelText,
-  }) : assert(
-         content != null || contentWidget != null,
-         'Either content or contentWidget must be provided',
-       );
+class const AppAlertDialog({
+  required final String title,
+  final String? content,
+  final Widget? contentWidget,
+  required final List<AppAlertDialogAction> actions,
+  final bool showCancelButton = false,
+  final String? cancelText,
+}) extends StatelessWidget {
+  this
+    : assert(
+        content != null || contentWidget != null,
+        'Either content or contentWidget must be provided',
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -120,14 +114,12 @@ class AppAlertDialog extends StatelessWidget {
   }
 }
 
-class AppAlertDialogAction {
-  final String text;
-  final bool isDestructive;
+class const AppAlertDialogAction({
+  required final String text,
+  final bool isDestructive = false,
+});
 
-  const AppAlertDialogAction({required this.text, this.isDestructive = false});
-}
-
-class AppAlertDialogs {
+class AppAlertDialogs() {
   static AppAlertDialog confirmDestructive({
     required String title,
     required String content,

@@ -2,19 +2,12 @@ import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
-class AccentBorderCard extends StatelessWidget {
-  final Color accentColor;
-  final Widget child;
-  final VoidCallback? onTap;
-  final EdgeInsetsGeometry margin;
-
-  const AccentBorderCard({
-    required this.accentColor,
-    required this.child,
-    this.onTap,
-    this.margin = const EdgeInsets.only(bottom: 6),
-  });
-
+class const AccentBorderCard({
+  required final Color accentColor,
+  required final Widget child,
+  final VoidCallback? onTap,
+  final EdgeInsetsGeometry margin = const EdgeInsets.only(bottom: 6),
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final card = Container(

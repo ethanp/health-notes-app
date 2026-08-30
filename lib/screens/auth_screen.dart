@@ -7,14 +7,13 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
 
-class AuthScreen extends ConsumerStatefulWidget {
-  const AuthScreen();
-
+class const AuthScreen() extends ConsumerStatefulWidget {
   @override
   ConsumerState<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends ConsumerState<AuthScreen>
+class _AuthScreenState()
+    extends ConsumerState<AuthScreen>
     with TickerProviderStateMixin {
   bool _isLoading = false;
   late AnimationController _animationController;
@@ -57,9 +56,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: AppAnimation.slow,
-      decoration: const BoxDecoration(
-        gradient: EColors.scaffoldGradient,
-      ),
+      decoration: const BoxDecoration(gradient: EColors.scaffoldGradient),
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.xl),

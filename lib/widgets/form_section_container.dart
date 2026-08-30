@@ -1,12 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
-class FormSectionContainer extends StatelessWidget {
-  final bool isEditable;
-  final Widget child;
-
-  const FormSectionContainer({required this.isEditable, required this.child});
-
+class const FormSectionContainer({
+  required final bool isEditable,
+  required final Widget child,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(

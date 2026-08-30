@@ -1,19 +1,12 @@
 import 'package:flutter/cupertino.dart';
 
 /// Widget that displays user avatar with fallbacks
-class UserAvatarWidget extends StatelessWidget {
-  final String? avatarUrl;
-  final String? fullName;
-  final double size;
-  final bool showLoadingIndicator;
-
-  const UserAvatarWidget({
-    this.avatarUrl,
-    this.fullName,
-    this.size = 60,
-    this.showLoadingIndicator = true,
-  });
-
+class const UserAvatarWidget({
+  final String? avatarUrl,
+  final String? fullName,
+  final double size = 60,
+  final bool showLoadingIndicator = true,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipOval(

@@ -4,10 +4,8 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 /// Service to monitor network connectivity
-class ConnectivityService {
-  factory ConnectivityService() => _singleton;
-
-  ConnectivityService._();
+class ConnectivityService._() {
+  factory() => _singleton;
 
   static final ConnectivityService _singleton = ConnectivityService._();
 
@@ -41,9 +39,8 @@ class ConnectivityService {
   }
 
   Future<bool> _validateThatDnsLookupWorks() async {
-    final dnsResult = await InternetAddress.lookup(
-      'google.com',
-    ).timeout(const Duration(seconds: 5));
+    final dnsResult = await InternetAddress.lookup('google.com')
+        .timeout(const Duration(seconds: 5));
     return dnsResult.isNotEmpty && dnsResult[0].rawAddress.isNotEmpty;
   }
 

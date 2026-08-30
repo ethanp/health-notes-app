@@ -5,7 +5,7 @@ import 'package:health_notes/models/symptom_component.dart';
 import 'package:health_notes/models/symptom_component_index.dart';
 import 'package:health_notes/services/text_normalizer.dart';
 
-class SymptomComponentService {
+class SymptomComponentService() {
   static const _recentDays = 14;
 
   static SymptomComponentIndex buildIndex(

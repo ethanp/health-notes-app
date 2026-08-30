@@ -9,7 +9,7 @@ import 'package:health_notes/utils/data_utils.dart';
 part 'check_ins_provider.g.dart';
 
 @riverpod
-class CheckInsNotifier extends _$CheckInsNotifier {
+class CheckInsNotifier() extends _$CheckInsNotifier {
   @override
   Future<List<CheckIn>> build() async {
     final user = await ref.watch(currentUserProvider.future);

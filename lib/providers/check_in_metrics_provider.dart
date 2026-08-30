@@ -1,5 +1,4 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/providers/auth_provider.dart';
@@ -9,7 +8,7 @@ import 'package:health_notes/utils/data_utils.dart';
 part 'check_in_metrics_provider.g.dart';
 
 @riverpod
-class CheckInMetricsNotifier extends _$CheckInMetricsNotifier {
+class CheckInMetricsNotifier() extends _$CheckInMetricsNotifier {
   @override
   Future<List<CheckInMetric>> build() async {
     final user = await ref.watch(currentUserProvider.future);
@@ -132,6 +131,6 @@ Future<CheckInMetric?> checkInMetric(Ref ref, String id) async {
 /// Provider for checking if user has any check-in metrics
 @riverpod
 Future<bool> hasCheckInMetrics(Ref ref) async {
-  final metrics = await ref.watch(checkInMetricsNotifierProvider.future);
+  final metrics = await ref.watch(checkInMetricsProvider.future);
   return metrics.isNotEmpty;
 }

@@ -20,28 +20,20 @@ import 'package:health_notes/widgets/health_note_form/general_notes_section.dart
 import 'package:health_notes/widgets/health_note_form/medications_section.dart';
 import 'package:health_notes/widgets/health_note_form/symptoms_section.dart';
 
-class HealthNoteFormFields extends ConsumerStatefulWidget {
-  final HealthNote? note;
-  final bool isEditable;
-  final Function(DateTime)? onDateTimeChanged;
-  final Function(String)? onNotesChanged;
-  final Function(List<DrugDose>)? onDrugDosesChanged;
-
-  const HealthNoteFormFields({
-    super.key,
-    this.note,
-    required this.isEditable,
-    this.onDateTimeChanged,
-    this.onNotesChanged,
-    this.onDrugDosesChanged,
-  });
-
+class const HealthNoteFormFields({
+  super.key,
+  final HealthNote? note,
+  required final bool isEditable,
+  final Function(DateTime)? onDateTimeChanged,
+  final Function(String)? onNotesChanged,
+  final Function(List<DrugDose>)? onDrugDosesChanged,
+}) extends ConsumerStatefulWidget {
   @override
   ConsumerState<HealthNoteFormFields> createState() =>
       HealthNoteFormFieldsState();
 }
 
-class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
+class HealthNoteFormFieldsState() extends ConsumerState<HealthNoteFormFields> {
   TextEditingController? _notesController;
   late DateTime _selectedDateTime;
   late List<DrugDose> _drugDoses;
@@ -154,8 +146,8 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
 
   @override
   Widget build(BuildContext context) {
-    final schedules = ref.watch(medicationSchedulesNotifierProvider);
-    final notes = ref.watch(healthNotesNotifierProvider);
+    final schedules = ref.watch(medicationSchedulesProvider);
+    final notes = ref.watch(healthNotesProvider);
     final waiting = DosesWaitingForNote.forDraft(
       schedules: schedules.when(
         data: (data) => data,
@@ -273,7 +265,12 @@ class HealthNoteFormFieldsState extends ConsumerState<HealthNoteFormFields> {
     widget.onDrugDosesChanged?.call(_drugDoses);
   }
 
-  void updateDrugDose(int index, {DrugName? name, double? dosage, String? unit}) {
+  void updateDrugDose(
+    int index, {
+    DrugName? name,
+    double? dosage,
+    String? unit,
+  }) {
     setState(() {
       final currentDose = _drugDoses[index];
       _drugDoses[index] = DrugDose(

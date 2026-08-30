@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:sqflite/sqflite.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
@@ -7,7 +8,7 @@ import 'package:health_notes/models/applied_tool.dart';
 import 'package:health_notes/services/local_database.dart';
 
 /// Data Access Object for Health Notes
-class HealthNotesDao {
+class HealthNotesDao() {
   static const String _tableName = 'health_notes';
 
   /// Get all health notes for a user

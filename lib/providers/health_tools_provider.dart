@@ -1,5 +1,4 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:riverpod/riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/models/health_tool_category.dart';
@@ -7,7 +6,7 @@ import 'package:health_notes/models/health_tool_category.dart';
 part 'health_tools_provider.g.dart';
 
 @riverpod
-class HealthToolCategoriesNotifier extends _$HealthToolCategoriesNotifier {
+class HealthToolCategoriesNotifier() extends _$HealthToolCategoriesNotifier {
   @override
   Future<List<HealthToolCategory>> build() async {
     return _fetchCategories();
@@ -69,7 +68,7 @@ class HealthToolCategoriesNotifier extends _$HealthToolCategoriesNotifier {
 }
 
 @riverpod
-class HealthToolsNotifier extends _$HealthToolsNotifier {
+class HealthToolsNotifier() extends _$HealthToolsNotifier {
   @override
   Future<List<HealthTool>> build() async {
     return _fetchTools();
@@ -130,7 +129,7 @@ class HealthToolsNotifier extends _$HealthToolsNotifier {
 
 @riverpod
 Future<List<HealthTool>> toolsByCategory(Ref ref, String categoryId) async {
-  final toolsAsync = ref.watch(healthToolsNotifierProvider);
+  final toolsAsync = ref.watch(healthToolsProvider);
 
   return toolsAsync.when(
     data: (tools) =>
@@ -142,14 +141,12 @@ Future<List<HealthTool>> toolsByCategory(Ref ref, String categoryId) async {
 
 @riverpod
 Future<HealthTool?> toolById(Ref ref, String toolId) async {
-  final tools = await ref.watch(healthToolsNotifierProvider.future);
+  final tools = await ref.watch(healthToolsProvider.future);
   return tools.where((t) => t.id == toolId).firstOrNull;
 }
 
 @riverpod
 Future<HealthToolCategory?> categoryById(Ref ref, String categoryId) async {
-  final categories = await ref.watch(
-    healthToolCategoriesNotifierProvider.future,
-  );
+  final categories = await ref.watch(healthToolCategoriesProvider.future);
   return categories.where((c) => c.id == categoryId).firstOrNull;
 }

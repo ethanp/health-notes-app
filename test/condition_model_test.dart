@@ -164,20 +164,20 @@ void main() {
       expect(condition.dateRangeCaption, "Dec 16, '23 - Jan 4, '24");
     });
 
-    test('dateRangeCaption adds year only on the prior-year side of a range', () {
-      final currentYear = DateTime.now().year;
-      final priorYear = currentYear - 1;
-      final priorSuffix = (priorYear % 100).toString().padLeft(2, '0');
-      final condition = _condition(
-        startDate: DateTime(priorYear, 12, 16),
-        endDate: DateTime(currentYear, 1, 4),
-      );
+    test(
+      'dateRangeCaption adds year only on the prior-year side of a range',
+      () {
+        final currentYear = DateTime.now().year;
+        final priorYear = currentYear - 1;
+        final priorSuffix = (priorYear % 100).toString().padLeft(2, '0');
+        final condition = _condition(
+          startDate: DateTime(priorYear, 12, 16),
+          endDate: DateTime(currentYear, 1, 4),
+        );
 
-      expect(
-        condition.dateRangeCaption,
-        "Dec 16, '$priorSuffix - Jan 4",
-      );
-    });
+        expect(condition.dateRangeCaption, "Dec 16, '$priorSuffix - Jan 4");
+      },
+    );
 
     test('dateRangeCaption for an open-ended condition omits current year', () {
       final currentYear = DateTime.now().year;

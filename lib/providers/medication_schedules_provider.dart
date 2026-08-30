@@ -8,7 +8,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'medication_schedules_provider.g.dart';
 
 @riverpod
-class MedicationSchedulesNotifier extends _$MedicationSchedulesNotifier {
+class MedicationSchedulesNotifier() extends _$MedicationSchedulesNotifier {
   @override
   Future<List<MedicationSchedule>> build() async {
     final user = await ref.watch(currentUserProvider.future);

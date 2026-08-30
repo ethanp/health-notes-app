@@ -1,21 +1,13 @@
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/material.dart';
 
-class HealthNotesPage extends StatelessWidget {
-  const HealthNotesPage({
-    required this.title,
-    required this.body,
-    this.leading,
-    this.actions = const [],
-    this.floatingActionButton,
-  });
-
-  final String title;
-  final Widget body;
-  final Widget? leading;
-  final List<Widget> actions;
-  final Widget? floatingActionButton;
-
+class const HealthNotesPage({
+  required final String title,
+  required final Widget body,
+  final Widget? leading,
+  final List<Widget> actions = const [],
+  final Widget? floatingActionButton,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return EScaffoldShell(

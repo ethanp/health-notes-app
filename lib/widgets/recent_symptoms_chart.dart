@@ -2,15 +2,10 @@ import 'package:ethan_ui/ethan_ui.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 
-class RecentSymptomsChart extends StatelessWidget {
-  final Map<String, int> symptomStats;
-  final void Function(String) onSymptomTap;
-
-  const RecentSymptomsChart({
-    required this.symptomStats,
-    required this.onSymptomTap,
-  });
-
+class const RecentSymptomsChart({
+  required final Map<String, int> symptomStats,
+  required final void Function(String) onSymptomTap,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sortedSymptoms = symptomStats.entries.toList()

@@ -12,17 +12,15 @@ import 'package:health_notes/utils/color_mapping_utils.dart';
 import 'package:intl/intl.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class CheckInTrendsChart extends StatefulWidget {
-  final List<CheckIn> checkIns;
-  final List<CheckInMetric> userMetrics;
-
-  const CheckInTrendsChart({required this.checkIns, required this.userMetrics});
-
+class const CheckInTrendsChart({
+  required final List<CheckIn> checkIns,
+  required final List<CheckInMetric> userMetrics,
+}) extends StatefulWidget {
   @override
   State<CheckInTrendsChart> createState() => _CheckInTrendsChartState();
 }
 
-class _CheckInTrendsChartState extends State<CheckInTrendsChart> {
+class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
   final Set<String> _hiddenMetrics = <String>{};
   DateRangeFilter _selectedDateRange = DateRangeFilter.sixtyDays;
 

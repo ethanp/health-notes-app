@@ -13,7 +13,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'sync_provider.g.dart';
 
 @riverpod
-class SyncNotifier extends _$SyncNotifier {
+class SyncNotifier() extends _$SyncNotifier {
   @override
   bool build() {
     return false; // Initial sync status
@@ -51,14 +51,14 @@ class SyncNotifier extends _$SyncNotifier {
 
   /// Invalidate all data providers to refresh cached data after sync
   void _invalidateAllProviders() {
-    ref.invalidate(healthNotesNotifierProvider);
-    ref.invalidate(checkInsNotifierProvider);
-    ref.invalidate(checkInMetricsNotifierProvider);
-    ref.invalidate(healthToolCategoriesNotifierProvider);
-    ref.invalidate(userProfileNotifierProvider);
+    ref.invalidate(healthNotesProvider);
+    ref.invalidate(checkInsProvider);
+    ref.invalidate(checkInMetricsProvider);
+    ref.invalidate(healthToolCategoriesProvider);
+    ref.invalidate(userProfileProvider);
     ref.invalidate(groupedHealthNotesProvider);
     ref.invalidate(hasCheckInMetricsProvider);
-    ref.invalidate(medicationSchedulesNotifierProvider);
+    ref.invalidate(medicationSchedulesProvider);
   }
 }
 

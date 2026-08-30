@@ -2,17 +2,11 @@ import 'package:ethan_utils/ethan_utils.dart';
 import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/providers/conditions_provider.dart';
 
-class ConditionDayData {
-  final int severity;
-  final int symptomCount;
-  final int maxSymptomSeverity;
-
-  const ConditionDayData({
-    this.severity = 0,
-    this.symptomCount = 0,
-    this.maxSymptomSeverity = 0,
-  });
-
+class const ConditionDayData({
+  final int severity = 0,
+  final int symptomCount = 0,
+  final int maxSymptomSeverity = 0,
+}) {
   bool get hasEntry => severity > 0;
   bool get hasSymptoms => symptomCount > 0;
   bool get hasActivity => hasEntry || hasSymptoms;
@@ -22,14 +16,12 @@ class ConditionDayData {
   String toString() => '$primaryValue';
 }
 
-class ConditionSeverityPoint {
-  final DateTime date;
-  final int severity;
+class const ConditionSeverityPoint({
+  required final DateTime date,
+  required final int severity,
+});
 
-  const ConditionSeverityPoint({required this.date, required this.severity});
-}
-
-class ConditionActivityAggregator {
+class ConditionActivityAggregator() {
   static Map<DateTime, ConditionDayData> byDate({
     required List<ConditionEntry> entries,
     required List<LinkedSymptom> linkedSymptoms,

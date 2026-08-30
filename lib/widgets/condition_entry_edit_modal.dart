@@ -6,18 +6,16 @@ import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/severity_utils.dart';
 import 'package:intl/intl.dart';
 
-class ConditionEntryEditModal extends StatefulWidget {
-  final ConditionEntry entry;
-  final Future<void> Function(ConditionEntry updatedEntry) onSave;
-
-  const ConditionEntryEditModal({required this.entry, required this.onSave});
-
+class const ConditionEntryEditModal({
+  required final ConditionEntry entry,
+  required final Future<void> Function(ConditionEntry updatedEntry) onSave,
+}) extends StatefulWidget {
   @override
   State<ConditionEntryEditModal> createState() =>
       _ConditionEntryEditModalState();
 }
 
-class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
+class _ConditionEntryEditModalState() extends State<ConditionEntryEditModal> {
   late int severity;
   late ConditionPhase phase;
   late TextEditingController notesController;
@@ -155,9 +153,7 @@ class _ConditionEntryEditModalState extends State<ConditionEntryEditModal> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected
-              ? p.color.withValues(alpha: 0.2)
-              : EColors.surface,
+          color: isSelected ? p.color.withValues(alpha: 0.2) : EColors.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? p.color : EColors.surfaceRaised,

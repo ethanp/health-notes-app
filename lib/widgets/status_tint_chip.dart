@@ -3,17 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class StatusTintChip extends StatelessWidget {
-  const StatusTintChip({
-    required this.text,
-    required this.color,
-    this.icon,
-  });
-
-  final String text;
-  final Color color;
-  final IconData? icon;
-
+class const StatusTintChip({
+  required final String text,
+  required final Color color,
+  final IconData? icon,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(

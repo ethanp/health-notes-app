@@ -9,16 +9,16 @@ import 'package:intl/intl.dart';
 part 'medication_schedule.freezed.dart';
 part 'medication_schedule.g.dart';
 
-enum PartOfDay {
+enum ScheduleKind({required final String label}) {
+  taper(label: 'Taper'),
+  daily(label: 'Daily'),
+}
+
+enum PartOfDay({required final String label, required final int sortHour}) {
   morning(label: 'morning', sortHour: 8),
   afternoon(label: 'afternoon', sortHour: 14),
   evening(label: 'evening', sortHour: 18),
   night(label: 'night', sortHour: 22);
-
-  const PartOfDay({required this.label, required this.sortHour});
-
-  final String label;
-  final int sortHour;
 
   String get pluralLabel => '${label}s';
 }
@@ -66,7 +66,8 @@ abstract class ScheduledDose with _$ScheduledDose {
 
   String timedAmountCaption(String unit) => switch (when) {
     ClockDoseWhen() => '${amountCaption(unit)} at ${when.caption}',
-    PartOfDayDoseWhen(:final part) => '${amountCaption(unit)} each ${part.label}',
+    PartOfDayDoseWhen(:final part) =>
+      '${amountCaption(unit)} each ${part.label}',
   };
 }
 
@@ -104,7 +105,7 @@ abstract class MedicationSchedule with _$MedicationSchedule {
   @JsonSerializable(explicitToJson: true)
   const factory MedicationSchedule({
     required String id,
-    @JsonKey(name: 'user_id')     required String userId,
+    @JsonKey(name: 'user_id') required String userId,
     @JsonKey(name: 'medication_name')
     @DrugNameConverter()
     required DrugName medicationName,
@@ -123,6 +124,13 @@ abstract class MedicationSchedule with _$MedicationSchedule {
       _$MedicationScheduleFromJson(json);
 
   DateTime get startDay => startDate.startOfDay;
+
+  ScheduleKind get kind {
+    if (steps.length > 1 || steps.any((step) => step.durationDays != null)) {
+      return ScheduleKind.taper;
+    }
+    return ScheduleKind.daily;
+  }
 
   DateTime? get endedDay => endDate?.startOfDay;
 
@@ -206,10 +214,9 @@ abstract class MedicationSchedule with _$MedicationSchedule {
       ),
     );
     occurrences.sort(
-      (left, right) =>
-          left.scheduledDose.when.sortMinutes.compareTo(
-            right.scheduledDose.when.sortMinutes,
-          ),
+      (left, right) => left.scheduledDose.when.sortMinutes.compareTo(
+        right.scheduledDose.when.sortMinutes,
+      ),
     );
     return occurrences;
   }
@@ -223,9 +230,7 @@ abstract class MedicationSchedule with _$MedicationSchedule {
           previousWhen != null &&
           step.doses.length == 1 &&
           step.doses.first.when == previousWhen;
-      fragments.add(
-        step.sentenceFragment(unit: unit, omitWhen: omitWhen),
-      );
+      fragments.add(step.sentenceFragment(unit: unit, omitWhen: omitWhen));
       previousWhen = step.doses.length == 1 ? step.doses.first.when : null;
     }
     if (fragments.isEmpty) return '';
@@ -238,7 +243,9 @@ abstract class MedicationSchedule with _$MedicationSchedule {
     if (step == null) return null;
     final dayNumber = _calendarDaysFromStart(day) + 1;
     final last = lastCoveredDay;
-    final totalDays = last == null ? null : _calendarDaysBetween(startDay, last) + 1;
+    final totalDays = last == null
+        ? null
+        : _calendarDaysBetween(startDay, last) + 1;
     return ScheduleProgress(
       dayNumber: dayNumber,
       totalDays: totalDays,
@@ -260,7 +267,10 @@ abstract class MedicationSchedule with _$MedicationSchedule {
     final dayPhrase = totalDays == null
         ? 'Day $dayNumber'
         : 'Day $dayNumber of $totalDays';
-    return '$dayPhrase · Today: ${_todayDosePhrase(step)} · $_courseDateRangeCaption';
+    if (totalDays == null) return '$dayPhrase · $_courseDateRangeCaption';
+    final todayDose = _todayDosePhrase(step);
+    if (todayDose.isEmpty) return '$dayPhrase · $_courseDateRangeCaption';
+    return '$dayPhrase · $todayDose · $_courseDateRangeCaption';
   }
 
   String _todayDosePhrase(ScheduleStep step) {
@@ -269,9 +279,7 @@ abstract class MedicationSchedule with _$MedicationSchedule {
       final dose = step.doses.first;
       return '${dose.amountCaption(unit)} ${dose.when.caption}';
     }
-    return step.doses
-        .map((dose) => dose.timedAmountCaption(unit))
-        .join(', ');
+    return step.doses.map((dose) => dose.timedAmountCaption(unit)).join(', ');
   }
 
   String get _courseDateRangeCaption {
@@ -291,9 +299,11 @@ abstract class MedicationSchedule with _$MedicationSchedule {
       _calendarDaysBetween(startDay, day.startOfDay);
 
   int _calendarDaysBetween(DateTime from, DateTime to) {
-    return DateTime.utc(to.year, to.month, to.day)
-        .difference(DateTime.utc(from.year, from.month, from.day))
-        .inDays;
+    return DateTime.utc(
+      to.year,
+      to.month,
+      to.day,
+    ).difference(DateTime.utc(from.year, from.month, from.day)).inDays;
   }
 
   DateTime _addCalendarDays(DateTime day, int days) =>
@@ -437,8 +447,8 @@ class DosesWaitingForNote {
     if (due.isEmpty) return null;
     final noteMinutes = noteDateTime.hour * 60 + noteDateTime.minute;
     return due.reduce((best, candidate) {
-      final bestDelta =
-          (best.scheduledDose.when.sortMinutes - noteMinutes).abs();
+      final bestDelta = (best.scheduledDose.when.sortMinutes - noteMinutes)
+          .abs();
       final candidateDelta =
           (candidate.scheduledDose.when.sortMinutes - noteMinutes).abs();
       return candidateDelta < bestDelta ? candidate : best;

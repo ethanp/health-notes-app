@@ -18,17 +18,15 @@ import 'package:health_notes/widgets/tool_activity_calendar.dart';
 import 'package:health_notes/widgets/tool_note_card.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class ToolDetailScreen extends ConsumerStatefulWidget {
-  final String toolId;
-  final String? toolName;
-
-  const ToolDetailScreen({required this.toolId, this.toolName});
-
+class const ToolDetailScreen({
+  required final String toolId,
+  final String? toolName,
+}) extends ConsumerStatefulWidget {
   @override
   ConsumerState<ToolDetailScreen> createState() => _ToolDetailScreenState();
 }
 
-class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
+class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
   final TextEditingController searchController = TextEditingController();
   String searchQuery = '';
 
@@ -41,7 +39,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final toolAsync = ref.watch(toolByIdProvider(widget.toolId));
-    final notesAsync = ref.watch(healthNotesNotifierProvider);
+    final notesAsync = ref.watch(healthNotesProvider);
 
     return HealthNotesPage(
       title: widget.toolName ?? 'Tool Details',
@@ -85,7 +83,7 @@ class _ToolDetailScreenState extends ConsumerState<ToolDetailScreen> {
       slivers: [
         CupertinoSliverRefreshControl(
           onRefresh: () =>
-              ref.read(healthNotesNotifierProvider.notifier).refreshNotes(),
+              ref.read(healthNotesProvider.notifier).refreshNotes(),
         ),
         SliverPadding(
           padding: const EdgeInsets.all(AppSpacing.m),

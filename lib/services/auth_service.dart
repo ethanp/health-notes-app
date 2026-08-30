@@ -4,12 +4,10 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:health_notes/services/offline_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class AuthService {
+class AuthService._internal() {
   static final AuthService _instance = AuthService._internal();
 
-  factory AuthService() => _instance;
-
-  AuthService._internal();
+  factory() => _instance;
 
   final SupabaseClient _supabase = Supabase.instance.client;
 

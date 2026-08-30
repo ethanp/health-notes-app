@@ -10,15 +10,10 @@ import 'package:health_notes/utils/note_filter_utils.dart';
 import 'package:health_notes/widgets/health_note_card.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
 
-class HealthNoteDateDetailScreen extends StatelessWidget {
-  final DateTime date;
-  final List<HealthNote> allNotes;
-
-  const HealthNoteDateDetailScreen({
-    required this.date,
-    required this.allNotes,
-  });
-
+class const HealthNoteDateDetailScreen({
+  required final DateTime date,
+  required final List<HealthNote> allNotes,
+}) extends StatelessWidget {
   List<HealthNote> get notesForDate {
     final targetDate = date.startOfDay;
     return NoteFilterUtils.sortByDateDescending(

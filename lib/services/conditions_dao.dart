@@ -2,7 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/services/local_database.dart';
 
-class ConditionsDao {
+class ConditionsDao() {
   static const String _tableName = 'conditions';
 
   static Future<List<Condition>> getAllConditions(String userId) async {
@@ -46,8 +46,7 @@ class ConditionsDao {
     final db = await LocalDatabase.database;
     final List<Map<String, dynamic>> maps = await db.query(
       _tableName,
-      where:
-          'user_id = ? AND name = ? AND condition_status = ? AND is_deleted = 0',
+      where: 'user_id = ? AND name = ? AND condition_status = ? AND is_deleted = 0',
       whereArgs: [userId, name, 'active'],
       limit: 1,
     );

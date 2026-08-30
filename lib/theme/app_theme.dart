@@ -1,7 +1,7 @@
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/material.dart';
 
-class AppSpacing {
+class AppSpacing() {
   static const double xs = 4.0;
   static const double s = 8.0;
   static const double sm = 12.0;
@@ -11,7 +11,7 @@ class AppSpacing {
   static const double xxl = 48.0;
 }
 
-class AppRadius {
+class AppRadius() {
   static const double xs = 2.0;
   static const double small = 8.0;
   static const double medium = 12.0;
@@ -19,7 +19,7 @@ class AppRadius {
   static const double extraLarge = 24.0;
 }
 
-class AppAnimation {
+class AppAnimation() {
   static const Duration fast = Duration(milliseconds: 200);
   static const Duration medium = Duration(milliseconds: 300);
   static const Duration slow = Duration(milliseconds: 500);
@@ -28,7 +28,7 @@ class AppAnimation {
   static const Curve slideCurve = Curves.easeOutQuart;
 }
 
-class AppComponents {
+class AppComponents() {
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [EColors.accent, EColors.accentGlow],
     begin: Alignment.topLeft,

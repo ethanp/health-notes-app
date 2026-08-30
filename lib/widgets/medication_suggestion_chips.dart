@@ -10,21 +10,14 @@ import 'package:health_notes/providers/medication_schedules_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class MedicationSuggestion {
-  const MedicationSuggestion({
-    required this.label,
-    required this.onActivated,
-  });
+class const MedicationSuggestion({
+  required final String label,
+  required final VoidCallback onActivated,
+});
 
-  final String label;
-  final VoidCallback onActivated;
-}
-
-class MedicationSuggestionChips extends StatelessWidget {
-  const MedicationSuggestionChips({required this.suggestions});
-
-  final List<MedicationSuggestion> suggestions;
-
+class const MedicationSuggestionChips({
+  required final List<MedicationSuggestion> suggestions,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (suggestions.isEmpty) return const SizedBox.shrink();
@@ -35,11 +28,7 @@ class MedicationSuggestionChips extends StatelessWidget {
         children: [
           Text('Suggested', style: EText.label.large.size(12)),
           VSpace.xs,
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: suggestions.mapL(_chip),
-          ),
+          Wrap(spacing: 8, runSpacing: 8, children: suggestions.mapL(_chip)),
         ],
       ),
     );
@@ -61,48 +50,43 @@ class MedicationSuggestionChips extends StatelessWidget {
   }
 }
 
-class MedicationDoseSuggestionChips extends ConsumerWidget {
-  const MedicationDoseSuggestionChips({
-    required this.typedName,
-    required this.onDoseSelected,
-  });
-
-  final String typedName;
-  final ValueChanged<DrugDose> onDoseSelected;
-
+class const MedicationDoseSuggestionChips({
+  required final String typedName,
+  required final ValueChanged<DrugDose> onDoseSelected,
+}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final MedicationRecommendationsState? recommendations =
-        ref.watch(medicationRecommendationsProvider).asData?.value;
+    final MedicationRecommendationsState? recommendations = ref
+        .watch(medicationRecommendationsProvider)
+        .asData
+        ?.value;
     if (recommendations == null) return const SizedBox.shrink();
     return MedicationSuggestionChips(
-      suggestions: recommendations.matchingDoses(typedName).mapL(
-        (dose) => MedicationSuggestion(
-          label: dose.suggestionLabel,
-          onActivated: () => onDoseSelected(dose),
-        ),
-      ),
+      suggestions: recommendations
+          .matchingDoses(typedName)
+          .mapL(
+            (dose) => MedicationSuggestion(
+              label: dose.suggestionLabel,
+              onActivated: () => onDoseSelected(dose),
+            ),
+          ),
     );
   }
 }
 
-class MedicationNameSuggestionChips extends ConsumerWidget {
-  const MedicationNameSuggestionChips({
-    required this.typedName,
-    required this.onNameSelected,
-  });
-
-  final String typedName;
-  final ValueChanged<DrugName> onNameSelected;
-
+class const MedicationNameSuggestionChips({
+  required final String typedName,
+  required final ValueChanged<DrugName> onNameSelected,
+}) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final MedicationRecommendationsState? recommendations =
-        ref.watch(medicationRecommendationsProvider).asData?.value;
+    final MedicationRecommendationsState? recommendations = ref
+        .watch(medicationRecommendationsProvider)
+        .asData
+        ?.value;
     if (recommendations == null) return const SizedBox.shrink();
     final List<MedicationSchedule> schedules =
-        ref.watch(medicationSchedulesNotifierProvider).asData?.value ??
-        const [];
+        ref.watch(medicationSchedulesProvider).asData?.value ?? const [];
     return MedicationSuggestionChips(
       suggestions: recommendations
           .matchingNames(

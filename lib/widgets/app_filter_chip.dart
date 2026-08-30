@@ -2,17 +2,11 @@ import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
-class AppFilterChip extends StatelessWidget {
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  const AppFilterChip({
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
-
+class const AppFilterChip({
+  required final String label,
+  required final bool isActive,
+  required final VoidCallback onTap,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

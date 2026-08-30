@@ -1,5 +1,6 @@
 import 'package:health_notes/theme/activity_calendar_colors.dart';
 import 'package:ethan_ui/ethan_ui.dart';
+
 import 'dart:math' as math;
 
 import 'package:ethan_utils/ethan_utils.dart';
@@ -13,17 +14,19 @@ import 'package:health_notes/utils/severity_utils.dart';
 
 typedef ColorCalculator<T> = Color Function(T value);
 typedef LegendBuilder<T> = Widget Function();
-typedef DateInfoCallback<T> =
-    void Function(BuildContext context, DateTime date, T value);
+typedef DateInfoCallback<T> = void Function(
+  BuildContext context,
+  DateTime date,
+  T value,
+);
 typedef ActivityDescriptor<T> = String Function(T value);
-typedef DayCellBuilder<T> =
-    Widget Function(
-      BuildContext context,
-      DateTime date,
-      T value,
-      bool hasActivity,
-      Color color,
-    );
+typedef DayCellBuilder<T> = Widget Function(
+  BuildContext context,
+  DateTime date,
+  T value,
+  bool hasActivity,
+  Color color,
+);
 
 typedef WeekStats = ({
   List<Widget> cells,
@@ -32,7 +35,7 @@ typedef WeekStats = ({
   bool ownsWeek,
 });
 
-class CalendarConstants {
+class CalendarConstants() {
   static const double cellSize = 39;
   static const double cellMargin = 2;
   static const double summaryWidth = 55;
@@ -58,42 +61,26 @@ Color intensityColor(
   )!;
 }
 
-class ActivityCalendar<T> extends StatefulWidget {
-  final String title;
-  final String subtitle;
-  final Map<DateTime, T> activityData;
-  final ColorCalculator<T> colorCalculator;
-  final LegendBuilder<T> legendBuilder;
-  final DateInfoCallback<T> onDateTap;
-  final ActivityDescriptor<T> activityDescriptor;
-  final T emptyValue;
-  final DayCellBuilder<T>? dayCellBuilder;
-  final double? gridHeight;
-  final bool scrollToEnd;
-  final void Function(List<DateTime> dates)? onMultiSelectConfirmed;
-  final String? multiSelectActionLabel;
-
-  const ActivityCalendar({
-    required this.title,
-    required this.subtitle,
-    required this.activityData,
-    required this.colorCalculator,
-    required this.legendBuilder,
-    required this.onDateTap,
-    required this.activityDescriptor,
-    required this.emptyValue,
-    this.dayCellBuilder,
-    this.gridHeight,
-    this.scrollToEnd = false,
-    this.onMultiSelectConfirmed,
-    this.multiSelectActionLabel,
-  });
-
+class const ActivityCalendar<T>({
+  required final String title,
+  required final String subtitle,
+  required final Map<DateTime, T> activityData,
+  required final ColorCalculator<T> colorCalculator,
+  required final LegendBuilder<T> legendBuilder,
+  required final DateInfoCallback<T> onDateTap,
+  required final ActivityDescriptor<T> activityDescriptor,
+  required final T emptyValue,
+  final DayCellBuilder<T>? dayCellBuilder,
+  final double? gridHeight,
+  final bool scrollToEnd = false,
+  final void Function(List<DateTime> dates)? onMultiSelectConfirmed,
+  final String? multiSelectActionLabel,
+}) extends StatefulWidget {
   @override
   State<ActivityCalendar<T>> createState() => _ActivityCalendarState<T>();
 }
 
-class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
+class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
   ScrollController? _scrollController;
   bool _isSelectingDays = false;
   Set<DateTime> _selectedDays = {};
@@ -474,12 +461,12 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
   ) {
     final isToday = _isToday(date);
     return BoxDecoration(
-      color: hasActivity
-          ? color
-          : EColors.background.withValues(alpha: 0.1),
+      color: hasActivity ? color : EColors.background.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(6),
       border: Border.all(
-        color: isToday ? ActivityCalendarColors.todayBorder : cellBorderColor(value),
+        color: isToday
+            ? ActivityCalendarColors.todayBorder
+            : cellBorderColor(value),
         width: isToday ? 1.5 : (hasActivity ? 1 : 0.5),
       ),
       boxShadow: hasActivity ? [dayCellShadow(color)] : null,
@@ -619,11 +606,7 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
   }
 
   Widget _selectionCheckmark() {
-    return Icon(
-      CupertinoIcons.checkmark_alt,
-      size: 16,
-      color: EColors.accent,
-    );
+    return Icon(CupertinoIcons.checkmark_alt, size: 16, color: EColors.accent);
   }
 
   Widget _selectionActionBar() {
@@ -661,24 +644,21 @@ class _ActivityCalendarState<T> extends State<ActivityCalendar<T>> {
   }
 }
 
-class SeverityActivityCalendar extends StatelessWidget {
-  final String itemName;
-  final Map<DateTime, int> activityData;
-  final void Function(BuildContext context, DateTime date, int severity)
-  onDateTap;
-
-  const SeverityActivityCalendar({
-    required this.itemName,
-    required this.activityData,
-    required this.onDateTap,
-  });
-
+class const SeverityActivityCalendar({
+  required final String itemName,
+  required final Map<DateTime, int> activityData,
+  required final void Function(
+    BuildContext context,
+    DateTime date,
+    int severity,
+  )
+  onDateTap,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ActivityCalendar<int>(
       title: '$itemName Activity',
-      subtitle:
-          'Color intensity indicates symptom severity. Translucent days show no recorded activity.',
+      subtitle: 'Color intensity indicates symptom severity. Translucent days show no recorded activity.',
       activityData: activityData,
       colorCalculator: SeverityUtils.colorForSeverity,
       legendBuilder: severityLegend,
@@ -739,22 +719,18 @@ class SeverityActivityCalendar extends StatelessWidget {
   }
 }
 
-class DosageActivityCalendar extends StatelessWidget {
-  final String drugName;
-  final Map<DateTime, double> activityData;
-  final void Function(BuildContext context, DateTime date, double dosage)
-  onDateTap;
-  final String unit;
-  final void Function(List<DateTime> dates)? onMultiSelectConfirmed;
-
-  const DosageActivityCalendar({
-    required this.drugName,
-    required this.activityData,
-    required this.onDateTap,
-    required this.unit,
-    this.onMultiSelectConfirmed,
-  });
-
+class const DosageActivityCalendar({
+  required final String drugName,
+  required final Map<DateTime, double> activityData,
+  required final void Function(
+    BuildContext context,
+    DateTime date,
+    double dosage,
+  )
+  onDateTap,
+  required final String unit,
+  final void Function(List<DateTime> dates)? onMultiSelectConfirmed,
+}) extends StatelessWidget {
   double get maxDosage => activityData.values.isEmpty
       ? 0.0
       : activityData.values.reduce((a, b) => a > b ? a : b);
@@ -763,8 +739,7 @@ class DosageActivityCalendar extends StatelessWidget {
   Widget build(BuildContext context) {
     return ActivityCalendar<double>(
       title: '$drugName Activity',
-      subtitle:
-          'Color intensity indicates dosage amount. Translucent days show no recorded doses.',
+      subtitle: 'Color intensity indicates dosage amount. Translucent days show no recorded doses.',
       activityData: activityData,
       colorCalculator: dosageColor,
       legendBuilder: dosageLegend,
@@ -804,19 +779,12 @@ class DosageActivityCalendar extends StatelessWidget {
   }
 }
 
-class CheckInsActivityCalendar extends StatelessWidget {
-  final List<CheckIn> checkIns;
-  final void Function(DateTime date) onDateTap;
-  final double? gridHeight;
-  final bool scrollToEnd;
-
-  const CheckInsActivityCalendar({
-    required this.checkIns,
-    required this.onDateTap,
-    this.gridHeight,
-    this.scrollToEnd = false,
-  });
-
+class const CheckInsActivityCalendar({
+  required final List<CheckIn> checkIns,
+  required final void Function(DateTime date) onDateTap,
+  final double? gridHeight,
+  final bool scrollToEnd = false,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final activityData = generateActivityData();

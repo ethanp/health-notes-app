@@ -2,7 +2,7 @@ import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/models/health_note.dart';
 
 /// Centralized note filtering utilities
-class NoteFilterUtils {
+class NoteFilterUtils() {
   /// Filter notes by symptom name
   static List<HealthNote> bySymptom(
     List<HealthNote> notes,
@@ -15,9 +15,7 @@ class NoteFilterUtils {
     String majorComponent,
     String minorComponent,
   ) => notes
-      .where(
-        (note) => note.hasSubSymptom(majorComponent, minorComponent),
-      )
+      .where((note) => note.hasSubSymptom(majorComponent, minorComponent))
       .toList();
 
   static List<HealthNote> byDrug(List<HealthNote> notes, DrugName drugName) =>

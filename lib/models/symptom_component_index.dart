@@ -1,22 +1,12 @@
 import 'package:health_notes/models/symptom_component.dart';
 import 'package:health_notes/services/text_normalizer.dart';
 
-class SymptomComponentIndex {
-  final Map<String, SymptomComponent> _majorComponents;
-  final Map<String, Map<String, SymptomComponent>> _minorComponents;
-  final Map<String, int> _pairSeverities;
-  final Map<String, String> _pairConditions;
-
-  SymptomComponentIndex({
-    required Map<String, SymptomComponent> majorComponents,
-    required Map<String, Map<String, SymptomComponent>> minorComponents,
-    required Map<String, int> pairSeverities,
-    required Map<String, String> pairConditions,
-  }) : _majorComponents = majorComponents,
-       _minorComponents = minorComponents,
-       _pairSeverities = pairSeverities,
-       _pairConditions = pairConditions;
-
+class SymptomComponentIndex({
+  required final Map<String, SymptomComponent> _majorComponents,
+  required final Map<String, Map<String, SymptomComponent>> _minorComponents,
+  required final Map<String, int> _pairSeverities,
+  required final Map<String, String> _pairConditions,
+}) {
   List<SymptomComponent> getMajorComponents({String? searchQuery}) {
     var components = _majorComponents.values.toList();
 

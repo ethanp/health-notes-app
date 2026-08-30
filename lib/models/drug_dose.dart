@@ -45,8 +45,7 @@ abstract class DrugDose with _$DrugDose {
   bool get isValid => name.isNotEmpty && dosage > 0;
   bool get isEmpty => name.isEmpty;
 
-  String get displayName =>
-      name.isEmpty ? 'Unnamed medication' : name.display;
+  String get displayName => name.isEmpty ? 'Unnamed medication' : name.display;
   String get displayDosage => '${formatDecimalValue(dosage)}$unit';
   String get suggestionLabel => '$displayName $displayDosage';
   String get strengthIdentity => '${name.identity}|$dosage|$unit';

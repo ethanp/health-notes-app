@@ -27,9 +27,7 @@ void main() async {
   runApp(const ProviderScope(child: MainScreen()));
 }
 
-class MainScreen extends ConsumerWidget {
-  const MainScreen();
-
+class const MainScreen() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(

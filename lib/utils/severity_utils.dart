@@ -2,7 +2,7 @@ import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 
 /// Centralized severity calculation and display logic
-class SeverityUtils {
+class SeverityUtils() {
   static const int minSeverity = 1;
   static const int maxSeverity = 10;
 

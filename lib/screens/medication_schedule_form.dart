@@ -14,27 +14,22 @@ import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/widgets/medication_suggestion_chips.dart';
 import 'package:health_notes/widgets/medication_schedule/schedule_scaffold.dart';
 
-enum _CourseShape { taper, dailyTimes }
-
-class MedicationScheduleForm extends ConsumerStatefulWidget {
-  final MedicationSchedule? existing;
-
-  const MedicationScheduleForm({this.existing});
-
+class const MedicationScheduleForm({final MedicationSchedule? existing})
+    extends ConsumerStatefulWidget {
   @override
   ConsumerState<MedicationScheduleForm> createState() =>
       _MedicationScheduleFormState();
 }
 
-class _MedicationScheduleFormState
+class _MedicationScheduleFormState()
     extends ConsumerState<MedicationScheduleForm> {
   late final TextEditingController _nameController;
   late final TextEditingController _unitController;
   late final TextEditingController _notesController;
-  late final ScrollController _editorScrollController;
+  final _editorScrollController = ScrollController();
   late DateTime _startDate;
   late List<_StepDraft> _steps;
-  _CourseShape? _courseShape;
+  ScheduleKind? _scheduleKind;
   bool _isSaving = false;
 
   bool get _isEditing => widget.existing != null;
@@ -53,9 +48,8 @@ class _MedicationScheduleFormState
         ? []
         : existing.steps.map(_StepDraft.fromStep).toList();
     if (existing != null) {
-      _courseShape = _shapeFrom(existing);
+      _scheduleKind = existing.kind;
     }
-    _editorScrollController = ScrollController();
   }
 
   @override
@@ -84,7 +78,7 @@ class _MedicationScheduleFormState
               : const Text('Save'),
         ),
       ],
-      body: _courseShape == null ? _starterChoices() : _editor(),
+      body: _scheduleKind == null ? _starterChoices() : _editor(),
     );
   }
 
@@ -97,12 +91,12 @@ class _MedicationScheduleFormState
         _starterCard(
           title: 'Taper',
           caption: '40mg for 7 mornings, then 30mg for 3 mornings',
-          onActivated: () => _startAs(_CourseShape.taper),
+          onActivated: () => _startAs(ScheduleKind.taper),
         ),
         _starterCard(
           title: 'Times each day',
           caption: '200mg at 10:30 AM, 200mg at 4:30 PM, 300mg at 10:30 PM',
-          onActivated: () => _startAs(_CourseShape.dailyTimes),
+          onActivated: () => _startAs(ScheduleKind.daily),
         ),
       ],
     );
@@ -161,8 +155,8 @@ class _MedicationScheduleFormState
           hint: 'from ENT',
         ),
         VSpace.l,
-        if (_courseShape == _CourseShape.taper) ..._taperEditor(),
-        if (_courseShape == _CourseShape.dailyTimes) ..._timesEditor(),
+        if (_scheduleKind == ScheduleKind.taper) ..._taperEditor(),
+        if (_scheduleKind == ScheduleKind.daily) ..._timesEditor(),
       ],
     );
   }
@@ -223,10 +217,7 @@ class _MedicationScheduleFormState
         _taperStepCard(stepIndex),
       ],
       VSpace.m,
-      OutlinedButton(
-        onPressed: _addTaperStep,
-        child: const Text('Then'),
-      ),
+      OutlinedButton(onPressed: _addTaperStep, child: const Text('Then')),
     ];
   }
 
@@ -251,9 +242,11 @@ class _MedicationScheduleFormState
                 ),
               ),
               HSpace.s,
-              Text(_unitController.text.trim().isEmpty
-                  ? 'mg'
-                  : _unitController.text.trim()),
+              Text(
+                _unitController.text.trim().isEmpty
+                    ? 'mg'
+                    : _unitController.text.trim(),
+              ),
               HSpace.m,
               const Text('for'),
               HSpace.s,
@@ -295,9 +288,7 @@ class _MedicationScheduleFormState
         return FilterChip(
           label: Text(
             part.pluralLabel,
-            style: isSelected
-                ? EText.label.medium
-                : EText.label.medium.white,
+            style: isSelected ? EText.label.medium : EText.label.medium.white,
           ),
           selected: isSelected,
           backgroundColor: EColors.surfaceRaised,
@@ -318,10 +309,7 @@ class _MedicationScheduleFormState
           padding: const EdgeInsets.only(bottom: AppSpacing.s),
           child: _timeDoseCard(step, doseIndex),
         ),
-      TextButton(
-        onPressed: _addClockDose,
-        child: const Text('Add time'),
-      ),
+      TextButton(onPressed: _addClockDose, child: const Text('Add time')),
     ];
   }
 
@@ -333,16 +321,20 @@ class _MedicationScheduleFormState
           Expanded(
             child: TextField(
               controller: dose.amount,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               style: EText.body.medium,
               decoration: _fieldDecoration(hint: '200'),
               onChanged: (_) => setState(() {}),
             ),
           ),
           HSpace.s,
-          Text(_unitController.text.trim().isEmpty
-              ? 'mg'
-              : _unitController.text.trim()),
+          Text(
+            _unitController.text.trim().isEmpty
+                ? 'mg'
+                : _unitController.text.trim(),
+          ),
           HSpace.m,
           TextButton(
             onPressed: () => _pickClockTime(dose),
@@ -384,13 +376,14 @@ class _MedicationScheduleFormState
   }
 
   String? _unitForSuggestedName(DrugName name) {
-    final MedicationRecommendationsState? recommendations =
-        ref.read(medicationRecommendationsProvider).asData?.value;
+    final MedicationRecommendationsState? recommendations = ref
+        .read(medicationRecommendationsProvider)
+        .asData
+        ?.value;
     final String? fromNotes = recommendations?.unitForName(name);
     if (fromNotes != null) return fromNotes;
     final List<MedicationSchedule> schedules =
-        ref.read(medicationSchedulesNotifierProvider).asData?.value ??
-        const [];
+        ref.read(medicationSchedulesProvider).asData?.value ?? const [];
     for (final schedule in schedules) {
       if (schedule.medicationName == name && schedule.unit.isNotEmpty) {
         return schedule.unit;
@@ -399,12 +392,12 @@ class _MedicationScheduleFormState
     return null;
   }
 
-  void _startAs(_CourseShape shape) {
+  void _startAs(ScheduleKind scheduleKind) {
     setState(() {
-      _courseShape = shape;
+      _scheduleKind = scheduleKind;
       _steps.forEach((step) => step.dispose());
       _steps = [
-        if (shape == _CourseShape.taper)
+        if (scheduleKind == ScheduleKind.taper)
           _StepDraft.taper(when: const DoseWhen.partOfDay(PartOfDay.morning))
         else
           _StepDraft.dailyTimes(
@@ -479,15 +472,6 @@ class _MedicationScheduleFormState
     });
   }
 
-  _CourseShape _shapeFrom(MedicationSchedule schedule) {
-    final usesTaper = schedule.steps.any(
-      (step) =>
-          step.durationDays != null ||
-          step.doses.any((dose) => dose.when is PartOfDayDoseWhen),
-    );
-    return usesTaper ? _CourseShape.taper : _CourseShape.dailyTimes;
-  }
-
   MedicationSchedule _draftSchedule({
     required String id,
     required String userId,
@@ -544,7 +528,7 @@ class _MedicationScheduleFormState
         updatedAt: now,
         endDate: existing?.endDate,
       );
-      final notifier = ref.read(medicationSchedulesNotifierProvider.notifier);
+      final notifier = ref.read(medicationSchedulesProvider.notifier);
       if (existing == null) {
         await notifier.addSchedule(schedule);
       } else {
@@ -557,14 +541,12 @@ class _MedicationScheduleFormState
   }
 }
 
-class _StepDraft {
-  _StepDraft({
-    required this.id,
-    required this.duration,
-    required this.doses,
-  });
-
-  factory _StepDraft.taper({required DoseWhen when}) {
+class _StepDraft({
+  required final String id,
+  required final TextEditingController duration,
+  required final List<_DoseDraft> doses,
+}) {
+  factory taper({required DoseWhen when}) {
     return _StepDraft(
       id: DataUtils.uuid.v4(),
       duration: TextEditingController(),
@@ -572,7 +554,7 @@ class _StepDraft {
     );
   }
 
-  factory _StepDraft.dailyTimes({required DoseWhen when}) {
+  factory dailyTimes({required DoseWhen when}) {
     return _StepDraft(
       id: DataUtils.uuid.v4(),
       duration: TextEditingController(),
@@ -580,7 +562,7 @@ class _StepDraft {
     );
   }
 
-  factory _StepDraft.fromStep(ScheduleStep step) {
+  factory fromStep(ScheduleStep step) {
     return _StepDraft(
       id: step.id,
       duration: TextEditingController(
@@ -589,10 +571,6 @@ class _StepDraft {
       doses: step.doses.map(_DoseDraft.fromDose).toList(),
     );
   }
-
-  final String id;
-  final TextEditingController duration;
-  final List<_DoseDraft> doses;
 
   void dispose() {
     duration.dispose();
@@ -614,11 +592,8 @@ class _StepDraft {
   }
 }
 
-class _DoseDraft {
-  _DoseDraft({required this.when, String amountText = ''})
-    : amount = TextEditingController(text: amountText);
-
-  factory _DoseDraft.fromDose(ScheduledDose dose) {
+class _DoseDraft({required var DoseWhen when, String amountText = ''}) {
+  factory fromDose(ScheduledDose dose) {
     return _DoseDraft(when: dose.when, amountText: _amountText(dose.amount))
       ..id = dose.id;
   }
@@ -629,9 +604,7 @@ class _DoseDraft {
   }
 
   String id = DataUtils.uuid.v4();
-  final TextEditingController amount;
-  DoseWhen when;
-
+  final TextEditingController amount = TextEditingController(text: amountText);
   double? get parsedAmount {
     final parsed = double.tryParse(amount.text.trim());
     if (parsed == null || parsed <= 0) return null;

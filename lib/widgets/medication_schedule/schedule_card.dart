@@ -4,12 +4,12 @@ import 'package:health_notes/models/medication_schedule.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class ScheduleCard extends StatelessWidget {
-  final MedicationSchedule schedule;
-  final VoidCallback onActivated;
+import 'schedule_kind_chip.dart';
 
-  const ScheduleCard({required this.schedule, required this.onActivated});
-
+class const ScheduleCard({
+  required final MedicationSchedule schedule,
+  required final VoidCallback onActivated,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -29,9 +29,17 @@ class ScheduleCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          schedule.medicationName.display,
-          style: EText.label.large.primary,
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                schedule.medicationName.display,
+                style: EText.label.large.primary,
+              ),
+            ),
+            HSpace.s,
+            ScheduleKindChip(kind: schedule.kind),
+          ],
         ),
         VSpace.s,
         Text(schedule.sentence, style: EText.body.medium),

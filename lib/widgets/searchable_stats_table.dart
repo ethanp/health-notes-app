@@ -3,22 +3,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class SearchableStatsTable extends StatefulWidget {
-  final String searchPlaceholder;
-  final Map<String, int> stats;
-  final void Function(String)? onItemTap;
-
-  const SearchableStatsTable({
-    required this.searchPlaceholder,
-    required this.stats,
-    this.onItemTap,
-  });
-
+class const SearchableStatsTable({
+  required final String searchPlaceholder,
+  required final Map<String, int> stats,
+  final void Function(String)? onItemTap,
+}) extends StatefulWidget {
   @override
   State<SearchableStatsTable> createState() => _SearchableStatsTableState();
 }
 
-class _SearchableStatsTableState extends State<SearchableStatsTable> {
+class _SearchableStatsTableState() extends State<SearchableStatsTable> {
   late TextEditingController _searchController;
   String _searchQuery = '';
 
@@ -50,10 +44,7 @@ class _SearchableStatsTableState extends State<SearchableStatsTable> {
             onChanged: (query) => setState(() => _searchQuery = query),
           ),
           VSpace.s,
-          Text(
-            '${widget.stats.length} total',
-            style: EText.body.small.muted,
-          ),
+          Text('${widget.stats.length} total', style: EText.body.small.muted),
           VSpace.s,
           _buildList(filtered),
         ],
@@ -97,13 +88,11 @@ class _SearchableStatsTableState extends State<SearchableStatsTable> {
   }
 }
 
-class _StatsRow extends StatelessWidget {
-  final String label;
-  final int count;
-  final VoidCallback? onTap;
-
-  const _StatsRow({required this.label, required this.count, this.onTap});
-
+class const _StatsRow({
+  required final String label,
+  required final int count,
+  final VoidCallback? onTap,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final content = Padding(
@@ -111,9 +100,7 @@ class _StatsRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            child: Text(label, style: EText.body.medium.white.semibold),
-          ),
+          Expanded(child: Text(label, style: EText.body.medium.white.semibold)),
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.sm,
@@ -127,9 +114,7 @@ class _StatsRow extends StatelessWidget {
                 ],
               ),
               borderRadius: BorderRadius.circular(AppRadius.large),
-              border: Border.all(
-                color: EColors.accent.withValues(alpha: 0.3),
-              ),
+              border: Border.all(color: EColors.accent.withValues(alpha: 0.3)),
             ),
             child: Text(
               '$count',

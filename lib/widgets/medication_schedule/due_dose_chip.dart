@@ -3,17 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:health_notes/models/medication_schedule.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
-class DueDoseChip extends StatelessWidget {
-  final ScheduledDoseOccurrence occurrence;
-  final bool isNearest;
-  final VoidCallback onActivated;
-
-  const DueDoseChip({
-    required this.occurrence,
-    required this.isNearest,
-    required this.onActivated,
-  });
-
+class const DueDoseChip({
+  required final ScheduledDoseOccurrence occurrence,
+  required final bool isNearest,
+  required final VoidCallback onActivated,
+}) extends StatelessWidget {
   static const _nowLabelHeight = 14.0;
   static const _nowLabelOverlap = 4.0;
 
@@ -21,10 +15,7 @@ class DueDoseChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       clipBehavior: Clip.none,
-      children: [
-        _plate(),
-        if (isNearest) _nowLabel(),
-      ],
+      children: [_plate(), if (isNearest) _nowLabel()],
     );
   }
 
@@ -39,13 +30,12 @@ class DueDoseChip extends StatelessWidget {
             horizontal: AppSpacing.m,
             vertical: AppSpacing.s,
           ),
-          decoration: AppComponents.tintedSolidDecoration(
-            EColors.accentGlow,
-          ).copyWith(
-            border: const Border(
-              left: BorderSide(color: EColors.accentGlow, width: 3),
-            ),
-          ),
+          decoration: AppComponents.tintedSolidDecoration(EColors.accentGlow)
+              .copyWith(
+                border: const Border(
+                  left: BorderSide(color: EColors.accentGlow, width: 3),
+                ),
+              ),
           child: _labels(),
         ),
       ),
@@ -66,10 +56,7 @@ class DueDoseChip extends StatelessWidget {
           style: EText.body.small.copyWith(fontWeight: FontWeight.w600),
         ),
         if (occurrence.stepProgressCaption != null)
-          Text(
-            occurrence.stepProgressCaption!,
-            style: EText.caption.tertiary,
-          ),
+          Text(occurrence.stepProgressCaption!, style: EText.caption.tertiary),
       ],
     );
   }

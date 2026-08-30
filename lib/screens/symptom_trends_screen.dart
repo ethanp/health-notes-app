@@ -16,25 +16,24 @@ import 'package:health_notes/widgets/activity_calendar.dart';
 import 'package:health_notes/widgets/health_note_card.dart';
 import 'package:health_notes/services/trends_activity_aggregator.dart';
 
-class SymptomTrendsScreen extends BaseTrendsScreen {
-  final String symptomName;
-
-  const SymptomTrendsScreen({required this.symptomName})
-    : super(itemName: symptomName);
+class const SymptomTrendsScreen({required final String symptomName})
+    extends BaseTrendsScreen {
+  @override
+  String get itemName => symptomName;
 
   @override
   BaseTrendsState<SymptomTrendsScreen, int> createState() =>
       _SymptomTrendsScreenState();
 }
 
-class _SymptomTrendsScreenState
+class _SymptomTrendsScreenState()
     extends BaseTrendsState<SymptomTrendsScreen, int> {
   @override
   String get itemNoun => 'symptom';
 
   @override
   Future<void> reloadNotes() async {
-    await ref.read(healthNotesNotifierProvider.notifier).refreshNotes();
+    await ref.read(healthNotesProvider.notifier).refreshNotes();
   }
 
   @override
@@ -232,16 +231,9 @@ class _SymptomTrendsScreenState
   }
 }
 
-class _SubSymptomStat {
-  final String minorComponent;
-  final int count;
-  final int peakSeverity;
-  final DateTime mostRecent;
-
-  const _SubSymptomStat({
-    required this.minorComponent,
-    required this.count,
-    required this.peakSeverity,
-    required this.mostRecent,
-  });
-}
+class const _SubSymptomStat({
+  required final String minorComponent,
+  required final int count,
+  required final int peakSeverity,
+  required final DateTime mostRecent,
+});

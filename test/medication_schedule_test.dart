@@ -112,7 +112,7 @@ void main() {
       final last = start.shiftedByDays(15);
       expect(
         schedule.listCaption,
-        'Day 3 of 16 · Today: 40mg morning · '
+        'Day 3 of 16 · 40mg morning · '
         '${start.monthDayCaption} - ${last.monthDayCaption}',
       );
     });
@@ -145,11 +145,7 @@ void main() {
         createdAt: createdAt,
         updatedAt: createdAt,
       );
-      expect(
-        schedule.listCaption,
-        'Day 6 · Today: 200mg at 10:30 AM, 200mg at 4:30 PM · '
-        '${start.monthDayCaption}',
-      );
+      expect(schedule.listCaption, 'Day 6 · ${start.monthDayCaption}');
     });
 
     test('upcoming course names the start day', () {
@@ -160,7 +156,7 @@ void main() {
       );
     });
 
-    test('ended course drops Today and keeps the date range', () {
+    test('ended course keeps day count and date range', () {
       final today = DateTime.now().startOfDay;
       final start = today.shiftedByDays(-20);
       final schedule = morningCourse(startDate: start, durationDays: 10);
@@ -169,6 +165,16 @@ void main() {
         schedule.listCaption,
         'Day 10 of 10 · ${start.monthDayCaption} - ${last.monthDayCaption}',
       );
+    });
+  });
+
+  group('kind', () {
+    test('a stepped morning course is a taper', () {
+      expect(prednisone().kind, ScheduleKind.taper);
+    });
+
+    test('an open-ended clock course is daily', () {
+      expect(gabapentin().kind, ScheduleKind.daily);
     });
   });
 
@@ -205,7 +211,9 @@ void main() {
       expect(firstMorning.scheduledDose.amount, 40);
       expect(firstMorning.stepProgressCaption, '1 of 7 mornings');
 
-      final seventhMorning = schedule.occurrencesOn(DateTime(2026, 3, 7)).single;
+      final seventhMorning = schedule
+          .occurrencesOn(DateTime(2026, 3, 7))
+          .single;
       expect(seventhMorning.scheduledDose.amount, 40);
       expect(seventhMorning.stepProgressCaption, '7 of 7 mornings');
     });
@@ -295,7 +303,9 @@ void main() {
       final waiting = DosesWaitingForNote(
         schedules: [schedule],
         day: day,
-        alreadyLogged: [const DrugDose(name: DrugName('Prednisone'), dosage: 40)],
+        alreadyLogged: [
+          const DrugDose(name: DrugName('Prednisone'), dosage: 40),
+        ],
       ).waiting;
 
       expect(waiting.single.scheduledDoseId, 'dose-40');

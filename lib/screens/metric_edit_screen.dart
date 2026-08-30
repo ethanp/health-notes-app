@@ -11,16 +11,13 @@ import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class MetricEditScreen extends ConsumerStatefulWidget {
-  final CheckInMetric? metric;
-
-  const MetricEditScreen({this.metric});
-
+class const MetricEditScreen({final CheckInMetric? metric})
+    extends ConsumerStatefulWidget {
   @override
   ConsumerState<MetricEditScreen> createState() => _MetricEditScreenState();
 }
 
-class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
+class _MetricEditScreenState() extends ConsumerState<MetricEditScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
 
@@ -96,9 +93,8 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
         children: [
           Text(
             'Metric Name',
-            style: CupertinoTheme.of(
-              context,
-            ).textTheme.textStyle.copyWith(fontWeight: FontWeight.w600),
+            style: CupertinoTheme.of(context).textTheme.textStyle
+                .copyWith(fontWeight: FontWeight.w600),
           ),
           VSpace.s,
           CupertinoTextField(
@@ -125,9 +121,8 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
         children: [
           Text(
             'Value Preference',
-            style: CupertinoTheme.of(
-              context,
-            ).textTheme.textStyle.copyWith(fontWeight: FontWeight.w600),
+            style: CupertinoTheme.of(context).textTheme.textStyle
+                .copyWith(fontWeight: FontWeight.w600),
           ),
           VSpace.sm,
           ...MetricType.values.map(typeOption),
@@ -214,9 +209,8 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
         children: [
           Text(
             'Color',
-            style: CupertinoTheme.of(
-              context,
-            ).textTheme.textStyle.copyWith(fontWeight: FontWeight.w600),
+            style: CupertinoTheme.of(context).textTheme.textStyle
+                .copyWith(fontWeight: FontWeight.w600),
           ),
           VSpace.sm,
           ColorPickerGrid(
@@ -237,9 +231,8 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
         children: [
           Text(
             'Icon',
-            style: CupertinoTheme.of(
-              context,
-            ).textTheme.textStyle.copyWith(fontWeight: FontWeight.w600),
+            style: CupertinoTheme.of(context).textTheme.textStyle
+                .copyWith(fontWeight: FontWeight.w600),
           ),
           VSpace.sm,
           Wrap(
@@ -299,7 +292,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
 
     try {
       final nameExists = await ref
-          .read(checkInMetricsNotifierProvider.notifier)
+          .read(checkInMetricsProvider.notifier)
           .metricNameExists(name, excludeId: widget.metric?.id);
 
       if (nameExists) {
@@ -317,7 +310,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
 
       if (widget.metric == null) {
         await ref
-            .read(checkInMetricsNotifierProvider.notifier)
+            .read(checkInMetricsProvider.notifier)
             .addCheckInMetric(
               name: name,
               type: _selectedType,
@@ -332,7 +325,7 @@ class _MetricEditScreenState extends ConsumerState<MetricEditScreen> {
           iconCodePoint: _selectedIcon.codePoint,
         );
         await ref
-            .read(checkInMetricsNotifierProvider.notifier)
+            .read(checkInMetricsProvider.notifier)
             .updateCheckInMetric(updatedMetric);
       }
 

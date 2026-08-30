@@ -3,7 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/services/local_database.dart';
 
-class ConditionEntriesDao {
+class ConditionEntriesDao() {
   static const String _tableName = 'condition_entries';
 
   static Future<List<ConditionEntry>> getEntriesForCondition(

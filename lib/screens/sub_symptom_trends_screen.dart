@@ -13,21 +13,19 @@ import 'package:health_notes/widgets/activity_calendar.dart';
 import 'package:health_notes/widgets/health_note_card.dart';
 import 'package:health_notes/services/trends_activity_aggregator.dart';
 
-class SubSymptomTrendsScreen extends BaseTrendsScreen {
-  final String majorComponent;
-  final String minorComponent;
-
-  const SubSymptomTrendsScreen({
-    required this.majorComponent,
-    required this.minorComponent,
-  }) : super(itemName: minorComponent);
+class const SubSymptomTrendsScreen({
+  required final String majorComponent,
+  required final String minorComponent,
+}) extends BaseTrendsScreen {
+  @override
+  String get itemName => minorComponent;
 
   @override
   BaseTrendsState<SubSymptomTrendsScreen, int> createState() =>
       _SubSymptomTrendsScreenState();
 }
 
-class _SubSymptomTrendsScreenState
+class _SubSymptomTrendsScreenState()
     extends BaseTrendsState<SubSymptomTrendsScreen, int> {
   @override
   String get itemNoun => 'sub-symptom';
@@ -40,7 +38,7 @@ class _SubSymptomTrendsScreenState
 
   @override
   Future<void> reloadNotes() async {
-    await ref.read(healthNotesNotifierProvider.notifier).refreshNotes();
+    await ref.read(healthNotesProvider.notifier).refreshNotes();
   }
 
   @override

@@ -1,20 +1,15 @@
 import 'package:ethan_utils/ethan_utils.dart';
 
 /// Date range filter options for trends data
-enum DateRangeFilter {
+enum DateRangeFilter({
+  required final String label,
+
+  /// Days before now for the filter window; null means no cutoff.
+  required final int? lookbackDays,
+}) {
   fourteenDays(label: '14 Days', lookbackDays: 14),
   sixtyDays(label: '60 Days', lookbackDays: 60),
   allTime(label: 'All Time', lookbackDays: null);
-
-  const DateRangeFilter({
-    required this.label,
-    required this.lookbackDays,
-  });
-
-  final String label;
-
-  /// Days before now for the filter window; null means no cutoff.
-  final int? lookbackDays;
 
   /// Cutoff DateTime for filtering data. Null for [allTime].
   DateTime? getCutoffDate() {

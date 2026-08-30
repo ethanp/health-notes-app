@@ -8,26 +8,18 @@ import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:intl/intl.dart';
 
-class FilterModal extends StatefulWidget {
-  final DateTime? selectedDate;
-  final DrugName? selectedDrug;
-  final List<DrugName> availableDrugs;
-  final Function(DateTime?) onDateChanged;
-  final Function(DrugName?) onDrugChanged;
-
-  const FilterModal({
-    required this.selectedDate,
-    required this.selectedDrug,
-    required this.availableDrugs,
-    required this.onDateChanged,
-    required this.onDrugChanged,
-  });
-
+class const FilterModal({
+  required final DateTime? selectedDate,
+  required final DrugName? selectedDrug,
+  required final List<DrugName> availableDrugs,
+  required final Function(DateTime?) onDateChanged,
+  required final Function(DrugName?) onDrugChanged,
+}) extends StatefulWidget {
   @override
   State<FilterModal> createState() => _FilterModalState();
 }
 
-class _FilterModalState extends State<FilterModal> {
+class _FilterModalState() extends State<FilterModal> {
   DateTime? _tempSelectedDate;
   DrugName? _tempSelectedDrug;
   bool _isDatePickerVisible = false;
@@ -228,9 +220,7 @@ class _FilterModalState extends State<FilterModal> {
         ),
       ),
       children: months
-          .map(
-            (month) => Center(child: Text(month, style: EText.body.medium)),
-          )
+          .map((month) => Center(child: Text(month, style: EText.body.medium)))
           .toList(),
     );
   }

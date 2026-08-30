@@ -11,20 +11,16 @@ import 'package:health_notes/widgets/health_notes_search_field.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-abstract class BaseTrendsScreen extends ConsumerStatefulWidget {
-  final String itemName;
-
-  const BaseTrendsScreen({required this.itemName});
+abstract class const BaseTrendsScreen() extends ConsumerStatefulWidget {
+  String get itemName;
 }
 
-class TrendsSegment {
-  final String title;
-  final List<Widget> content;
+class const TrendsSegment({
+  required final String title,
+  required final List<Widget> content,
+});
 
-  const TrendsSegment({required this.title, required this.content});
-}
-
-abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
+abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>()
     extends ConsumerState<T> {
   String get itemNoun;
 
@@ -89,7 +85,7 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>
 
   @override
   Widget build(BuildContext context) {
-    final healthNotesAsync = ref.watch(healthNotesNotifierProvider);
+    final healthNotesAsync = ref.watch(healthNotesProvider);
 
     return HealthNotesPage(
       title: title,

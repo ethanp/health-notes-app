@@ -3,11 +3,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
-class MonthlyNotesChart extends StatelessWidget {
-  final Map<String, int> monthlyStats;
-
-  const MonthlyNotesChart({required this.monthlyStats});
-
+class const MonthlyNotesChart({required final Map<String, int> monthlyStats})
+    extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sortedMonths = monthlyStats.entries.toList()

@@ -5,19 +5,12 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class HealthNotesActivityCalendar extends StatelessWidget {
-  final List<HealthNote> notes;
-  final void Function(DateTime date) onDateTap;
-  final double? gridHeight;
-  final bool scrollToEnd;
-
-  const HealthNotesActivityCalendar({
-    required this.notes,
-    required this.onDateTap,
-    this.gridHeight,
-    this.scrollToEnd = false,
-  });
-
+class const HealthNotesActivityCalendar({
+  required final List<HealthNote> notes,
+  required final void Function(DateTime date) onDateTap,
+  final double? gridHeight,
+  final bool scrollToEnd = false,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final activityData = activityDataForNotes(notes);

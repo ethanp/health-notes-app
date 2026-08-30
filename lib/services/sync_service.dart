@@ -17,10 +17,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 const _logger = ELogger('SyncService');
 
 /// Service responsible for syncing local data with Supabase
-class SyncService {
+class SyncService._internal() {
   static final SyncService _instance = SyncService._internal();
-  factory SyncService() => _instance;
-  SyncService._internal();
+  factory() => _instance;
 
   final _syncStatusController = StreamController<bool>.broadcast();
   final _syncErrorController = StreamController<String?>.broadcast();

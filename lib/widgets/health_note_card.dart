@@ -8,12 +8,10 @@ import 'package:health_notes/widgets/app_filter_chip.dart';
 import 'package:health_notes/widgets/note_summary_rows.dart';
 
 /// Health note card for displaying in lists
-class HealthNoteCard extends StatelessWidget {
-  final HealthNote note;
-  final VoidCallback onTap;
-
-  const HealthNoteCard({required this.note, required this.onTap});
-
+class const HealthNoteCard({
+  required final HealthNote note,
+  required final VoidCallback onTap,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoButton(
@@ -76,17 +74,11 @@ class HealthNoteCard extends StatelessWidget {
 }
 
 /// Filter chip for note filtering
-class FilterChip extends StatelessWidget {
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  const FilterChip({
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
-
+class const FilterChip({
+  required final String label,
+  required final bool isActive,
+  required final VoidCallback onTap,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppFilterChip(label: label, isActive: isActive, onTap: onTap);

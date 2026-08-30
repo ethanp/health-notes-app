@@ -13,33 +13,20 @@ import 'package:health_notes/widgets/medication_schedule/due_dose_chip.dart';
 import 'package:health_notes/widgets/medication_suggestion_chips.dart';
 import 'package:health_notes/widgets/note_summary_rows.dart';
 
-class MedicationsSection extends StatelessWidget {
-  final bool isEditable;
-  final List<DrugDose> drugDoses;
-  final Map<int, DrugDoseControllers> controllers;
-  final VoidCallback onAdd;
-  final Function(int) onRemove;
-  final Function(int, {DrugName? name, double? dosage, String? unit}) onUpdate;
-  final List<ScheduledDoseOccurrence> dueOccurrences;
-  final ScheduledDoseOccurrence? nearestDue;
-  final ValueChanged<ScheduledDoseOccurrence>? onDueActivated;
-  final VoidCallback? onManageSchedules;
-  final bool hasSchedules;
-
-  const MedicationsSection({
-    required this.isEditable,
-    required this.drugDoses,
-    required this.controllers,
-    required this.onAdd,
-    required this.onRemove,
-    required this.onUpdate,
-    this.dueOccurrences = const [],
-    this.nearestDue,
-    this.onDueActivated,
-    this.onManageSchedules,
-    this.hasSchedules = false,
-  });
-
+class const MedicationsSection({
+  required final bool isEditable,
+  required final List<DrugDose> drugDoses,
+  required final Map<int, DrugDoseControllers> controllers,
+  required final VoidCallback onAdd,
+  required final Function(int) onRemove,
+  required final Function(int, {DrugName? name, double? dosage, String? unit})
+  onUpdate,
+  final List<ScheduledDoseOccurrence> dueOccurrences = const [],
+  final ScheduledDoseOccurrence? nearestDue,
+  final ValueChanged<ScheduledDoseOccurrence>? onDueActivated,
+  final VoidCallback? onManageSchedules,
+  final bool hasSchedules = false,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -123,7 +110,8 @@ class MedicationsSection extends StatelessWidget {
           children: dueOccurrences.mapL(
             (occurrence) => DueDoseChip(
               occurrence: occurrence,
-              isNearest: nearestDue?.scheduledDoseId == occurrence.scheduledDoseId &&
+              isNearest:
+                  nearestDue?.scheduledDoseId == occurrence.scheduledDoseId &&
                   nearestDue?.scheduleId == occurrence.scheduleId,
               onActivated: () => onDueActivated?.call(occurrence),
             ),
@@ -206,9 +194,7 @@ class MedicationsSection extends StatelessWidget {
       unit: recommendation.unit,
     );
     controllers[index]?.name.text = recommendation.name.display;
-    controllers[index]?.dosage.text = formatDecimalValue(
-      recommendation.dosage,
-    );
+    controllers[index]?.dosage.text = formatDecimalValue(recommendation.dosage);
     controllers[index]?.unit.text = recommendation.unit;
   }
 

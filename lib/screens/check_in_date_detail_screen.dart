@@ -8,21 +8,16 @@ import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/utils/date_utils.dart';
 
-class CheckInDateDetailScreen extends StatefulWidget {
-  final DateTime date;
-  final List<CheckIn> allCheckIns;
-
-  const CheckInDateDetailScreen({
-    required this.date,
-    required this.allCheckIns,
-  });
-
+class const CheckInDateDetailScreen({
+  required final DateTime date,
+  required final List<CheckIn> allCheckIns,
+}) extends StatefulWidget {
   @override
   State<CheckInDateDetailScreen> createState() =>
       _CheckInDateDetailScreenState();
 }
 
-class _CheckInDateDetailScreenState extends State<CheckInDateDetailScreen> {
+class _CheckInDateDetailScreenState() extends State<CheckInDateDetailScreen> {
   late final ScrollController scrollController;
   late final List<CheckIn> checkInsForDate;
 

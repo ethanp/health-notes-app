@@ -5,7 +5,7 @@ import 'package:health_notes/models/medication_schedule.dart';
 import 'package:health_notes/services/local_database.dart';
 import 'package:sqflite/sqflite.dart';
 
-class MedicationSchedulesDao {
+class MedicationSchedulesDao() {
   static const String _tableName = 'medication_schedules';
 
   static Future<List<MedicationSchedule>> getAllSchedules(String userId) async {

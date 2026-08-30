@@ -25,7 +25,9 @@ void main() {
           additionalNotes: '',
         ),
       ],
-      drugDoses: const [DrugDose(name: DrugName('Ibuprofen'), dosage: 200, unit: 'mg')],
+      drugDoses: const [
+        DrugDose(name: DrugName('Ibuprofen'), dosage: 200, unit: 'mg'),
+      ],
       appliedTools: const [
         AppliedTool(toolId: 't1', toolName: 'Breathing', note: '5m'),
       ],

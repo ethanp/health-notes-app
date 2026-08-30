@@ -9,23 +9,14 @@ import 'package:health_notes/widgets/form_section_container.dart';
 import 'package:health_notes/widgets/note_summary_rows.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class AppliedToolsSection extends StatelessWidget {
-  final bool isEditable;
-  final List<AppliedTool> appliedTools;
-  final Map<int, TextEditingController> noteControllers;
-  final Function(HealthTool) onAdd;
-  final Function(int) onRemove;
-  final Function(int, String) onUpdateNote;
-
-  const AppliedToolsSection({
-    required this.isEditable,
-    required this.appliedTools,
-    required this.noteControllers,
-    required this.onAdd,
-    required this.onRemove,
-    required this.onUpdateNote,
-  });
-
+class const AppliedToolsSection({
+  required final bool isEditable,
+  required final List<AppliedTool> appliedTools,
+  required final Map<int, TextEditingController> noteControllers,
+  required final Function(HealthTool) onAdd,
+  required final Function(int) onRemove,
+  required final Function(int, String) onUpdateNote,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FormSectionContainer(
@@ -91,10 +82,7 @@ class AppliedToolsSection extends StatelessWidget {
               CupertinoButton(
                 padding: EdgeInsets.zero,
                 onPressed: () => onRemove(index),
-                child: const Icon(
-                  CupertinoIcons.delete,
-                  color: EColors.danger,
-                ),
+                child: const Icon(CupertinoIcons.delete, color: EColors.danger),
               ),
             ],
           ),

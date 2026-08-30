@@ -4,17 +4,11 @@ import 'package:health_notes/widgets/accent_border_card.dart';
 import 'package:health_notes/widgets/form_section_container.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class GeneralNotesSection extends StatelessWidget {
-  final bool isEditable;
-  final TextEditingController? notesController;
-  final Function(String)? onNotesChanged;
-
-  const GeneralNotesSection({
-    required this.isEditable,
-    this.notesController,
-    this.onNotesChanged,
-  });
-
+class const GeneralNotesSection({
+  required final bool isEditable,
+  final TextEditingController? notesController,
+  final Function(String)? onNotesChanged,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FormSectionContainer(

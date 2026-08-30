@@ -5,28 +5,20 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class AnimatedWelcomeCard extends StatefulWidget {
-  final String title;
-  final String message;
-  final IconData icon;
-  final Color? iconColor;
-  final Widget? action;
-  final bool showAnimation;
-
-  const AnimatedWelcomeCard({
-    required this.title,
-    required this.message,
-    required this.icon,
-    this.iconColor,
-    this.action,
-    this.showAnimation = true,
-  });
-
+class const AnimatedWelcomeCard({
+  required final String title,
+  required final String message,
+  required final IconData icon,
+  final Color? iconColor,
+  final Widget? action,
+  final bool showAnimation = true,
+}) extends StatefulWidget {
   @override
   State<AnimatedWelcomeCard> createState() => _AnimatedWelcomeCardState();
 }
 
-class _AnimatedWelcomeCardState extends State<AnimatedWelcomeCard>
+class _AnimatedWelcomeCardState()
+    extends State<AnimatedWelcomeCard>
     with TickerProviderStateMixin {
   late AnimationController _pulseController;
   late AnimationController _floatController;
@@ -143,26 +135,19 @@ class _AnimatedWelcomeCardState extends State<AnimatedWelcomeCard>
   }
 }
 
-class AnimatedProgressCard extends StatefulWidget {
-  final String title;
-  final String message;
-  final double progress;
-  final Color? progressColor;
-  final IconData? icon;
-
-  const AnimatedProgressCard({
-    required this.title,
-    required this.message,
-    required this.progress,
-    this.progressColor,
-    this.icon,
-  });
-
+class const AnimatedProgressCard({
+  required final String title,
+  required final String message,
+  required final double progress,
+  final Color? progressColor,
+  final IconData? icon,
+}) extends StatefulWidget {
   @override
   State<AnimatedProgressCard> createState() => _AnimatedProgressCardState();
 }
 
-class _AnimatedProgressCardState extends State<AnimatedProgressCard>
+class _AnimatedProgressCardState()
+    extends State<AnimatedProgressCard>
     with TickerProviderStateMixin {
   late AnimationController _progressController;
   late Animation<double> _progressAnimation;

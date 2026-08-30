@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-abstract final class ActivityCalendarColors {
+abstract final class ActivityCalendarColors() {
   static const none = Color(0xFFE8F5E8);
   static const light = Color(0xFFC8E6C9);
   static const medium = Color(0xFFA5D6A7);

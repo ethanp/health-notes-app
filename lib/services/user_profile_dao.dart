@@ -3,7 +3,7 @@ import 'package:health_notes/models/user_profile.dart';
 import 'package:health_notes/services/local_database.dart';
 
 /// Data Access Object for User Profile
-class UserProfileDao {
+class UserProfileDao() {
   static const String _tableName = 'user_profiles';
 
   /// Get user profile by ID

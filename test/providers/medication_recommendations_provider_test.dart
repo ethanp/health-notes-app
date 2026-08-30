@@ -30,42 +30,37 @@ HealthNote createNote(DateTime date, List<DrugDose> doses) {
 }
 
 void main() {
-  test(
-    'MedicationRecommendationsProvider returns correct recent and common recommendations',
-    () async {
-      final container = ProviderContainer(
-        overrides: [
-          healthNotesNotifierProvider.overrideWith(
-            () => HealthNotesNotifierMock(),
-          ),
-        ],
-      );
+  test('MedicationRecommendationsProvider returns correct recent and common recommendations', () async {
+    final container = ProviderContainer(
+      overrides: [
+        healthNotesProvider.overrideWith(() => HealthNotesNotifierMock()),
+      ],
+    );
 
-      final catalog = await container.read(
-        medicationRecommendationsProvider.future,
-      );
+    final catalog = await container.read(
+      medicationRecommendationsProvider.future,
+    );
 
-      expect(catalog.recent.length, 5);
-      expect(catalog.recent[0].name, const DrugName('Meds A'));
-      expect(catalog.recent[1].name, const DrugName('Meds B'));
-      expect(catalog.recent[2].name, const DrugName('Meds C'));
-      expect(catalog.recent[3].name, const DrugName('Meds D'));
-      expect(catalog.recent[4].name, const DrugName('Meds E'));
+    expect(catalog.recent.length, 5);
+    expect(catalog.recent[0].name, const DrugName('Meds A'));
+    expect(catalog.recent[1].name, const DrugName('Meds B'));
+    expect(catalog.recent[2].name, const DrugName('Meds C'));
+    expect(catalog.recent[3].name, const DrugName('Meds D'));
+    expect(catalog.recent[4].name, const DrugName('Meds E'));
 
-      expect(catalog.common.length, 5);
-      expect(catalog.common.first.name, const DrugName('Meds A'));
+    expect(catalog.common.length, 5);
+    expect(catalog.common.first.name, const DrugName('Meds A'));
 
-      expect(catalog.allKnown.length, 6);
-      expect(catalog.allKnown.map((dose) => dose.name).toSet(), {
-        const DrugName('Meds A'),
-        const DrugName('Meds B'),
-        const DrugName('Meds C'),
-        const DrugName('Meds D'),
-        const DrugName('Meds E'),
-        const DrugName('Meds F'),
-      });
-    },
-  );
+    expect(catalog.allKnown.length, 6);
+    expect(catalog.allKnown.map((dose) => dose.name).toSet(), {
+      const DrugName('Meds A'),
+      const DrugName('Meds B'),
+      const DrugName('Meds C'),
+      const DrugName('Meds D'),
+      const DrugName('Meds E'),
+      const DrugName('Meds F'),
+    });
+  });
 
   test('matchingDoses narrows to prefix matches', () {
     final allKnown = [doseA, doseB, doseC, doseD, doseE, doseF];
@@ -101,10 +96,7 @@ void main() {
     expect(
       catalog.matchingNames(
         'meds',
-        additionalNames: [
-          const DrugName('Meds A'),
-          const DrugName('Meds G'),
-        ],
+        additionalNames: [const DrugName('Meds A'), const DrugName('Meds G')],
       ),
       [
         const DrugName('Meds A'),
@@ -122,10 +114,7 @@ void main() {
     );
 
     expect(
-      catalog.matchingNames(
-        '',
-        additionalNames: [const DrugName('Meds G')],
-      ),
+      catalog.matchingNames('', additionalNames: [const DrugName('Meds G')]),
       [
         const DrugName('Meds A'),
         const DrugName('Meds B'),
@@ -177,7 +166,7 @@ void main() {
   });
 }
 
-class HealthNotesNotifierMock extends HealthNotesNotifier {
+class HealthNotesNotifierMock() extends HealthNotesNotifier {
   @override
   Future<List<HealthNote>> build() async {
     return [

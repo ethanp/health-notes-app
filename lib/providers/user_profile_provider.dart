@@ -7,7 +7,7 @@ import 'package:health_notes/utils/data_utils.dart';
 part 'user_profile_provider.g.dart';
 
 @riverpod
-class UserProfileNotifier extends _$UserProfileNotifier {
+class UserProfileNotifier() extends _$UserProfileNotifier {
   @override
   Future<UserProfile?> build() async {
     final user = await ref.watch(currentUserProvider.future);

@@ -1,11 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-class DrugName implements Comparable<DrugName> {
-  const DrugName(this.display);
-
+class const DrugName(final String display) implements Comparable<DrugName> {
   static const empty = DrugName('');
-
-  final String display;
 
   String get identity => display.trim().toLowerCase();
 
@@ -21,7 +17,7 @@ class DrugName implements Comparable<DrugName> {
     return identity.startsWith(prefix);
   }
 
-  factory DrugName.fromJson(String json) => DrugName(json);
+  factory fromJson(String json) => DrugName(json);
 
   String toJson() => display;
 
@@ -65,8 +61,7 @@ class DrugName implements Comparable<DrugName> {
   }
 
   @override
-  int compareTo(DrugName other) =>
-      identity.compareTo(other.identity);
+  int compareTo(DrugName other) => identity.compareTo(other.identity);
 
   @override
   bool operator ==(Object other) =>
@@ -79,9 +74,7 @@ class DrugName implements Comparable<DrugName> {
   String toString() => display;
 }
 
-class DrugNameConverter implements JsonConverter<DrugName, String> {
-  const DrugNameConverter();
-
+class const DrugNameConverter() implements JsonConverter<DrugName, String> {
   @override
   DrugName fromJson(String json) => DrugName(json);
 

@@ -9,27 +9,19 @@ import 'package:health_notes/widgets/color_picker_grid.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class HealthToolCategoryForm extends ConsumerStatefulWidget {
-  final HealthToolCategory? category;
-  final String title;
-  final String saveButtonText;
-  final Function()? onCancel;
-  final Function()? onSuccess;
-
-  const HealthToolCategoryForm({
-    this.category,
-    required this.title,
-    required this.saveButtonText,
-    this.onCancel,
-    this.onSuccess,
-  });
-
+class const HealthToolCategoryForm({
+  final HealthToolCategory? category,
+  required final String title,
+  required final String saveButtonText,
+  final Function()? onCancel,
+  final Function()? onSuccess,
+}) extends ConsumerStatefulWidget {
   @override
   ConsumerState<HealthToolCategoryForm> createState() =>
       _HealthToolCategoryFormState();
 }
 
-class _HealthToolCategoryFormState
+class _HealthToolCategoryFormState()
     extends ConsumerState<HealthToolCategoryForm> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
@@ -179,22 +171,16 @@ class _HealthToolCategoryFormState
               vertical: AppSpacing.s,
             ),
             decoration: BoxDecoration(
-              color: isSelected
-                  ? EColors.accent
-                  : EColors.surface,
+              color: isSelected ? EColors.accent : EColors.surface,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isSelected
-                    ? EColors.accent
-                    : EColors.surface,
+                color: isSelected ? EColors.accent : EColors.surface,
               ),
             ),
             child: Text(
               icon['name']!,
               style: EText.body.small.copyWith(
-                color: isSelected
-                    ? CupertinoColors.white
-                    : EColors.textPrimary,
+                color: isSelected ? CupertinoColors.white : EColors.textPrimary,
               ),
             ),
           ),
@@ -250,11 +236,11 @@ class _HealthToolCategoryFormState
 
       if (widget.category != null) {
         await ref
-            .read(healthToolCategoriesNotifierProvider.notifier)
+            .read(healthToolCategoriesProvider.notifier)
             .updateCategory(category);
       } else {
         await ref
-            .read(healthToolCategoriesNotifierProvider.notifier)
+            .read(healthToolCategoriesProvider.notifier)
             .addCategory(category);
       }
 

@@ -7,12 +7,10 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/date_utils.dart';
 
-class ToolNoteCard extends StatelessWidget {
-  final HealthNote note;
-  final String toolId;
-
-  const ToolNoteCard({required this.note, required this.toolId});
-
+class const ToolNoteCard({
+  required final HealthNote note,
+  required final String toolId,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appliedTool = note.appliedTools.firstWhere(

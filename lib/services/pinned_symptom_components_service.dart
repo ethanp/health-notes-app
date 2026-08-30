@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:health_notes/models/pinned_symptom_components.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class PinnedSymptomComponentsService {
+class PinnedSymptomComponentsService() {
   static const _storageKey = 'pinned_symptom_components';
 
   static Future<PinnedSymptomComponents> load() async {

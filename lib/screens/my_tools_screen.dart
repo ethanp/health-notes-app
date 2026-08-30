@@ -13,17 +13,15 @@ import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 
-class MyToolsScreen extends ConsumerStatefulWidget {
-  const MyToolsScreen();
-
+class const MyToolsScreen() extends ConsumerStatefulWidget {
   @override
   ConsumerState<MyToolsScreen> createState() => _MyToolsScreenState();
 }
 
-class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
+class _MyToolsScreenState() extends ConsumerState<MyToolsScreen> {
   @override
   Widget build(BuildContext context) {
-    final categoriesAsync = ref.watch(healthToolCategoriesNotifierProvider);
+    final categoriesAsync = ref.watch(healthToolCategoriesProvider);
 
     return HealthNotesPage(
       title: 'Tools',
@@ -63,7 +61,7 @@ class _MyToolsScreenState extends ConsumerState<MyToolsScreen> {
   Widget categoriesList(List<HealthToolCategory> categories) {
     return RefreshableListView<HealthToolCategory>(
       onReloadRequested: () async {
-        await ref.read(healthToolCategoriesNotifierProvider.notifier).refresh();
+        await ref.read(healthToolCategoriesProvider.notifier).refresh();
       },
       items: categories,
       itemBuilder: (category) => categoryCard(category),

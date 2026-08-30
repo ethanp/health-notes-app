@@ -11,7 +11,11 @@ import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/log_out_button.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 
-enum LibrarySlot {
+enum LibrarySlot({
+  required final String label,
+  required final IconData icon,
+  required final String subtitle,
+}) {
   conditions(
     label: 'Conditions',
     icon: Icons.healing_outlined,
@@ -28,16 +32,6 @@ enum LibrarySlot {
     subtitle: 'Practices you apply on a note',
   );
 
-  const LibrarySlot({
-    required this.label,
-    required this.icon,
-    required this.subtitle,
-  });
-
-  final String label;
-  final IconData icon;
-  final String subtitle;
-
   Widget get screen => switch (this) {
     conditions => const ConditionsScreen(),
     schedules => const MedicationSchedulesScreen(),
@@ -45,9 +39,7 @@ enum LibrarySlot {
   };
 }
 
-class LibraryScreen extends ConsumerWidget {
-  const LibraryScreen();
-
+class const LibraryScreen() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return EScaffoldShell(
@@ -58,7 +50,7 @@ class LibraryScreen extends ConsumerWidget {
         actions: [CompactSyncStatusWidget()],
       ),
       body: RefreshIndicator(
-        onRefresh: () => ref.read(syncNotifierProvider.notifier).syncAllData(),
+        onRefresh: () => ref.read(syncProvider.notifier).syncAllData(),
         child: ListView.separated(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(AppSpacing.m),
@@ -77,12 +69,10 @@ class LibraryScreen extends ConsumerWidget {
   }
 }
 
-class _LibrarySlotRow extends StatelessWidget {
-  const _LibrarySlotRow({required this.slot, required this.onActivated});
-
-  final LibrarySlot slot;
-  final VoidCallback onActivated;
-
+class const _LibrarySlotRow({
+  required final LibrarySlot slot,
+  required final VoidCallback onActivated,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(

@@ -4,7 +4,7 @@ import 'package:health_notes/services/text_normalizer.dart';
 import 'package:sqflite/sqflite.dart';
 
 /// Data Access Object for Check-In Metrics
-class CheckInMetricsDao {
+class CheckInMetricsDao() {
   static const String _tableName = 'check_in_metrics';
 
   static Future<List<CheckInMetric>> getCheckInMetrics(String userId) async {

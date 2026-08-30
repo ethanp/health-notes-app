@@ -7,9 +7,7 @@ import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 
 /// Compact sync status indicator for app bars
-class CompactSyncStatusWidget extends ConsumerWidget {
-  const CompactSyncStatusWidget();
-
+class const CompactSyncStatusWidget() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (!ref.watch(connectivityStatusProvider)) {
@@ -19,7 +17,7 @@ class CompactSyncStatusWidget extends ConsumerWidget {
         color: CupertinoColors.systemRed,
       );
     }
-    if (ref.watch(syncNotifierProvider)) {
+    if (ref.watch(syncProvider)) {
       return const CupertinoActivityIndicator(radius: 8);
     }
 
@@ -65,7 +63,12 @@ class CompactSyncStatusWidget extends ConsumerWidget {
   }
 }
 
-enum SyncStatusType { loading, syncing, section, error }
+enum SyncStatusType() {
+  loading,
+  syncing,
+  section,
+  error,
+}
 
 /// Unified sync status widget for consistent loading and sync states across the app
 class SyncStatusWidget extends ConsumerWidget {
@@ -75,27 +78,24 @@ class SyncStatusWidget extends ConsumerWidget {
   final VoidCallback? onRetry;
   final Widget? child;
 
-  const SyncStatusWidget.loading({this.message, this.child})
+  const new loading({this.message, this.child})
     : type = SyncStatusType.loading,
       errorMessage = null,
       onRetry = null;
 
-  const SyncStatusWidget.syncing({this.message, this.child})
+  const new syncing({this.message, this.child})
     : type = SyncStatusType.syncing,
       errorMessage = null,
       onRetry = null;
 
-  const SyncStatusWidget.section({this.message, this.child})
+  const new section({this.message, this.child})
     : type = SyncStatusType.section,
       errorMessage = null,
       onRetry = null;
 
-  const SyncStatusWidget.error({
-    required this.errorMessage,
-    this.onRetry,
-    this.child,
-  }) : type = SyncStatusType.error,
-       message = null;
+  const new error({required this.errorMessage, this.onRetry, this.child})
+    : type = SyncStatusType.error,
+      message = null;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -149,7 +149,7 @@ class SyncStatusWidget extends ConsumerWidget {
 
   Widget _buildSyncingState(WidgetRef ref) {
     final isConnected = ref.watch(connectivityStatusProvider);
-    final isSyncing = ref.watch(syncNotifierProvider);
+    final isSyncing = ref.watch(syncProvider);
 
     return StreamBuilder<String?>(
       stream: OfflineRepository.syncErrorStream,

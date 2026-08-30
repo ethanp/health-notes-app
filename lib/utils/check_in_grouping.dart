@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 
 /// Groups check-ins that are within 10 minutes of each other
-class CheckInGrouping {
+class CheckInGrouping() {
   static const int _groupingThresholdMinutes = 10;
 
   /// Groups check-ins by time proximity
@@ -52,11 +52,11 @@ class CheckInGrouping {
 }
 
 /// Represents a group of check-ins that occurred within the same time period
-class CheckInGroup {
-  final List<CheckIn> checkIns;
-  final int totalMetricsCount;
-
-  CheckInGroup({required this.checkIns, required this.totalMetricsCount}) {
+class CheckInGroup({
+  required final List<CheckIn> checkIns,
+  required final int totalMetricsCount,
+}) {
+  this {
     checkIns.sort((a, b) => a.metricName.compareTo(b.metricName));
   }
 

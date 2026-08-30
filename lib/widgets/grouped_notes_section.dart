@@ -5,17 +5,11 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/utils/date_utils.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class GroupedNotesSection extends StatelessWidget {
-  final List<HealthNote> notes;
-  final List<Widget> Function(List<HealthNote> notes) cardBuilder;
-  final Widget? header;
-
-  const GroupedNotesSection({
-    required this.notes,
-    required this.cardBuilder,
-    this.header,
-  });
-
+class const GroupedNotesSection({
+  required final List<HealthNote> notes,
+  required final List<Widget> Function(List<HealthNote> notes) cardBuilder,
+  final Widget? header,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (notes.isEmpty) return const _EmptyState();
@@ -51,16 +45,13 @@ class GroupedNotesSection extends StatelessWidget {
     return grouped;
   }
 
-  Widget _dateHeader(DateTime date, int count) =>
-      ESectionHeader(
-        title: AppDateUtils.formatShortDate(date),
-        subtitle: '$count note${count == 1 ? '' : 's'}',
-      );
+  Widget _dateHeader(DateTime date, int count) => ESectionHeader(
+    title: AppDateUtils.formatShortDate(date),
+    subtitle: '$count note${count == 1 ? '' : 's'}',
+  );
 }
 
-class _EmptyState extends StatelessWidget {
-  const _EmptyState();
-
+class const _EmptyState() extends StatelessWidget {
   @override
   Widget build(BuildContext context) => EEmptyState(
     title: 'No matching notes',

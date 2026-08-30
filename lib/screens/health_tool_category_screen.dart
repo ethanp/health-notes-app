@@ -13,17 +13,15 @@ import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/widgets/refreshable_list_view.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class HealthToolCategoryScreen extends ConsumerStatefulWidget {
-  final HealthToolCategory category;
-
-  const HealthToolCategoryScreen({required this.category});
-
+class const HealthToolCategoryScreen({
+  required final HealthToolCategory category,
+}) extends ConsumerStatefulWidget {
   @override
   ConsumerState<HealthToolCategoryScreen> createState() =>
       _HealthToolCategoryScreenState();
 }
 
-class _HealthToolCategoryScreenState
+class _HealthToolCategoryScreenState()
     extends ConsumerState<HealthToolCategoryScreen> {
   @override
   Widget build(BuildContext context) {
@@ -56,9 +54,7 @@ class _HealthToolCategoryScreenState
       margin: const EdgeInsets.all(AppSpacing.m),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(widget.category.description, style: EText.body.medium),
-        ],
+        children: [Text(widget.category.description, style: EText.body.medium)],
       ),
     );
   }
@@ -66,8 +62,7 @@ class _HealthToolCategoryScreenState
   Widget toolsListSection(AsyncValue<List<HealthTool>> toolsAsync) {
     return toolsAsync.when(
       data: (tools) => tools.isEmpty ? emptyState() : toolsList(tools),
-      loading: () =>
-          ELoadingState(message: 'Loading tools...'),
+      loading: () => ELoadingState(message: 'Loading tools...'),
       error: (error, stack) =>
           Center(child: Text('Error: $error', style: EText.error)),
     );
@@ -89,7 +84,7 @@ class _HealthToolCategoryScreenState
   Widget toolsList(List<HealthTool> tools) {
     return RefreshableListView<HealthTool>(
       onReloadRequested: () async {
-        await ref.read(healthToolsNotifierProvider.notifier).refresh();
+        await ref.read(healthToolsProvider.notifier).refresh();
       },
       items: tools,
       itemBuilder: (tool) => toolCard(tool),
@@ -201,7 +196,7 @@ class _HealthToolCategoryScreenState
 
   Future<void> _deleteTool(HealthTool tool) async {
     try {
-      await ref.read(healthToolsNotifierProvider.notifier).deleteTool(tool.id);
+      await ref.read(healthToolsProvider.notifier).deleteTool(tool.id);
       if (mounted) {
         showCupertinoDialog(
           context: context,

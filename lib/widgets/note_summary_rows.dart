@@ -16,11 +16,8 @@ import 'package:health_notes/widgets/status_tint_chip.dart';
 
 /// Shared left-accent row for a single symptom, used in note lists and the
 /// health note detail view.
-class SymptomSummaryRow extends ConsumerWidget {
-  final Symptom symptom;
-
-  const SymptomSummaryRow({required this.symptom});
-
+class const SymptomSummaryRow({required final Symptom symptom})
+    extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final severityColor = SeverityUtils.colorForSeverity(symptom.severityLevel);
@@ -92,11 +89,8 @@ class SymptomSummaryRow extends ConsumerWidget {
 }
 
 /// Shared left-accent row for a single medication dose.
-class MedicationSummaryRow extends StatelessWidget {
-  final DrugDose dose;
-
-  const MedicationSummaryRow({required this.dose});
-
+class const MedicationSummaryRow({required final DrugDose dose})
+    extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AccentBorderCard(
@@ -116,10 +110,7 @@ class MedicationSummaryRow extends StatelessWidget {
           ),
           if (dose.dosage > 0) ...[
             HSpace.s,
-            StatusTintChip(
-              text: dose.displayDosage,
-              color: EColors.accentGlow,
-            ),
+            StatusTintChip(text: dose.displayDosage, color: EColors.accentGlow),
           ],
         ],
       ),
@@ -128,11 +119,8 @@ class MedicationSummaryRow extends StatelessWidget {
 }
 
 /// Shared left-accent row for a single applied tool.
-class AppliedToolSummaryRow extends StatelessWidget {
-  final AppliedTool appliedTool;
-
-  const AppliedToolSummaryRow({required this.appliedTool});
-
+class const AppliedToolSummaryRow({required final AppliedTool appliedTool})
+    extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AccentBorderCard(

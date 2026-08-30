@@ -1,5 +1,4 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:riverpod/riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/grouped_health_notes.dart';
 import 'package:health_notes/models/drug_dose.dart';
@@ -15,7 +14,7 @@ import 'package:intl/intl.dart';
 part 'health_notes_provider.g.dart';
 
 @riverpod
-class HealthNotesNotifier extends _$HealthNotesNotifier {
+class HealthNotesNotifier() extends _$HealthNotesNotifier {
   @override
   Future<List<HealthNote>> build() async {
     final user = await ref.watch(currentUserProvider.future);
@@ -131,7 +130,7 @@ class HealthNotesNotifier extends _$HealthNotesNotifier {
 
 @riverpod
 Future<List<GroupedHealthNotes>> groupedHealthNotes(Ref ref) async {
-  final notes = await ref.watch(healthNotesNotifierProvider.future);
-  final notifier = ref.read(healthNotesNotifierProvider.notifier);
+  final notes = await ref.watch(healthNotesProvider.future);
+  final notifier = ref.read(healthNotesProvider.notifier);
   return notifier._groupNotesByDate(notes);
 }

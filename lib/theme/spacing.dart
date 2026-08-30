@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
-class VSpace {
+class VSpace() {
   static const xs = SizedBox(height: AppSpacing.xs);
   static const s = SizedBox(height: AppSpacing.s);
   static const sm = SizedBox(height: AppSpacing.sm);
@@ -12,7 +12,7 @@ class VSpace {
   static SizedBox of(double height) => SizedBox(height: height);
 }
 
-class HSpace {
+class HSpace() {
   static const xs = SizedBox(width: AppSpacing.xs);
   static const s = SizedBox(width: AppSpacing.s);
   static const sm = SizedBox(width: AppSpacing.sm);
