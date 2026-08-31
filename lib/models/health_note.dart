@@ -66,10 +66,10 @@ abstract class HealthNote with _$HealthNote {
   bool matchesSearch(String searchQuery) {
     if (searchQuery.trim().isEmpty) return true;
 
-    final queryWords = _processSearchText(searchQuery);
+    final queryWords = _lowercaseStemmedWords(searchQuery);
     if (queryWords.isEmpty) return true;
 
-    final noteText = _processSearchText(_searchableText).join(' ');
+    final noteText = _lowercaseStemmedWords(_searchableText).join(' ');
     return queryWords.every((queryWord) => noteText.contains(queryWord));
   }
 
@@ -81,7 +81,7 @@ abstract class HealthNote with _$HealthNote {
 
   static final PorterStemmer _stemmer = PorterStemmer();
 
-  static List<String> _processSearchText(String text) => text
+  static List<String> _lowercaseStemmedWords(String text) => text
       .toLowerCase()
       .split(RegExp(r'\s+'))
       .map((word) => word.trim())

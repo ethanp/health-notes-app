@@ -52,7 +52,7 @@ class SymptomComponentIndex({
   }
 
   int getDefaultSeverity(String majorName, String minorName) {
-    final key = SymptomNormalizer.generateKey(majorName, minorName);
+    final key = SymptomNormalizer.pipeJoinedNormalizedPair(majorName, minorName);
     return _pairSeverities[key] ?? 5;
   }
 
@@ -61,7 +61,7 @@ class SymptomComponentIndex({
     String minorName,
     Set<String> activeConditionIds,
   ) {
-    final key = SymptomNormalizer.generateKey(majorName, minorName);
+    final key = SymptomNormalizer.pipeJoinedNormalizedPair(majorName, minorName);
     final conditionId = _pairConditions[key];
     if (conditionId != null && activeConditionIds.contains(conditionId)) {
       return conditionId;

@@ -13,7 +13,7 @@ class const HealthNotesActivityCalendar({
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final activityData = activityDataForNotes(notes);
+    final activityData = noteCountByDay(notes);
     final maxCount = activityData.values.isEmpty
         ? 0
         : activityData.values.reduce((a, b) => a > b ? a : b);
@@ -22,8 +22,11 @@ class const HealthNotesActivityCalendar({
       title: 'Note Activity',
       subtitle: 'Number shows notes recorded each day',
       activityData: activityData,
-      colorCalculator: (count) =>
-          CheckInsActivityCalendar.checkInsColor(count, maxCount),
+      colorForActivity: (count) =>
+          CheckInsActivityCalendar.countRelativeToMaxAsAccentAlpha(
+            count,
+            maxCount,
+          ),
       legendBuilder: () => noteActivityLegend(maxCount),
       onDateTap: (context, date, count) => onDateTap(date),
       activityDescriptor: (count) =>
@@ -34,7 +37,7 @@ class const HealthNotesActivityCalendar({
     );
   }
 
-  static Map<DateTime, int> activityDataForNotes(List<HealthNote> notes) {
+  static Map<DateTime, int> noteCountByDay(List<HealthNote> notes) {
     final data = <DateTime, int>{};
 
     for (final note in notes) {
@@ -50,7 +53,7 @@ class const HealthNotesActivityCalendar({
       children: [
         Text('Less', style: EText.body.small.muted),
         HSpace.s,
-        ...intensityGradientSquares(),
+        ...fiveStepAccentAlphaSquares(),
         HSpace.s,
         Text('More', style: EText.body.small.muted),
         const Spacer(),

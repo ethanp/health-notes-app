@@ -60,7 +60,7 @@ class SymptomComponentService() {
               .update(normalizedMinor, (c) => c + 1, ifAbsent: () => 1);
         }
 
-        final pairKey = SymptomNormalizer.generateKey(major, minor);
+        final pairKey = SymptomNormalizer.pipeJoinedNormalizedPair(major, minor);
         pairSeverities.putIfAbsent(pairKey, () => symptom.severityLevel);
         if (symptom.hasLinkedCondition) {
           pairConditions.putIfAbsent(pairKey, () => symptom.conditionId!);

@@ -111,7 +111,7 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>()
 
     final sortedNotes = NoteFilterUtils.sortByDateDescending(scopedNotes);
     final activityData = buildActivityData(sortedNotes);
-    final filteredNotes = applySearch(sortedNotes);
+    final filteredNotes = newestFirstMatchingQuery(sortedNotes);
 
     final segments = buildSegments(activityData, sortedNotes, filteredNotes);
     final activeIndex = selectedSegmentIndex.clamp(0, segments.length - 1);
@@ -175,7 +175,7 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>()
     );
   }
 
-  List<HealthNote> applySearch(List<HealthNote> notes) {
+  List<HealthNote> newestFirstMatchingQuery(List<HealthNote> notes) {
     if (searchQuery.isEmpty) return notes;
     final filtered = NoteFilterUtils.bySearchQuery(notes, searchQuery);
     return NoteFilterUtils.sortByDateDescending(filtered);

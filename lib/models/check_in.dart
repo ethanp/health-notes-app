@@ -48,10 +48,6 @@ abstract class CheckIn with _$CheckIn {
   IconData getMetricIcon(CheckInMetric? metric) =>
       metric?.icon ?? CupertinoIcons.circle;
 
-  /// Get the rating color based on the metric type (requires CheckInMetric to be passed)
-  Color getRatingColor(CheckInMetric? metric) =>
-      metric?.getRatingColor(rating) ?? CupertinoColors.systemGrey;
-
   Map<String, dynamic> toJsonForUpdate() {
     return {
       'metric_name': metricName,

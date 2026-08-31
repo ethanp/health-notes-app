@@ -3,7 +3,7 @@ import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/utils/date_utils.dart';
+import 'package:health_notes/utils/health_date_format.dart';
 import 'package:health_notes/widgets/app_filter_chip.dart';
 import 'package:health_notes/widgets/note_summary_rows.dart';
 
@@ -34,7 +34,7 @@ class const HealthNoteCard({
     return Align(
       alignment: Alignment.centerLeft,
       child: Text(
-        AppDateUtils.formatTime(note.dateTime),
+        note.dateTime.hourMinuteAmPm,
         style: EText.body.small.muted,
       ),
     );

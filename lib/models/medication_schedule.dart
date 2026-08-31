@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/models/health_note.dart';
-import 'package:health_notes/utils/number_formatter.dart';
+import 'package:health_notes/utils/whole_number_or_trimmed_decimal.dart';
 import 'package:intl/intl.dart';
 
 part 'medication_schedule.freezed.dart';
@@ -62,7 +62,8 @@ abstract class ScheduledDose with _$ScheduledDose {
   factory ScheduledDose.fromJson(Map<String, dynamic> json) =>
       _$ScheduledDoseFromJson(json);
 
-  String amountCaption(String unit) => '${formatDecimalValue(amount)}$unit';
+  String amountCaption(String unit) =>
+      '${amount.wholeNumberOrTrimmedDecimal}$unit';
 
   String timedAmountCaption(String unit) => switch (when) {
     ClockDoseWhen() => '${amountCaption(unit)} at ${when.caption}',

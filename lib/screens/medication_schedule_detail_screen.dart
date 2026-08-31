@@ -7,7 +7,7 @@ import 'package:health_notes/providers/medication_schedules_provider.dart';
 import 'package:health_notes/screens/medication_schedule_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/utils/date_utils.dart';
+import 'package:health_notes/utils/health_date_format.dart';
 import 'package:health_notes/widgets/medication_schedule/schedule_kind_chip.dart';
 import 'package:health_notes/widgets/medication_schedule/schedule_scaffold.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
@@ -152,9 +152,9 @@ class const MedicationScheduleDetailScreen({required final String scheduleId})
   }
 
   String _rangeCaption(_StepDateRange range) {
-    final start = AppDateUtils.formatShortDate(range.start);
+    final start = range.start.monthDayYear;
     if (range.end == null) return 'From $start';
-    return '$start – ${AppDateUtils.formatShortDate(range.end!)}';
+    return '$start – ${range.end!.monthDayYear}';
   }
 
   Future<void> _stopSchedule(

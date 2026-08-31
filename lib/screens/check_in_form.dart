@@ -12,7 +12,7 @@ import 'package:health_notes/providers/conditions_provider.dart';
 import 'package:health_notes/screens/condition_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/data_utils.dart';
-import 'package:health_notes/utils/severity_utils.dart';
+import 'package:health_notes/utils/symptom_severity.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -263,7 +263,7 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
   }
 
   Widget _ratingPill(CheckInMetric metric, int rating) {
-    final ratingColor = metric.type.getRatingColor(rating);
+    final ratingColor = metric.type.improvementColor(rating);
     return SizedBox(
       width: 40,
       child: Center(
@@ -444,7 +444,7 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: SeverityUtils.discreteCupertinoColor(draft.severity),
+                color: SymptomSeverity.fourBucketGreenYellowOrangeRed(draft.severity),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -460,7 +460,7 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
           min: 1,
           max: 10,
           divisions: 9,
-          activeColor: SeverityUtils.discreteCupertinoColor(draft.severity),
+          activeColor: SymptomSeverity.fourBucketGreenYellowOrangeRed(draft.severity),
           onChanged: (value) => setState(() => draft.severity = value.round()),
         ),
       ],

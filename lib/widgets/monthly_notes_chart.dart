@@ -54,7 +54,7 @@ class const MonthlyNotesChart({required final Map<String, int> monthlyStats})
                       meta: meta,
                       space: 4,
                       child: Text(
-                        _formatMonthShort(monthKey),
+                        _monthAbbreviation(monthKey),
                         style: EText.body.tiny.muted,
                       ),
                     );
@@ -122,7 +122,7 @@ class const MonthlyNotesChart({required final Map<String, int> monthlyStats})
                     ),
                     children: [
                       TextSpan(
-                        text: _formatMonthFull(monthKey),
+                        text: _monthAbbreviationAndYear(monthKey),
                         style: EText.body.small.copyWith(
                           color: CupertinoColors.white,
                           fontSize: 10,
@@ -140,7 +140,7 @@ class const MonthlyNotesChart({required final Map<String, int> monthlyStats})
     );
   }
 
-  String _formatMonthShort(String monthKey) {
+  String _monthAbbreviation(String monthKey) {
     try {
       final parts = monthKey.split('-');
       if (parts.length == 2) {
@@ -151,7 +151,7 @@ class const MonthlyNotesChart({required final Map<String, int> monthlyStats})
     return monthKey;
   }
 
-  String _formatMonthFull(String monthKey) {
+  String _monthAbbreviationAndYear(String monthKey) {
     try {
       final parts = monthKey.split('-');
       if (parts.length == 2) {

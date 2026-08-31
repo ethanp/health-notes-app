@@ -8,9 +8,9 @@ import 'package:health_notes/screens/sub_symptom_trends_screen.dart';
 import 'package:health_notes/screens/trends/base_trends_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/utils/date_utils.dart';
+import 'package:health_notes/utils/health_date_format.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
-import 'package:health_notes/utils/severity_utils.dart';
+import 'package:health_notes/utils/symptom_severity.dart';
 import 'package:health_notes/widgets/accent_border_card.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
 import 'package:health_notes/widgets/health_note_card.dart';
@@ -116,7 +116,7 @@ class _SymptomTrendsScreenState()
   }
 
   Widget _subSymptomRow(_SubSymptomStat stat) {
-    final color = SeverityUtils.colorForSeverity(stat.peakSeverity);
+    final color = SymptomSeverity.hslGreenToRed(stat.peakSeverity);
     return AccentBorderCard(
       accentColor: color,
       onTap: () => context.push(
@@ -133,7 +133,7 @@ class _SymptomTrendsScreenState()
               children: [
                 Text(stat.minorComponent, style: EText.body.medium),
                 Text(
-                  AppDateUtils.formatShortDate(stat.mostRecent),
+                  stat.mostRecent.monthDayYear,
                   style: EText.body.small.muted,
                 ),
               ],
@@ -175,14 +175,14 @@ class _SymptomTrendsScreenState()
 
   @override
   String valueOnlyMessage(DateTime date, int severity) {
-    final description = SeverityUtils.descriptionForSeverity(severity);
+    final description = SymptomSeverity.intensityCaption(severity);
     return 'You reported $description (level $severity) on this date.';
   }
 
   @override
   Widget? dateSummary(DateTime date, int severity, List<HealthNote> notes) {
-    final description = SeverityUtils.descriptionForSeverity(severity);
-    final color = SeverityUtils.colorForSeverity(severity);
+    final description = SymptomSeverity.intensityCaption(severity);
+    final color = SymptomSeverity.hslGreenToRed(severity);
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Container(
@@ -218,7 +218,7 @@ class _SymptomTrendsScreenState()
       TextSpan(
         children: [
           TextSpan(
-            text: AppDateUtils.formatTime(note.dateTime),
+            text: note.dateTime.hourMinuteAmPm,
             style: EText.body.small.bold,
           ),
           const TextSpan(text: '  ·  '),

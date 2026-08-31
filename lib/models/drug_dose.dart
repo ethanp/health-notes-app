@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:health_notes/models/drug_name.dart';
-import 'package:health_notes/utils/number_formatter.dart';
+import 'package:health_notes/utils/whole_number_or_trimmed_decimal.dart';
 
 part 'drug_dose.freezed.dart';
 part 'drug_dose.g.dart';
@@ -46,7 +46,7 @@ abstract class DrugDose with _$DrugDose {
   bool get isEmpty => name.isEmpty;
 
   String get displayName => name.isEmpty ? 'Unnamed medication' : name.display;
-  String get displayDosage => '${formatDecimalValue(dosage)}$unit';
+  String get displayDosage => '${dosage.wholeNumberOrTrimmedDecimal}$unit';
   String get suggestionLabel => '$displayName $displayDosage';
   String get strengthIdentity => '${name.identity}|$dosage|$unit';
   String get whenCaption => fromSchedule?.whenCaption ?? '';

@@ -32,7 +32,7 @@ class const MainScreen() extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       title: 'Health Notes',
-      theme: ETheme.build(),
+      theme: ETheme.material3Dark,
       debugShowCheckedModeBanner: false,
       home: ref
           .watch(isAuthenticatedProvider)

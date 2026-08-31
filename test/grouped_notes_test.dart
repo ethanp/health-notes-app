@@ -23,7 +23,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          theme: ETheme.build(),
+          theme: ETheme.material3Dark,
           home: Scaffold(
             body: SingleChildScrollView(
               child: GroupedNotesSection(
@@ -55,7 +55,7 @@ void main() {
     testWidgets('shows empty state when notes is empty', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          theme: ETheme.build(),
+          theme: ETheme.material3Dark,
           home: Scaffold(
             body: GroupedNotesSection(notes: const [], cardBuilder: (_) => []),
           ),
@@ -70,7 +70,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          theme: ETheme.build(),
+          theme: ETheme.material3Dark,
           home: Scaffold(
             body: SingleChildScrollView(
               child: GroupedNotesSection(

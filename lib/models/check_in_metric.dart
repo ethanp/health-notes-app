@@ -1,7 +1,7 @@
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:health_notes/utils/color_mapping_utils.dart';
+import 'package:health_notes/utils/rating_color.dart';
 
 part 'check_in_metric.freezed.dart';
 part 'check_in_metric.g.dart';
@@ -63,10 +63,6 @@ abstract class CheckInMetric with _$CheckInMetric {
     }
   }
 
-  /// Returns the appropriate color for a check-in rating based on the metric type
-  Color getRatingColor(int rating) => type.getRatingColor(rating);
-
-  /// Returns true if this metric is valid
   bool get isValid => name.isNotEmpty && name.trim().isNotEmpty;
 
   /// Returns a copy with updated timestamp
@@ -77,19 +73,23 @@ abstract class CheckInMetric with _$CheckInMetric {
 
 enum MetricType({
   required final String description,
-  required final Color Function(int) getRatingColor,
+  required final String valuePreferenceTitle,
+  required final Color Function(int) improvementColor,
 }) {
   lowerIsBetter(
     description: 'Lower values are better',
-    getRatingColor: ColorMappingUtils.lowerIsBetterColor,
+    valuePreferenceTitle: 'Lower is Better',
+    improvementColor: RatingColor.lowerIsBetter,
   ),
   middleIsBest(
     description: 'Middle values (4-7) are optimal',
-    getRatingColor: ColorMappingUtils.middleIsBestColor,
+    valuePreferenceTitle: 'Middle is Best',
+    improvementColor: RatingColor.middleIsBest,
   ),
   higherIsBetter(
     description: 'Higher values are better',
-    getRatingColor: ColorMappingUtils.higherIsBetterColor,
+    valuePreferenceTitle: 'Higher is Better',
+    improvementColor: RatingColor.higherIsBetter,
   ),
 }
 

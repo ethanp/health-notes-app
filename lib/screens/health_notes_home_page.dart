@@ -333,7 +333,7 @@ class _HealthNotesHomePageState()
 
   Widget groupHeader(DateTime date, int count) {
     return ESectionHeader(
-      title: _formatGroupDate(date),
+      title: _todayYesterdayOrWeekdayDate(date),
       subtitle: '$count note${count == 1 ? '' : 's'}',
     );
   }
@@ -369,7 +369,7 @@ class _HealthNotesHomePageState()
     );
   }
 
-  String _formatGroupDate(DateTime date) {
+  String _todayYesterdayOrWeekdayDate(DateTime date) {
     final now = DateTime.now();
     final today = now.startOfDay;
     final yesterday = today.shiftedByDays(-1);

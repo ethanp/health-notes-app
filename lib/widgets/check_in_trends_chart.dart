@@ -8,7 +8,7 @@ import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/models/date_range_filter.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/utils/color_mapping_utils.dart';
+import 'package:health_notes/utils/rating_color.dart';
 import 'package:intl/intl.dart';
 import 'package:health_notes/theme/spacing.dart';
 
@@ -160,14 +160,6 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
     );
   }
 
-  String _getTypeDisplayName(MetricType type) {
-    return switch (type) {
-      MetricType.lowerIsBetter => 'Lower is Better',
-      MetricType.middleIsBest => 'Middle is Best',
-      MetricType.higherIsBetter => 'Higher is Better',
-    };
-  }
-
   Widget improvementZonesIndicator() {
     return Container(
       padding: const EdgeInsets.all(8),
@@ -231,7 +223,7 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _getTypeDisplayName(type),
+          type.valuePreferenceTitle,
           style: EText.body.small.semibold.primary.size(13),
         ),
         VSpace.of(6),
@@ -259,14 +251,14 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: ColorMappingUtils.getBackgroundGradient(metricType),
-          stops: ColorMappingUtils.getBackgroundGradientStops(metricType),
+          colors: RatingColor.semanticBandsThroughPlotAndLabels(metricType),
+          stops: RatingColor.plotThenLabelGutterStops(metricType),
         ),
         borderRadius: BorderRadius.circular(AppRadius.small),
       ),
       child: LineChart(
         LineChartData(
-          gridData: chartGridData(sortedDates),
+          gridData: firstOfMonthVerticalLines(sortedDates),
           titlesData: chartTitlesData(sortedDates),
           borderData: chartBorderData(),
           minX: 0,
@@ -335,7 +327,7 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
     return sortedDates;
   }
 
-  FlGridData chartGridData(List<DateTime> sortedDates) {
+  FlGridData firstOfMonthVerticalLines(List<DateTime> sortedDates) {
     return FlGridData(
       show: true,
       drawHorizontalLine: false,
@@ -366,12 +358,12 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
         ),
       ),
       topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-      bottomTitles: bottomTitles(sortedDates),
-      leftTitles: leftTitles(),
+      bottomTitles: monthDayBottomTitles(sortedDates),
+      leftTitles: ratingExtentAndMidpointTitles(),
     );
   }
 
-  AxisTitles bottomTitles(List<DateTime> sortedDates) {
+  AxisTitles monthDayBottomTitles(List<DateTime> sortedDates) {
     final interval = (sortedDates.length / 6).ceilToDouble().clamp(
       1.0,
       double.infinity,
@@ -404,7 +396,7 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
     );
   }
 
-  AxisTitles leftTitles() {
+  AxisTitles ratingExtentAndMidpointTitles() {
     return AxisTitles(
       sideTitles: SideTitles(
         showTitles: true,
@@ -471,8 +463,8 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
             ),
             barWidth: 2,
             isStrokeCapRound: true,
-            dotData: chartDotData(color),
-            belowBarData: chartAreaData(color),
+            dotData: whiteRingedRatingDots(color),
+            belowBarData: fadeUnderRatingLine(color),
           );
         })
         .toList();
@@ -501,7 +493,7 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
     return spots;
   }
 
-  FlDotData chartDotData(Color color) {
+  FlDotData whiteRingedRatingDots(Color color) {
     return FlDotData(
       show: true,
       getDotPainter: (spot, percent, barData, index) {
@@ -515,7 +507,7 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
     );
   }
 
-  BarAreaData chartAreaData(Color color) {
+  BarAreaData fadeUnderRatingLine(Color color) {
     return BarAreaData(
       show: true,
       gradient: LinearGradient(
@@ -584,13 +576,13 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
         },
         children: {
           for (final filter in DateRangeFilter.values)
-            filter: _buildSegment(filter),
+            filter: dateRangeSegmentLabel(filter),
         },
       ),
     );
   }
 
-  Widget _buildSegment(DateRangeFilter filter) {
+  Widget dateRangeSegmentLabel(DateRangeFilter filter) {
     final isSelected = _selectedDateRange == filter;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

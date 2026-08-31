@@ -1,19 +1,16 @@
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 
-/// Centralized severity calculation and display logic
-class SeverityUtils() {
-  static const int minSeverity = 1;
-  static const int maxSeverity = 10;
+class SymptomSeverity() {
+  static const int min = 1;
+  static const int max = 10;
 
-  /// Calculate color for a given severity level (0-10)
-  /// Uses HSL color space to create a gradient from green (low) to red (high)
-  static Color colorForSeverity(int severity) {
+  static Color hslGreenToRed(int severity) {
     if (severity == 0) {
       return EColors.background.withValues(alpha: 0.3);
     }
 
-    final normalized = (severity / maxSeverity).clamp(0.0, 1.0);
+    final normalized = (severity / max).clamp(0.0, 1.0);
     final hue = (120 - (normalized * 120)).clamp(0.0, 360.0);
     final saturation = (30 + (normalized * 60)).clamp(0.0, 100.0);
     final lightness = (85 - (normalized * 50)).clamp(0.0, 100.0);
@@ -26,9 +23,8 @@ class SeverityUtils() {
     ).toColor();
   }
 
-  /// Get human-readable description for severity level
-  static String descriptionForSeverity(int severity) {
-    const descriptions = {
+  static String intensityCaption(int severity) {
+    const captions = {
       1: 'Very mild symptoms',
       2: 'Mild symptoms',
       3: 'Moderate symptoms',
@@ -40,25 +36,21 @@ class SeverityUtils() {
       9: 'Extremely intense symptoms',
       10: 'Maximum severity symptoms',
     };
-    return descriptions[severity] ?? 'Unknown severity';
+    return captions[severity] ?? 'Unknown severity';
   }
 
-  /// Check if severity value is within valid range
-  static bool isValidSeverity(int severity) {
-    return severity >= minSeverity && severity <= maxSeverity;
-  }
+  static bool isValid(int severity) =>
+      severity >= min && severity <= max;
 
-  /// Discrete Cupertino system colors for sliders and form controls (4 buckets).
-  static Color discreteCupertinoColor(int severity) {
+  static Color fourBucketGreenYellowOrangeRed(int severity) {
     if (severity <= 3) return CupertinoColors.systemGreen;
     if (severity <= 5) return CupertinoColors.systemYellow;
     if (severity <= 7) return CupertinoColors.systemOrange;
     return CupertinoColors.systemRed;
   }
 
-  /// Get display text for severity (returns number as string or "Unknown")
-  static String displayText(int severity) {
-    return isValidSeverity(severity) || severity == 0
+  static String displayDigit(int severity) {
+    return isValid(severity) || severity == 0
         ? severity.toString()
         : 'Unknown';
   }

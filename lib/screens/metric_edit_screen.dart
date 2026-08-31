@@ -131,17 +131,6 @@ class _MetricEditScreenState() extends ConsumerState<MetricEditScreen> {
     );
   }
 
-  String _getMetricTypeDisplayName(MetricType type) {
-    switch (type) {
-      case MetricType.lowerIsBetter:
-        return 'Lower is Better';
-      case MetricType.middleIsBest:
-        return 'Middle is Best';
-      case MetricType.higherIsBetter:
-        return 'Higher is Better';
-    }
-  }
-
   Widget typeOption(MetricType type) {
     final isSelected = _selectedType == type;
 
@@ -180,7 +169,7 @@ class _MetricEditScreenState() extends ConsumerState<MetricEditScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _getMetricTypeDisplayName(type),
+                      type.valuePreferenceTitle,
                       style: isSelected
                           ? EText.body.medium.semibold.accent
                           : EText.body.medium.white,

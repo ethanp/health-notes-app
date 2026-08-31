@@ -9,7 +9,7 @@ import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/utils/date_utils.dart';
+import 'package:health_notes/utils/health_date_format.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/widgets/health_notes_search_field.dart';
@@ -75,8 +75,8 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
     }
 
     final sortedNotes = NoteFilterUtils.sortByDateDescending(toolNotes);
-    final activityData = generateActivityData(sortedNotes);
-    final filteredNotes = applySearch(sortedNotes);
+    final activityData = toolUseCountByDay(sortedNotes);
+    final filteredNotes = notesMatchingQuery(sortedNotes);
     final toolName = tool?.name ?? widget.toolName ?? 'Tool';
 
     return CustomScrollView(
@@ -201,7 +201,7 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
                 child: statItem(
                   'First Applied',
                   firstUse != null
-                      ? AppDateUtils.formatShortDate(firstUse)
+                      ? firstUse.monthDayYear
                       : '-',
                 ),
               ),
@@ -213,7 +213,7 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
               Expanded(
                 child: statItem(
                   'Last Applied',
-                  lastUse != null ? AppDateUtils.formatShortDate(lastUse) : '-',
+                  lastUse != null ? lastUse.monthDayYear : '-',
                 ),
               ),
               HSpace.m,
@@ -277,7 +277,7 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
     );
   }
 
-  Map<DateTime, int> generateActivityData(List<HealthNote> notes) {
+  Map<DateTime, int> toolUseCountByDay(List<HealthNote> notes) {
     final data = <DateTime, int>{};
 
     for (final note in notes) {
@@ -295,7 +295,7 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
     return data;
   }
 
-  List<HealthNote> applySearch(List<HealthNote> notes) {
+  List<HealthNote> notesMatchingQuery(List<HealthNote> notes) {
     if (searchQuery.isEmpty) return notes;
     return NoteFilterUtils.bySearchQuery(notes, searchQuery);
   }
@@ -310,7 +310,7 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
       showCupertinoDialog(
         context: context,
         builder: (dialogContext) => CupertinoAlertDialog(
-          title: Text(AppDateUtils.formatLongDate(date)),
+          title: Text(date.weekdayMonthDayYear),
           content: const Text('No uses on this date.'),
           actions: [
             CupertinoDialogAction(
@@ -331,7 +331,7 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
       showCupertinoDialog(
         context: context,
         builder: (dialogContext) => CupertinoAlertDialog(
-          title: Text(AppDateUtils.formatLongDate(date)),
+          title: Text(date.weekdayMonthDayYear),
           content: Text('$count use${count == 1 ? '' : 's'} on this date.'),
           actions: [
             CupertinoDialogAction(
@@ -354,7 +354,7 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
       showCupertinoDialog(
         context: context,
         builder: (dialogContext) => CupertinoAlertDialog(
-          title: Text(AppDateUtils.formatLongDate(date)),
+          title: Text(date.weekdayMonthDayYear),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -385,7 +385,7 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
       showCupertinoDialog(
         context: context,
         builder: (dialogContext) => CupertinoAlertDialog(
-          title: Text(AppDateUtils.formatLongDate(date)),
+          title: Text(date.weekdayMonthDayYear),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -406,7 +406,7 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
                 .take(3)
                 .map(
                   (note) => CupertinoDialogAction(
-                    child: Text(AppDateUtils.formatTime(note.dateTime)),
+                    child: Text(note.dateTime.hourMinuteAmPm),
                     onPressed: () {
                       Navigator.of(dialogContext).pop();
                       context.push(HealthNoteViewScreen(note: note));

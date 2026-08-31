@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/utils/severity_utils.dart';
+import 'package:health_notes/utils/symptom_severity.dart';
 import 'package:intl/intl.dart';
 
 class const ConditionEntryEditModal({
@@ -103,7 +103,7 @@ class _ConditionEntryEditModalState() extends State<ConditionEntryEditModal> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: SeverityUtils.discreteCupertinoColor(severity),
+                color: SymptomSeverity.fourBucketGreenYellowOrangeRed(severity),
                 borderRadius: BorderRadius.circular(AppRadius.medium),
               ),
               child: Text('$severity/10', style: EText.label.medium.white),
@@ -116,7 +116,7 @@ class _ConditionEntryEditModalState() extends State<ConditionEntryEditModal> {
           min: 1,
           max: 10,
           divisions: 9,
-          activeColor: SeverityUtils.discreteCupertinoColor(severity),
+          activeColor: SymptomSeverity.fourBucketGreenYellowOrangeRed(severity),
           onChanged: (value) => setState(() => severity = value.round()),
         ),
         VSpace.xs,

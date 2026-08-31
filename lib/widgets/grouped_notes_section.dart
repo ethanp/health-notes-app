@@ -2,7 +2,7 @@ import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
-import 'package:health_notes/utils/date_utils.dart';
+import 'package:health_notes/utils/health_date_format.dart';
 import 'package:health_notes/theme/spacing.dart';
 
 class const GroupedNotesSection({
@@ -46,7 +46,7 @@ class const GroupedNotesSection({
   }
 
   Widget _dateHeader(DateTime date, int count) => ESectionHeader(
-    title: AppDateUtils.formatShortDate(date),
+    title: date.monthDayYear,
     subtitle: '$count note${count == 1 ? '' : 's'}',
   );
 }

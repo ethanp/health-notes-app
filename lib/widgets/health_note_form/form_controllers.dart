@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/symptom.dart';
-import 'package:health_notes/utils/number_formatter.dart';
+import 'package:health_notes/utils/whole_number_or_trimmed_decimal.dart';
 
 class DrugDoseControllers(DrugDose dose) {
   final TextEditingController name = TextEditingController(
     text: dose.name.display,
   );
   final TextEditingController dosage = TextEditingController(
-    text: dose.dosage == 0 ? '' : formatDecimalValue(dose.dosage),
+    text: dose.dosage == 0 ? '' : dose.dosage.wholeNumberOrTrimmedDecimal,
   );
   final TextEditingController unit = TextEditingController(text: dose.unit);
 

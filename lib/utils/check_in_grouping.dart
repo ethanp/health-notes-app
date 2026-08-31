@@ -1,13 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 
-/// Groups check-ins that are within 10 minutes of each other
 class CheckInGrouping() {
   static const int _groupingThresholdMinutes = 10;
 
-  /// Groups check-ins by time proximity
-  /// Check-ins within 10 minutes of each other are grouped together
-  static List<CheckInGroup> groupCheckIns(
+  static List<CheckInGroup> groupWithin10Minutes(
     List<CheckIn> checkIns,
     int totalMetricsCount,
   ) {
@@ -86,9 +83,7 @@ class CheckInGroup({
     return uniqueMetricsInGroup / totalMetricsCount;
   }
 
-  /// Returns a color based on the proportion of metrics in this group
-  /// More metrics = greener, fewer metrics = redder
-  Color get proportionColor {
+  Color get greenWhenMoreMetricsLogged {
     final proportion = metricProportion;
 
     if (proportion >= 0.8) {

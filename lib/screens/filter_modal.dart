@@ -53,7 +53,7 @@ class _FilterModalState() extends State<FilterModal> {
           dateFilterSection(),
           VSpace.of(20),
           drugFilterSection(),
-          if (_isDatePickerVisible) ...[VSpace.of(20), datePickerOverlay()],
+          if (_isDatePickerVisible) ...[VSpace.of(20), inlineDatePicker()],
           VSpace.of(40),
         ],
       ),
@@ -148,7 +148,7 @@ class _FilterModalState() extends State<FilterModal> {
     );
   }
 
-  Widget datePickerOverlay() {
+  Widget inlineDatePicker() {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.m),
       decoration: AppComponents.inputField,

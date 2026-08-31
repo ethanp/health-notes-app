@@ -5,7 +5,7 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/utils/date_utils.dart';
+import 'package:health_notes/utils/health_date_format.dart';
 
 class const ToolNoteCard({
   required final HealthNote note,
@@ -31,7 +31,7 @@ class const ToolNoteCard({
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      AppDateUtils.formatLongDate(note.dateTime),
+                      note.dateTime.weekdayMonthDayYear,
                       style: EText.label.medium,
                     ),
                     VSpace.xs,

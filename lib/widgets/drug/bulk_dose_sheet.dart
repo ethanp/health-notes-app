@@ -2,7 +2,7 @@ import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/utils/date_utils.dart';
+import 'package:health_notes/utils/health_date_format.dart';
 
 class const BulkDoseSheet({
   required final String drugName,
@@ -165,7 +165,7 @@ class _BulkDoseSheetState() extends State<BulkDoseSheet> {
     final sortedDates = widget.dates.toList()..sort();
     final previewDates = sortedDates.take(3).toList();
     final preview = previewDates
-        .map((date) => AppDateUtils.formatShortDate(date))
+        .map((date) => date.monthDayYear)
         .join(', ');
     final overflowSuffix = count > 3 ? ' +${count - 3} more' : '';
     return Text(

@@ -5,7 +5,7 @@ import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/providers/conditions_provider.dart';
 import 'package:health_notes/services/condition_activity_aggregator.dart';
-import 'package:health_notes/utils/date_utils.dart';
+import 'package:health_notes/utils/health_date_format.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 
@@ -173,7 +173,7 @@ class const ConditionTimelineCard({required final Condition condition})
     }
     return '${linkedSymptoms.length} linked '
         '${linkedSymptoms.length == 1 ? 'symptom' : 'symptoms'} · '
-        'last ${AppDateUtils.formatShortDate(linkedSymptoms.first.date)}';
+        'last ${linkedSymptoms.first.date.monthDayYear}';
   }
 
   Widget footer() {
@@ -198,58 +198,75 @@ class SeverityChartPainter({
   void paint(Canvas canvas, Size size) {
     if (points.isEmpty) return;
 
-    final paint = Paint()
+    final stepX = points.length > 1
+        ? size.width / (points.length - 1)
+        : size.width / 2;
+
+    _fillUnderSeverityPolyline(canvas, size, stepX);
+    _strokePolylineThroughSeverity(canvas, size, stepX);
+    _dotEachSeverityReading(canvas, size, stepX);
+  }
+
+  double _severityAsHeight(int severity, Size size) {
+    final normalizedSeverity = severity.clamp(1, 10) / 10.0;
+    return size.height -
+        (normalizedSeverity * size.height * 0.8) -
+        (size.height * 0.1);
+  }
+
+  double _evenlySpacedReadingX(int index, double stepX, Size size) {
+    return points.length > 1 ? index * stepX : size.width / 2;
+  }
+
+  void _fillUnderSeverityPolyline(Canvas canvas, Size size, double stepX) {
+    final fillPaint = Paint()
+      ..color = color.withValues(alpha: 0.1)
+      ..style = PaintingStyle.fill;
+
+    final fillPath = Path();
+    for (var index = 0; index < points.length; index++) {
+      final x = _evenlySpacedReadingX(index, stepX, size);
+      final y = _severityAsHeight(points[index].severity, size);
+      if (index == 0) {
+        fillPath.moveTo(x, size.height);
+        fillPath.lineTo(x, y);
+      } else {
+        fillPath.lineTo(x, y);
+      }
+    }
+    fillPath.lineTo(size.width, size.height);
+    fillPath.close();
+    canvas.drawPath(fillPath, fillPaint);
+  }
+
+  void _strokePolylineThroughSeverity(Canvas canvas, Size size, double stepX) {
+    final stroke = Paint()
       ..color = color
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    final fillPaint = Paint()
-      ..color = color.withValues(alpha: 0.1)
-      ..style = PaintingStyle.fill;
-
     final path = Path();
-    final fillPath = Path();
-
-    final stepX = points.length > 1
-        ? size.width / (points.length - 1)
-        : size.width / 2;
-
     for (var index = 0; index < points.length; index++) {
-      final x = points.length > 1 ? index * stepX : size.width / 2;
-      final normalizedSeverity = points[index].severity.clamp(1, 10) / 10.0;
-      final y =
-          size.height -
-          (normalizedSeverity * size.height * 0.8) -
-          (size.height * 0.1);
-
+      final x = _evenlySpacedReadingX(index, stepX, size);
+      final y = _severityAsHeight(points[index].severity, size);
       if (index == 0) {
         path.moveTo(x, y);
-        fillPath.moveTo(x, size.height);
-        fillPath.lineTo(x, y);
       } else {
         path.lineTo(x, y);
-        fillPath.lineTo(x, y);
       }
     }
+    canvas.drawPath(path, stroke);
+  }
 
-    fillPath.lineTo(size.width, size.height);
-    fillPath.close();
-
-    canvas.drawPath(fillPath, fillPaint);
-    canvas.drawPath(path, paint);
-
+  void _dotEachSeverityReading(Canvas canvas, Size size, double stepX) {
     final dotPaint = Paint()
       ..color = color
       ..style = PaintingStyle.fill;
 
     for (var index = 0; index < points.length; index++) {
-      final x = points.length > 1 ? index * stepX : size.width / 2;
-      final normalizedSeverity = points[index].severity.clamp(1, 10) / 10.0;
-      final y =
-          size.height -
-          (normalizedSeverity * size.height * 0.8) -
-          (size.height * 0.1);
+      final x = _evenlySpacedReadingX(index, stepX, size);
+      final y = _severityAsHeight(points[index].severity, size);
       canvas.drawCircle(Offset(x, y), 3, dotPaint);
     }
   }

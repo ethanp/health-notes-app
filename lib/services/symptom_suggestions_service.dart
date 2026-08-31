@@ -21,7 +21,7 @@ class const SymptomSuggestion({
 
   @override
   int get hashCode =>
-      SymptomNormalizer.generateKey(majorComponent, minorComponent).hashCode;
+      SymptomNormalizer.pipeJoinedNormalizedPair(majorComponent, minorComponent).hashCode;
 
   @override
   String toString() {
@@ -49,7 +49,7 @@ class SymptomSuggestionsService() {
 
     for (final note in sortedNotes) {
       for (final symptom in note.validSymptoms) {
-        final key = SymptomNormalizer.generateKey(
+        final key = SymptomNormalizer.pipeJoinedNormalizedPair(
           symptom.majorComponent,
           symptom.minorComponent,
         );

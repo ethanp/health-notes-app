@@ -3,19 +3,22 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
 
 class TrendsActivityAggregator() {
-  static Map<DateTime, T> aggregate<T>({
+  static Map<DateTime, T> combineByCalendarDay<T>({
     required List<HealthNote> notes,
-    required T Function(HealthNote note) valueExtractor,
-    required T Function(T existing, T newValue) combiner,
+    required T Function(HealthNote note) valueFromNote,
+    required T Function(T existing, T newValue) pickWhenSameDay,
   }) {
     final activityData = <DateTime, T>{};
 
     for (final note in notes) {
       final dateKey = note.dateTime.startOfDay;
-      final value = valueExtractor(note);
+      final value = valueFromNote(note);
 
       if (activityData.containsKey(dateKey)) {
-        activityData[dateKey] = combiner(activityData[dateKey]! as T, value);
+        activityData[dateKey] = pickWhenSameDay(
+          activityData[dateKey]! as T,
+          value,
+        );
       } else {
         activityData[dateKey] = value;
       }
@@ -27,11 +30,12 @@ class TrendsActivityAggregator() {
   static Map<DateTime, int> maxSeverityPerDay({
     required List<HealthNote> notes,
     required String symptomName,
-  }) => aggregate<int>(
+  }) => combineByCalendarDay<int>(
     notes: notes,
-    valueExtractor: (note) =>
+    valueFromNote: (note) =>
         highestSeveritySymptom(note, symptomName)?.severityLevel ?? 0,
-    combiner: (existing, newValue) => existing > newValue ? existing : newValue,
+    pickWhenSameDay: (existing, newValue) =>
+        existing > newValue ? existing : newValue,
   );
 
   static Symptom? highestSeveritySymptom(HealthNote note, String symptomName) {
@@ -49,16 +53,17 @@ class TrendsActivityAggregator() {
     required List<HealthNote> notes,
     required String majorComponent,
     required String minorComponent,
-  }) => aggregate<int>(
+  }) => combineByCalendarDay<int>(
     notes: notes,
-    valueExtractor: (note) =>
+    valueFromNote: (note) =>
         highestSeveritySubSymptom(
           note,
           majorComponent,
           minorComponent,
         )?.severityLevel ??
         0,
-    combiner: (existing, newValue) => existing > newValue ? existing : newValue,
+    pickWhenSameDay: (existing, newValue) =>
+        existing > newValue ? existing : newValue,
   );
 
   static Symptom? highestSeveritySubSymptom(

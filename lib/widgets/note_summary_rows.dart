@@ -9,7 +9,7 @@ import 'package:health_notes/screens/drug_trends_screen.dart';
 import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/screens/tool_detail_screen.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/utils/severity_utils.dart';
+import 'package:health_notes/utils/symptom_severity.dart';
 import 'package:health_notes/widgets/accent_border_card.dart';
 import 'package:health_notes/widgets/condition_badge.dart';
 import 'package:health_notes/widgets/status_tint_chip.dart';
@@ -20,7 +20,7 @@ class const SymptomSummaryRow({required final Symptom symptom})
     extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final severityColor = SeverityUtils.colorForSeverity(symptom.severityLevel);
+    final severityColor = SymptomSeverity.hslGreenToRed(symptom.severityLevel);
 
     return AccentBorderCard(
       accentColor: severityColor,

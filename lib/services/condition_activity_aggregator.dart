@@ -10,10 +10,11 @@ class const ConditionDayData({
   bool get hasEntry => severity > 0;
   bool get hasSymptoms => symptomCount > 0;
   bool get hasActivity => hasEntry || hasSymptoms;
-  int get primaryValue => hasEntry ? severity : maxSymptomSeverity;
+  int get checkInSeverityOrMaxSymptom =>
+      hasEntry ? severity : maxSymptomSeverity;
 
   @override
-  String toString() => '$primaryValue';
+  String toString() => '$checkInSeverityOrMaxSymptom';
 }
 
 class const ConditionSeverityPoint({
@@ -68,7 +69,7 @@ class ConditionActivityAggregator() {
         .map(
           (entry) => ConditionSeverityPoint(
             date: entry.key,
-            severity: entry.value.primaryValue,
+            severity: entry.value.checkInSeverityOrMaxSymptom,
           ),
         )
         .toList();

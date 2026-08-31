@@ -7,9 +7,9 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/screens/trends/base_trends_screen.dart';
-import 'package:health_notes/utils/date_utils.dart';
+import 'package:health_notes/utils/health_date_format.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
-import 'package:health_notes/utils/number_formatter.dart';
+import 'package:health_notes/utils/whole_number_or_trimmed_decimal.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
 import 'package:health_notes/widgets/drug/bulk_dose_sheet.dart';
 import 'package:health_notes/widgets/health_note_card.dart';
@@ -43,10 +43,10 @@ class _DrugTrendsScreenState()
 
   @override
   Map<DateTime, double> buildActivityData(List<HealthNote> notes) {
-    return TrendsActivityAggregator.aggregate<double>(
+    return TrendsActivityAggregator.combineByCalendarDay<double>(
       notes: notes,
-      valueExtractor: (note) => _totalDosageForNote(note),
-      combiner: (existing, newValue) => existing + newValue,
+      valueFromNote: (note) => _totalDosageForNote(note),
+      pickWhenSameDay: (existing, newValue) => existing + newValue,
     );
   }
 
@@ -115,14 +115,14 @@ class _DrugTrendsScreenState()
   @override
   String valueOnlyMessage(DateTime date, double dosage) {
     final unit = _unitForDrug([]) ?? 'mg';
-    return 'You took ${formatDecimalValue(dosage)}$unit of ${widget.drugName.display} on this date.';
+    return 'You took ${dosage.wholeNumberOrTrimmedDecimal}$unit of ${widget.drugName.display} on this date.';
   }
 
   @override
   Widget? dateSummary(DateTime date, double dosage, List<HealthNote> notes) {
     final unit = _unitForDrug(notes) ?? 'mg';
     return Text(
-      'Total dosage: ${formatDecimalValue(dosage)}$unit',
+      'Total dosage: ${dosage.wholeNumberOrTrimmedDecimal}$unit',
       style: EText.body.medium.semibold,
     );
   }
@@ -132,7 +132,7 @@ class _DrugTrendsScreenState()
     final unit = _unitForDrug([note]) ?? 'mg';
     final noteDosage = _totalDosageForNote(note);
     return Text(
-      '${AppDateUtils.formatTime(note.dateTime)}  ·  ${formatDecimalValue(noteDosage)}$unit',
+      '${note.dateTime.hourMinuteAmPm}  ·  ${noteDosage.wholeNumberOrTrimmedDecimal}$unit',
     );
   }
 

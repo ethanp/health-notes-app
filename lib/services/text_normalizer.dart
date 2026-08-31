@@ -20,7 +20,10 @@ class CaseInsensitiveNormalizer() implements TextNormalizer {
 class SymptomNormalizer() {
   static final TextNormalizer _normalizer = CaseInsensitiveNormalizer();
 
-  static String generateKey(String majorComponent, String minorComponent) =>
+  static String pipeJoinedNormalizedPair(
+    String majorComponent,
+    String minorComponent,
+  ) =>
       '${_normalizer.normalize(majorComponent)}|${_normalizer.normalize(minorComponent)}';
 
   static bool areEqual(
@@ -60,7 +63,7 @@ class MetricNameNormalizer() {
 class CaseInsensitiveAggregator<T>() {
   static final TextNormalizer _normalizer = CaseInsensitiveNormalizer();
 
-  static Map<String, int> aggregateStrings(Iterable<String> items) {
+  static Map<String, int> countByCaseInsensitiveDisplay(Iterable<String> items) {
     final Map<String, String> displayNames = {};
     final Map<String, int> counts = {};
 
@@ -77,7 +80,7 @@ class CaseInsensitiveAggregator<T>() {
     );
   }
 
-  static Map<String, List<T>> groupByString<T>(
+  static Map<String, List<T>> groupByCaseInsensitiveKey<T>(
     Iterable<T> items,
     String Function(T) keyExtractor,
   ) {

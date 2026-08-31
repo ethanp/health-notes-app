@@ -4,7 +4,7 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/widgets/health_notes_activity_calendar.dart';
 
 void main() {
-  group('HealthNotesActivityCalendar.activityDataForNotes', () {
+  group('HealthNotesActivityCalendar.noteCountByDay', () {
     final day = DateTime(2025, 6, 15);
 
     HealthNote noteAt({required String id, required DateTime dateTime}) {
@@ -18,7 +18,7 @@ void main() {
         noteAt(id: '3', dateTime: day.add(const Duration(hours: 8))),
       ];
 
-      final activityData = HealthNotesActivityCalendar.activityDataForNotes(
+      final activityData = HealthNotesActivityCalendar.noteCountByDay(
         notes,
       );
 
@@ -32,7 +32,7 @@ void main() {
         noteAt(id: '2', dateTime: day.add(const Duration(days: 1))),
       ];
 
-      final activityData = HealthNotesActivityCalendar.activityDataForNotes(
+      final activityData = HealthNotesActivityCalendar.noteCountByDay(
         notes,
       );
 
@@ -51,7 +51,7 @@ void main() {
         dateTime: DateTime(2025, 6, 15, 21, 45),
       );
 
-      final activityData = HealthNotesActivityCalendar.activityDataForNotes([
+      final activityData = HealthNotesActivityCalendar.noteCountByDay([
         morningNote,
         eveningNote,
       ]);

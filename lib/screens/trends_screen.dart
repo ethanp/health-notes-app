@@ -207,10 +207,10 @@ class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
   }
 
   List<Widget> noteSections(List<HealthNote> notes) {
-    final symptomStats = _analyzeSymptomFrequency(notes);
-    final drugStats = _analyzeDrugUsage(notes);
-    final monthlyStats = _analyzeMonthlyTrends(notes);
-    final recentSymptomTrends = _analyzeRecentSymptomTrends(notes);
+    final symptomStats = _countByMajorSymptom(notes);
+    final drugStats = _countByDrugDisplay(notes);
+    final monthlyStats = _noteCountByYearMonth(notes);
+    final recentSymptomTrends = _majorSymptomCountsInPast30Days(notes);
 
     return [
       sectionHeader('Recent Symptom Trends (Last 30 Days)'),
@@ -299,8 +299,8 @@ class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
     return monthKey;
   }
 
-  Map<String, int> _analyzeSymptomFrequency(List<HealthNote> notes) {
-    return CaseInsensitiveAggregator.aggregateStrings(
+  Map<String, int> _countByMajorSymptom(List<HealthNote> notes) {
+    return CaseInsensitiveAggregator.countByCaseInsensitiveDisplay(
       notes
           .where((note) => note.hasSymptoms)
           .expand((note) => note.validSymptoms.map((s) => s.majorComponent))
@@ -308,7 +308,7 @@ class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
     );
   }
 
-  Map<String, int> _analyzeDrugUsage(List<HealthNote> notes) {
+  Map<String, int> _countByDrugDisplay(List<HealthNote> notes) {
     final counts = <DrugName, int>{};
     for (final dose
         in notes
@@ -319,7 +319,7 @@ class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
     return {for (final count in counts.entries) count.key.display: count.value};
   }
 
-  Map<String, int> _analyzeMonthlyTrends(List<HealthNote> notes) {
+  Map<String, int> _noteCountByYearMonth(List<HealthNote> notes) {
     return notes
         .map(
           (note) =>
@@ -332,10 +332,10 @@ class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
         );
   }
 
-  Map<String, int> _analyzeRecentSymptomTrends(List<HealthNote> notes) {
+  Map<String, int> _majorSymptomCountsInPast30Days(List<HealthNote> notes) {
     final thirtyDaysAgo = DateTime.now().shiftedByDays(-30);
 
-    return CaseInsensitiveAggregator.aggregateStrings(
+    return CaseInsensitiveAggregator.countByCaseInsensitiveDisplay(
       notes
           .where(
             (note) => note.dateTime.isAfter(thirtyDaysAgo) && note.hasSymptoms,

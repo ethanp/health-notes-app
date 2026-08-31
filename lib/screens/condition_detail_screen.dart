@@ -12,7 +12,7 @@ import 'package:health_notes/screens/sub_symptom_trends_screen.dart';
 import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/services/health_notes_dao.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/utils/severity_utils.dart';
+import 'package:health_notes/utils/symptom_severity.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/condition_activity_calendar.dart';
 import 'package:health_notes/widgets/condition_entry_edit_modal.dart';
@@ -408,7 +408,7 @@ class _ConditionDetailScreenState()
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: SeverityUtils.discreteCupertinoColor(severity),
+        color: SymptomSeverity.fourBucketGreenYellowOrangeRed(severity),
         borderRadius: BorderRadius.circular(AppRadius.medium),
       ),
       child: Text('$severity', style: EText.label.medium.white),
@@ -526,7 +526,7 @@ class _ConditionDetailScreenState()
                 .map((ls) => ls.symptom.severityLevel)
                 .reduce((a, b) => a + b) /
             occurrences.length;
-        final avgColor = SeverityUtils.colorForSeverity(avgSeverity.round());
+        final avgColor = SymptomSeverity.hslGreenToRed(avgSeverity.round());
 
         return GestureDetector(
           onTap: () {

@@ -10,7 +10,7 @@ import 'package:health_notes/providers/medication_schedules_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/data_utils.dart';
-import 'package:health_notes/utils/date_utils.dart';
+import 'package:health_notes/utils/health_date_format.dart';
 import 'package:health_notes/widgets/medication_suggestion_chips.dart';
 import 'package:health_notes/widgets/medication_schedule/schedule_scaffold.dart';
 
@@ -200,7 +200,7 @@ class _MedicationScheduleFormState()
         VSpace.s,
         OutlinedButton(
           onPressed: _pickStartDate,
-          child: Text(AppDateUtils.formatShortDate(_startDate)),
+          child: Text(_startDate.monthDayYear),
         ),
       ],
     );

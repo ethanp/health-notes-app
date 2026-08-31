@@ -8,11 +8,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/utils/date_utils.dart';
-import 'package:health_notes/utils/number_formatter.dart';
-import 'package:health_notes/utils/severity_utils.dart';
+import 'package:health_notes/utils/health_date_format.dart';
+import 'package:health_notes/utils/whole_number_or_trimmed_decimal.dart';
+import 'package:health_notes/utils/symptom_severity.dart';
 
-typedef ColorCalculator<T> = Color Function(T value);
 typedef LegendBuilder<T> = Widget Function();
 typedef DateInfoCallback<T> = void Function(
   BuildContext context,
@@ -49,7 +48,7 @@ class CalendarConstants() {
   static const double boldThreshold = 0.5;
 }
 
-Color intensityColor(
+Color accentAlphaAsActivityIntensity(
   double intensity, {
   double alphaMin = 0.15,
   double alphaMax = 0.9,
@@ -65,7 +64,7 @@ class const ActivityCalendar<T>({
   required final String title,
   required final String subtitle,
   required final Map<DateTime, T> activityData,
-  required final ColorCalculator<T> colorCalculator,
+  required final Color Function(T value) colorForActivity,
   required final LegendBuilder<T> legendBuilder,
   required final DateInfoCallback<T> onDateTap,
   required final ActivityDescriptor<T> activityDescriptor,
@@ -199,7 +198,7 @@ class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        monthHeader(AppDateUtils.formatMonthYear(monthDate)),
+        monthHeader(monthDate.monthYear),
         dayOfWeekLabel(),
         ...buildWeekRows(context, monthDate, daysInMonth, globalMaxSum),
         VSpace.m,
@@ -360,7 +359,11 @@ class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         decoration: BoxDecoration(
-          color: intensityColor(intensity, alphaMin: 0.15, alphaMax: 0.7),
+          color: accentAlphaAsActivityIntensity(
+            intensity,
+            alphaMin: 0.15,
+            alphaMax: 0.7,
+          ),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Text(
@@ -379,7 +382,7 @@ class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
   Widget sumLabel(num sum, num maxSum) {
     final intensity = maxSum > 0 ? sum / maxSum : 0.0;
     final display = sum is double
-        ? formatDecimalValue(sum)
+        ? sum.wholeNumberOrTrimmedDecimal
         : sum.toInt().toString();
 
     return Text(
@@ -402,7 +405,7 @@ class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
   Widget dayCell(BuildContext context, DateTime date) {
     final value = widget.activityData[date] ?? widget.emptyValue;
     final hasActivity = value != widget.emptyValue;
-    final color = widget.colorCalculator(value);
+    final color = widget.colorForActivity(value);
 
     if (widget.dayCellBuilder != null) {
       return widget.dayCellBuilder!(context, date, value, hasActivity, color);
@@ -499,7 +502,7 @@ class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
   }
 
   String formatValue(T value) {
-    if (value is double) return formatDecimalValue(value);
+    if (value is double) return value.wholeNumberOrTrimmedDecimal;
     return value.toString();
   }
 
@@ -555,7 +558,7 @@ class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
     if (value == widget.emptyValue) {
       return CupertinoColors.systemGrey4.withValues(alpha: 0.3);
     }
-    return widget.colorCalculator(value).withValues(alpha: 0.6);
+    return widget.colorForActivity(value).withValues(alpha: 0.6);
   }
 
   TextStyle cellTextStyle(T value) {
@@ -565,7 +568,7 @@ class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
       );
     }
 
-    final color = widget.colorCalculator(value);
+    final color = widget.colorForActivity(value);
     final textColor = color.computeLuminance() > 0.5
         ? CupertinoColors.black
         : CupertinoColors.white;
@@ -660,7 +663,7 @@ class const SeverityActivityCalendar({
       title: '$itemName Activity',
       subtitle: 'Color intensity indicates symptom severity. Translucent days show no recorded activity.',
       activityData: activityData,
-      colorCalculator: SeverityUtils.colorForSeverity,
+      colorForActivity: SymptomSeverity.hslGreenToRed,
       legendBuilder: severityLegend,
       onDateTap: onDateTap,
       activityDescriptor: (severity) =>
@@ -688,7 +691,7 @@ class const SeverityActivityCalendar({
   }
 
   Widget severityLegendItem(int severity, String label) {
-    final color = SeverityUtils.colorForSeverity(severity);
+    final color = SymptomSeverity.hslGreenToRed(severity);
     final isInactive = severity == 0;
 
     return Row(
@@ -741,23 +744,29 @@ class const DosageActivityCalendar({
       title: '$drugName Activity',
       subtitle: 'Color intensity indicates dosage amount. Translucent days show no recorded doses.',
       activityData: activityData,
-      colorCalculator: dosageColor,
+      colorForActivity: dosageRelativeToMaxAsAccentAlpha,
       legendBuilder: dosageLegend,
       onDateTap: onDateTap,
       activityDescriptor: (dosage) =>
-          dosage == 0.0 ? 'No doses' : '${formatDecimalValue(dosage)}$unit',
+          dosage == 0.0
+              ? 'No doses'
+              : '${dosage.wholeNumberOrTrimmedDecimal}$unit',
       emptyValue: 0.0,
       onMultiSelectConfirmed: onMultiSelectConfirmed,
       multiSelectActionLabel: 'Add Dose',
     );
   }
 
-  Color dosageColor(double dosage) {
+  Color dosageRelativeToMaxAsAccentAlpha(double dosage) {
     if (dosage == 0.0) {
       return EColors.background.withValues(alpha: 0.3);
     }
     if (maxDosage == 0.0) return EColors.accent.withValues(alpha: 0.1);
-    return intensityColor(dosage / maxDosage, alphaMin: 0.1, alphaMax: 0.8);
+    return accentAlphaAsActivityIntensity(
+      dosage / maxDosage,
+      alphaMin: 0.1,
+      alphaMax: 0.8,
+    );
   }
 
   Widget dosageLegend() {
@@ -765,13 +774,13 @@ class const DosageActivityCalendar({
       children: [
         Text('Less', style: EText.body.small.muted),
         HSpace.s,
-        ...intensityGradientSquares(alphaMin: 0.1, alphaMax: 0.8),
+        ...fiveStepAccentAlphaSquares(alphaMin: 0.1, alphaMax: 0.8),
         HSpace.s,
         Text('More', style: EText.body.small.muted),
         const Spacer(),
         if (maxDosage > 0)
           Text(
-            'Max: ${formatDecimalValue(maxDosage)}$unit',
+            'Max: ${maxDosage.wholeNumberOrTrimmedDecimal}$unit',
             style: EText.body.small.muted,
           ),
       ],
@@ -787,7 +796,7 @@ class const CheckInsActivityCalendar({
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final activityData = generateActivityData();
+    final activityData = checkInCountByDay();
     final maxCount = activityData.values.isEmpty
         ? 0
         : activityData.values.reduce((a, b) => a > b ? a : b);
@@ -796,7 +805,8 @@ class const CheckInsActivityCalendar({
       title: 'Check-ins',
       subtitle: 'Tap on a date to view check-ins for that day',
       activityData: activityData,
-      colorCalculator: (count) => checkInsColor(count, maxCount),
+      colorForActivity: (count) =>
+          countRelativeToMaxAsAccentAlpha(count, maxCount),
       legendBuilder: () => checkInsLegend(maxCount),
       onDateTap: (context, date, count) => onDateTap(date),
       activityDescriptor: (count) => count == 0
@@ -808,7 +818,7 @@ class const CheckInsActivityCalendar({
     );
   }
 
-  Map<DateTime, int> generateActivityData() {
+  Map<DateTime, int> checkInCountByDay() {
     final data = <DateTime, int>{};
 
     for (final checkIn in checkIns) {
@@ -819,10 +829,10 @@ class const CheckInsActivityCalendar({
     return data;
   }
 
-  static Color checkInsColor(int count, int maxCount) {
+  static Color countRelativeToMaxAsAccentAlpha(int count, int maxCount) {
     if (count == 0) return EColors.background.withValues(alpha: 0.1);
     if (maxCount == 0) return EColors.accent.withValues(alpha: 0.1);
-    return intensityColor(count / maxCount);
+    return accentAlphaAsActivityIntensity(count / maxCount);
   }
 
   Widget checkInsLegend(int maxCount) {
@@ -830,7 +840,7 @@ class const CheckInsActivityCalendar({
       children: [
         Text('Less', style: EText.body.small.muted),
         HSpace.s,
-        ...intensityGradientSquares(),
+        ...fiveStepAccentAlphaSquares(),
         HSpace.s,
         Text('More', style: EText.body.small.muted),
         const Spacer(),
@@ -841,7 +851,7 @@ class const CheckInsActivityCalendar({
   }
 }
 
-List<Widget> intensityGradientSquares({
+List<Widget> fiveStepAccentAlphaSquares({
   double alphaMin = CalendarConstants.alphaMin,
   double alphaMax = CalendarConstants.alphaMax,
   int steps = 5,
@@ -853,7 +863,7 @@ List<Widget> intensityGradientSquares({
       height: CalendarConstants.legendItemSize,
       margin: const EdgeInsets.only(right: 2),
       decoration: BoxDecoration(
-        color: intensityColor(
+        color: accentAlphaAsActivityIntensity(
           intensity,
           alphaMin: alphaMin,
           alphaMax: alphaMax,

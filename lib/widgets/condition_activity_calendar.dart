@@ -6,7 +6,7 @@ import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/providers/conditions_provider.dart';
 import 'package:health_notes/services/condition_activity_aggregator.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/utils/severity_utils.dart';
+import 'package:health_notes/utils/symptom_severity.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
 import 'package:health_notes/theme/spacing.dart';
 
@@ -37,7 +37,7 @@ class const ConditionActivityCalendar({
       title: '${condition.name} Activity',
       subtitle: 'Color shows severity from entries and linked symptoms',
       activityData: activityData,
-      colorCalculator: _colorForDay,
+      colorForActivity: checkInSeverityOrMaxSymptomAsColor,
       legendBuilder: _legend,
       onDateTap: (context, date, dayData) {
         if (dayData.hasEntry) {
@@ -52,11 +52,11 @@ class const ConditionActivityCalendar({
     );
   }
 
-  Color _colorForDay(ConditionDayData dayData) {
+  Color checkInSeverityOrMaxSymptomAsColor(ConditionDayData dayData) {
     if (!dayData.hasActivity) {
       return EColors.background.withValues(alpha: 0.1);
     }
-    return SeverityUtils.colorForSeverity(dayData.primaryValue);
+    return SymptomSeverity.hslGreenToRed(dayData.checkInSeverityOrMaxSymptom);
   }
 
   String _describeDay(ConditionDayData dayData) {
@@ -83,7 +83,7 @@ class const ConditionActivityCalendar({
             height: CalendarConstants.legendItemSize,
             margin: const EdgeInsets.only(right: 2),
             decoration: BoxDecoration(
-              color: SeverityUtils.colorForSeverity(severity),
+              color: SymptomSeverity.hslGreenToRed(severity),
               borderRadius: BorderRadius.circular(AppRadius.xs),
             ),
           );

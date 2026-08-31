@@ -28,9 +28,9 @@ void main() {
 
   group('SymptomNormalizer', () {
     test('should generate consistent keys', () {
-      final key1 = SymptomNormalizer.generateKey('Headache', 'Severe');
-      final key2 = SymptomNormalizer.generateKey('HEADACHE', 'severe');
-      final key3 = SymptomNormalizer.generateKey('  headache  ', '  SEVERE  ');
+      final key1 = SymptomNormalizer.pipeJoinedNormalizedPair('Headache', 'Severe');
+      final key2 = SymptomNormalizer.pipeJoinedNormalizedPair('HEADACHE', 'severe');
+      final key3 = SymptomNormalizer.pipeJoinedNormalizedPair('  headache  ', '  SEVERE  ');
 
       expect(key1, equals(key2));
       expect(key2, equals(key3));
@@ -141,7 +141,7 @@ void main() {
         'Migraine',
         'migraine',
       ];
-      final result = CaseInsensitiveAggregator.aggregateStrings(items);
+      final result = CaseInsensitiveAggregator.countByCaseInsensitiveDisplay(items);
 
       expect(result.length, equals(2));
       expect(result['Headache'], equals(3));
@@ -150,7 +150,7 @@ void main() {
 
     test('should preserve original casing in display names', () {
       final items = ['headache', 'Headache', 'HEADACHE'];
-      final result = CaseInsensitiveAggregator.aggregateStrings(items);
+      final result = CaseInsensitiveAggregator.countByCaseInsensitiveDisplay(items);
 
       expect(result.containsKey('headache'), isTrue);
       expect(result['headache'], equals(3));
@@ -163,7 +163,7 @@ void main() {
         {'name': 'Migraine', 'severity': 8},
       ];
 
-      final result = CaseInsensitiveAggregator.groupByString(
+      final result = CaseInsensitiveAggregator.groupByCaseInsensitiveKey(
         items,
         (item) => item['name'] as String,
       );

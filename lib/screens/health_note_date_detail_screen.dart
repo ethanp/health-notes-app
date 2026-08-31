@@ -5,7 +5,7 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/utils/date_utils.dart';
+import 'package:health_notes/utils/health_date_format.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
 import 'package:health_notes/widgets/health_note_card.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
@@ -56,7 +56,7 @@ class const HealthNoteDateDetailScreen({
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            AppDateUtils.formatLongDate(date),
+            date.weekdayMonthDayYear,
             style: EText.headline.small.primary,
           ),
           CupertinoButton(

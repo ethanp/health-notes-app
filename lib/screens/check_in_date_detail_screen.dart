@@ -6,7 +6,7 @@ import 'package:health_notes/screens/check_in_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
-import 'package:health_notes/utils/date_utils.dart';
+import 'package:health_notes/utils/health_date_format.dart';
 
 class const CheckInDateDetailScreen({
   required final DateTime date,
@@ -80,7 +80,7 @@ class _CheckInDateDetailScreenState() extends State<CheckInDateDetailScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            AppDateUtils.formatLongDate(widget.date),
+            widget.date.weekdayMonthDayYear,
             style: EText.headline.small.primary,
           ),
           CupertinoButton(
@@ -116,7 +116,7 @@ class _CheckInDateDetailScreenState() extends State<CheckInDateDetailScreen> {
                   Text(checkIn.metricName, style: EText.label.large.primary),
                   VSpace.xs,
                   Text(
-                    AppDateUtils.formatTime(checkIn.dateTime),
+                    checkIn.dateTime.hourMinuteAmPm,
                     style: EText.body.small.secondary,
                   ),
                 ],

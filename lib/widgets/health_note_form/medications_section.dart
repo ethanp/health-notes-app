@@ -6,7 +6,7 @@ import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/models/medication_schedule.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/utils/number_formatter.dart';
+import 'package:health_notes/utils/whole_number_or_trimmed_decimal.dart';
 import 'package:health_notes/widgets/form_section_container.dart';
 import 'package:health_notes/widgets/health_note_form/form_controllers.dart';
 import 'package:health_notes/widgets/medication_schedule/due_dose_chip.dart';
@@ -179,14 +179,14 @@ class const MedicationsSection({
           MedicationDoseSuggestionChips(
             typedName: dose.name.display,
             onDoseSelected: (recommendation) =>
-                _applySuggestedDose(index, recommendation),
+                _fillDoseFromRecommendation(index, recommendation),
           ),
         ],
       ),
     );
   }
 
-  void _applySuggestedDose(int index, DrugDose recommendation) {
+  void _fillDoseFromRecommendation(int index, DrugDose recommendation) {
     onUpdate(
       index,
       name: recommendation.name,
@@ -194,7 +194,8 @@ class const MedicationsSection({
       unit: recommendation.unit,
     );
     controllers[index]?.name.text = recommendation.name.display;
-    controllers[index]?.dosage.text = formatDecimalValue(recommendation.dosage);
+    controllers[index]?.dosage.text =
+        recommendation.dosage.wholeNumberOrTrimmedDecimal;
     controllers[index]?.unit.text = recommendation.unit;
   }
 
