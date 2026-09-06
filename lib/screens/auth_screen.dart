@@ -1,5 +1,4 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/services/auth_service.dart';
@@ -95,7 +94,7 @@ class _AuthScreenState()
           borderRadius: BorderRadius.circular(AppRadius.extraLarge),
         ),
         child: const Icon(
-          CupertinoIcons.heart_fill,
+          Icons.favorite,
           size: 80,
           color: EColors.accent,
         ),
@@ -181,7 +180,7 @@ class _AuthScreenState()
 
   void showSignInFailed(Object e) {
     if (mounted) {
-      showCupertinoDialog(
+      showDialog(
         context: context,
         builder: (context) => AppAlertDialogs.error(
           title: 'Sign In Failed',

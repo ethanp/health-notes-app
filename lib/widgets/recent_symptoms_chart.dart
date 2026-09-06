@@ -1,6 +1,6 @@
 import 'package:ethan_ui/ethan_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/cupertino.dart';
 
 class const RecentSymptomsChart({
   required final Map<String, int> symptomStats,
@@ -45,7 +45,7 @@ class const RecentSymptomsChart({
                   return BarTooltipItem(
                     '${symptom.key}\n',
                     EText.body.small.copyWith(
-                      color: CupertinoColors.white,
+                      color: Colors.white,
                       fontWeight: FontWeight.w600,
                       fontSize: 11,
                     ),
@@ -86,7 +86,7 @@ class const RecentSymptomsChart({
                         child: Text(
                           label,
                           style: EText.body.small.copyWith(
-                            color: CupertinoColors.white.withValues(alpha: 0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 11,
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -122,7 +122,7 @@ class const RecentSymptomsChart({
                 double.infinity,
               ),
               getDrawingHorizontalLine: (value) => FlLine(
-                color: CupertinoColors.systemGrey.withValues(alpha: 0.2),
+                color: EColors.textMuted.withValues(alpha: 0.2),
                 strokeWidth: 1,
               ),
             ),

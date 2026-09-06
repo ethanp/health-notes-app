@@ -1,5 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/health_date_format.dart';
@@ -150,10 +150,10 @@ class _BulkDoseSheetState() extends State<BulkDoseSheet> {
         Expanded(
           child: Text('Add ${widget.drugName}', style: EText.headline.small),
         ),
-        CupertinoButton(
-          padding: EdgeInsets.zero,
+        IconButton(
+          tooltip: 'Close',
           onPressed: () => Navigator.of(context).pop(),
-          child: const Icon(CupertinoIcons.xmark),
+          icon: const Icon(Icons.close),
         ),
       ],
     );
@@ -180,24 +180,23 @@ class _BulkDoseSheetState() extends State<BulkDoseSheet> {
       children: [
         Text('Dosage amount', style: EText.label.medium),
         VSpace.s,
-        CupertinoTextField(
+        TextField(
           controller: _dosageController,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          placeholder: 'e.g. 10',
           autofocus: true,
           style: EText.body.medium,
-          placeholderStyle: EText.body.medium.muted,
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.m,
-            vertical: AppSpacing.sm,
-          ),
-          decoration: BoxDecoration(
-            color: EColors.surface,
-            borderRadius: BorderRadius.circular(AppRadius.small),
-            border: Border.all(color: EColors.surfaceRaised),
-          ),
           onChanged: (_) => setState(() {}),
           onSubmitted: (_) => _submit(),
+          decoration: InputDecoration(
+            hintText: 'e.g. 10',
+            hintStyle: EText.body.medium.muted,
+            filled: true,
+            fillColor: EColors.surface,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.small),
+              borderSide: const BorderSide(color: EColors.surfaceRaised),
+            ),
+          ),
         ),
       ],
     );
@@ -209,22 +208,21 @@ class _BulkDoseSheetState() extends State<BulkDoseSheet> {
       children: [
         Text('Unit', style: EText.label.medium),
         VSpace.s,
-        CupertinoTextField(
+        TextField(
           controller: _unitController,
-          placeholder: 'mg',
           style: EText.body.medium,
-          placeholderStyle: EText.body.medium.muted,
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.m,
-            vertical: AppSpacing.sm,
-          ),
-          decoration: BoxDecoration(
-            color: EColors.surface,
-            borderRadius: BorderRadius.circular(AppRadius.small),
-            border: Border.all(color: EColors.surfaceRaised),
-          ),
           onChanged: (_) => setState(() {}),
           onSubmitted: (_) => _submit(),
+          decoration: InputDecoration(
+            hintText: 'mg',
+            hintStyle: EText.body.medium.muted,
+            filled: true,
+            fillColor: EColors.surface,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.small),
+              borderSide: const BorderSide(color: EColors.surfaceRaised),
+            ),
+          ),
         ),
       ],
     );
@@ -233,9 +231,8 @@ class _BulkDoseSheetState() extends State<BulkDoseSheet> {
   Widget _addButton() {
     final count = widget.dates.length;
     final dayWord = count == 1 ? 'day' : 'days';
-    return CupertinoButton(
-      padding: EdgeInsets.zero,
-      onPressed: _canSubmit ? _submit : null,
+    return InkWell(
+      onTap: _canSubmit ? _submit : null,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: _canSubmit

@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public.conditions (
     end_date TIMESTAMPTZ,
     condition_status TEXT NOT NULL DEFAULT 'active' CHECK (condition_status IN ('active', 'resolved')),
     color_value BIGINT NOT NULL DEFAULT 4293467379, -- 0xFFE57373
-    icon_code_point INTEGER NOT NULL DEFAULT 63364, -- 0xf584 (CupertinoIcons.bandage)
+    icon_code_point INTEGER NOT NULL DEFAULT 63364, -- 0xf584
     notes TEXT NOT NULL DEFAULT '',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

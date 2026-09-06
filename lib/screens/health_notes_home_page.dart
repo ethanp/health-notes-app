@@ -1,6 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/drug_name.dart';
@@ -248,13 +247,13 @@ class _HealthNotesHomePageState()
       return EEmptyState(
         title: 'No matches found',
         message: 'Try adjusting your search or filters to find what you\'re looking for',
-        icon: CupertinoIcons.search,
+        icon: Icons.search,
       );
     } else {
       return AnimatedWelcomeCard(
         title: 'Welcome to Health Notes',
         message: 'Start tracking your health journey by adding your first note',
-        icon: CupertinoIcons.heart_fill,
+        icon: Icons.favorite,
         iconColor: EColors.accent,
         action: FilledButton.icon(
           onPressed: showAddNoteModal,
@@ -266,21 +265,20 @@ class _HealthNotesHomePageState()
   }
 
   Widget emptyTable() {
-    return CustomScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      slivers: [
-        CupertinoSliverRefreshControl(
-          onRefresh: () async {
-            await ref.read(healthNotesProvider.notifier).refreshNotes();
-          },
-        ),
-        SliverFillRemaining(
+    return RefreshIndicator(
+      onRefresh: () async {
+        await ref.read(healthNotesProvider.notifier).refreshNotes();
+      },
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverFillRemaining(
           hasScrollBody: false,
           child: AnimatedWelcomeCard(
             title: 'Welcome to Health Notes',
             message:
                 'Start tracking your health journey by adding your first note',
-            icon: CupertinoIcons.heart_fill,
+            icon: Icons.favorite,
             iconColor: EColors.accent,
             action: FilledButton.icon(
               onPressed: showAddNoteModal,
@@ -290,6 +288,7 @@ class _HealthNotesHomePageState()
           ),
         ),
       ],
+      ),
     );
   }
 
@@ -362,8 +361,8 @@ class _HealthNotesHomePageState()
       alignment: Alignment.centerRight,
       padding: const EdgeInsets.only(right: AppSpacing.l),
       child: const Icon(
-        CupertinoIcons.delete,
-        color: CupertinoColors.white,
+        Icons.delete,
+        color: Colors.white,
         size: 30,
       ),
     );
@@ -386,7 +385,7 @@ class _HealthNotesHomePageState()
   }
 
   Future<bool> showDeleteConfirmation(HealthNote note) async {
-    return await showCupertinoDialog<bool>(
+    return await showDialog<bool>(
           context: context,
           builder: (context) => AppAlertDialogs.confirmDestructive(
             title: 'Delete Note',

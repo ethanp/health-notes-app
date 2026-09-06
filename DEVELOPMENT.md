@@ -93,24 +93,24 @@ class MyWidget extends StatelessWidget {
 // ✅ Preferred - Switch expression for simple value returns
 IconData _getIconData(String iconName) {
   return switch (iconName) {
-    'allergies' => CupertinoIcons.circle,
-    'anxiety' => CupertinoIcons.heart,
-    'nausea' => CupertinoIcons.drop,
-    'cold' => CupertinoIcons.snow,
-    'flu' => CupertinoIcons.thermometer,
-    'travel' => CupertinoIcons.airplane,
-    'car_travel' => CupertinoIcons.car_detailed,
-    'plane_travel' => CupertinoIcons.airplane,
-    _ => CupertinoIcons.wrench,
+    'allergies' => Icons.circle_outlined,
+    'anxiety' => Icons.favorite_border,
+    'nausea' => Icons.water_drop,
+    'cold' => Icons.ac_unit,
+    'flu' => Icons.thermostat,
+    'travel' => Icons.flight,
+    'car_travel' => Icons.directions_car,
+    'plane_travel' => Icons.flight,
+    _ => Icons.build,
   };
 }
 
 Color _getRatingColor(int rating) {
   return switch (rating) {
-    <= 3 => CupertinoColors.systemRed,
-    <= 5 => CupertinoColors.systemOrange,
-    <= 7 => CupertinoColors.systemYellow,
-    _ => CupertinoColors.systemGreen,
+    <= 3 => EColors.danger,
+    <= 5 => EColors.warning,
+    <= 7 => EColors.warning,
+    _ => EColors.success,
   };
 }
 
@@ -127,13 +127,13 @@ builder: (context) => switch (index) {
 IconData _getIconData(String iconName) {
   switch (iconName) {
     case 'allergies':
-      return CupertinoIcons.circle;
+      return Icons.circle_outlined;
     case 'anxiety':
-      return CupertinoIcons.heart;
+      return Icons.favorite_border;
     case 'nausea':
-      return CupertinoIcons.drop;
+      return Icons.water_drop;
     default:
-      return CupertinoIcons.wrench;
+      return Icons.build;
   }
 }
 

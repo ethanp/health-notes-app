@@ -1,5 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/providers/auth_provider.dart';
 import 'package:health_notes/services/check_in_metrics_dao.dart';

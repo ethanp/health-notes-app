@@ -1,6 +1,6 @@
 import 'package:ethan_ui/ethan_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/utils/health_date_format.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -56,6 +56,6 @@ class const _EmptyState() extends StatelessWidget {
   Widget build(BuildContext context) => EEmptyState(
     title: 'No matching notes',
     message: 'Try adjusting your search terms',
-    icon: CupertinoIcons.search,
+    icon: Icons.search,
   );
 }

@@ -1,7 +1,6 @@
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:health_notes/constants/chart_constants.dart';
 import 'package:health_notes/models/check_in.dart';
@@ -86,7 +85,7 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
       decoration: AppComponents.primaryCard.copyWith(
         boxShadow: [
           BoxShadow(
-            color: CupertinoColors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -164,25 +163,25 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: CupertinoColors.systemGreen.withValues(alpha: 0.05),
+        color: EColors.success.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(AppRadius.small),
         border: Border.all(
-          color: CupertinoColors.systemGreen.withValues(alpha: 0.2),
+          color: EColors.success.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
       child: Row(
         children: [
           Icon(
-            CupertinoIcons.info_circle,
+            Icons.info_outline,
             size: 14,
-            color: CupertinoColors.systemGreen,
+            color: EColors.success,
           ),
           HSpace.of(6),
           Expanded(
             child: Text(
               'Green zones: 1-3 (Lower is Better), 4-7 (Middle is Best), 8-10 (Higher is Better)',
-              style: EText.body.tiny.withColor(CupertinoColors.systemGreen),
+              style: EText.body.tiny.withColor(EColors.success),
             ),
           ),
         ],
@@ -272,17 +271,17 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
             horizontalLines: [
               HorizontalLine(
                 y: 1,
-                color: CupertinoColors.white.withValues(alpha: 0.25),
+                color: Colors.white.withValues(alpha: 0.25),
                 strokeWidth: 1,
               ),
               HorizontalLine(
                 y: 5,
-                color: CupertinoColors.white.withValues(alpha: 0.25),
+                color: Colors.white.withValues(alpha: 0.25),
                 strokeWidth: 1,
               ),
               HorizontalLine(
                 y: 10,
-                color: CupertinoColors.white.withValues(alpha: 0.25),
+                color: Colors.white.withValues(alpha: 0.25),
                 strokeWidth: 1,
               ),
             ],
@@ -339,7 +338,7 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
         final date = sortedDates[idx];
         if (date.day != 1) return FlLine(strokeWidth: 0);
         return FlLine(
-          color: CupertinoColors.white.withValues(alpha: 0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           strokeWidth: 1,
         );
       },
@@ -385,7 +384,7 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
                 style: EText.body.small.secondary
                     .size(9)
                     .copyWith(
-                      color: CupertinoColors.white.withValues(alpha: 0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                     ),
               ),
             );
@@ -412,7 +411,7 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
               style: EText.body.small.secondary
                   .size(9)
                   .copyWith(
-                    color: CupertinoColors.white.withValues(alpha: 0.7),
+                    color: Colors.white.withValues(alpha: 0.7),
                   ),
             ),
           );
@@ -426,7 +425,7 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
     return FlBorderData(
       show: true,
       border: Border.all(
-        color: CupertinoColors.white.withValues(alpha: 0.15),
+        color: Colors.white.withValues(alpha: 0.15),
         width: 0.5,
       ),
     );
@@ -501,7 +500,7 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
           radius: 3,
           color: color,
           strokeWidth: 1,
-          strokeColor: CupertinoColors.white,
+          strokeColor: Colors.white,
         );
       },
     );
@@ -562,36 +561,19 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
         color: EColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.small),
       ),
-      child: CupertinoSegmentedControl<DateRangeFilter>(
-        groupValue: _selectedDateRange,
-        padding: const EdgeInsets.all(2),
-        borderColor: EColors.surfaceRaised,
-        selectedColor: EColors.accent,
-        unselectedColor: Colors.transparent,
-        pressedColor: EColors.accent.withValues(alpha: 0.4),
-        onValueChanged: (value) {
-          setState(() {
-            _selectedDateRange = value;
-          });
-        },
-        children: {
+      child: SegmentedButton<DateRangeFilter>(
+        segments: [
           for (final filter in DateRangeFilter.values)
-            filter: dateRangeSegmentLabel(filter),
+            ButtonSegment<DateRangeFilter>(
+              value: filter,
+              label: Text(filter.label),
+            ),
+        ],
+        selected: {_selectedDateRange},
+        onSelectionChanged: (selection) {
+          setState(() => _selectedDateRange = selection.first);
         },
-      ),
-    );
-  }
-
-  Widget dateRangeSegmentLabel(DateRangeFilter filter) {
-    final isSelected = _selectedDateRange == filter;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Text(
-        filter.label,
-        style: EText.body.small.copyWith(
-          color: isSelected ? CupertinoColors.white : EColors.textSecondary,
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-        ),
+        showSelectedIcon: false,
       ),
     );
   }

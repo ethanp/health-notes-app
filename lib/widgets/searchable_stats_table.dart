@@ -1,5 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 
@@ -36,12 +36,15 @@ class _SearchableStatsTableState() extends State<SearchableStatsTable> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CupertinoSearchTextField(
+          TextField(
             controller: _searchController,
-            placeholder: widget.searchPlaceholder,
-            placeholderStyle: EText.body.medium.muted,
             style: EText.body.medium,
             onChanged: (query) => setState(() => _searchQuery = query),
+            decoration: InputDecoration(
+              hintText: widget.searchPlaceholder,
+              hintStyle: EText.body.medium.muted,
+              prefixIcon: const Icon(Icons.search),
+            ),
           ),
           VSpace.s,
           Text('${widget.stats.length} total', style: EText.body.small.muted),

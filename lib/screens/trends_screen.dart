@@ -1,6 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in.dart';
@@ -136,30 +135,31 @@ class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
   }
 
   Widget emptyState() {
-    return CustomScrollView(
-      slivers: [
-        CupertinoSliverRefreshControl(
-          onRefresh: () => ref.read(syncProvider.notifier).syncAllData(),
-        ),
-        SliverFillRemaining(
+    return RefreshIndicator(
+      onRefresh: () => ref.read(syncProvider.notifier).syncAllData(),
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverFillRemaining(
           hasScrollBody: false,
           child: EEmptyState(
             title: 'No data for trends yet',
             message: 'Add some health notes to see analytics',
-            icon: CupertinoIcons.chart_bar,
+            icon: Icons.bar_chart,
           ),
         ),
       ],
+      ),
     );
   }
 
   Widget trendsContent(List<HealthNote> notes, List<CheckIn> checkIns) {
-    return CustomScrollView(
-      slivers: [
-        CupertinoSliverRefreshControl(
-          onRefresh: () => ref.read(syncProvider.notifier).syncAllData(),
-        ),
-        SliverPadding(
+    return RefreshIndicator(
+      onRefresh: () => ref.read(syncProvider.notifier).syncAllData(),
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverPadding(
           padding: const EdgeInsets.all(AppSpacing.m),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
@@ -170,27 +170,27 @@ class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
           ),
         ),
       ],
+      ),
     );
   }
 
   Widget categorySelector() {
     return SizedBox(
       width: double.infinity,
-      child: CupertinoSlidingSegmentedControl<TrendsCategory>(
-        groupValue: selectedCategory,
-        onValueChanged: (category) {
-          if (category == null) return;
-          setState(() => selectedCategory = category);
-        },
-        children: const {
-          TrendsCategory.notes: Padding(
-            padding: EdgeInsets.symmetric(vertical: 6),
-            child: Text('Note Trends'),
+      child: SegmentedButton<TrendsCategory>(
+        segments: const [
+          ButtonSegment(
+            value: TrendsCategory.notes,
+            label: Text('Note Trends'),
           ),
-          TrendsCategory.checkIns: Padding(
-            padding: EdgeInsets.symmetric(vertical: 6),
-            child: Text('Check-in Trends'),
+          ButtonSegment(
+            value: TrendsCategory.checkIns,
+            label: Text('Check-in Trends'),
           ),
+        ],
+        selected: {selectedCategory},
+        onSelectionChanged: (selection) {
+          setState(() => selectedCategory = selection.first);
         },
       ),
     );

@@ -1,6 +1,6 @@
 import 'package:ethan_ui/ethan_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
@@ -20,9 +20,8 @@ class const ToolNoteCard({
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: () => context.push(HealthNoteViewScreen(note: note)),
+      child: InkWell(
+        onTap: () => context.push(HealthNoteViewScreen(note: note)),
         child: ECard(
           child: Row(
             children: [
@@ -38,7 +37,7 @@ class const ToolNoteCard({
                     Row(
                       children: [
                         Icon(
-                          CupertinoIcons.wrench,
+                          Icons.build,
                           size: 14,
                           color: EColors.accent,
                         ),
@@ -72,7 +71,7 @@ class const ToolNoteCard({
               ),
               HSpace.s,
               Icon(
-                CupertinoIcons.chevron_right,
+                Icons.chevron_right,
                 size: 14,
                 color: EColors.textMuted,
               ),

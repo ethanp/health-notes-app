@@ -1,6 +1,6 @@
 import 'package:ethan_ui/ethan_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
@@ -59,10 +59,10 @@ class const HealthNoteDateDetailScreen({
             date.weekdayMonthDayYear,
             style: EText.headline.small.primary,
           ),
-          CupertinoButton(
-            padding: EdgeInsets.zero,
+          IconButton(
+            tooltip: 'Close',
             onPressed: () => Navigator.of(context).pop(),
-            child: Icon(CupertinoIcons.xmark, color: EColors.textSecondary),
+            icon: Icon(Icons.close, color: EColors.textSecondary),
           ),
         ],
       ),
@@ -91,7 +91,7 @@ class const HealthNoteDateDetailScreen({
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              CupertinoIcons.calendar,
+              Icons.calendar_today,
               size: 48,
               color: EColors.textSecondary,
             ),

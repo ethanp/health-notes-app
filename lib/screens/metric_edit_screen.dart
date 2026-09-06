@@ -1,6 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in_metric.dart';
@@ -22,8 +21,8 @@ class _MetricEditScreenState() extends ConsumerState<MetricEditScreen> {
   final _nameController = TextEditingController();
 
   MetricType _selectedType = MetricType.higherIsBetter;
-  Color _selectedColor = CupertinoColors.systemBlue;
-  IconData _selectedIcon = CupertinoIcons.circle;
+  Color _selectedColor = EColors.accent;
+  IconData _selectedIcon = Icons.circle_outlined;
   bool _isLoading = false;
 
   @override
@@ -91,22 +90,18 @@ class _MetricEditScreenState() extends ConsumerState<MetricEditScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Metric Name',
-            style: CupertinoTheme.of(context).textTheme.textStyle
-                .copyWith(fontWeight: FontWeight.w600),
-          ),
+          Text('Metric Name', style: EText.body.medium.semibold),
           VSpace.s,
-          CupertinoTextField(
+          TextField(
             controller: _nameController,
-            placeholder: 'Enter metric name',
-            decoration: BoxDecoration(
-              border: Border.all(color: CupertinoColors.systemGrey4),
-              borderRadius: BorderRadius.circular(AppRadius.small),
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
-              vertical: AppSpacing.s,
+            decoration: InputDecoration(
+              hintText: 'Enter metric name',
+              filled: true,
+              fillColor: EColors.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppRadius.small),
+                borderSide: const BorderSide(color: EColors.surfaceRaised),
+              ),
             ),
           ),
         ],
@@ -119,11 +114,7 @@ class _MetricEditScreenState() extends ConsumerState<MetricEditScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Value Preference',
-            style: CupertinoTheme.of(context).textTheme.textStyle
-                .copyWith(fontWeight: FontWeight.w600),
-          ),
+          Text('Value Preference', style: EText.body.medium.semibold),
           VSpace.sm,
           ...MetricType.values.map(typeOption),
         ],
@@ -136,31 +127,30 @@ class _MetricEditScreenState() extends ConsumerState<MetricEditScreen> {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      child: CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: () => setState(() => _selectedType = type),
+      child: InkWell(
+        onTap: () => setState(() => _selectedType = type),
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.sm),
           decoration: BoxDecoration(
             color: isSelected
-                ? CupertinoColors.systemBlue.withValues(alpha: 0.1)
-                : CupertinoColors.systemGrey4.darkColor,
+                ? EColors.accent.withValues(alpha: 0.1)
+                : EColors.surface,
             borderRadius: BorderRadius.circular(AppRadius.small),
             border: Border.all(
               color: isSelected
-                  ? CupertinoColors.systemBlue
-                  : CupertinoColors.systemGrey4,
+                  ? EColors.accent
+                  : EColors.borderStrong,
             ),
           ),
           child: Row(
             children: [
               Icon(
                 isSelected
-                    ? CupertinoIcons.checkmark_circle_fill
-                    : CupertinoIcons.circle,
+                    ? Icons.check_circle
+                    : Icons.circle_outlined,
                 color: isSelected
-                    ? CupertinoColors.systemBlue
-                    : CupertinoColors.systemGrey,
+                    ? EColors.accent
+                    : EColors.textMuted,
                 size: 20,
               ),
               HSpace.sm,
@@ -196,11 +186,7 @@ class _MetricEditScreenState() extends ConsumerState<MetricEditScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Color',
-            style: CupertinoTheme.of(context).textTheme.textStyle
-                .copyWith(fontWeight: FontWeight.w600),
-          ),
+          Text('Color', style: EText.body.medium.semibold),
           VSpace.sm,
           ColorPickerGrid(
             colors: MetricColorPalette.colors,
@@ -218,11 +204,7 @@ class _MetricEditScreenState() extends ConsumerState<MetricEditScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Icon',
-            style: CupertinoTheme.of(context).textTheme.textStyle
-                .copyWith(fontWeight: FontWeight.w600),
-          ),
+          Text('Icon', style: EText.body.medium.semibold),
           VSpace.sm,
           Wrap(
             spacing: 12,
@@ -245,16 +227,16 @@ class _MetricEditScreenState() extends ConsumerState<MetricEditScreen> {
         decoration: BoxDecoration(
           color: isSelected
               ? _selectedColor.withValues(alpha: 0.2)
-              : CupertinoColors.systemGrey6,
+              : EColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.small),
           border: Border.all(
-            color: isSelected ? _selectedColor : CupertinoColors.systemGrey4,
+            color: isSelected ? _selectedColor : EColors.borderStrong,
             width: isSelected ? 2 : 1,
           ),
         ),
         child: Icon(
           icon,
-          color: isSelected ? _selectedColor : CupertinoColors.systemGrey,
+          color: isSelected ? _selectedColor : EColors.textMuted,
           size: 20,
         ),
       ),
@@ -266,7 +248,7 @@ class _MetricEditScreenState() extends ConsumerState<MetricEditScreen> {
 
     if (name.isEmpty) {
       if (mounted) {
-        showCupertinoDialog(
+        showDialog(
           context: context,
           builder: (context) => AppAlertDialogs.error(
             title: 'Error',
@@ -286,7 +268,7 @@ class _MetricEditScreenState() extends ConsumerState<MetricEditScreen> {
 
       if (nameExists) {
         if (mounted) {
-          showCupertinoDialog(
+          showDialog(
             context: context,
             builder: (context) => AppAlertDialogs.error(
               title: 'Error',
@@ -323,7 +305,7 @@ class _MetricEditScreenState() extends ConsumerState<MetricEditScreen> {
       }
     } catch (e) {
       if (mounted) {
-        showCupertinoDialog(
+        showDialog(
           context: context,
           builder: (context) => AppAlertDialogs.error(
             title: 'Error',

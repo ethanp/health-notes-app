@@ -1,5 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/providers/health_tools_provider.dart';
@@ -94,10 +94,10 @@ class _AppliedToolPickerSheetState()
       Row(
         children: [
           Expanded(child: Text('Select a tool', style: EText.headline.small)),
-          CupertinoButton(
-            padding: EdgeInsets.zero,
+          IconButton(
+            tooltip: 'Close',
             onPressed: () => Navigator.of(context).pop(),
-            child: const Icon(CupertinoIcons.xmark),
+            icon: const Icon(Icons.close),
           ),
         ],
       ),
@@ -131,7 +131,7 @@ class _AppliedToolPickerSheetState()
           return EEmptyState(
             title: 'No tools found',
             message: 'Try a different search or add tools in Library → Tools',
-            icon: CupertinoIcons.search,
+            icon: Icons.search,
           );
         }
 

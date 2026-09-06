@@ -1,5 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 
@@ -46,7 +46,7 @@ abstract class CheckIn with _$CheckIn {
 
   /// Get the icon for this check-in's metric (requires CheckInMetric to be passed)
   IconData getMetricIcon(CheckInMetric? metric) =>
-      metric?.icon ?? CupertinoIcons.circle;
+      metric?.icon ?? Icons.circle_outlined;
 
   Map<String, dynamic> toJsonForUpdate() {
     return {

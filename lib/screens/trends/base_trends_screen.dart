@@ -1,5 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
@@ -58,7 +58,7 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>()
 
   Future<void> reloadNotes();
 
-  IconData get emptyIcon => CupertinoIcons.exclamationmark_triangle;
+  IconData get emptyIcon => Icons.warning_amber;
 
   bool hasActivityForValue(V value) => value != 0;
 
@@ -116,20 +116,23 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>()
     final segments = buildSegments(activityData, sortedNotes, filteredNotes);
     final activeIndex = selectedSegmentIndex.clamp(0, segments.length - 1);
 
-    return CustomScrollView(
-      slivers: [
-        CupertinoSliverRefreshControl(onRefresh: reloadNotes),
-        SliverPadding(
-          padding: const EdgeInsets.all(AppSpacing.m),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              buildViewSelector(segments, activeIndex),
-              VSpace.of(20),
-              ...segments[activeIndex].content,
-            ]),
+    return RefreshIndicator(
+      onRefresh: reloadNotes,
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.all(AppSpacing.m),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                buildViewSelector(segments, activeIndex),
+                VSpace.of(20),
+                ...segments[activeIndex].content,
+              ]),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -158,19 +161,19 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>()
   Widget buildViewSelector(List<TrendsSegment> segments, int activeIndex) {
     return SizedBox(
       width: double.infinity,
-      child: CupertinoSlidingSegmentedControl<int>(
-        groupValue: activeIndex,
-        onValueChanged: (index) {
-          if (index == null) return;
-          setState(() => selectedSegmentIndex = index);
-        },
-        children: {
+      child: SegmentedButton<int>(
+        segments: [
           for (var index = 0; index < segments.length; index++)
-            index: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Text(segments[index].title),
+            ButtonSegment<int>(
+              value: index,
+              label: Text(segments[index].title),
             ),
+        ],
+        selected: {activeIndex},
+        onSelectionChanged: (selection) {
+          setState(() => selectedSegmentIndex = selection.first);
         },
+        showSelectedIcon: false,
       ),
     );
   }

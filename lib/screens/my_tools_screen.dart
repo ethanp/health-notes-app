@@ -1,6 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_tool_category.dart';
@@ -73,9 +72,8 @@ class _MyToolsScreenState() extends ConsumerState<MyToolsScreen> {
     return ECard(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       padding: EdgeInsets.zero,
-      child: CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: () => _navigateToCategory(category),
+      child: InkWell(
+        onTap: () => _navigateToCategory(category),
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.m),
           child: Row(
@@ -84,8 +82,8 @@ class _MyToolsScreenState() extends ConsumerState<MyToolsScreen> {
               HSpace.m,
               Expanded(child: categoryDetails(category)),
               const Icon(
-                CupertinoIcons.chevron_right,
-                color: CupertinoColors.systemGrey,
+                Icons.chevron_right,
+                color: EColors.textMuted,
                 size: 16,
               ),
             ],
@@ -102,15 +100,15 @@ class _MyToolsScreenState() extends ConsumerState<MyToolsScreen> {
 
   IconData _getIconData(String iconName) {
     return switch (iconName) {
-      'allergies' => CupertinoIcons.circle,
-      'anxiety' => CupertinoIcons.heart,
-      'nausea' => CupertinoIcons.drop,
-      'cold' => CupertinoIcons.snow,
-      'flu' => CupertinoIcons.thermometer,
-      'travel' => CupertinoIcons.airplane,
-      'car_travel' => CupertinoIcons.car_detailed,
-      'plane_travel' => CupertinoIcons.airplane,
-      _ => CupertinoIcons.wrench,
+      'allergies' => Icons.circle_outlined,
+      'anxiety' => Icons.favorite_border,
+      'nausea' => Icons.water_drop,
+      'cold' => Icons.ac_unit,
+      'flu' => Icons.thermostat,
+      'travel' => Icons.flight,
+      'car_travel' => Icons.directions_car,
+      'plane_travel' => Icons.flight,
+      _ => Icons.build,
     };
   }
 
@@ -137,7 +135,7 @@ class _MyToolsScreenState() extends ConsumerState<MyToolsScreen> {
       ),
       child: Icon(
         _getIconData(category.iconName),
-        color: CupertinoColors.white,
+        color: Colors.white,
         size: 24,
       ),
     );

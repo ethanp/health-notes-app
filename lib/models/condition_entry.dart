@@ -1,15 +1,15 @@
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'condition_entry.freezed.dart';
 part 'condition_entry.g.dart';
 
 enum ConditionPhase({required final Color color}) {
-  onset(color: Color(0xFFFF9500)), // CupertinoColors.systemOrange (light)
-  worsening(color: Color(0xFFFF3B30)), // CupertinoColors.systemRed (light)
+  onset(color: Color(0xFFFF9500)),
+  worsening(color: Color(0xFFFF3B30)),
   peak(color: Color(0xFFD32F2F)),
-  improving(color: Color(0xFF34C759)); // CupertinoColors.systemGreen (light)
+  improving(color: Color(0xFF34C759));
 
   String get displayName => nameAsCapitalizedWords;
 }

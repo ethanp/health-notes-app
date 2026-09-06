@@ -1,7 +1,7 @@
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/check_in_metric.dart';
@@ -104,7 +104,7 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
       key: _formKey,
       child: userMetricsAsync.when(
         data: checkInFormContent,
-        loading: () => const Center(child: CupertinoActivityIndicator()),
+        loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => metricsErrorState(error),
       ),
     );
@@ -140,11 +140,7 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
     return ECard(
       child: Column(
         children: [
-          const Icon(
-            CupertinoIcons.chart_bar,
-            size: 48,
-            color: CupertinoColors.systemGrey,
-          ),
+          const Icon(Icons.bar_chart, size: 48, color: EColors.textMuted),
           VSpace.m,
           Text('No metrics available', style: EText.headline.small),
           VSpace.s,
@@ -164,9 +160,9 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(
-            CupertinoIcons.exclamationmark_triangle,
+            Icons.warning_amber,
             size: 48,
-            color: CupertinoColors.systemRed,
+            color: EColors.danger,
           ),
           VSpace.m,
           Text('Failed to load metrics', style: EText.headline.small),
@@ -177,7 +173,7 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
             textAlign: TextAlign.center,
           ),
           VSpace.m,
-          CupertinoButton.filled(
+          FilledButton(
             onPressed: () => ref.invalidate(checkInMetricsProvider),
             child: const Text('Retry'),
           ),
@@ -230,12 +226,12 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
         Icon(metric.icon, size: 20, color: EColors.textPrimary),
         HSpace.sm,
         Expanded(child: Text(metric.name, style: EText.label.large)),
-        CupertinoButton(
-          padding: EdgeInsets.zero,
+        IconButton(
+          tooltip: 'Remove metric',
           onPressed: () => setState(() => _selectedMetrics.remove(metricName)),
-          child: Icon(
-            CupertinoIcons.xmark_circle_fill,
-            color: CupertinoColors.systemRed.color.withValues(alpha: .7),
+          icon: Icon(
+            Icons.cancel,
+            color: EColors.danger.withValues(alpha: .7),
             size: 20,
           ),
         ),
@@ -248,7 +244,7 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
       children: [
         Text('1', style: EText.body.small.tertiary),
         Expanded(
-          child: CupertinoSlider(
+          child: Slider(
             value: rating.toDouble(),
             min: 1,
             max: 10,
@@ -292,17 +288,12 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
         children: [
           Text('Date & Time', style: EText.headline.small),
           VSpace.m,
-          Container(
-            height: 200,
-            decoration: AppComponents.inputField,
-            child: CupertinoDatePicker(
-              mode: CupertinoDatePickerMode.dateAndTime,
-              initialDateTime: _selectedDateTime,
-              backgroundColor: EColors.surface,
-              onDateTimeChanged: (DateTime newDateTime) {
-                setState(() => _selectedDateTime = newDateTime);
-              },
-            ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.calendar_today),
+            title: Text(DateFormat('EEEE, MMMM d, y').format(_selectedDateTime)),
+            subtitle: Text(DateFormat.jm().format(_selectedDateTime)),
+            onTap: _pickDateTime,
           ),
         ],
       ),
@@ -318,20 +309,10 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Active Conditions', style: EText.headline.small),
-              CupertinoButton(
-                padding: EdgeInsets.zero,
+              TextButton.icon(
                 onPressed: showAddConditionOptions,
-                child: Row(
-                  children: [
-                    Icon(
-                      CupertinoIcons.add,
-                      size: 18,
-                      color: CupertinoColors.systemBlue,
-                    ),
-                    HSpace.xs,
-                    Text('Add', style: EText.body.medium.semibold.accent),
-                  ],
-                ),
+                icon: const Icon(Icons.add, size: 18),
+                label: Text('Add', style: EText.body.medium.semibold.accent),
               ),
             ],
           ),
@@ -342,7 +323,7 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
           ),
           VSpace.m,
           if (!_conditionsLoaded)
-            const Center(child: CupertinoActivityIndicator())
+            const Center(child: CircularProgressIndicator())
           else if (_conditionDrafts.isEmpty)
             noConditionsMessage()
           else
@@ -411,7 +392,7 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
             borderWidth: 0,
           ),
           child: Icon(
-            CupertinoIcons.bandage,
+            Icons.healing,
             size: 14,
             color: draft.conditionColor,
           ),
@@ -420,12 +401,12 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
         Expanded(
           child: Text(draft.conditionName, style: EText.label.large.primary),
         ),
-        CupertinoButton(
-          padding: EdgeInsets.zero,
+        IconButton(
+          tooltip: 'Remove condition',
           onPressed: () => setState(() => _conditionDrafts.removeAt(index)),
-          child: Icon(
-            CupertinoIcons.xmark_circle_fill,
-            color: CupertinoColors.systemRed.withValues(alpha: 0.7),
+          icon: Icon(
+            Icons.cancel,
+            color: EColors.danger.withValues(alpha: 0.7),
             size: 20,
           ),
         ),
@@ -449,13 +430,13 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
               ),
               child: Text(
                 '${draft.severity}/10',
-                style: EText.label.small.copyWith(color: CupertinoColors.white),
+                style: EText.label.small.copyWith(color: Colors.white),
               ),
             ),
           ],
         ),
         VSpace.xs,
-        CupertinoSlider(
+        Slider(
           value: draft.severity.toDouble(),
           min: 1,
           max: 10,
@@ -515,17 +496,20 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
       children: [
         Text('Notes', style: EText.label.medium),
         VSpace.xs,
-        CupertinoTextField(
-          placeholder: 'Optional notes for this condition...',
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: EColors.surfaceRaised,
-            borderRadius: BorderRadius.circular(AppRadius.small),
-          ),
-          style: EText.body.small,
-          placeholderStyle: EText.body.medium.muted.size(13),
+        TextField(
           maxLines: 2,
+          style: EText.body.small,
           onChanged: (value) => draft.notes = value,
+          decoration: InputDecoration(
+            hintText: 'Optional notes for this condition...',
+            hintStyle: EText.body.medium.muted.size(13),
+            filled: true,
+            fillColor: EColors.surfaceRaised,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.small),
+              borderSide: BorderSide.none,
+            ),
+          ),
         ),
       ],
     );
@@ -534,10 +518,10 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
   Widget conditionResolveToggle(int index, ConditionEntryDraft draft) {
     return Row(
       children: [
-        CupertinoSwitch(
+        Switch(
           value: draft.markResolved,
           onChanged: (value) => setState(() => draft.markResolved = value),
-          activeTrackColor: CupertinoColors.systemGreen,
+          activeThumbColor: EColors.success,
         ),
         HSpace.s,
         Expanded(
@@ -550,24 +534,50 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
     );
   }
 
-  void showAddConditionOptions() {
-    showCupertinoModalPopup(
+  Future<void> _pickDateTime() async {
+    final pickedDate = await showDatePicker(
       context: context,
-      builder: (context) => CupertinoActionSheet(
-        title: const Text('Add Condition'),
-        actions: [
-          CupertinoActionSheetAction(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await context.push(const ConditionForm());
-              await _loadActiveConditions();
-            },
-            child: const Text('Create New Condition'),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+      initialDate: _selectedDateTime,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now().add(const Duration(days: 1)),
+    );
+    if (pickedDate == null || !mounted) return;
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_selectedDateTime),
+    );
+    if (pickedTime == null || !mounted) return;
+    setState(() {
+      _selectedDateTime = DateTime(
+        pickedDate.year,
+        pickedDate.month,
+        pickedDate.day,
+        pickedTime.hour,
+        pickedTime.minute,
+      );
+    });
+  }
+
+  void showAddConditionOptions() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('Create New Condition'),
+              onTap: () async {
+                Navigator.of(sheetContext).pop();
+                await context.push(const ConditionForm());
+                await _loadActiveConditions();
+              },
+            ),
+            ListTile(
+              title: const Text('Cancel'),
+              onTap: () => Navigator.of(sheetContext).pop(),
+            ),
+          ],
         ),
       ),
     );
@@ -648,7 +658,7 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
       }
     } catch (e) {
       if (mounted) {
-        showCupertinoDialog(
+        showDialog(
           context: context,
           builder: (context) => AppAlertDialogs.error(
             title: 'Error',

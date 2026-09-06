@@ -42,12 +42,12 @@
   - Use `OfflineRepository.syncAllData` in refresh flows; avoid duplicative network logic in UI.
 
 - **Theming and UI**:
-  - Use Cupertino widgets and `AppColors`, `AppTypography`, `AppSpacing`, `AppRadius` from `theme/app_theme.dart`.
-  - Avoid ad-hoc colors; pull from `AppColors`. For loading, prefer centralized components.
+  - Use Material widgets and `ETheme` / `EColors` / `EText` from `ethan_ui`, plus local `AppSpacing`, `AppRadius`, and `AppComponents` from `theme/app_theme.dart`.
+  - Avoid ad-hoc colors; pull from `EColors`. For loading, prefer centralized components.
   - Keep unselected options styled as white text on grey backgrounds.
 
 - **Navigation and screens**:
-  - Top-level app is `CupertinoApp` with dark theme; maintain consistency.
+  - Top-level app is `MaterialApp` with `ETheme.material3Dark`; maintain consistency.
   - Build screens as `ConsumerWidget`/`ConsumerStatefulWidget` as needed; avoid global state.
 
 - **Testing**:
@@ -73,7 +73,7 @@
   - Build screens as `ConsumerWidget` or `ConsumerStatefulWidget` only when local state is needed.
   - Forms: keep `TextEditingController`s in state and dispose via `controllers.forEach((c) => c.dispose())`.
   - Submit actions call notifier methods; on success, invalidate relevant providers and pop.
-  - Validation: surface inline errors using `AppTypography.error` and Cupertino inputs.
+  - Validation: surface inline errors using `EText.error` and Material inputs.
 
 - **Lists and details**:
   - Use `ref.watch(...).when(...)` to load lists; show centralized loading component.

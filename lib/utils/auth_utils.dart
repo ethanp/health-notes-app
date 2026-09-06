@@ -1,5 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/services/auth_service.dart';
 import 'package:health_notes/providers/user_profile_provider.dart';
@@ -9,7 +9,7 @@ import 'package:health_notes/widgets/user_avatar_widget.dart';
 
 class AuthUtils() {
   static Future<void> showSignOutDialog(BuildContext context) async {
-    final shouldSignOut = await showCupertinoDialog<bool>(
+    final shouldSignOut = await showDialog<bool>(
       context: context,
       builder: (context) => Consumer(
         builder: (context, ref, child) {
@@ -50,7 +50,7 @@ class AuthUtils() {
               contentWidget: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const CupertinoActivityIndicator(),
+                  const CircularProgressIndicator(),
                   VSpace.m,
                   const Text('Loading user information...'),
                 ],
@@ -75,7 +75,7 @@ class AuthUtils() {
         await authService.signOut();
       } catch (e) {
         if (context.mounted) {
-          showCupertinoDialog(
+          showDialog(
             context: context,
             builder: (context) => AppAlertDialogs.error(
               title: 'Error',

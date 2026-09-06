@@ -1,5 +1,6 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/utils/health_date_format.dart';
@@ -14,29 +15,27 @@ void showNoteDateDialog({
   Widget? summary,
   required Widget Function(HealthNote note) noteLabelBuilder,
 }) {
-  showCupertinoDialog(
+  showDialog<void>(
     context: context,
     barrierDismissible: true,
-    builder: (dialogContext) => CupertinoAlertDialog(
+    builder: (dialogContext) => AlertDialog(
       title: Text(date.weekdayMonthDayYear),
       content: summary,
       actions: [
         ...notes.map(
-          (note) => CupertinoDialogAction(
-            isDefaultAction: true,
-            child: noteLabelBuilder(note),
+          (note) => TextButton(
             onPressed: () {
               Navigator.of(dialogContext).pop();
               if (context.mounted) {
                 context.push(HealthNoteViewScreen(note: note));
               }
             },
+            child: noteLabelBuilder(note),
           ),
         ),
-        CupertinoDialogAction(
-          isDestructiveAction: true,
-          child: const Text('Close'),
+        TextButton(
           onPressed: () => Navigator.of(dialogContext).pop(),
+          child: Text('Close', style: TextStyle(color: EColors.danger)),
         ),
       ],
     ),
@@ -49,15 +48,15 @@ void showDateInfoDialog({
   required DateTime date,
   required String message,
 }) {
-  showCupertinoDialog(
+  showDialog<void>(
     context: context,
-    builder: (dialogContext) => CupertinoAlertDialog(
+    builder: (dialogContext) => AlertDialog(
       title: Text(date.weekdayMonthDayYear),
       content: Text(message),
       actions: [
-        CupertinoDialogAction(
-          child: const Text('OK'),
+        TextButton(
           onPressed: () => Navigator.of(dialogContext).pop(),
+          child: const Text('OK'),
         ),
       ],
     ),
@@ -80,30 +79,26 @@ class const AppAlertDialog({
 
   @override
   Widget build(BuildContext context) {
-    final allActions = <CupertinoDialogAction>[];
-
-    allActions.addAll(
-      actions.map(
-        (action) => CupertinoDialogAction(
-          onPressed: () {
-            Navigator.of(context).pop(true);
-          },
-          isDestructiveAction: action.isDestructive,
-          child: Text(action.text),
+    final allActions = <Widget>[
+      ...actions.map(
+        (action) => TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(
+            action.text,
+            style: action.isDestructive
+                ? const TextStyle(color: EColors.danger)
+                : null,
+          ),
         ),
       ),
-    );
-
-    if (showCancelButton) {
-      allActions.add(
-        CupertinoDialogAction(
+      if (showCancelButton)
+        TextButton(
           onPressed: () => Navigator.of(context).pop(false),
           child: Text(cancelText ?? 'Cancel'),
         ),
-      );
-    }
+    ];
 
-    return CupertinoAlertDialog(
+    return AlertDialog(
       title: Text(title),
       content: contentWidget ?? (content != null ? Text(content!) : null),
       actions: allActions,

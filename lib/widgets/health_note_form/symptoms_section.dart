@@ -1,6 +1,6 @@
 import 'package:ethan_ui/ethan_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/models/symptom.dart';
@@ -54,10 +54,10 @@ class const SymptomsSection({
     return ESectionHeader(
       title: 'Symptoms',
       trailing: isEditable
-          ? CupertinoButton(
-              padding: EdgeInsets.zero,
+          ? IconButton(
+              tooltip: 'Add symptom',
               onPressed: onAdd,
-              child: const Icon(CupertinoIcons.add),
+              icon: const Icon(Icons.add),
             )
           : null,
     );
@@ -145,13 +145,10 @@ class const SymptomsSection({
           ),
         ),
         HSpace.s,
-        CupertinoButton(
-          padding: EdgeInsets.zero,
+        IconButton(
+          tooltip: 'Remove symptom',
           onPressed: () => onRemove(index),
-          child: const Icon(
-            CupertinoIcons.delete,
-            color: CupertinoColors.destructiveRed,
-          ),
+          icon: const Icon(Icons.delete, color: EColors.danger),
         ),
       ],
     );
@@ -190,7 +187,7 @@ class const SymptomsSection({
               ),
             ),
             Icon(
-              CupertinoIcons.chevron_down,
+              Icons.expand_more,
               size: 14,
               color: onTap == null
                   ? EColors.textMuted.withValues(alpha: 0.3)
@@ -350,7 +347,7 @@ class const SymptomsSection({
         Text('Severity:', style: EText.label.medium),
         HSpace.m,
         Expanded(
-          child: CupertinoSlider(
+          child: Slider(
             value: symptom.severityLevel.toDouble(),
             min: 1,
             max: 10,
@@ -385,37 +382,23 @@ class const SymptomsSection({
         children: [
           ConditionBadge(conditionId: symptom.conditionId!),
           HSpace.s,
-          CupertinoButton(
-            padding: EdgeInsets.zero,
+          TextButton(
             onPressed: () => onUpdate(index, conditionId: ''),
             child: Text(
               'Remove',
-              style: EText.caption.copyWith(
-                color: CupertinoColors.destructiveRed,
-              ),
+              style: EText.caption.copyWith(color: EColors.danger),
             ),
           ),
         ],
       );
     }
 
-    return CupertinoButton(
-      padding: EdgeInsets.zero,
+    return TextButton.icon(
       onPressed: () => _showConditionPicker(context, ref, index),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            CupertinoIcons.bandage,
-            size: 14,
-            color: CupertinoColors.systemBlue,
-          ),
-          HSpace.xs,
-          Text(
-            '+ Link Condition',
-            style: EText.body.small.copyWith(color: CupertinoColors.systemBlue),
-          ),
-        ],
+      icon: const Icon(Icons.healing, size: 14),
+      label: Text(
+        'Link Condition',
+        style: EText.body.small.copyWith(color: EColors.accent),
       ),
     );
   }
@@ -427,60 +410,54 @@ class const SymptomsSection({
       data: (conditions) {
         final activeConditions = conditions.where((c) => c.isActive).toList();
 
-        showCupertinoModalPopup(
+        showModalBottomSheet<void>(
           context: context,
-          builder: (context) => CupertinoActionSheet(
-            title: const Text('Link to Condition'),
-            message: const Text(
-              'Select an active condition or create a new one',
-            ),
-            actions: [
-              ...activeConditions.map(
-                (condition) => CupertinoActionSheetAction(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    onUpdate(index, conditionId: condition.id);
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(condition.icon, color: condition.color, size: 18),
-                      HSpace.s,
-                      Text(condition.name),
-                    ],
+          builder: (sheetContext) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(AppSpacing.m),
+                  child: Text(
+                    'Link to Condition',
+                    style: EText.headline.small,
                   ),
                 ),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () async {
-                  Navigator.of(context).pop();
-                  final newCondition = await Navigator.of(context)
-                      .push<Condition>(
-                        CupertinoPageRoute(
-                          builder: (context) => const ConditionForm(),
-                        ),
-                      );
-                  if (newCondition != null) {
-                    onUpdate(index, conditionId: newCondition.id);
-                  }
-                },
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      CupertinoIcons.add,
-                      color: CupertinoColors.systemBlue,
+                ...activeConditions.map(
+                  (condition) => ListTile(
+                    leading: Icon(
+                      condition.icon,
+                      color: condition.color,
                       size: 18,
                     ),
-                    HSpace.s,
-                    Text('+ New Condition'),
-                  ],
+                    title: Text(condition.name),
+                    onTap: () {
+                      Navigator.of(sheetContext).pop();
+                      onUpdate(index, conditionId: condition.id);
+                    },
+                  ),
                 ),
-              ),
-            ],
-            cancelButton: CupertinoActionSheetAction(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+                ListTile(
+                  leading: const Icon(Icons.add, color: EColors.accent),
+                  title: const Text('New Condition'),
+                  onTap: () async {
+                    Navigator.of(sheetContext).pop();
+                    final newCondition = await Navigator.of(context)
+                        .push<Condition>(
+                          MaterialPageRoute(
+                            builder: (routeContext) => const ConditionForm(),
+                          ),
+                        );
+                    if (newCondition != null) {
+                      onUpdate(index, conditionId: newCondition.id);
+                    }
+                  },
+                ),
+                ListTile(
+                  title: const Text('Cancel'),
+                  onTap: () => Navigator.of(sheetContext).pop(),
+                ),
+              ],
             ),
           ),
         );
@@ -491,13 +468,15 @@ class const SymptomsSection({
   }
 
   Widget _editableNotes(int index, SymptomControllers controllers) {
-    return CupertinoTextField(
+    return TextField(
       controller: controllers.additionalNotes,
-      placeholder: 'Additional notes (optional)',
-      placeholderStyle: EText.body.medium.muted,
       style: EText.body.medium,
       maxLines: 2,
       onChanged: (value) => onUpdate(index, additionalNotes: value),
+      decoration: InputDecoration(
+        hintText: 'Additional notes (optional)',
+        hintStyle: EText.body.medium.muted,
+      ),
     );
   }
 }

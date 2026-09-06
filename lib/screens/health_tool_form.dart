@@ -1,5 +1,4 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_tool.dart';
@@ -86,12 +85,19 @@ class _HealthToolFormState() extends ConsumerState<HealthToolForm> {
         children: [
           Text('Tool Name', style: EText.headline.small),
           VSpace.m,
-          CupertinoTextField(
+          TextField(
             controller: _nameController,
-            placeholder: 'Enter tool name',
             style: EText.body.medium,
-            decoration: AppComponents.inputField,
-            padding: const EdgeInsets.all(AppSpacing.sm),
+            decoration: InputDecoration(
+              hintText: 'Enter tool name',
+              hintStyle: EText.body.medium.muted,
+              filled: true,
+              fillColor: EColors.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppRadius.small),
+                borderSide: const BorderSide(color: EColors.surfaceRaised),
+              ),
+            ),
           ),
         ],
       ),
@@ -110,14 +116,21 @@ class _HealthToolFormState() extends ConsumerState<HealthToolForm> {
             style: EText.body.medium.tertiary,
           ),
           VSpace.m,
-          CupertinoTextField(
+          TextField(
             controller: _descriptionController,
-            placeholder: 'Enter detailed description...',
             style: EText.body.medium,
-            decoration: AppComponents.inputField,
-            padding: const EdgeInsets.all(AppSpacing.sm),
             maxLines: 5,
             minLines: 3,
+            decoration: InputDecoration(
+              hintText: 'Enter detailed description...',
+              hintStyle: EText.body.medium.muted,
+              filled: true,
+              fillColor: EColors.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppRadius.small),
+                borderSide: const BorderSide(color: EColors.surfaceRaised),
+              ),
+            ),
           ),
         ],
       ),
@@ -166,7 +179,7 @@ class _HealthToolFormState() extends ConsumerState<HealthToolForm> {
       child: Row(
         children: [
           Icon(
-            CupertinoIcons.check_mark_circled_solid,
+            Icons.check_circle,
             color: EColors.accent,
             size: 20,
           ),
@@ -178,19 +191,14 @@ class _HealthToolFormState() extends ConsumerState<HealthToolForm> {
   }
 
   Widget categorySelector(List<HealthToolCategory> categories) {
-    return CupertinoSlidingSegmentedControl<String>(
-      groupValue: _selectedCategoryId,
-      children: {
+    return SegmentedButton<String>(
+      segments: [
         for (final category in categories)
-          category.id: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(category.name, style: EText.body.medium),
-          ),
-      },
-      onValueChanged: (value) {
-        if (value != null) {
-          setState(() => _selectedCategoryId = value);
-        }
+          ButtonSegment(value: category.id, label: Text(category.name)),
+      ],
+      selected: {_selectedCategoryId},
+      onSelectionChanged: (selection) {
+        setState(() => _selectedCategoryId = selection.first);
       },
     );
   }
@@ -220,15 +228,15 @@ class _HealthToolFormState() extends ConsumerState<HealthToolForm> {
       }
     } catch (e) {
       if (mounted) {
-        showCupertinoDialog(
+        showDialog(
           context: context,
-          builder: (context) => CupertinoAlertDialog(
+          builder: (context) => AlertDialog(
             title: const Text('Error'),
             content: Text('Failed to save tool: $e'),
             actions: [
-              CupertinoDialogAction(
-                child: const Text('OK'),
+              TextButton(
                 onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
               ),
             ],
           ),

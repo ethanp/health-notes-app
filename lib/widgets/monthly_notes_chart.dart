@@ -1,6 +1,6 @@
 import 'package:ethan_ui/ethan_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
 class const MonthlyNotesChart({required final Map<String, int> monthlyStats})
@@ -30,7 +30,7 @@ class const MonthlyNotesChart({required final Map<String, int> monthlyStats})
                 double.infinity,
               ),
               getDrawingHorizontalLine: (value) => FlLine(
-                color: CupertinoColors.systemGrey.withValues(alpha: 0.2),
+                color: EColors.textMuted.withValues(alpha: 0.2),
                 strokeWidth: 1,
               ),
             ),
@@ -97,7 +97,7 @@ class const MonthlyNotesChart({required final Map<String, int> monthlyStats})
                         radius: 4,
                         color: EColors.accent,
                         strokeWidth: 1.5,
-                        strokeColor: CupertinoColors.white,
+                        strokeColor: Colors.white,
                       ),
                 ),
                 belowBarData: BarAreaData(
@@ -124,7 +124,7 @@ class const MonthlyNotesChart({required final Map<String, int> monthlyStats})
                       TextSpan(
                         text: _monthAbbreviationAndYear(monthKey),
                         style: EText.body.small.copyWith(
-                          color: CupertinoColors.white,
+                          color: Colors.white,
                           fontSize: 10,
                         ),
                       ),

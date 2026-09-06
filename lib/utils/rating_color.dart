@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+import 'package:ethan_ui/ethan_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/constants/chart_constants.dart';
 
@@ -6,11 +7,7 @@ class RatingColor() {
   static Color redToGreen(int rating) {
     final clampedRating = rating.clamp(1, 10);
     final normalizedValue = (clampedRating - 1) / 9.0;
-    return Color.lerp(
-      CupertinoColors.systemRed,
-      CupertinoColors.systemGreen,
-      normalizedValue,
-    )!;
+    return Color.lerp(EColors.danger, EColors.success, normalizedValue)!;
   }
 
   static Color lowerIsBetter(int rating) {
@@ -33,26 +30,26 @@ class RatingColor() {
     switch (type) {
       case MetricType.lowerIsBetter:
         return [
-          CupertinoColors.systemRed.withValues(alpha: 0.1),
-          CupertinoColors.systemYellow.withValues(alpha: 0.1),
-          CupertinoColors.systemGreen.withValues(alpha: 0.1),
-          CupertinoColors.systemGreen.withValues(alpha: 0.1),
+          EColors.danger.withValues(alpha: 0.1),
+          EColors.warning.withValues(alpha: 0.1),
+          EColors.success.withValues(alpha: 0.1),
+          EColors.success.withValues(alpha: 0.1),
         ];
       case MetricType.higherIsBetter:
         return [
-          CupertinoColors.systemGreen.withValues(alpha: 0.1),
-          CupertinoColors.systemYellow.withValues(alpha: 0.1),
-          CupertinoColors.systemRed.withValues(alpha: 0.1),
-          CupertinoColors.systemRed.withValues(alpha: 0.1),
+          EColors.success.withValues(alpha: 0.1),
+          EColors.warning.withValues(alpha: 0.1),
+          EColors.danger.withValues(alpha: 0.1),
+          EColors.danger.withValues(alpha: 0.1),
         ];
       case MetricType.middleIsBest:
         return [
-          CupertinoColors.systemRed.withValues(alpha: 0.1),
-          CupertinoColors.systemYellow.withValues(alpha: 0.08),
-          CupertinoColors.systemGreen.withValues(alpha: 0.1),
-          CupertinoColors.systemYellow.withValues(alpha: 0.08),
-          CupertinoColors.systemRed.withValues(alpha: 0.1),
-          CupertinoColors.systemRed.withValues(alpha: 0.1),
+          EColors.danger.withValues(alpha: 0.1),
+          EColors.warning.withValues(alpha: 0.08),
+          EColors.success.withValues(alpha: 0.1),
+          EColors.warning.withValues(alpha: 0.08),
+          EColors.danger.withValues(alpha: 0.1),
+          EColors.danger.withValues(alpha: 0.1),
         ];
     }
   }

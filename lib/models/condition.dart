@@ -1,5 +1,5 @@
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'condition.freezed.dart';
@@ -26,7 +26,7 @@ abstract class Condition with _$Condition {
     @JsonKey(name: 'color_value') @Default(0xFFE57373) int colorValue,
     @JsonKey(name: 'icon_code_point')
     @Default(0xf584)
-    int iconCodePoint, // CupertinoIcons.bandage
+    int iconCodePoint,
     @Default('') String notes,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
@@ -41,8 +41,7 @@ abstract class Condition with _$Condition {
 
   IconData get icon => IconData(
     iconCodePoint, // ignore: non_const_argument_for_const_parameter
-    fontFamily: 'CupertinoIcons',
-    fontPackage: 'cupertino_icons',
+    fontFamily: 'MaterialIcons',
   );
 
   int get durationDays => endDate != null

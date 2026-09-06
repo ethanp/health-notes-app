@@ -1,6 +1,6 @@
 import 'package:ethan_ui/ethan_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/health_date_format.dart';
@@ -14,9 +14,8 @@ class const HealthNoteCard({
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return CupertinoButton(
-      padding: EdgeInsets.zero,
-      onPressed: onTap,
+    return InkWell(
+      onTap: onTap,
       child: ECard(
         margin: const EdgeInsets.only(bottom: 8),
         child: Column(

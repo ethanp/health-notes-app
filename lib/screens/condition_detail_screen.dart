@@ -1,6 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/condition.dart';
@@ -125,21 +124,20 @@ class _ConditionDetailScreenState()
   Widget viewSelector() {
     return SizedBox(
       width: double.infinity,
-      child: CupertinoSlidingSegmentedControl<ConditionDetailView>(
-        groupValue: selectedView,
-        onValueChanged: (view) {
-          if (view == null) return;
-          setState(() => selectedView = view);
-        },
-        children: const {
-          ConditionDetailView.calendar: Padding(
-            padding: EdgeInsets.symmetric(vertical: 6),
-            child: Text('Calendar'),
+      child: SegmentedButton<ConditionDetailView>(
+        segments: const [
+          ButtonSegment(
+            value: ConditionDetailView.calendar,
+            label: Text('Calendar'),
           ),
-          ConditionDetailView.activity: Padding(
-            padding: EdgeInsets.symmetric(vertical: 6),
-            child: Text('Activity'),
+          ButtonSegment(
+            value: ConditionDetailView.activity,
+            label: Text('Activity'),
           ),
+        ],
+        selected: {selectedView},
+        onSelectionChanged: (selection) {
+          setState(() => selectedView = selection.first);
         },
       ),
     );
@@ -218,8 +216,8 @@ class _ConditionDetailScreenState()
 
   Widget statusBadge(Condition condition) {
     final color = condition.isActive
-        ? CupertinoColors.systemOrange
-        : CupertinoColors.systemGreen;
+        ? EColors.warning
+        : EColors.success;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.sm,
@@ -346,9 +344,8 @@ class _ConditionDetailScreenState()
   Widget entryCard(ConditionEntry entry) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: () => showEntryEditModal(entry),
+      child: InkWell(
+        onTap: () => showEntryEditModal(entry),
         child: ECard(
           child: Row(
             children: [
@@ -366,7 +363,7 @@ class _ConditionDetailScreenState()
                       if (entry.notes.isNotEmpty) ...[
                         HSpace.s,
                         Icon(
-                          CupertinoIcons.text_bubble,
+                          Icons.chat_bubble_outline,
                           size: 14,
                           color: EColors.textMuted,
                         ),
@@ -379,7 +376,7 @@ class _ConditionDetailScreenState()
               severityIndicator(entry.severity),
               HSpace.s,
               Icon(
-                CupertinoIcons.chevron_right,
+                Icons.chevron_right,
                 size: 14,
                 color: EColors.textMuted,
               ),
@@ -416,82 +413,90 @@ class _ConditionDetailScreenState()
   }
 
   void showActionsMenu(Condition condition) {
-    showCupertinoModalPopup(
+    showModalBottomSheet<void>(
       context: context,
-      builder: (sheetContext) => CupertinoActionSheet(
-        actions: [
-          CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.of(sheetContext).pop();
-              Navigator.of(context).push(
-                CupertinoPageRoute(
-                  builder: (routeContext) => ConditionForm(
-                    condition: condition,
-                    title: 'Edit Condition',
-                    saveButtonText: 'Save',
-                  ),
-                ),
-              );
-            },
-            child: const Text('Edit Condition'),
-          ),
-          if (condition.isActive)
-            CupertinoActionSheetAction(
-              onPressed: () async {
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('Edit Condition'),
+              onTap: () {
                 Navigator.of(sheetContext).pop();
-                await ref
-                    .read(conditionsProvider.notifier)
-                    .resolveCondition(widget.conditionId);
-              },
-              child: const Text('Mark as Resolved'),
-            ),
-          CupertinoActionSheetAction(
-            isDestructiveAction: true,
-            onPressed: () async {
-              Navigator.of(sheetContext).pop();
-              final confirmed = await showCupertinoDialog<bool>(
-                context: context,
-                builder: (dialogContext) => CupertinoAlertDialog(
-                  title: const Text('Delete Condition'),
-                  content: const Text(
-                    'Are you sure you want to delete this condition and all its entries? This cannot be undone.',
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (routeContext) => ConditionForm(
+                      condition: condition,
+                      title: 'Edit Condition',
+                      saveButtonText: 'Save',
+                    ),
                   ),
-                  actions: [
-                    CupertinoDialogAction(
-                      child: const Text('Cancel'),
-                      onPressed: () => Navigator.of(dialogContext).pop(false),
+                );
+              },
+            ),
+            if (condition.isActive)
+              ListTile(
+                title: const Text('Mark as Resolved'),
+                onTap: () async {
+                  Navigator.of(sheetContext).pop();
+                  await ref
+                      .read(conditionsProvider.notifier)
+                      .resolveCondition(widget.conditionId);
+                },
+              ),
+            ListTile(
+              title: Text(
+                'Delete Condition',
+                style: TextStyle(color: EColors.danger),
+              ),
+              onTap: () async {
+                Navigator.of(sheetContext).pop();
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (dialogContext) => AlertDialog(
+                    title: const Text('Delete Condition'),
+                    content: const Text(
+                      'Are you sure you want to delete this condition and all its entries? This cannot be undone.',
                     ),
-                    CupertinoDialogAction(
-                      isDestructiveAction: true,
-                      child: const Text('Delete'),
-                      onPressed: () => Navigator.of(dialogContext).pop(true),
-                    ),
-                  ],
-                ),
-              );
-              if (confirmed == true) {
-                await ref
-                    .read(conditionsProvider.notifier)
-                    .deleteCondition(widget.conditionId);
-                if (mounted) {
-                  Navigator.of(context).pop();
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(true),
+                        child: Text(
+                          'Delete',
+                          style: TextStyle(color: EColors.danger),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirmed == true) {
+                  await ref
+                      .read(conditionsProvider.notifier)
+                      .deleteCondition(widget.conditionId);
+                  if (mounted) {
+                    Navigator.of(context).pop();
+                  }
                 }
-              }
-            },
-            child: const Text('Delete Condition'),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.of(sheetContext).pop(),
-          child: const Text('Cancel'),
+              },
+            ),
+            ListTile(
+              title: const Text('Cancel'),
+              onTap: () => Navigator.of(sheetContext).pop(),
+            ),
+          ],
         ),
       ),
     );
   }
 
   void showEntryEditModal(ConditionEntry entry) {
-    showCupertinoModalPopup(
+    showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
       builder: (sheetContext) => ConditionEntryEditModal(
         entry: entry,
         onSave: (updatedEntry) async {

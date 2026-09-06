@@ -1,5 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class SymptomSeverity() {
   static const int min = 1;
@@ -43,10 +43,10 @@ class SymptomSeverity() {
       severity >= min && severity <= max;
 
   static Color fourBucketGreenYellowOrangeRed(int severity) {
-    if (severity <= 3) return CupertinoColors.systemGreen;
-    if (severity <= 5) return CupertinoColors.systemYellow;
-    if (severity <= 7) return CupertinoColors.systemOrange;
-    return CupertinoColors.systemRed;
+    if (severity <= 3) return EColors.success;
+    if (severity <= 5) return EColors.warning;
+    if (severity <= 7) return Colors.orange;
+    return EColors.danger;
   }
 
   static String displayDigit(int severity) {

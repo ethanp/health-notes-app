@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
@@ -13,17 +13,19 @@ class const RefreshableListView<T>({
 }) extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return CustomScrollView(
-      controller: controller,
-      primary: primary,
-      physics: physics,
-      slivers: [
-        CupertinoSliverRefreshControl(onRefresh: onReloadRequested),
-        if (padding != null)
-          SliverPadding(padding: padding!, sliver: sliverList())
-        else
-          sliverList(),
-      ],
+    return RefreshIndicator(
+      onRefresh: onReloadRequested,
+      child: CustomScrollView(
+        controller: controller,
+        primary: primary,
+        physics: physics,
+        slivers: [
+          if (padding != null)
+            SliverPadding(padding: padding!, sliver: sliverList())
+          else
+            sliverList(),
+        ],
+      ),
     );
   }
 

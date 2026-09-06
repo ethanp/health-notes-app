@@ -1,5 +1,4 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_tool_category.dart';
@@ -106,12 +105,19 @@ class _HealthToolCategoryFormState()
         children: [
           Text('Category Name', style: EText.headline.small),
           VSpace.m,
-          CupertinoTextField(
+          TextField(
             controller: _nameController,
-            placeholder: 'Enter category name',
             style: EText.body.medium,
-            decoration: AppComponents.inputField,
-            padding: const EdgeInsets.all(AppSpacing.sm),
+            decoration: InputDecoration(
+              hintText: 'Enter category name',
+              hintStyle: EText.body.medium.muted,
+              filled: true,
+              fillColor: EColors.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppRadius.small),
+                borderSide: const BorderSide(color: EColors.surfaceRaised),
+              ),
+            ),
           ),
         ],
       ),
@@ -130,14 +136,21 @@ class _HealthToolCategoryFormState()
             style: EText.body.medium.tertiary,
           ),
           VSpace.m,
-          CupertinoTextField(
+          TextField(
             controller: _descriptionController,
-            placeholder: 'Enter description...',
             style: EText.body.medium,
-            decoration: AppComponents.inputField,
-            padding: const EdgeInsets.all(AppSpacing.sm),
             maxLines: 3,
             minLines: 2,
+            decoration: InputDecoration(
+              hintText: 'Enter description...',
+              hintStyle: EText.body.medium.muted,
+              filled: true,
+              fillColor: EColors.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppRadius.small),
+                borderSide: const BorderSide(color: EColors.surfaceRaised),
+              ),
+            ),
           ),
         ],
       ),
@@ -180,7 +193,7 @@ class _HealthToolCategoryFormState()
             child: Text(
               icon['name']!,
               style: EText.body.small.copyWith(
-                color: isSelected ? CupertinoColors.white : EColors.textPrimary,
+                color: isSelected ? Colors.white : EColors.textPrimary,
               ),
             ),
           ),
@@ -250,15 +263,15 @@ class _HealthToolCategoryFormState()
       }
     } catch (e) {
       if (mounted) {
-        showCupertinoDialog(
+        showDialog(
           context: context,
-          builder: (context) => CupertinoAlertDialog(
+          builder: (context) => AlertDialog(
             title: const Text('Error'),
             content: Text('Failed to save category: $e'),
             actions: [
-              CupertinoDialogAction(
-                child: const Text('OK'),
+              TextButton(
                 onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
               ),
             ],
           ),

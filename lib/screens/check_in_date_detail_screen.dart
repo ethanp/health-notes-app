@@ -1,6 +1,6 @@
 import 'package:ethan_ui/ethan_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/screens/check_in_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
@@ -83,10 +83,10 @@ class _CheckInDateDetailScreenState() extends State<CheckInDateDetailScreen> {
             widget.date.weekdayMonthDayYear,
             style: EText.headline.small.primary,
           ),
-          CupertinoButton(
-            padding: EdgeInsets.zero,
+          IconButton(
+            tooltip: 'Close',
             onPressed: () => Navigator.of(context).pop(),
-            child: Icon(CupertinoIcons.xmark, color: EColors.textSecondary),
+            icon: Icon(Icons.close, color: EColors.textSecondary),
           ),
         ],
       ),
@@ -104,39 +104,41 @@ class _CheckInDateDetailScreenState() extends State<CheckInDateDetailScreen> {
           width: 1,
         ),
       ),
-      child: CupertinoButton(
-        padding: const EdgeInsets.all(AppSpacing.m),
-        onPressed: () => showEditCheckInForm(checkIn),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(checkIn.metricName, style: EText.label.large.primary),
-                  VSpace.xs,
-                  Text(
-                    checkIn.dateTime.hourMinuteAmPm,
-                    style: EText.body.small.secondary,
-                  ),
-                ],
+      child: InkWell(
+        onTap: () => showEditCheckInForm(checkIn),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.m),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(checkIn.metricName, style: EText.label.large.primary),
+                    VSpace.xs,
+                    Text(
+                      checkIn.dateTime.hourMinuteAmPm,
+                      style: EText.body.small.secondary,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm,
-                vertical: AppSpacing.s,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.s,
+                ),
+                decoration: BoxDecoration(
+                  color: EColors.accent,
+                  borderRadius: BorderRadius.circular(AppRadius.large),
+                ),
+                child: Text(
+                  '${checkIn.rating}',
+                  style: EText.body.medium.semibold.white.bold,
+                ),
               ),
-              decoration: BoxDecoration(
-                color: EColors.accent,
-                borderRadius: BorderRadius.circular(AppRadius.large),
-              ),
-              child: Text(
-                '${checkIn.rating}',
-                style: EText.body.medium.semibold.white.bold,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -165,7 +167,7 @@ class _CheckInDateDetailScreenState() extends State<CheckInDateDetailScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              CupertinoIcons.calendar,
+              Icons.calendar_today,
               size: 48,
               color: EColors.textSecondary,
             ),

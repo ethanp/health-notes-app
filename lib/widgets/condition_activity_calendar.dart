@@ -1,6 +1,6 @@
 import 'package:ethan_ui/ethan_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/providers/conditions_provider.dart';

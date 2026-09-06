@@ -1,10 +1,10 @@
 import 'package:health_notes/theme/activity_calendar_colors.dart';
+import 'package:flutter/material.dart';
 import 'package:ethan_ui/ethan_ui.dart';
 
 import 'dart:math' as math;
 
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -227,7 +227,7 @@ class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
               label,
               textAlign: TextAlign.center,
               style: EText.body.small.copyWith(
-                color: CupertinoColors.systemGrey,
+                color: EColors.textMuted,
                 fontSize: 9,
               ),
             ),
@@ -370,7 +370,7 @@ class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
           '$activeDays',
           textAlign: TextAlign.center,
           style: EText.body.small.copyWith(
-            color: CupertinoColors.white,
+            color: Colors.white,
             fontSize: CalendarConstants.summaryFontSize,
             fontWeight: FontWeight.w600,
           ),
@@ -390,8 +390,8 @@ class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
       textAlign: TextAlign.right,
       style: EText.body.small.copyWith(
         color: Color.lerp(
-          CupertinoColors.systemGrey.withValues(alpha: 0.5),
-          CupertinoColors.white,
+          EColors.textMuted.withValues(alpha: 0.5),
+          Colors.white,
           intensity,
         ),
         fontSize: CalendarConstants.summaryFontSize,
@@ -521,9 +521,9 @@ class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
         child: Column(
           children: [
             Icon(
-              CupertinoIcons.calendar,
+              Icons.calendar_today,
               size: 48,
-              color: CupertinoColors.systemGrey.withValues(alpha: 0.5),
+              color: EColors.textMuted.withValues(alpha: 0.5),
             ),
             VSpace.m,
             Text(
@@ -534,7 +534,7 @@ class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
             Text(
               'Start recording data to see trends',
               style: EText.body.small.copyWith(
-                color: CupertinoColors.systemGrey.withValues(alpha: 0.7),
+                color: EColors.textMuted.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
             ),
@@ -556,7 +556,7 @@ class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
 
   Color cellBorderColor(T value) {
     if (value == widget.emptyValue) {
-      return CupertinoColors.systemGrey4.withValues(alpha: 0.3);
+      return EColors.borderStrong.withValues(alpha: 0.3);
     }
     return widget.colorForActivity(value).withValues(alpha: 0.6);
   }
@@ -564,14 +564,14 @@ class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
   TextStyle cellTextStyle(T value) {
     if (value == widget.emptyValue) {
       return EText.label.small.copyWith(
-        color: CupertinoColors.systemGrey.withValues(alpha: 0.6),
+        color: EColors.textMuted.withValues(alpha: 0.6),
       );
     }
 
     final color = widget.colorForActivity(value);
     final textColor = color.computeLuminance() > 0.5
-        ? CupertinoColors.black
-        : CupertinoColors.white;
+        ? Colors.black
+        : Colors.white;
 
     return EText.label.small.copyWith(color: textColor);
   }
@@ -609,7 +609,7 @@ class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
   }
 
   Widget _selectionCheckmark() {
-    return Icon(CupertinoIcons.checkmark_alt, size: 16, color: EColors.accent);
+    return Icon(Icons.check, size: 16, color: EColors.accent);
   }
 
   Widget _selectionActionBar() {
@@ -620,15 +620,11 @@ class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        CupertinoButton(
-          padding: EdgeInsets.zero,
-          minimumSize: Size.zero,
+        TextButton(
           onPressed: _exitSelectionMode,
           child: Text('Cancel', style: EText.body.medium.muted),
         ),
-        CupertinoButton(
-          padding: EdgeInsets.zero,
-          minimumSize: Size.zero,
+        TextButton(
           onPressed: selectedCount > 0
               ? () {
                   widget.onMultiSelectConfirmed!(_selectedDays.toList());
@@ -705,7 +701,7 @@ class const SeverityActivityCalendar({
             borderRadius: BorderRadius.circular(AppRadius.xs),
             border: Border.all(
               color: isInactive
-                  ? CupertinoColors.systemGrey4.withValues(alpha: 0.3)
+                  ? EColors.borderStrong.withValues(alpha: 0.3)
                   : color.withValues(alpha: 0.6),
             ),
           ),
@@ -714,7 +710,7 @@ class const SeverityActivityCalendar({
         Text(
           label,
           style: EText.body.small.copyWith(
-            color: CupertinoColors.white.withValues(alpha: 0.8),
+            color: Colors.white.withValues(alpha: 0.8),
           ),
         ),
       ],

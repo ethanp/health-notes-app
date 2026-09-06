@@ -1,5 +1,4 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/theme/app_theme.dart';
@@ -81,12 +80,19 @@ class _FilterModalState() extends State<FilterModal> {
   }
 
   Widget dateSelectorButton() {
-    return CupertinoButton(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-      color: _tempSelectedDate != null
-          ? CupertinoColors.systemBlue
-          : CupertinoColors.systemGrey6,
-      borderRadius: BorderRadius.circular(AppRadius.small),
+    return FilledButton(
+      style: FilledButton.styleFrom(
+        backgroundColor: _tempSelectedDate != null
+            ? EColors.accent
+            : EColors.surface,
+        foregroundColor: _tempSelectedDate != null
+            ? Colors.white
+            : EColors.textPrimary,
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.small),
+        ),
+      ),
       onPressed: () =>
           setState(() => _isDatePickerVisible = !_isDatePickerVisible),
       child: Text(
@@ -101,16 +107,11 @@ class _FilterModalState() extends State<FilterModal> {
   }
 
   Widget clearDateButton() {
-    return CupertinoButton(
-      padding: const EdgeInsets.all(8),
-      color: CupertinoColors.destructiveRed,
-      borderRadius: BorderRadius.circular(AppRadius.small),
+    return IconButton.filled(
+      tooltip: 'Clear date',
+      style: IconButton.styleFrom(backgroundColor: EColors.danger),
       onPressed: () => setState(() => _tempSelectedDate = null),
-      child: const Icon(
-        CupertinoIcons.xmark,
-        color: CupertinoColors.white,
-        size: 16,
-      ),
+      icon: const Icon(Icons.close, color: Colors.white, size: 16),
     );
   }
 
@@ -159,103 +160,22 @@ class _FilterModalState() extends State<FilterModal> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Select Date', style: EText.headline.small),
-              CupertinoButton(
-                padding: EdgeInsets.zero,
+              IconButton(
+                tooltip: 'Close date picker',
                 onPressed: () => setState(() => _isDatePickerVisible = false),
-                child: const Icon(CupertinoIcons.xmark),
+                icon: const Icon(Icons.close),
               ),
             ],
           ),
           VSpace.m,
-          Container(
-            height: 300,
-            decoration: AppComponents.inputField,
-            child: customDatePicker(),
+          CalendarDatePicker(
+            initialDate: _tempSelectedDate ?? DateTime.now(),
+            firstDate: DateTime(DateTime.now().year - 5),
+            lastDate: DateTime(DateTime.now().year + 5),
+            onDateChanged: (date) => setState(() => _tempSelectedDate = date),
           ),
         ],
       ),
-    );
-  }
-
-  Widget customDatePicker() {
-    final currentDate = _tempSelectedDate ?? DateTime.now();
-    final months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    final days = List.generate(31, (index) => (index + 1).toString());
-    final years = List.generate(
-      11,
-      (index) => (currentDate.year - 5 + index).toString(),
-    );
-
-    return Row(
-      children: [
-        Expanded(child: monthPicker(months, currentDate)),
-        Expanded(child: dayPicker(days, currentDate)),
-        Expanded(child: yearPicker(years, currentDate)),
-      ],
-    );
-  }
-
-  Widget monthPicker(List<String> months, DateTime currentDate) {
-    return CupertinoPicker(
-      itemExtent: 40,
-      backgroundColor: CupertinoColors.systemGrey5,
-      onSelectedItemChanged: (index) => setState(
-        () => _tempSelectedDate = DateTime(
-          currentDate.year,
-          index + 1,
-          currentDate.day,
-        ),
-      ),
-      children: months
-          .map((month) => Center(child: Text(month, style: EText.body.medium)))
-          .toList(),
-    );
-  }
-
-  Widget dayPicker(List<String> days, DateTime currentDate) {
-    return CupertinoPicker(
-      itemExtent: 40,
-      backgroundColor: CupertinoColors.systemGrey5,
-      onSelectedItemChanged: (index) => setState(
-        () => _tempSelectedDate = DateTime(
-          currentDate.year,
-          currentDate.month,
-          index + 1,
-        ),
-      ),
-      children: days
-          .map((day) => Center(child: Text(day, style: EText.body.medium)))
-          .toList(),
-    );
-  }
-
-  Widget yearPicker(List<String> years, DateTime currentDate) {
-    return CupertinoPicker(
-      itemExtent: 40,
-      backgroundColor: CupertinoColors.systemGrey5,
-      onSelectedItemChanged: (index) => setState(
-        () => _tempSelectedDate = DateTime(
-          int.parse(years[index]),
-          currentDate.month,
-          currentDate.day,
-        ),
-      ),
-      children: years
-          .map((year) => Center(child: Text(year, style: EText.body.medium)))
-          .toList(),
     );
   }
 

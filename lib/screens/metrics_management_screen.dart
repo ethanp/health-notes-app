@@ -1,6 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in_metric.dart';
@@ -68,7 +67,7 @@ class _MetricsManagementScreenState()
   Widget metricsBody(AsyncValue<List<CheckInMetric>> metricsAsync) {
     return metricsAsync.when(
       data: (metrics) => metricsList(metrics),
-      loading: () => const Center(child: CupertinoActivityIndicator()),
+      loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => metricsError(error),
     );
   }
@@ -79,9 +78,9 @@ class _MetricsManagementScreenState()
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(
-            CupertinoIcons.exclamationmark_triangle,
+            Icons.warning_amber,
             size: 48,
-            color: CupertinoColors.systemRed,
+            color: EColors.danger,
           ),
           VSpace.m,
           Text('Failed to load metrics', style: EText.headline.small),
@@ -92,7 +91,7 @@ class _MetricsManagementScreenState()
             textAlign: TextAlign.center,
           ),
           VSpace.m,
-          CupertinoButton.filled(
+          FilledButton(
             onPressed: () => ref.invalidate(checkInMetricsProvider),
             child: const Text('Retry'),
           ),
@@ -108,9 +107,9 @@ class _MetricsManagementScreenState()
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(
-              CupertinoIcons.chart_bar,
+              Icons.bar_chart,
               size: 64,
-              color: CupertinoColors.systemGrey,
+              color: EColors.textMuted,
             ),
             VSpace.m,
             Text('No metrics yet', style: EText.headline.small),
@@ -121,7 +120,7 @@ class _MetricsManagementScreenState()
               textAlign: TextAlign.center,
             ),
             VSpace.l,
-            CupertinoButton.filled(
+            FilledButton(
               onPressed: () => _showAddMetricDialog(context),
               child: const Text('Add Metric'),
             ),
@@ -144,8 +143,8 @@ class _MetricsManagementScreenState()
       margin: const EdgeInsets.only(bottom: 6),
       child: ECard(
         margin: const EdgeInsets.all(AppSpacing.m),
-        child: CupertinoListTile(
-          padding: const EdgeInsets.symmetric(
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.sm,
             vertical: AppSpacing.s,
           ),
@@ -173,16 +172,14 @@ class _MetricsManagementScreenState()
   Widget metricTitle(CheckInMetric metric) {
     return Text(
       metric.name,
-      style: CupertinoTheme.of(context).textTheme.textStyle
-          .copyWith(fontWeight: FontWeight.w600),
+      style: EText.body.medium.semibold,
     );
   }
 
   Widget metricSubtitle(CheckInMetric metric) {
     return Text(
       metric.type.description,
-      style: CupertinoTheme.of(context).textTheme.textStyle
-          .copyWith(color: CupertinoColors.systemGrey),
+      style: EText.body.medium.muted,
     );
   }
 
@@ -190,24 +187,15 @@ class _MetricsManagementScreenState()
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        CupertinoButton(
-          padding: EdgeInsets.zero,
+        IconButton(
+          tooltip: 'Edit metric',
           onPressed: () => _showEditMetricDialog(context, metric),
-          child: const Icon(
-            CupertinoIcons.pencil,
-            size: 18,
-            color: CupertinoColors.systemBlue,
-          ),
+          icon: const Icon(Icons.edit, size: 18, color: EColors.accent),
         ),
-        HSpace.of(6),
-        CupertinoButton(
-          padding: EdgeInsets.zero,
+        IconButton(
+          tooltip: 'Delete metric',
           onPressed: () => _showDeleteMetricDialog(context, metric),
-          child: const Icon(
-            CupertinoIcons.delete,
-            size: 18,
-            color: CupertinoColors.systemRed,
-          ),
+          icon: const Icon(Icons.delete, size: 18, color: EColors.danger),
         ),
       ],
     );
@@ -222,7 +210,7 @@ class _MetricsManagementScreenState()
   }
 
   void _showDeleteMetricDialog(BuildContext context, CheckInMetric metric) {
-    showCupertinoDialog(
+    showDialog(
       context: context,
       builder: (context) => AppAlertDialogs.confirmDestructive(
         title: 'Delete Metric',

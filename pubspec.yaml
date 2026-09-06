@@ -14,7 +14,6 @@ dependencies:
     path: ../ethan_utils
   ethan_ui:
     path: ../ethan_ui
-  cupertino_icons: ^1.0.8
   supabase_flutter: ^2.8.0
   flutter_dotenv: ^6.0.0
   freezed_annotation: ^3.1.0

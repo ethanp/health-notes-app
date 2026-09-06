@@ -1,6 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_tool.dart';
@@ -72,7 +71,7 @@ class _HealthToolCategoryScreenState()
     return EEmptyState(
       title: 'No tools for ${widget.category.name}',
       message: 'Add your first tool to get started',
-      icon: CupertinoIcons.wrench,
+      icon: Icons.build,
       action: FilledButton.icon(
         onPressed: () => _showAddToolForm(),
         icon: const Icon(Icons.add),
@@ -96,9 +95,8 @@ class _HealthToolCategoryScreenState()
     return ECard(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       padding: EdgeInsets.zero,
-      child: CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: () => _showToolDetails(tool),
+      child: InkWell(
+        onTap: () => _showToolDetails(tool),
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.m),
           child: Column(
@@ -115,8 +113,8 @@ class _HealthToolCategoryScreenState()
       children: [
         Expanded(child: Text(tool.name, style: EText.label.large)),
         const Icon(
-          CupertinoIcons.chevron_right,
-          color: CupertinoColors.systemGrey,
+          Icons.chevron_right,
+          color: EColors.textMuted,
           size: 16,
         ),
       ],
@@ -133,31 +131,41 @@ class _HealthToolCategoryScreenState()
   }
 
   void _showToolDetails(HealthTool tool) {
-    showCupertinoModalPopup(
+    showModalBottomSheet<void>(
       context: context,
-      builder: (context) => CupertinoActionSheet(
-        title: Text(tool.name),
-        message: Text(tool.description),
-        actions: [
-          CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _showEditToolForm(tool);
-            },
-            child: const Text('Edit'),
-          ),
-          CupertinoActionSheetAction(
-            isDestructiveAction: true,
-            onPressed: () {
-              Navigator.of(context).pop();
-              _showDeleteConfirmation(tool);
-            },
-            child: const Text('Delete'),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.m),
+              child: Column(
+                children: [
+                  Text(tool.name, style: EText.headline.small),
+                  VSpace.s,
+                  Text(tool.description, style: EText.body.medium.muted),
+                ],
+              ),
+            ),
+            ListTile(
+              title: const Text('Edit'),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _showEditToolForm(tool);
+              },
+            ),
+            ListTile(
+              title: Text('Delete', style: TextStyle(color: EColors.danger)),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _showDeleteConfirmation(tool);
+              },
+            ),
+            ListTile(
+              title: const Text('Cancel'),
+              onTap: () => Navigator.of(sheetContext).pop(),
+            ),
+          ],
         ),
       ),
     );
@@ -180,7 +188,7 @@ class _HealthToolCategoryScreenState()
   }
 
   void _showDeleteConfirmation(HealthTool tool) {
-    showCupertinoDialog(
+    showDialog(
       context: context,
       builder: (context) => AppAlertDialogs.confirmDestructive(
         title: 'Delete Tool',
@@ -198,7 +206,7 @@ class _HealthToolCategoryScreenState()
     try {
       await ref.read(healthToolsProvider.notifier).deleteTool(tool.id);
       if (mounted) {
-        showCupertinoDialog(
+        showDialog(
           context: context,
           builder: (context) => AppAlertDialogs.success(
             title: 'Success',
@@ -208,7 +216,7 @@ class _HealthToolCategoryScreenState()
       }
     } catch (e) {
       if (mounted) {
-        showCupertinoDialog(
+        showDialog(
           context: context,
           builder: (context) => AppAlertDialogs.error(
             title: 'Error',

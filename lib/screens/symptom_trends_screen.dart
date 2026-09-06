@@ -1,6 +1,6 @@
 import 'package:ethan_ui/ethan_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
@@ -142,9 +142,9 @@ class _SymptomTrendsScreenState()
           Text('${stat.count}×', style: EText.body.small.secondary),
           HSpace.s,
           const Icon(
-            CupertinoIcons.chevron_right,
+            Icons.chevron_right,
             size: 16,
-            color: CupertinoColors.systemGrey3,
+            color: EColors.textMuted,
           ),
         ],
       ),

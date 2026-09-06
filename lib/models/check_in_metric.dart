@@ -1,5 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:health_notes/utils/rating_color.dart';
 
@@ -40,7 +40,7 @@ abstract class CheckInMetric with _$CheckInMetric {
       name: name,
       type: type,
       colorValue: (color ?? EColors.accent).toARGB32(),
-      iconCodePoint: (icon ?? CupertinoIcons.circle).codePoint,
+      iconCodePoint: (icon ?? Icons.circle_outlined).codePoint,
       sortOrder: sortOrder ?? 0,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
@@ -55,11 +55,10 @@ abstract class CheckInMetric with _$CheckInMetric {
     try {
       return IconData(
         iconCodePoint, // ignore: non_const_argument_for_const_parameter
-        fontFamily: 'CupertinoIcons',
-        fontPackage: 'cupertino_icons',
+        fontFamily: 'MaterialIcons',
       );
     } catch (_) {
-      return CupertinoIcons.circle;
+      return Icons.circle_outlined;
     }
   }
 
@@ -103,12 +102,12 @@ class MetricColorPalette {
     EColors.success,
     EColors.warning,
     EColors.danger,
-    CupertinoColors.systemPurple,
-    CupertinoColors.systemTeal,
-    CupertinoColors.systemIndigo,
-    CupertinoColors.systemPink,
-    CupertinoColors.systemBrown,
-    CupertinoColors.systemGrey,
+    Color(0xFFAF52DE),
+    Color(0xFF5AC8FA),
+    Color(0xFF5856D6),
+    Color(0xFFFF2D55),
+    Color(0xFFA2845E),
+    EColors.textMuted,
   ];
 
   static Color getColorByIndex(int index) {
@@ -119,22 +118,22 @@ class MetricColorPalette {
 /// Default icon palette for new metrics
 class MetricIconPalette {
   static const List<IconData> icons = [
-    CupertinoIcons.heart,
-    CupertinoIcons.drop,
-    CupertinoIcons.circle_fill,
-    CupertinoIcons.bolt_fill,
-    CupertinoIcons.heart_fill,
-    CupertinoIcons.bed_double_fill,
-    CupertinoIcons.exclamationmark_octagon,
-    CupertinoIcons.cart_fill,
-    CupertinoIcons.eye_fill,
-    CupertinoIcons.star_fill,
-    CupertinoIcons.flame_fill,
-    CupertinoIcons.cloud_fill,
-    CupertinoIcons.sun_max_fill,
-    CupertinoIcons.moon_fill,
-    CupertinoIcons.wind,
-    CupertinoIcons.thermometer,
+    Icons.favorite_border,
+    Icons.water_drop,
+    Icons.circle,
+    Icons.bolt,
+    Icons.favorite,
+    Icons.bed,
+    Icons.report,
+    Icons.shopping_cart,
+    Icons.visibility,
+    Icons.star,
+    Icons.local_fire_department,
+    Icons.cloud,
+    Icons.wb_sunny,
+    Icons.nightlight_round,
+    Icons.air,
+    Icons.thermostat,
   ];
 
   static IconData getIconByIndex(int index) {

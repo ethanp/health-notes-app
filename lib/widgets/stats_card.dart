@@ -1,5 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 
@@ -40,9 +40,9 @@ class const StatRow({
               if (onTap != null) HSpace.s,
               if (onTap != null)
                 const Icon(
-                  CupertinoIcons.chevron_right,
+                  Icons.chevron_right,
                   size: 16,
-                  color: CupertinoColors.systemGrey,
+                  color: EColors.textMuted,
                 ),
             ],
           ),

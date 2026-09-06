@@ -1,6 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/condition.dart';
@@ -63,12 +62,12 @@ class const ConditionsScreen() extends ConsumerWidget {
     final activeConditions = conditions.where((c) => c.isActive).toList();
     final resolvedConditions = conditions.where((c) => c.isResolved).toList();
 
-    return CustomScrollView(
-      slivers: [
-        CupertinoSliverRefreshControl(
-          onRefresh: () => ref.read(syncProvider.notifier).syncAllData(),
-        ),
-        if (activeConditions.isNotEmpty) ...[
+    return RefreshIndicator(
+      onRefresh: () => ref.read(syncProvider.notifier).syncAllData(),
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          if (activeConditions.isNotEmpty) ...[
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             sliver: SliverToBoxAdapter(
@@ -104,8 +103,9 @@ class const ConditionsScreen() extends ConsumerWidget {
             ),
           ),
         ],
-        const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
-      ],
+          const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
+        ],
+      ),
     );
   }
 
@@ -116,9 +116,8 @@ class const ConditionsScreen() extends ConsumerWidget {
   ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: () => navigateToDetail(context, condition),
+      child: InkWell(
+        onTap: () => navigateToDetail(context, condition),
         child: ConditionTimelineCard(condition: condition),
       ),
     );

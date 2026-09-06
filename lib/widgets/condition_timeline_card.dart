@@ -1,5 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/models/condition_entry.dart';
@@ -101,8 +101,8 @@ class const ConditionTimelineCard({required final Condition condition})
 
   Widget statusBadge() {
     final color = condition.isActive
-        ? CupertinoColors.systemOrange
-        : CupertinoColors.systemGreen;
+        ? EColors.warning
+        : EColors.success;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: AppComponents.tintedSolidDecoration(
@@ -152,7 +152,7 @@ class const ConditionTimelineCard({required final Condition condition})
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(CupertinoIcons.chart_bar, size: 14, color: EColors.textMuted),
+          Icon(Icons.bar_chart, size: 14, color: EColors.textMuted),
           HSpace.xs,
           Text('No activity yet', style: EText.caption.quaternary),
         ],
@@ -184,7 +184,7 @@ class const ConditionTimelineCard({required final Condition condition})
           '${condition.durationDays} day${condition.durationDays == 1 ? '' : 's'}',
           style: EText.caption.quaternary,
         ),
-        Icon(CupertinoIcons.chevron_right, size: 14, color: EColors.textMuted),
+        Icon(Icons.chevron_right, size: 14, color: EColors.textMuted),
       ],
     );
   }

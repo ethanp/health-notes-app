@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+import 'package:ethan_ui/ethan_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:health_notes/models/check_in.dart';
 
 class CheckInGrouping() {
@@ -87,13 +88,13 @@ class CheckInGroup({
     final proportion = metricProportion;
 
     if (proportion >= 0.8) {
-      return CupertinoColors.systemGreen;
+      return EColors.success;
     } else if (proportion >= 0.6) {
-      return CupertinoColors.systemYellow;
+      return EColors.warning;
     } else if (proportion >= 0.4) {
-      return CupertinoColors.systemOrange;
+      return Colors.orange;
     } else {
-      return CupertinoColors.systemRed;
+      return EColors.danger;
     }
   }
 

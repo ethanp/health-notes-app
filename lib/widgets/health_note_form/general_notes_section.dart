@@ -1,5 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:health_notes/widgets/accent_border_card.dart';
 import 'package:health_notes/widgets/form_section_container.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -26,13 +26,15 @@ class const GeneralNotesSection({
 
   Widget _content() {
     if (isEditable) {
-      return CupertinoTextField(
+      return TextField(
         controller: notesController,
-        placeholder: 'Additional Notes (optional)',
-        placeholderStyle: EText.body.medium.muted,
         style: EText.body.medium,
         maxLines: 4,
         onChanged: onNotesChanged,
+        decoration: InputDecoration(
+          hintText: 'Additional Notes (optional)',
+          hintStyle: EText.body.medium.muted,
+        ),
       );
     }
 

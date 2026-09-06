@@ -1,6 +1,6 @@
 import 'package:ethan_ui/ethan_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/health_tool.dart';
@@ -11,6 +11,7 @@ import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/health_date_format.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
+import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/widgets/health_notes_search_field.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
@@ -70,7 +71,7 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
       return EEmptyState(
         title: 'No usage history',
         message: 'This tool hasn\'t been applied to any health notes yet',
-        icon: CupertinoIcons.wrench,
+        icon: Icons.build,
       );
     }
 
@@ -79,33 +80,33 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
     final filteredNotes = notesMatchingQuery(sortedNotes);
     final toolName = tool?.name ?? widget.toolName ?? 'Tool';
 
-    return CustomScrollView(
-      slivers: [
-        CupertinoSliverRefreshControl(
-          onRefresh: () =>
-              ref.read(healthNotesProvider.notifier).refreshNotes(),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.all(AppSpacing.m),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              if (tool != null) ...[toolHeaderCard(tool), VSpace.l],
-              statisticsCard(sortedNotes),
-              VSpace.l,
-              ToolActivityCalendar(
-                toolName: toolName,
-                activityData: activityData,
-                onDateTap: (context, date, count) =>
-                    handleDateTap(context, date, count, sortedNotes),
-              ),
-              VSpace.l,
-              searchSection(),
-              VSpace.l,
-              notesSection(filteredNotes),
-            ]),
+    return RefreshIndicator(
+      onRefresh: () => ref.read(healthNotesProvider.notifier).refreshNotes(),
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.all(AppSpacing.m),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                if (tool != null) ...[toolHeaderCard(tool), VSpace.l],
+                statisticsCard(sortedNotes),
+                VSpace.l,
+                ToolActivityCalendar(
+                  toolName: toolName,
+                  activityData: activityData,
+                  onDateTap: (context, date, count) =>
+                      handleDateTap(context, date, count, sortedNotes),
+                ),
+                VSpace.l,
+                searchSection(),
+                VSpace.l,
+                notesSection(filteredNotes),
+              ]),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -127,7 +128,7 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
                   borderWidth: 0,
                 ),
                 child: Icon(
-                  CupertinoIcons.wrench,
+                  Icons.build,
                   color: EColors.accent,
                   size: 24,
                 ),
@@ -263,7 +264,7 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
       return EEmptyState(
         title: 'No matching notes',
         message: 'Try adjusting your search terms',
-        icon: CupertinoIcons.search,
+        icon: Icons.search,
       );
     }
 
@@ -307,18 +308,10 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
     List<HealthNote> allNotes,
   ) {
     if (count == 0) {
-      showCupertinoDialog(
+      showDateInfoDialog(
         context: context,
-        builder: (dialogContext) => CupertinoAlertDialog(
-          title: Text(date.weekdayMonthDayYear),
-          content: const Text('No uses on this date.'),
-          actions: [
-            CupertinoDialogAction(
-              child: const Text('OK'),
-              onPressed: () => Navigator.of(dialogContext).pop(),
-            ),
-          ],
-        ),
+        date: date,
+        message: 'No uses on this date.',
       );
       return;
     }
@@ -328,18 +321,10 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
         .toList();
 
     if (notesForDate.isEmpty) {
-      showCupertinoDialog(
+      showDateInfoDialog(
         context: context,
-        builder: (dialogContext) => CupertinoAlertDialog(
-          title: Text(date.weekdayMonthDayYear),
-          content: Text('$count use${count == 1 ? '' : 's'} on this date.'),
-          actions: [
-            CupertinoDialogAction(
-              child: const Text('OK'),
-              onPressed: () => Navigator.of(dialogContext).pop(),
-            ),
-          ],
-        ),
+        date: date,
+        message: '$count use${count == 1 ? '' : 's'} on this date.',
       );
       return;
     }
@@ -351,9 +336,9 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
         orElse: () => note.appliedTools.first,
       );
 
-      showCupertinoDialog(
+      showDialog(
         context: context,
-        builder: (dialogContext) => CupertinoAlertDialog(
+        builder: (dialogContext) => AlertDialog(
           title: Text(date.weekdayMonthDayYear),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -361,30 +346,29 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
               usageBadge(count),
               if (appliedTool.note.isNotEmpty) ...[
                 VSpace.m,
-                Text(appliedTool.note, style: EText.body.medium.white),
+                Text(appliedTool.note, style: EText.body.medium),
               ],
             ],
           ),
           actions: [
-            CupertinoDialogAction(
-              child: const Text('Close'),
+            TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Close'),
             ),
-            CupertinoDialogAction(
-              isDefaultAction: true,
-              child: const Text('View Note'),
+            TextButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 context.push(HealthNoteViewScreen(note: note));
               },
+              child: const Text('View Note'),
             ),
           ],
         ),
       );
     } else {
-      showCupertinoDialog(
+      showDialog(
         context: context,
-        builder: (dialogContext) => CupertinoAlertDialog(
+        builder: (dialogContext) => AlertDialog(
           title: Text(date.weekdayMonthDayYear),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -398,19 +382,19 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
             ],
           ),
           actions: [
-            CupertinoDialogAction(
-              child: const Text('Close'),
+            TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Close'),
             ),
             ...notesForDate
                 .take(3)
                 .map(
-                  (note) => CupertinoDialogAction(
-                    child: Text(note.dateTime.hourMinuteAmPm),
+                  (note) => TextButton(
                     onPressed: () {
                       Navigator.of(dialogContext).pop();
                       context.push(HealthNoteViewScreen(note: note));
                     },
+                    child: Text(note.dateTime.hourMinuteAmPm),
                   ),
                 ),
           ],

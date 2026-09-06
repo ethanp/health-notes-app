@@ -1,7 +1,7 @@
 # Health Notes
 
 A simple iOS app for tracking your daily health symptoms, medications, and notes. 
-Built with Flutter and designed to feel native on iPhone (Cupertino Widgets).
+Built with Flutter using Material widgets.
 Most of the code was written by Cursor.
 
 ## What is Health Notes?

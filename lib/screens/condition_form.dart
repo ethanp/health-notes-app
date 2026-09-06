@@ -1,5 +1,4 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/condition.dart';
@@ -30,18 +29,18 @@ class _ConditionFormState() extends ConsumerState<ConditionForm> {
   bool isSaving = false;
 
   static final List<IconData> availableIcons = [
-    CupertinoIcons.bandage,
-    CupertinoIcons.heart_fill,
-    CupertinoIcons.bolt_fill,
-    CupertinoIcons.flame_fill,
-    CupertinoIcons.drop_fill,
-    CupertinoIcons.moon_fill,
-    CupertinoIcons.sun_max_fill,
-    CupertinoIcons.thermometer,
-    CupertinoIcons.bed_double_fill,
-    CupertinoIcons.eye,
-    CupertinoIcons.ear,
-    CupertinoIcons.hand_raised_fill,
+    Icons.healing,
+    Icons.favorite,
+    Icons.bolt,
+    Icons.local_fire_department,
+    Icons.water_drop,
+    Icons.nightlight_round,
+    Icons.wb_sunny,
+    Icons.thermostat,
+    Icons.bed,
+    Icons.visibility,
+    Icons.hearing,
+    Icons.front_hand,
   ];
 
   @override
@@ -113,13 +112,19 @@ class _ConditionFormState() extends ConsumerState<ConditionForm> {
       children: [
         Text('Condition Name', style: EText.label.medium),
         VSpace.s,
-        CupertinoTextField(
+        TextField(
           controller: nameController,
-          placeholder: 'e.g., Cold, Migraine, Flare-up',
-          padding: const EdgeInsets.all(AppSpacing.m),
-          decoration: AppComponents.inputField,
           style: EText.body.medium,
-          placeholderStyle: EText.body.medium.muted,
+          decoration: InputDecoration(
+            hintText: 'e.g., Cold, Migraine, Flare-up',
+            hintStyle: EText.body.medium.muted,
+            filled: true,
+            fillColor: EColors.surface,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.small),
+              borderSide: const BorderSide(color: EColors.surfaceRaised),
+            ),
+          ),
         ),
       ],
     );
@@ -131,16 +136,15 @@ class _ConditionFormState() extends ConsumerState<ConditionForm> {
       children: [
         Text('Start Date', style: EText.label.medium),
         VSpace.s,
-        CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: showDatePicker,
+        InkWell(
+          onTap: pickStartDate,
           child: Container(
             padding: const EdgeInsets.all(AppSpacing.m),
             decoration: AppComponents.inputField,
             child: Row(
               children: [
                 Icon(
-                  CupertinoIcons.calendar,
+                  Icons.calendar_today,
                   color: EColors.textSecondary,
                   size: 20,
                 ),
@@ -223,66 +227,48 @@ class _ConditionFormState() extends ConsumerState<ConditionForm> {
       children: [
         Text('Notes', style: EText.label.medium),
         VSpace.s,
-        CupertinoTextField(
+        TextField(
           controller: notesController,
-          placeholder: 'Optional notes about this condition...',
-          padding: const EdgeInsets.all(AppSpacing.m),
-          decoration: AppComponents.inputField,
-          style: EText.body.medium,
-          placeholderStyle: EText.body.medium.muted,
           maxLines: 4,
+          style: EText.body.medium,
+          decoration: InputDecoration(
+            hintText: 'Optional notes about this condition...',
+            hintStyle: EText.body.medium.muted,
+            filled: true,
+            fillColor: EColors.surface,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.small),
+              borderSide: const BorderSide(color: EColors.surfaceRaised),
+            ),
+          ),
         ),
       ],
     );
   }
 
-  void showDatePicker() {
-    showCupertinoModalPopup(
+  Future<void> pickStartDate() async {
+    final picked = await showDatePicker(
       context: context,
-      builder: (context) => Container(
-        height: 300,
-        color: EColors.backgroundLift,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CupertinoButton(
-                  child: const Text('Cancel'),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-                CupertinoButton(
-                  child: const Text('Done'),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-            Expanded(
-              child: CupertinoDatePicker(
-                mode: CupertinoDatePickerMode.date,
-                initialDateTime: startDate,
-                maximumDate: DateTime.now(),
-                onDateTimeChanged: (date) => setState(() => startDate = date),
-              ),
-            ),
-          ],
-        ),
-      ),
+      initialDate: startDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
     );
+    if (picked == null) return;
+    setState(() => startDate = picked);
   }
 
   Future<void> saveCondition() async {
     final name = nameController.text.trim();
     if (name.isEmpty) {
-      showCupertinoDialog(
+      showDialog(
         context: context,
-        builder: (context) => CupertinoAlertDialog(
+        builder: (context) => AlertDialog(
           title: const Text('Name Required'),
           content: const Text('Please enter a name for the condition.'),
           actions: [
-            CupertinoDialogAction(
-              child: const Text('OK'),
+            TextButton(
               onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
             ),
           ],
         ),
@@ -297,15 +283,15 @@ class _ConditionFormState() extends ConsumerState<ConditionForm> {
     if (existingCondition != null &&
         (!isEditing || existingCondition.id != widget.condition!.id)) {
       if (!mounted) return;
-      showCupertinoDialog(
+      showDialog(
         context: context,
-        builder: (context) => CupertinoAlertDialog(
+        builder: (context) => AlertDialog(
           title: const Text('Condition Already Exists'),
           content: Text('An active condition named "$name" already exists.'),
           actions: [
-            CupertinoDialogAction(
-              child: const Text('OK'),
+            TextButton(
               onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
             ),
           ],
         ),
@@ -343,15 +329,15 @@ class _ConditionFormState() extends ConsumerState<ConditionForm> {
       }
     } catch (e) {
       if (mounted) {
-        showCupertinoDialog(
+        showDialog(
           context: context,
-          builder: (context) => CupertinoAlertDialog(
+          builder: (context) => AlertDialog(
             title: const Text('Error'),
             content: Text('Failed to save condition: $e'),
             actions: [
-              CupertinoDialogAction(
-                child: const Text('OK'),
+              TextButton(
                 onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
               ),
             ],
           ),

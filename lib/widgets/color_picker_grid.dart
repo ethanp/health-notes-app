@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+import 'package:ethan_ui/ethan_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:health_notes/theme/app_theme.dart';
 
 class const ColorPickerGrid({
@@ -21,14 +22,14 @@ class const ColorPickerGrid({
   ];
 
   static List<Color> get systemColors => const [
-    CupertinoColors.systemBlue,
-    CupertinoColors.systemGreen,
-    CupertinoColors.systemOrange,
-    CupertinoColors.systemRed,
-    CupertinoColors.systemPurple,
-    CupertinoColors.systemPink,
-    CupertinoColors.systemYellow,
-    CupertinoColors.systemTeal,
+    EColors.accent,
+    EColors.success,
+    EColors.warning,
+    EColors.danger,
+    Color(0xFFAF52DE),
+    Color(0xFFFF2D55),
+    Color(0xFFFFCC00),
+    Color(0xFF5AC8FA),
   ];
 
   @override
@@ -55,19 +56,13 @@ class const ColorPickerGrid({
               ? null
               : BorderRadius.circular(AppRadius.small),
           border: Border.all(
-            color: isSelected
-                ? CupertinoColors.white
-                : CupertinoColors.systemGrey4,
+            color: isSelected ? Colors.white : EColors.surfaceRaised,
             width: isSelected ? 3 : 1,
           ),
           boxShadow: isSelected ? AppComponents.mediumShadow : null,
         ),
         child: isSelected
-            ? const Icon(
-                CupertinoIcons.checkmark,
-                color: CupertinoColors.white,
-                size: 20,
-              )
+            ? const Icon(Icons.check, color: Colors.white, size: 20)
             : null,
       ),
     );

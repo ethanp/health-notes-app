@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+import 'package:ethan_ui/ethan_ui.dart';
+import 'package:flutter/material.dart';
 
 /// Widget that displays user avatar with fallbacks
 class const UserAvatarWidget({
@@ -27,7 +28,7 @@ class const UserAvatarWidget({
       loadingBuilder: showLoadingIndicator
           ? (context, child, loadingProgress) {
               if (loadingProgress == null) return child;
-              return const CupertinoActivityIndicator();
+              return const CircularProgressIndicator();
             }
           : null,
       errorBuilder: (context, error, stackTrace) {
@@ -41,13 +42,13 @@ class const UserAvatarWidget({
       width: size,
       height: size,
       decoration: const BoxDecoration(
-        color: CupertinoColors.systemGrey,
+        color: EColors.textMuted,
         shape: BoxShape.circle,
       ),
       child: Icon(
-        CupertinoIcons.person_circle_fill,
+        Icons.account_circle,
         size: size,
-        color: CupertinoColors.white,
+        color: Colors.white,
       ),
     );
   }

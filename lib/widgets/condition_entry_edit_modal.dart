@@ -1,5 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -79,14 +79,10 @@ class _ConditionEntryEditModalState() extends State<ConditionEntryEditModal> {
             ),
           ],
         ),
-        CupertinoButton(
-          padding: EdgeInsets.zero,
+        IconButton(
+          tooltip: 'Close',
           onPressed: () => Navigator.of(context).pop(),
-          child: Icon(
-            CupertinoIcons.xmark_circle_fill,
-            color: EColors.textMuted,
-            size: 28,
-          ),
+          icon: Icon(Icons.cancel, color: EColors.textMuted, size: 28),
         ),
       ],
     );
@@ -111,7 +107,7 @@ class _ConditionEntryEditModalState() extends State<ConditionEntryEditModal> {
           ],
         ),
         VSpace.m,
-        CupertinoSlider(
+        Slider(
           value: severity.toDouble(),
           min: 1,
           max: 10,
@@ -176,14 +172,20 @@ class _ConditionEntryEditModalState() extends State<ConditionEntryEditModal> {
       children: [
         Text('Notes', style: EText.label.medium),
         VSpace.s,
-        CupertinoTextField(
+        TextField(
           controller: notesController,
-          placeholder: 'Optional notes for this entry...',
-          padding: const EdgeInsets.all(AppSpacing.sm),
-          decoration: AppComponents.inputField,
-          style: EText.body.medium,
-          placeholderStyle: EText.body.medium.muted,
           maxLines: 3,
+          style: EText.body.medium,
+          decoration: InputDecoration(
+            hintText: 'Optional notes for this entry...',
+            hintStyle: EText.body.medium.muted,
+            filled: true,
+            fillColor: EColors.surface,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.small),
+              borderSide: const BorderSide(color: EColors.surfaceRaised),
+            ),
+          ),
         ),
       ],
     );
@@ -192,11 +194,17 @@ class _ConditionEntryEditModalState() extends State<ConditionEntryEditModal> {
   Widget saveButton() {
     return SizedBox(
       width: double.infinity,
-      child: CupertinoButton(
-        color: EColors.accent,
+      child: FilledButton(
         onPressed: isSaving ? null : saveEntry,
         child: isSaving
-            ? const CupertinoActivityIndicator(color: CupertinoColors.white)
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
             : const Text('Save Changes'),
       ),
     );
@@ -215,15 +223,15 @@ class _ConditionEntryEditModalState() extends State<ConditionEntryEditModal> {
       await widget.onSave(updatedEntry);
     } catch (e) {
       if (mounted) {
-        showCupertinoDialog(
+        showDialog(
           context: context,
-          builder: (context) => CupertinoAlertDialog(
+          builder: (context) => AlertDialog(
             title: const Text('Error'),
             content: Text('Failed to save entry: $e'),
             actions: [
-              CupertinoDialogAction(
-                child: const Text('OK'),
+              TextButton(
                 onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
               ),
             ],
           ),

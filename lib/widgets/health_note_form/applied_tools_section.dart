@@ -1,6 +1,6 @@
 import 'package:ethan_ui/ethan_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:health_notes/models/applied_tool.dart';
 import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/theme/app_theme.dart';
@@ -32,10 +32,10 @@ class const AppliedToolsSection({
     return ESectionHeader(
       title: 'Applied Tools',
       trailing: isEditable
-          ? CupertinoButton(
-              padding: EdgeInsets.zero,
+          ? IconButton(
+              tooltip: 'Add tool',
               onPressed: () => _showToolPicker(context),
-              child: const Icon(CupertinoIcons.add),
+              icon: const Icon(Icons.add),
             )
           : null,
     );
@@ -79,21 +79,23 @@ class const AppliedToolsSection({
           Row(
             children: [
               Expanded(child: Text(tool.toolName, style: EText.label.large)),
-              CupertinoButton(
-                padding: EdgeInsets.zero,
+              IconButton(
+                tooltip: 'Remove tool',
                 onPressed: () => onRemove(index),
-                child: const Icon(CupertinoIcons.delete, color: EColors.danger),
+                icon: const Icon(Icons.delete, color: EColors.danger),
               ),
             ],
           ),
           VSpace.s,
-          CupertinoTextField(
+          TextField(
             controller: noteController,
-            placeholder: 'Note for this tool (optional)',
-            placeholderStyle: EText.body.medium.muted,
             style: EText.body.medium,
             maxLines: 2,
             onChanged: (value) => onUpdateNote(index, value),
+            decoration: InputDecoration(
+              hintText: 'Note for this tool (optional)',
+              hintStyle: EText.body.medium.muted,
+            ),
           ),
         ],
       ),
@@ -101,8 +103,10 @@ class const AppliedToolsSection({
   }
 
   void _showToolPicker(BuildContext context) {
-    showCupertinoModalPopup(
+    showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => AppliedToolPickerSheet(
         appliedTools: appliedTools,
         onSelect: (t) {

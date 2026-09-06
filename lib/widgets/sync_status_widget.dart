@@ -1,5 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/providers/sync_provider.dart';
 import 'package:health_notes/services/offline_repository.dart';
@@ -11,14 +11,14 @@ class const CompactSyncStatusWidget() extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (!ref.watch(connectivityStatusProvider)) {
-      return const Icon(
-        CupertinoIcons.wifi_slash,
-        size: 16,
-        color: CupertinoColors.systemRed,
-      );
+      return const Icon(Icons.wifi_off, size: 16, color: EColors.danger);
     }
     if (ref.watch(syncProvider)) {
-      return const CupertinoActivityIndicator(radius: 8);
+      return const SizedBox(
+        width: 16,
+        height: 16,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      );
     }
 
     return StreamBuilder<String?>(
@@ -32,30 +32,22 @@ class const CompactSyncStatusWidget() extends ConsumerWidget {
     if (syncError != null && syncError.isNotEmpty) {
       return GestureDetector(
         onTap: () => _showSyncErrorDialog(context, syncError),
-        child: const Icon(
-          CupertinoIcons.exclamationmark_triangle_fill,
-          size: 16,
-          color: CupertinoColors.systemOrange,
-        ),
+        child: const Icon(Icons.warning, size: 16, color: EColors.warning),
       );
     }
-    return const Icon(
-      CupertinoIcons.checkmark_circle_fill,
-      size: 16,
-      color: CupertinoColors.systemGreen,
-    );
+    return const Icon(Icons.check_circle, size: 16, color: EColors.success);
   }
 
   void _showSyncErrorDialog(BuildContext context, String errorMessage) {
-    showCupertinoDialog(
+    showDialog<void>(
       context: context,
-      builder: (context) => CupertinoAlertDialog(
+      builder: (context) => AlertDialog(
         title: const Text('Sync Error'),
         content: Text(errorMessage),
         actions: [
-          CupertinoDialogAction(
-            child: const Text('OK'),
+          TextButton(
             onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
           ),
         ],
       ),
@@ -129,9 +121,10 @@ class SyncStatusWidget extends ConsumerWidget {
               ),
               borderRadius: BorderRadius.circular(AppRadius.extraLarge),
             ),
-            child: const CupertinoActivityIndicator(
-              radius: 20,
-              color: EColors.accent,
+            child: const SizedBox(
+              width: 40,
+              height: 40,
+              child: CircularProgressIndicator(color: EColors.accent),
             ),
           ),
           if (message != null) ...[
@@ -164,7 +157,7 @@ class SyncStatusWidget extends ConsumerWidget {
               gradient: AppComponents.cardGradient,
               borderRadius: BorderRadius.circular(AppRadius.medium),
               border: Border.all(
-                color: CupertinoColors.systemGrey4.withValues(alpha: 0.3),
+                color: EColors.surfaceRaised.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -188,11 +181,7 @@ class SyncStatusWidget extends ConsumerWidget {
   ) {
     if (!isConnected) {
       return [
-        const Icon(
-          CupertinoIcons.wifi_slash,
-          size: 48,
-          color: CupertinoColors.systemRed,
-        ),
+        const Icon(Icons.wifi_off, size: 48, color: EColors.danger),
         VSpace.m,
         Text(
           'No internet connection',
@@ -210,11 +199,7 @@ class SyncStatusWidget extends ConsumerWidget {
 
     if (syncError != null && syncError.isNotEmpty) {
       return [
-        const Icon(
-          CupertinoIcons.exclamationmark_triangle_fill,
-          size: 48,
-          color: CupertinoColors.systemOrange,
-        ),
+        const Icon(Icons.warning, size: 48, color: EColors.warning),
         VSpace.m,
         Text(
           'Sync Error',
@@ -229,17 +214,18 @@ class SyncStatusWidget extends ConsumerWidget {
         ),
         if (onRetry != null) ...[
           VSpace.m,
-          CupertinoButton.filled(
-            onPressed: onRetry,
-            child: const Text('Retry'),
-          ),
+          FilledButton(onPressed: onRetry, child: const Text('Retry')),
         ],
       ];
     }
 
     if (isSyncing) {
       return [
-        const CupertinoActivityIndicator(radius: 24, color: EColors.accent),
+        const SizedBox(
+          width: 48,
+          height: 48,
+          child: CircularProgressIndicator(color: EColors.accent),
+        ),
         VSpace.m,
         Text(
           'Syncing data...',
@@ -258,11 +244,7 @@ class SyncStatusWidget extends ConsumerWidget {
     }
 
     return [
-      const Icon(
-        CupertinoIcons.checkmark_circle_fill,
-        size: 48,
-        color: CupertinoColors.systemGreen,
-      ),
+      const Icon(Icons.check_circle, size: 48, color: EColors.success),
       VSpace.m,
       Text(
         'Data in sync',
@@ -278,14 +260,18 @@ class SyncStatusWidget extends ConsumerWidget {
         gradient: AppComponents.cardGradient,
         borderRadius: BorderRadius.circular(AppRadius.medium),
         border: Border.all(
-          color: CupertinoColors.systemGrey4.withValues(alpha: 0.3),
+          color: EColors.surfaceRaised.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
       padding: const EdgeInsets.all(AppSpacing.m),
       child: Row(
         children: [
-          const CupertinoActivityIndicator(radius: 10),
+          const SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
           HSpace.m,
           Expanded(
             child: Text(
@@ -306,26 +292,22 @@ class SyncStatusWidget extends ConsumerWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              CupertinoColors.systemRed.withValues(alpha: 0.1),
-              CupertinoColors.systemRed.withValues(alpha: 0.05),
+              EColors.danger.withValues(alpha: 0.1),
+              EColors.danger.withValues(alpha: 0.05),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(AppRadius.medium),
           border: Border.all(
-            color: CupertinoColors.systemRed.withValues(alpha: 0.3),
+            color: EColors.danger.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              CupertinoIcons.exclamationmark_triangle_fill,
-              size: 48,
-              color: CupertinoColors.systemRed,
-            ),
+            const Icon(Icons.warning, size: 48, color: EColors.danger),
             VSpace.m,
             Text(
               'Error',
@@ -342,10 +324,7 @@ class SyncStatusWidget extends ConsumerWidget {
             ],
             if (onRetry != null) ...[
               VSpace.m,
-              CupertinoButton.filled(
-                onPressed: onRetry,
-                child: const Text('Retry'),
-              ),
+              FilledButton(onPressed: onRetry, child: const Text('Retry')),
             ],
             if (child != null) ...[VSpace.m, child!],
           ],
