@@ -19,7 +19,8 @@ class const ToolActivityCalendar({
       title: '$toolName Usage',
       subtitle: 'Color intensity indicates usage frequency per day',
       activityData: activityData,
-      colorForActivity: usageCountAsAccentAlpha,
+      colorForActivity: (count) =>
+          EHeatmapIntensity.colorForQuantity(count, max: maxCount),
       legendBuilder: usageLegend,
       onDateTap: onDateTap,
       activityDescriptor: (count) =>
@@ -28,18 +29,12 @@ class const ToolActivityCalendar({
     );
   }
 
-  Color usageCountAsAccentAlpha(int count) {
-    if (count == 0) return EColors.background.withValues(alpha: 0.1);
-    if (maxCount == 0) return EColors.accent.withValues(alpha: 0.1);
-    return accentAlphaAsActivityIntensity(count / maxCount);
-  }
-
   Widget usageLegend() {
     return Row(
       children: [
         Text('Less', style: EText.body.small.muted),
         HSpace.s,
-        ...fiveStepAccentAlphaSquares(),
+        ...EHeatmapIntensity.legendSwatches,
         HSpace.s,
         Text('More', style: EText.body.small.muted),
         const Spacer(),

@@ -1,4 +1,3 @@
-import 'package:health_notes/theme/activity_calendar_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:ethan_ui/ethan_ui.dart';
 
@@ -43,21 +42,7 @@ class CalendarConstants() {
   static const double summaryFontSize = 10;
   static const int daysPerWeek = 7;
   static const int monthsToShow = 12;
-  static const double alphaMin = 0.15;
-  static const double alphaMax = 0.9;
   static const double boldThreshold = 0.5;
-}
-
-Color accentAlphaAsActivityIntensity(
-  double intensity, {
-  double alphaMin = 0.15,
-  double alphaMax = 0.9,
-}) {
-  return Color.lerp(
-    EColors.accent.withValues(alpha: alphaMin),
-    EColors.accent.withValues(alpha: alphaMax),
-    intensity,
-  )!;
 }
 
 class const ActivityCalendar<T>({
@@ -359,18 +344,14 @@ class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         decoration: BoxDecoration(
-          color: accentAlphaAsActivityIntensity(
-            intensity,
-            alphaMin: 0.15,
-            alphaMax: 0.7,
-          ),
+          color: EHeatmapIntensity.colorAt(intensity),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Text(
           '$activeDays',
           textAlign: TextAlign.center,
           style: EText.body.small.copyWith(
-            color: Colors.white,
+            color: EHeatmapIntensity.inkAt(intensity),
             fontSize: CalendarConstants.summaryFontSize,
             fontWeight: FontWeight.w600,
           ),
@@ -468,7 +449,7 @@ class _ActivityCalendarState<T>() extends State<ActivityCalendar<T>> {
       borderRadius: BorderRadius.circular(6),
       border: Border.all(
         color: isToday
-            ? ActivityCalendarColors.todayBorder
+            ? EHeatmapIntensity.todayRing
             : cellBorderColor(value),
         width: isToday ? 1.5 : (hasActivity ? 1 : 0.5),
       ),
@@ -740,7 +721,8 @@ class const DosageActivityCalendar({
       title: '$drugName Activity',
       subtitle: 'Color intensity indicates dosage amount. Translucent days show no recorded doses.',
       activityData: activityData,
-      colorForActivity: dosageRelativeToMaxAsAccentAlpha,
+      colorForActivity: (dosage) =>
+          EHeatmapIntensity.colorForQuantity(dosage, max: maxDosage),
       legendBuilder: dosageLegend,
       onDateTap: onDateTap,
       activityDescriptor: (dosage) =>
@@ -753,24 +735,12 @@ class const DosageActivityCalendar({
     );
   }
 
-  Color dosageRelativeToMaxAsAccentAlpha(double dosage) {
-    if (dosage == 0.0) {
-      return EColors.background.withValues(alpha: 0.3);
-    }
-    if (maxDosage == 0.0) return EColors.accent.withValues(alpha: 0.1);
-    return accentAlphaAsActivityIntensity(
-      dosage / maxDosage,
-      alphaMin: 0.1,
-      alphaMax: 0.8,
-    );
-  }
-
   Widget dosageLegend() {
     return Row(
       children: [
         Text('Less', style: EText.body.small.muted),
         HSpace.s,
-        ...fiveStepAccentAlphaSquares(alphaMin: 0.1, alphaMax: 0.8),
+        ...EHeatmapIntensity.legendSwatches,
         HSpace.s,
         Text('More', style: EText.body.small.muted),
         const Spacer(),
@@ -802,7 +772,7 @@ class const CheckInsActivityCalendar({
       subtitle: 'Tap on a date to view check-ins for that day',
       activityData: activityData,
       colorForActivity: (count) =>
-          countRelativeToMaxAsAccentAlpha(count, maxCount),
+          EHeatmapIntensity.colorForQuantity(count, max: maxCount),
       legendBuilder: () => checkInsLegend(maxCount),
       onDateTap: (context, date, count) => onDateTap(date),
       activityDescriptor: (count) => count == 0
@@ -825,18 +795,12 @@ class const CheckInsActivityCalendar({
     return data;
   }
 
-  static Color countRelativeToMaxAsAccentAlpha(int count, int maxCount) {
-    if (count == 0) return EColors.background.withValues(alpha: 0.1);
-    if (maxCount == 0) return EColors.accent.withValues(alpha: 0.1);
-    return accentAlphaAsActivityIntensity(count / maxCount);
-  }
-
   Widget checkInsLegend(int maxCount) {
     return Row(
       children: [
         Text('Less', style: EText.body.small.muted),
         HSpace.s,
-        ...fiveStepAccentAlphaSquares(),
+        ...EHeatmapIntensity.legendSwatches,
         HSpace.s,
         Text('More', style: EText.body.small.muted),
         const Spacer(),
@@ -847,25 +811,3 @@ class const CheckInsActivityCalendar({
   }
 }
 
-List<Widget> fiveStepAccentAlphaSquares({
-  double alphaMin = CalendarConstants.alphaMin,
-  double alphaMax = CalendarConstants.alphaMax,
-  int steps = 5,
-}) {
-  return List.generate(steps, (index) {
-    final intensity = (index + 1) / steps;
-    return Container(
-      width: CalendarConstants.legendItemSize,
-      height: CalendarConstants.legendItemSize,
-      margin: const EdgeInsets.only(right: 2),
-      decoration: BoxDecoration(
-        color: accentAlphaAsActivityIntensity(
-          intensity,
-          alphaMin: alphaMin,
-          alphaMax: alphaMax,
-        ),
-        borderRadius: BorderRadius.circular(AppRadius.xs),
-      ),
-    );
-  });
-}

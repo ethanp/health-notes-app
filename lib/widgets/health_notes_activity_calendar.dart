@@ -23,10 +23,7 @@ class const HealthNotesActivityCalendar({
       subtitle: 'Number shows notes recorded each day',
       activityData: activityData,
       colorForActivity: (count) =>
-          CheckInsActivityCalendar.countRelativeToMaxAsAccentAlpha(
-            count,
-            maxCount,
-          ),
+          EHeatmapIntensity.colorForQuantity(count, max: maxCount),
       legendBuilder: () => noteActivityLegend(maxCount),
       onDateTap: (context, date, count) => onDateTap(date),
       activityDescriptor: (count) =>
@@ -53,7 +50,7 @@ class const HealthNotesActivityCalendar({
       children: [
         Text('Less', style: EText.body.small.muted),
         HSpace.s,
-        ...fiveStepAccentAlphaSquares(),
+        ...EHeatmapIntensity.legendSwatches,
         HSpace.s,
         Text('More', style: EText.body.small.muted),
         const Spacer(),
