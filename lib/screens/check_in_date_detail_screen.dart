@@ -151,7 +151,7 @@ class _CheckInDateDetailScreenState() extends State<CheckInDateDetailScreen> {
 
     return ListView.builder(
       controller: scrollController,
-      padding: const EdgeInsets.all(AppSpacing.m),
+      padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
       itemCount: checkInsForDate.length,
       itemBuilder: (context, index) {
         return checkInItem(checkInsForDate[index]);

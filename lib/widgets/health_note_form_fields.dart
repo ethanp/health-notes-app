@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -165,7 +166,7 @@ class HealthNoteFormFieldsState() extends ConsumerState<HealthNoteFormFields> {
     );
 
     return ListView(
-      padding: const EdgeInsets.all(AppSpacing.m),
+      padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
       children: [
         VSpace.s,
         DateTimeSection(

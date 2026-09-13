@@ -60,7 +60,7 @@ class const MedicationScheduleDetailScreen({required final String scheduleId})
         ),
       ],
       body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.m),
+        padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
         children: [
           Row(
             children: [

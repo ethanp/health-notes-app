@@ -12,6 +12,7 @@
 .swiftpm/
 migrate_working_dir/
 .env
+.cursor/
 
 # Build cache files
 .build_hash

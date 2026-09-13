@@ -25,8 +25,11 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>()
   String get itemNoun;
 
   late final TextEditingController searchController;
+  final ScrollController _trendsScrollController = ScrollController();
   String searchQuery = '';
   int selectedSegmentIndex = 0;
+  bool _hasScrolledCalendarToBottom = false;
+  bool _calendarBottomScrollScheduled = false;
 
   @override
   void initState() {
@@ -37,6 +40,7 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>()
   @override
   void dispose() {
     searchController.dispose();
+    _trendsScrollController.dispose();
     super.dispose();
   }
 
@@ -115,14 +119,16 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>()
 
     final segments = buildSegments(activityData, sortedNotes, filteredNotes);
     final activeIndex = selectedSegmentIndex.clamp(0, segments.length - 1);
+    if (activeIndex == 0) _scheduleScrollCalendarToBottom();
 
     return RefreshIndicator(
       onRefresh: reloadNotes,
       child: CustomScrollView(
+        controller: _trendsScrollController,
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverPadding(
-            padding: const EdgeInsets.all(AppSpacing.m),
+            padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 buildViewSelector(segments, activeIndex),
@@ -171,11 +177,49 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>()
         ],
         selected: {activeIndex},
         onSelectionChanged: (selection) {
-          setState(() => selectedSegmentIndex = selection.first);
+          setState(() {
+            selectedSegmentIndex = selection.first;
+            if (selection.first == 0) {
+              _hasScrolledCalendarToBottom = false;
+              _calendarBottomScrollScheduled = false;
+            }
+          });
         },
         showSelectedIcon: false,
       ),
     );
+  }
+
+  void _scheduleScrollCalendarToBottom() {
+    if (_hasScrolledCalendarToBottom || _calendarBottomScrollScheduled) return;
+    _calendarBottomScrollScheduled = true;
+    _scrollCalendarToBottomAfterLayout(remainingAttempts: 3);
+  }
+
+  void _scrollCalendarToBottomAfterLayout({required int remainingAttempts}) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_tryScrollCalendarToBottom()) {
+        _hasScrolledCalendarToBottom = true;
+        return;
+      }
+      if (remainingAttempts <= 1) {
+        _hasScrolledCalendarToBottom = true;
+        return;
+      }
+      _scrollCalendarToBottomAfterLayout(
+        remainingAttempts: remainingAttempts - 1,
+      );
+    });
+  }
+
+  bool _tryScrollCalendarToBottom() {
+    if (!_trendsScrollController.hasClients) return false;
+    final double maxScrollExtent =
+        _trendsScrollController.position.maxScrollExtent;
+    if (maxScrollExtent <= 0) return false;
+    _trendsScrollController.jumpTo(maxScrollExtent);
+    return true;
   }
 
   List<HealthNote> newestFirstMatchingQuery(List<HealthNote> notes) {

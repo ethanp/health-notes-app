@@ -86,7 +86,7 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverPadding(
-            padding: const EdgeInsets.all(AppSpacing.m),
+            padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 if (tool != null) ...[toolHeaderCard(tool), VSpace.l],

@@ -1,3 +1,4 @@
+import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/theme/app_theme.dart';
@@ -20,13 +21,20 @@ class const RefreshableListView<T>({
         primary: primary,
         physics: physics,
         slivers: [
-          if (padding != null)
-            SliverPadding(padding: padding!, sliver: sliverList())
-          else
-            sliverList(),
+          SliverPadding(
+            padding: _pagePadding(context),
+            sliver: sliverList(),
+          ),
         ],
       ),
     );
+  }
+
+  EdgeInsets _pagePadding(BuildContext context) {
+    final EdgeInsets resolved = (padding ?? EdgeInsets.zero).resolve(
+      Directionality.of(context),
+    );
+    return resolved.withOverlaidTabBar(context);
   }
 
   Widget sliverList() {

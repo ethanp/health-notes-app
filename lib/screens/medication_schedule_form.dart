@@ -84,7 +84,7 @@ class _MedicationScheduleFormState()
 
   Widget _starterChoices() {
     return ListView(
-      padding: const EdgeInsets.all(AppSpacing.m),
+      padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
       children: [
         Text('What kind of course?', style: EText.headline.small),
         VSpace.m,
@@ -162,14 +162,12 @@ class _MedicationScheduleFormState()
   }
 
   EdgeInsets get _editorPadding {
-    return EdgeInsets.fromLTRB(
+    return const EdgeInsets.fromLTRB(
       AppSpacing.m,
       AppSpacing.m,
       AppSpacing.m,
-      AppSpacing.l +
-          ETabBar.occupiedHeight +
-          MediaQuery.paddingOf(context).bottom,
-    );
+      AppSpacing.l,
+    ).withOverlaidTabBar(context);
   }
 
   Widget _labeledField({

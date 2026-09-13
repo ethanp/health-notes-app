@@ -37,12 +37,17 @@ class const MainScreen() extends ConsumerWidget {
       home: ref
           .watch(isAuthenticatedProvider)
           .when(
-            data: (isAuthenticated) =>
-                isAuthenticated ? const MainTabScreen() : const AuthScreen(),
-            loading: () => const EScaffoldShell(
-              contentMaxWidth: double.infinity,
-              body: ELoadingState(message: 'Initializing app...'),
-            ),
+            data: (isAuthenticated) {
+              return isAuthenticated
+                  ? const MainTabScreen()
+                  : const AuthScreen();
+            },
+            loading: () {
+              return const EScaffoldShell(
+                contentMaxWidth: double.infinity,
+                body: ELoadingState(message: 'Initializing app...'),
+              );
+            },
             error: (error, stack) => EScaffoldShell(
               contentMaxWidth: double.infinity,
               body: Center(child: Text('Error: $error', style: EText.error)),

@@ -1,7 +1,7 @@
 import 'package:ethan_ui/ethan_ui.dart';
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:health_notes/widgets/activity_calendar.dart';
-import 'package:health_notes/theme/spacing.dart';
+import 'package:health_notes/widgets/health_notes_month_stack.dart';
 
 class const ToolActivityCalendar({
   required final String toolName,
@@ -9,38 +9,33 @@ class const ToolActivityCalendar({
   required final void Function(BuildContext context, DateTime date, int count)
   onDateTap,
 }) extends StatelessWidget {
-  int get maxCount => activityData.values.isEmpty
-      ? 0
-      : activityData.values.reduce((a, b) => a > b ? a : b);
-
   @override
   Widget build(BuildContext context) {
-    return ActivityCalendar<int>(
+    final scale = HealthNotesMonthStack.periodQuartileScale(
+      observedQuantities: activityData.values,
+      unitTitle: 'uses/day',
+      captionForQuantity: (quantity) => '≤${quantity.round()}',
+    );
+    return HealthNotesMonthStack(
       title: '$toolName Usage',
       subtitle: 'Color intensity indicates usage frequency per day',
-      activityData: activityData,
-      colorForActivity: (count) =>
-          EHeatmapIntensity.colorForQuantity(count, max: maxCount),
-      legendBuilder: usageLegend,
-      onDateTap: onDateTap,
-      activityDescriptor: (count) =>
-          count == 0 ? 'No uses' : '$count use${count == 1 ? '' : 's'}',
-      emptyValue: 0,
-    );
-  }
-
-  Widget usageLegend() {
-    return Row(
-      children: [
-        Text('Less', style: EText.body.small.muted),
-        HSpace.s,
-        ...EHeatmapIntensity.legendSwatches,
-        HSpace.s,
-        Text('More', style: EText.body.small.muted),
-        const Spacer(),
-        if (maxCount > 0)
-          Text('Max: $maxCount/day', style: EText.body.small.muted),
-      ],
+      legend: EHeatmapLegend(scale: scale),
+      presentationFor: (date) {
+        final count = activityData[date.startOfDay] ?? 0;
+        return HealthNotesMonthStack.countedDay(
+          date: date,
+          quantity: count,
+          scale: scale,
+          caption: (quantity) =>
+              quantity == 0 ? 'No uses' : '$quantity use${quantity == 1 ? '' : 's'}',
+        );
+      },
+      quantityOn: (date) => activityData[date.startOfDay] ?? 0,
+      chartFrom: activityData.isEmpty ? null : activityData.keys.min,
+      measureTitle: 'uses',
+      formatMeasure: (quantity) => quantity.round().toString(),
+      onDaySelected: (day) =>
+          onDateTap(context, day.date, activityData[day.date.startOfDay] ?? 0),
     );
   }
 }

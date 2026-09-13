@@ -124,7 +124,7 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
     ];
 
     return ListView(
-      padding: const EdgeInsets.all(AppSpacing.m),
+      padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
       children: sections
           .map(
             (section) => Padding(

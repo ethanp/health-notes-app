@@ -87,7 +87,7 @@ class _ConditionFormState() extends ConsumerState<ConditionForm> {
           ),
       ],
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.m),
+        padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -160,7 +160,7 @@ class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverPadding(
-          padding: const EdgeInsets.all(AppSpacing.m),
+          padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               categorySelector(),

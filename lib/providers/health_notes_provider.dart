@@ -23,7 +23,8 @@ class HealthNotesNotifier() extends _$HealthNotesNotifier {
     }
 
     await CanonicalDrugNames.rewriteStoredSpellings(user.id);
-    return await HealthNotesDao.getAllNotes(user.id);
+    final notes = await HealthNotesDao.getAllNotes(user.id);
+    return notes;
   }
 
   Future<void> addNote({
@@ -132,5 +133,6 @@ class HealthNotesNotifier() extends _$HealthNotesNotifier {
 Future<List<GroupedHealthNotes>> groupedHealthNotes(Ref ref) async {
   final notes = await ref.watch(healthNotesProvider.future);
   final notifier = ref.read(healthNotesProvider.notifier);
-  return notifier._groupNotesByDate(notes);
+  final groups = notifier._groupNotesByDate(notes);
+  return groups;
 }

@@ -103,7 +103,11 @@ class const ConditionsScreen() extends ConsumerWidget {
             ),
           ),
         ],
-          const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: 32 + context.overlaidTabBarInset,
+            ),
+          ),
         ],
       ),
     );

@@ -53,7 +53,7 @@ class const LibraryScreen() extends ConsumerWidget {
         onRefresh: () => ref.read(syncProvider.notifier).syncAllData(),
         child: ListView.separated(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(AppSpacing.m),
+          padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
           itemCount: LibrarySlot.values.length,
           separatorBuilder: (_, _) => VSpace.s,
           itemBuilder: (context, slotIndex) {

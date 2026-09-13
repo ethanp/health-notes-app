@@ -71,7 +71,7 @@ class const HealthNoteDateDetailScreen({
 
   Widget notesList(BuildContext context, List<HealthNote> filteredNotes) {
     return ListView.builder(
-      padding: const EdgeInsets.all(AppSpacing.m),
+      padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
       itemCount: filteredNotes.length,
       itemBuilder: (context, index) {
         final note = filteredNotes[index];

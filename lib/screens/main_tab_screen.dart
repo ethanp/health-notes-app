@@ -46,9 +46,7 @@ class _MainTabScreenState() extends ConsumerState<MainTabScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      try {
-        await ref.read(syncProvider.notifier).forceSyncAllData();
-      } catch (_) {}
+      await ref.read(syncProvider.notifier).forceSyncAllData();
     });
   }
 

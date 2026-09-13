@@ -97,7 +97,7 @@ class const MedicationSchedulesScreen() extends ConsumerWidget {
       onRefresh: () => ref.read(syncProvider.notifier).syncAllData(),
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(AppSpacing.m),
+        padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
         children: [
           ..._section(context, title: 'Active', schedules: active),
           if (active.isNotEmpty && ended.isNotEmpty) VSpace.l,

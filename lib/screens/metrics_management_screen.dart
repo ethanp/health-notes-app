@@ -130,7 +130,7 @@ class _MetricsManagementScreenState()
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16).withOverlaidTabBar(context),
       itemCount: metrics.length,
       itemBuilder: (context, index) => metricTile(metrics[index]),
     );

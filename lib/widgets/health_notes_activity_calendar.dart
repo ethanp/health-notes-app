@@ -1,9 +1,8 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:ethan_utils/ethan_utils.dart';
+import 'package:flutter/material.dart';
 import 'package:health_notes/models/health_note.dart';
-import 'package:health_notes/widgets/activity_calendar.dart';
-import 'package:health_notes/theme/spacing.dart';
+import 'package:health_notes/widgets/health_notes_month_stack.dart';
 
 class const HealthNotesActivityCalendar({
   required final List<HealthNote> notes,
@@ -14,49 +13,41 @@ class const HealthNotesActivityCalendar({
   @override
   Widget build(BuildContext context) {
     final activityData = noteCountByDay(notes);
-    final maxCount = activityData.values.isEmpty
-        ? 0
-        : activityData.values.reduce((a, b) => a > b ? a : b);
-
-    return ActivityCalendar<int>(
+    final scale = HealthNotesMonthStack.periodQuartileScale(
+      observedQuantities: activityData.values,
+      unitTitle: 'notes/day',
+      captionForQuantity: (quantity) => '≤${quantity.round()}',
+    );
+    return HealthNotesMonthStack(
       title: 'Note Activity',
       subtitle: 'Number shows notes recorded each day',
-      activityData: activityData,
-      colorForActivity: (count) =>
-          EHeatmapIntensity.colorForQuantity(count, max: maxCount),
-      legendBuilder: () => noteActivityLegend(maxCount),
-      onDateTap: (context, date, count) => onDateTap(date),
-      activityDescriptor: (count) =>
-          count == 0 ? 'No notes' : '$count note${count == 1 ? '' : 's'}',
-      emptyValue: 0,
+      legend: EHeatmapLegend(scale: scale),
       gridHeight: gridHeight,
       scrollToEnd: scrollToEnd,
+      presentationFor: (date) {
+        final count = activityData[date.startOfDay] ?? 0;
+        return HealthNotesMonthStack.countedDay(
+          date: date,
+          quantity: count,
+          scale: scale,
+          caption: (quantity) =>
+              quantity == 0 ? 'No notes' : '$quantity note${quantity == 1 ? '' : 's'}',
+        );
+      },
+      quantityOn: (date) => activityData[date.startOfDay] ?? 0,
+      chartFrom: activityData.isEmpty ? null : activityData.keys.min,
+      measureTitle: 'notes',
+      formatMeasure: (quantity) => quantity.round().toString(),
+      onDaySelected: (day) => onDateTap(day.date),
     );
   }
 
   static Map<DateTime, int> noteCountByDay(List<HealthNote> notes) {
     final data = <DateTime, int>{};
-
     for (final note in notes) {
       final dateKey = note.dateTime.startOfDay;
       data.update(dateKey, (count) => count + 1, ifAbsent: () => 1);
     }
-
     return data;
-  }
-
-  Widget noteActivityLegend(int maxCount) {
-    return Row(
-      children: [
-        Text('Less', style: EText.body.small.muted),
-        HSpace.s,
-        ...EHeatmapIntensity.legendSwatches,
-        HSpace.s,
-        Text('More', style: EText.body.small.muted),
-        const Spacer(),
-        if (maxCount > 0)
-          Text('Max: $maxCount/day', style: EText.body.small.muted),
-      ],
-    );
   }
 }

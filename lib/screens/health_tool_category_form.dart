@@ -83,7 +83,7 @@ class _HealthToolCategoryFormState()
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.m),
+          padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
           children: [
             nameSection(),
             VSpace.m,
