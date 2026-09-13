@@ -2,6 +2,7 @@ import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/ui/condition_appearance.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/symptom_severity.dart';
 import 'package:intl/intl.dart';

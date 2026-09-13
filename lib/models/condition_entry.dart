@@ -1,15 +1,14 @@
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'condition_entry.freezed.dart';
 part 'condition_entry.g.dart';
 
-enum ConditionPhase({required final Color color}) {
-  onset(color: Color(0xFFFF9500)),
-  worsening(color: Color(0xFFFF3B30)),
-  peak(color: Color(0xFFD32F2F)),
-  improving(color: Color(0xFF34C759));
+enum ConditionPhase {
+  onset,
+  worsening,
+  peak,
+  improving;
 
   String get displayName => nameAsCapitalizedWords;
 }
@@ -48,7 +47,7 @@ abstract class ConditionEntry with _$ConditionEntry {
 class ConditionEntryDraft {
   final String conditionId;
   final String conditionName;
-  final Color conditionColor;
+  final int colorValue;
   int severity;
   ConditionPhase phase;
   String notes;
@@ -57,7 +56,7 @@ class ConditionEntryDraft {
   ConditionEntryDraft({
     required this.conditionId,
     required this.conditionName,
-    required this.conditionColor,
+    required this.colorValue,
     this.severity = 5,
     this.phase = ConditionPhase.onset,
     this.notes = '',

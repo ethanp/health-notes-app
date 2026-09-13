@@ -1,5 +1,4 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/applied_tool.dart';
@@ -198,7 +197,11 @@ class HealthNoteFormFieldsState() extends ConsumerState<HealthNoteFormFields> {
           nearestDue: waiting.nearestTo(_selectedDateTime),
           onDueActivated: addScheduledOccurrence,
           onManageSchedules: () =>
-              context.push(const MedicationSchedulesScreen()),
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const MedicationSchedulesScreen(),
+                ),
+              ),
           hasSchedules: schedules.when(
             data: (data) => data.isNotEmpty,
             loading: () => false,

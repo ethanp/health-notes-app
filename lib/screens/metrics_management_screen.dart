@@ -1,14 +1,12 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in_metric.dart';
-import 'package:health_notes/providers/auth_provider.dart';
 import 'package:health_notes/providers/check_in_metrics_provider.dart';
 import 'package:health_notes/providers/sync_provider.dart';
 import 'package:health_notes/screens/metric_edit_screen.dart';
-import 'package:health_notes/services/offline_repository.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/ui/check_in_metric_appearance.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -40,19 +38,6 @@ class _MetricsManagementScreenState()
             await ref.read(syncProvider.notifier).forceSyncAllData();
           },
           icon: const Icon(Icons.sync),
-        ),
-        IconButton(
-          tooltip: 'Resync metrics',
-          onPressed: () async {
-            final user = await ref.read(currentUserProvider.future);
-            final userId = user?.id;
-            if (userId != null) {
-              await OfflineRepository.resyncAllCheckInMetrics(userId);
-              await OfflineRepository.pushLocalOnly();
-              await ref.read(syncProvider.notifier).forceSyncAllData();
-            }
-          },
-          icon: const Icon(Icons.swap_vert_circle_outlined),
         ),
         IconButton(
           tooltip: 'Add metric',
@@ -202,11 +187,19 @@ class _MetricsManagementScreenState()
   }
 
   void _showAddMetricDialog(BuildContext context) {
-    context.push(const MetricEditScreen());
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const MetricEditScreen(),
+      ),
+    );
   }
 
   void _showEditMetricDialog(BuildContext context, CheckInMetric metric) {
-    context.push(MetricEditScreen(metric: metric));
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => MetricEditScreen(metric: metric),
+      ),
+    );
   }
 
   void _showDeleteMetricDialog(BuildContext context, CheckInMetric metric) {

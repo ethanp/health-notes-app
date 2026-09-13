@@ -55,7 +55,11 @@ class const MedicationScheduleDetailScreen({required final String scheduleId})
         IconButton(
           tooltip: 'Edit schedule',
           onPressed: () =>
-              context.push(MedicationScheduleForm(existing: schedule)),
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => MedicationScheduleForm(existing: schedule),
+                ),
+              ),
           icon: const Icon(Icons.edit),
         ),
       ],

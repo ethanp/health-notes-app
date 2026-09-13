@@ -14,7 +14,6 @@ import 'package:health_notes/screens/drug_trends_screen.dart';
 import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/services/text_normalizer.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/widgets/log_out_button.dart';
 import 'package:health_notes/widgets/check_in_trends_chart.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 import 'package:health_notes/widgets/monthly_notes_chart.dart';
@@ -51,12 +50,15 @@ class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
       contentMaxWidth: double.infinity,
       appBar: EAppHeader(
         title: 'Trends',
-        leading: const LogOutButton(),
         actions: [
           const CompactSyncStatusWidget(),
           IconButton(
             tooltip: 'Add check-in',
-            onPressed: () => context.push(const CheckInForm()),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const CheckInForm(),
+              ),
+            ),
             icon: const Icon(Icons.add),
           ),
         ],
@@ -280,11 +282,19 @@ class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
   }
 
   void _openSymptomTrends(String symptomName) {
-    context.push(SymptomTrendsScreen(symptomName: symptomName));
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => SymptomTrendsScreen(symptomName: symptomName),
+      ),
+    );
   }
 
   void _openDrugTrends(String drugName) {
-    context.push(DrugTrendsScreen(drugName: DrugName(drugName)));
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => DrugTrendsScreen(drugName: DrugName(drugName)),
+      ),
+    );
   }
 
   String formatMonth(String monthKey) {
@@ -351,7 +361,12 @@ class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
     return HealthNotesActivityCalendar(
       notes: notes,
       onDateTap: (date) =>
-          context.push(HealthNoteDateDetailScreen(date: date, allNotes: notes)),
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) =>
+                  HealthNoteDateDetailScreen(date: date, allNotes: notes),
+            ),
+          ),
       gridHeight: 320,
       scrollToEnd: true,
     );
@@ -362,8 +377,11 @@ class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
 
     return CheckInsActivityCalendar(
       checkIns: checkIns,
-      onDateTap: (date) => context.push(
-        CheckInDateDetailScreen(date: date, allCheckIns: checkIns),
+      onDateTap: (date) => Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) =>
+              CheckInDateDetailScreen(date: date, allCheckIns: checkIns),
+        ),
       ),
       gridHeight: 320,
       scrollToEnd: true,

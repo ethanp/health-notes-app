@@ -3,7 +3,6 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/medication_schedule.dart';
 import 'package:health_notes/services/health_notes_dao.dart';
 import 'package:health_notes/services/medication_schedules_dao.dart';
-import 'package:health_notes/utils/data_utils.dart';
 
 class const PreferredDrugNameRewrite({
   required final List<HealthNote> notes,
@@ -42,28 +41,20 @@ class CanonicalDrugNames() {
     );
   }
 
-  static Future<void> rewriteStoredSpellings(String userId) async {
+  static Future<void> rewriteStoredSpellings({
+    required String userId,
+    required HealthNotesDao notesDao,
+    required MedicationSchedulesDao schedulesDao,
+  }) async {
     final pending = pendingRewrites(
-      notes: await HealthNotesDao.getAllNotes(userId),
-      schedules: await MedicationSchedulesDao.getAllSchedules(userId),
+      notes: await notesDao.getAllNotes(userId),
+      schedules: await schedulesDao.getAllSchedules(userId),
     );
     for (final note in pending.notes) {
-      await HealthNotesDao.updateNote(note);
-      DataUtils.syncService.queueForSync(
-        'health_notes',
-        note.id,
-        'update',
-        note.toJsonForUpdate(),
-      );
+      await notesDao.updateNote(note);
     }
     for (final schedule in pending.schedules) {
-      await MedicationSchedulesDao.updateSchedule(schedule);
-      DataUtils.syncService.queueForSync(
-        'medication_schedules',
-        schedule.id,
-        'update',
-        schedule.toJsonForUpdate(),
-      );
+      await schedulesDao.updateSchedule(schedule);
     }
   }
 }

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/models/medication_schedule.dart';
-import 'package:health_notes/providers/auth_provider.dart';
+import 'package:health_notes/app_identity.dart';
 import 'package:health_notes/providers/medication_recommendations_provider.dart';
 import 'package:health_notes/providers/medication_schedules_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
@@ -12,7 +12,12 @@ import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/data_utils.dart';
 import 'package:health_notes/utils/health_date_format.dart';
 import 'package:health_notes/widgets/medication_suggestion_chips.dart';
+import 'package:health_notes/widgets/medication_schedule/daily_times_editor.dart';
+import 'package:health_notes/widgets/medication_schedule/schedule_form_fields.dart';
+import 'package:health_notes/widgets/medication_schedule/schedule_kind_starter.dart';
 import 'package:health_notes/widgets/medication_schedule/schedule_scaffold.dart';
+import 'package:health_notes/widgets/medication_schedule/schedule_step_draft.dart';
+import 'package:health_notes/widgets/medication_schedule/taper_schedule_editor.dart';
 
 class const MedicationScheduleForm({final MedicationSchedule? existing})
     extends ConsumerStatefulWidget {
@@ -28,11 +33,16 @@ class _MedicationScheduleFormState()
   late final TextEditingController _notesController;
   final _editorScrollController = ScrollController();
   late DateTime _startDate;
-  late List<_StepDraft> _steps;
+  late List<ScheduleStepDraft> _steps;
   ScheduleKind? _scheduleKind;
   bool _isSaving = false;
 
   bool get _isEditing => widget.existing != null;
+
+  String get _unitLabel {
+    final unit = _unitController.text.trim();
+    return unit.isEmpty ? 'mg' : unit;
+  }
 
   @override
   void initState() {
@@ -46,7 +56,7 @@ class _MedicationScheduleFormState()
     _startDate = existing?.startDate ?? DateTime.now().startOfDay;
     _steps = existing == null
         ? []
-        : existing.steps.map(_StepDraft.fromStep).toList();
+        : existing.steps.map(ScheduleStepDraft.fromStep).toList();
     if (existing != null) {
       _scheduleKind = existing.kind;
     }
@@ -58,7 +68,9 @@ class _MedicationScheduleFormState()
     _unitController.dispose();
     _notesController.dispose();
     _editorScrollController.dispose();
-    _steps.forEach((step) => step.dispose());
+    for (final step in _steps) {
+      step.dispose();
+    }
     super.dispose();
   }
 
@@ -78,54 +90,9 @@ class _MedicationScheduleFormState()
               : const Text('Save'),
         ),
       ],
-      body: _scheduleKind == null ? _starterChoices() : _editor(),
-    );
-  }
-
-  Widget _starterChoices() {
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
-      children: [
-        Text('What kind of course?', style: EText.headline.small),
-        VSpace.m,
-        _starterCard(
-          title: 'Taper',
-          caption: '40mg for 7 mornings, then 30mg for 3 mornings',
-          onActivated: () => _startAs(ScheduleKind.taper),
-        ),
-        _starterCard(
-          title: 'Times each day',
-          caption: '200mg at 10:30 AM, 200mg at 4:30 PM, 300mg at 10:30 PM',
-          onActivated: () => _startAs(ScheduleKind.daily),
-        ),
-      ],
-    );
-  }
-
-  Widget _starterCard({
-    required String title,
-    required String caption,
-    required VoidCallback onActivated,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.m),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onActivated,
-          borderRadius: BorderRadius.circular(AppRadius.medium),
-          child: ECard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: EText.label.large.primary),
-                VSpace.s,
-                Text(caption, style: EText.body.medium.tertiary),
-              ],
-            ),
-          ),
-        ),
-      ),
+      body: _scheduleKind == null
+          ? ScheduleKindStarter(onKindSelected: _startAs)
+          : _editor(),
     );
   }
 
@@ -139,24 +106,48 @@ class _MedicationScheduleFormState()
           Text(_previewSentence, style: EText.headline.small),
           VSpace.l,
         ],
-        _labeledField(label: 'Medication', controller: _nameController),
+        ScheduleFormFields.labeled(
+          label: 'Medication',
+          controller: _nameController,
+          onChanged: (_) => setState(() {}),
+        ),
         MedicationNameSuggestionChips(
           typedName: _nameController.text,
           onNameSelected: _selectSuggestedMedicationName,
         ),
         VSpace.m,
-        _labeledField(label: 'Unit', controller: _unitController),
+        ScheduleFormFields.labeled(
+          label: 'Unit',
+          controller: _unitController,
+          onChanged: (_) => setState(() {}),
+        ),
         VSpace.m,
         _startDateRow(),
         VSpace.m,
-        _labeledField(
+        ScheduleFormFields.labeled(
           label: 'Note',
           controller: _notesController,
           hint: 'from ENT',
+          onChanged: (_) => setState(() {}),
         ),
         VSpace.l,
-        if (_scheduleKind == ScheduleKind.taper) ..._taperEditor(),
-        if (_scheduleKind == ScheduleKind.daily) ..._timesEditor(),
+        if (_scheduleKind == ScheduleKind.taper)
+          TaperScheduleEditor(
+            steps: _steps,
+            unit: _unitLabel,
+            onChanged: () => setState(() {}),
+            onAddStep: _addTaperStep,
+            onRemoveStep: _removeStep,
+          ),
+        if (_scheduleKind == ScheduleKind.daily)
+          DailyTimesEditor(
+            step: _steps.first,
+            unit: _unitLabel,
+            onChanged: () => setState(() {}),
+            onAddDose: _addClockDose,
+            onRemoveDose: _removeClockDose,
+            onPickClockTime: _pickClockTime,
+          ),
       ],
     );
   }
@@ -170,26 +161,6 @@ class _MedicationScheduleFormState()
     ).withOverlaidTabBar(context);
   }
 
-  Widget _labeledField({
-    required String label,
-    required TextEditingController controller,
-    String? hint,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: EText.label.medium),
-        VSpace.s,
-        TextField(
-          controller: controller,
-          style: EText.body.medium,
-          decoration: _fieldDecoration(hint: hint),
-          onChanged: (_) => setState(() {}),
-        ),
-      ],
-    );
-  }
-
   Widget _startDateRow() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,168 +172,6 @@ class _MedicationScheduleFormState()
           child: Text(_startDate.monthDayYear),
         ),
       ],
-    );
-  }
-
-  List<Widget> _taperEditor() {
-    return [
-      for (final stepIndex in _steps.asMap().keys) ...[
-        if (stepIndex > 0)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.s),
-            child: Text('then', style: EText.label.medium.tertiary),
-          ),
-        _taperStepCard(stepIndex),
-      ],
-      VSpace.m,
-      OutlinedButton(onPressed: _addTaperStep, child: const Text('Then')),
-    ];
-  }
-
-  Widget _taperStepCard(int stepIndex) {
-    final step = _steps[stepIndex];
-    final dose = step.doses.first;
-    return ECard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: dose.amount,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  style: EText.body.medium,
-                  decoration: _fieldDecoration(hint: '40'),
-                  onChanged: (_) => setState(() {}),
-                ),
-              ),
-              HSpace.s,
-              Text(
-                _unitController.text.trim().isEmpty
-                    ? 'mg'
-                    : _unitController.text.trim(),
-              ),
-              HSpace.m,
-              const Text('for'),
-              HSpace.s,
-              SizedBox(
-                width: 64,
-                child: TextField(
-                  controller: step.duration,
-                  keyboardType: TextInputType.number,
-                  style: EText.body.medium,
-                  decoration: _fieldDecoration(hint: '7'),
-                  onChanged: (_) => setState(() {}),
-                ),
-              ),
-            ],
-          ),
-          VSpace.s,
-          _partOfDayChoices(dose),
-          if (_steps.length > 1)
-            Align(
-              alignment: Alignment.centerRight,
-              child: IconButton(
-                tooltip: 'Remove step',
-                onPressed: () => _removeStep(stepIndex),
-                icon: const Icon(Icons.delete_outline, color: EColors.danger),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _partOfDayChoices(_DoseDraft dose) {
-    return Wrap(
-      spacing: 8,
-      children: PartOfDay.values.map((part) {
-        final isSelected =
-            dose.when is PartOfDayDoseWhen &&
-            (dose.when as PartOfDayDoseWhen).part == part;
-        return FilterChip(
-          label: Text(
-            part.pluralLabel,
-            style: isSelected ? EText.label.medium : EText.label.medium.white,
-          ),
-          selected: isSelected,
-          backgroundColor: EColors.surfaceRaised,
-          selectedColor: EColors.accentGlow.withValues(alpha: 0.35),
-          onSelected: (_) => setState(() {
-            dose.when = DoseWhen.partOfDay(part);
-          }),
-        );
-      }).toList(),
-    );
-  }
-
-  List<Widget> _timesEditor() {
-    final step = _steps.first;
-    return [
-      for (final doseIndex in step.doses.asMap().keys)
-        Padding(
-          padding: const EdgeInsets.only(bottom: AppSpacing.s),
-          child: _timeDoseCard(step, doseIndex),
-        ),
-      TextButton(onPressed: _addClockDose, child: const Text('Add time')),
-    ];
-  }
-
-  Widget _timeDoseCard(_StepDraft step, int doseIndex) {
-    final dose = step.doses[doseIndex];
-    return ECard(
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: dose.amount,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              style: EText.body.medium,
-              decoration: _fieldDecoration(hint: '200'),
-              onChanged: (_) => setState(() {}),
-            ),
-          ),
-          HSpace.s,
-          Text(
-            _unitController.text.trim().isEmpty
-                ? 'mg'
-                : _unitController.text.trim(),
-          ),
-          HSpace.m,
-          TextButton(
-            onPressed: () => _pickClockTime(dose),
-            child: Text(dose.when.caption),
-          ),
-          if (step.doses.length > 1)
-            IconButton(
-              tooltip: 'Remove time',
-              onPressed: () => _removeClockDose(doseIndex),
-              icon: const Icon(Icons.delete_outline, color: EColors.danger),
-            ),
-        ],
-      ),
-    );
-  }
-
-  InputDecoration _fieldDecoration({String? hint}) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: EText.body.medium.muted,
-      filled: true,
-      fillColor: EColors.surface,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.m,
-        vertical: AppSpacing.s,
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadius.small),
-        borderSide: const BorderSide(color: EColors.surfaceRaised),
-      ),
     );
   }
 
@@ -393,12 +202,16 @@ class _MedicationScheduleFormState()
   void _startAs(ScheduleKind scheduleKind) {
     setState(() {
       _scheduleKind = scheduleKind;
-      _steps.forEach((step) => step.dispose());
+      for (final step in _steps) {
+        step.dispose();
+      }
       _steps = [
         if (scheduleKind == ScheduleKind.taper)
-          _StepDraft.taper(when: const DoseWhen.partOfDay(PartOfDay.morning))
+          ScheduleStepDraft.taper(
+            when: const DoseWhen.partOfDay(PartOfDay.morning),
+          )
         else
-          _StepDraft.dailyTimes(
+          ScheduleStepDraft.dailyTimes(
             when: const DoseWhen.clock(hour: 10, minute: 30),
           ),
       ];
@@ -408,7 +221,7 @@ class _MedicationScheduleFormState()
   void _addTaperStep() {
     final previousWhen = _steps.last.doses.first.when;
     setState(() {
-      _steps.add(_StepDraft.taper(when: previousWhen));
+      _steps.add(ScheduleStepDraft.taper(when: previousWhen));
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _revealThenButton();
@@ -427,7 +240,7 @@ class _MedicationScheduleFormState()
   void _addClockDose() {
     setState(() {
       _steps.first.doses.add(
-        _DoseDraft(when: const DoseWhen.clock(hour: 20, minute: 0)),
+        ScheduleDoseDraft(when: const DoseWhen.clock(hour: 20, minute: 0)),
       );
     });
   }
@@ -455,7 +268,7 @@ class _MedicationScheduleFormState()
     setState(() => _startDate = picked.startOfDay);
   }
 
-  Future<void> _pickClockTime(_DoseDraft dose) async {
+  Future<void> _pickClockTime(ScheduleDoseDraft dose) async {
     final initial = switch (dose.when) {
       ClockDoseWhen(:final hour, :final minute) => TimeOfDay(
         hour: hour,
@@ -481,9 +294,7 @@ class _MedicationScheduleFormState()
       id: id,
       userId: userId,
       medicationName: DrugName(_nameController.text.trim()),
-      unit: _unitController.text.trim().isEmpty
-          ? 'mg'
-          : _unitController.text.trim(),
+      unit: _unitLabel,
       startDate: _startDate,
       endDate: endDate,
       steps: _steps.map((step) => step.toStep()).toList(),
@@ -515,13 +326,11 @@ class _MedicationScheduleFormState()
     if (!_canSave) return;
     setState(() => _isSaving = true);
     try {
-      final user = await ref.read(currentUserProvider.future);
-      if (user == null) throw Exception('User not authenticated');
       final now = DateTime.now();
       final existing = widget.existing;
       final schedule = _draftSchedule(
         id: existing?.id ?? DataUtils.uuid.v4(),
-        userId: user.id,
+        userId: AppIdentity.localUserId,
         createdAt: existing?.createdAt ?? now,
         updatedAt: now,
         endDate: existing?.endDate,
@@ -536,82 +345,5 @@ class _MedicationScheduleFormState()
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
-  }
-}
-
-class _StepDraft({
-  required final String id,
-  required final TextEditingController duration,
-  required final List<_DoseDraft> doses,
-}) {
-  factory taper({required DoseWhen when}) {
-    return _StepDraft(
-      id: DataUtils.uuid.v4(),
-      duration: TextEditingController(),
-      doses: [_DoseDraft(when: when)],
-    );
-  }
-
-  factory dailyTimes({required DoseWhen when}) {
-    return _StepDraft(
-      id: DataUtils.uuid.v4(),
-      duration: TextEditingController(),
-      doses: [_DoseDraft(when: when)],
-    );
-  }
-
-  factory fromStep(ScheduleStep step) {
-    return _StepDraft(
-      id: step.id,
-      duration: TextEditingController(
-        text: step.durationDays?.toString() ?? '',
-      ),
-      doses: step.doses.map(_DoseDraft.fromDose).toList(),
-    );
-  }
-
-  void dispose() {
-    duration.dispose();
-    doses.forEach((dose) => dose.dispose());
-  }
-
-  ScheduleStep toStep() {
-    final durationDays = int.tryParse(duration.text.trim());
-    return ScheduleStep(
-      id: id,
-      durationDays: durationDays != null && durationDays > 0
-          ? durationDays
-          : null,
-      doses: doses
-          .where((dose) => dose.parsedAmount != null)
-          .map((dose) => dose.toDose())
-          .toList(),
-    );
-  }
-}
-
-class _DoseDraft({required var DoseWhen when, String amountText = ''}) {
-  factory fromDose(ScheduledDose dose) {
-    return _DoseDraft(when: dose.when, amountText: _amountText(dose.amount))
-      ..id = dose.id;
-  }
-
-  static String _amountText(double amount) {
-    if (amount == amount.truncateToDouble()) return amount.toInt().toString();
-    return amount.toString();
-  }
-
-  String id = DataUtils.uuid.v4();
-  final TextEditingController amount = TextEditingController(text: amountText);
-  double? get parsedAmount {
-    final parsed = double.tryParse(amount.text.trim());
-    if (parsed == null || parsed <= 0) return null;
-    return parsed;
-  }
-
-  void dispose() => amount.dispose();
-
-  ScheduledDose toDose() {
-    return ScheduledDose(id: id, amount: parsedAmount ?? 0, when: when);
   }
 }

@@ -1,5 +1,4 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/medication_schedule.dart';
@@ -119,8 +118,11 @@ class const MedicationSchedulesScreen() extends ConsumerWidget {
       ...schedules.map(
         (schedule) => ScheduleCard(
           schedule: schedule,
-          onActivated: () => context.push(
-            MedicationScheduleDetailScreen(scheduleId: schedule.id),
+          onActivated: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) =>
+                  MedicationScheduleDetailScreen(scheduleId: schedule.id),
+            ),
           ),
         ),
       ),
@@ -128,6 +130,10 @@ class const MedicationSchedulesScreen() extends ConsumerWidget {
   }
 
   void _showScheduleForm(BuildContext context) {
-    context.push(const MedicationScheduleForm());
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const MedicationScheduleForm(),
+      ),
+    );
   }
 }

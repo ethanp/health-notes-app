@@ -1,5 +1,4 @@
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'condition.freezed.dart';
@@ -36,13 +35,6 @@ abstract class Condition with _$Condition {
 
   factory Condition.fromJson(Map<String, dynamic> json) =>
       _$ConditionFromJson(json);
-
-  Color get color => Color(colorValue);
-
-  IconData get icon => IconData(
-    iconCodePoint, // ignore: non_const_argument_for_const_parameter
-    fontFamily: 'MaterialIcons',
-  );
 
   int get durationDays => endDate != null
       ? endDate!.difference(startDate).inDays + 1

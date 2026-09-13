@@ -358,7 +358,11 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
             TextButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
-                context.push(HealthNoteViewScreen(note: note));
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => HealthNoteViewScreen(note: note),
+                  ),
+                );
               },
               child: const Text('View Note'),
             ),
@@ -392,7 +396,11 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
                   (note) => TextButton(
                     onPressed: () {
                       Navigator.of(dialogContext).pop();
-                      context.push(HealthNoteViewScreen(note: note));
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => HealthNoteViewScreen(note: note),
+                        ),
+                      );
                     },
                     child: Text(note.dateTime.hourMinuteAmPm),
                   ),

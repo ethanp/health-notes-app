@@ -1,15 +1,14 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:health_notes/models/health_note.dart';
-import 'package:health_notes/models/grouped_health_notes.dart';
-import 'package:health_notes/models/drug_dose.dart';
-import 'package:health_notes/models/symptom.dart';
+import 'package:health_notes/app_identity.dart';
 import 'package:health_notes/models/applied_tool.dart';
+import 'package:health_notes/models/drug_dose.dart';
+import 'package:health_notes/models/grouped_health_notes.dart';
+import 'package:health_notes/models/health_note.dart';
+import 'package:health_notes/models/symptom.dart';
+import 'package:health_notes/providers/dao_providers.dart';
 import 'package:health_notes/services/canonical_drug_names.dart';
-import 'package:health_notes/services/health_notes_dao.dart';
-import 'package:health_notes/services/offline_repository.dart';
-import 'package:health_notes/providers/auth_provider.dart';
 import 'package:health_notes/utils/data_utils.dart';
 import 'package:intl/intl.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'health_notes_provider.g.dart';
 
@@ -17,14 +16,14 @@ part 'health_notes_provider.g.dart';
 class HealthNotesNotifier() extends _$HealthNotesNotifier {
   @override
   Future<List<HealthNote>> build() async {
-    final user = await ref.watch(currentUserProvider.future);
-    if (user == null) {
-      throw Exception('User not authenticated');
-    }
-
-    await CanonicalDrugNames.rewriteStoredSpellings(user.id);
-    final notes = await HealthNotesDao.getAllNotes(user.id);
-    return notes;
+    final notesDao = await ref.watch(healthNotesDaoProvider.future);
+    final schedulesDao = await ref.watch(medicationSchedulesDaoProvider.future);
+    await CanonicalDrugNames.rewriteStoredSpellings(
+      userId: AppIdentity.localUserId,
+      notesDao: notesDao,
+      schedulesDao: schedulesDao,
+    );
+    return notesDao.getAllNotes(AppIdentity.localUserId);
   }
 
   Future<void> addNote({
@@ -34,11 +33,7 @@ class HealthNotesNotifier() extends _$HealthNotesNotifier {
     List<AppliedTool> appliedTools = const [],
     required String notes,
   }) async {
-    final user = await ref.read(currentUserProvider.future);
-    if (user == null) {
-      throw Exception('User not authenticated');
-    }
-
+    final notesDao = await ref.read(healthNotesDaoProvider.future);
     final note = HealthNote(
       id: DataUtils.uuid.v4(),
       dateTime: dateTime,
@@ -48,21 +43,13 @@ class HealthNotesNotifier() extends _$HealthNotesNotifier {
       notes: notes,
       createdAt: DateTime.now(),
     );
-
-    await HealthNotesDao.insertNote(note, user.id);
-    DataUtils.syncService.queueForSync(
-      'health_notes',
-      note.id,
-      'insert',
-      note.toJsonForUpdate(),
-    );
-
+    await notesDao.insertNote(note, AppIdentity.localUserId);
     ref.invalidateSelf();
   }
 
   Future<void> deleteNote(String id) async {
-    await HealthNotesDao.deleteNote(id);
-    DataUtils.syncService.queueForSync('health_notes', id, 'delete', {});
+    final notesDao = await ref.read(healthNotesDaoProvider.future);
+    await notesDao.deleteNote(id);
     ref.invalidateSelf();
   }
 
@@ -74,7 +61,8 @@ class HealthNotesNotifier() extends _$HealthNotesNotifier {
     List<AppliedTool> appliedTools = const [],
     required String notes,
   }) async {
-    final existingNote = await HealthNotesDao.getNoteById(id);
+    final notesDao = await ref.read(healthNotesDaoProvider.future);
+    final existingNote = await notesDao.getNoteById(id);
     if (existingNote == null) return;
 
     final updatedNote = existingNote.copyWith(
@@ -86,27 +74,17 @@ class HealthNotesNotifier() extends _$HealthNotesNotifier {
           : appliedTools,
       notes: notes,
     );
-
-    await HealthNotesDao.updateNote(updatedNote);
-    DataUtils.syncService.queueForSync(
-      'health_notes',
-      id,
-      'update',
-      updatedNote.toJsonForUpdate(),
-    );
+    await notesDao.updateNote(updatedNote);
     ref.invalidateSelf();
   }
 
   Future<void> refreshNotes() async {
-    final user = await ref.read(currentUserProvider.future);
-    if (user != null) {
-      await OfflineRepository.syncAllData(user.id);
-    }
     ref.invalidateSelf();
   }
 
   Future<HealthNote?> getHealthNoteById(String id) async {
-    return await HealthNotesDao.getNoteById(id);
+    final notesDao = await ref.read(healthNotesDaoProvider.future);
+    return notesDao.getNoteById(id);
   }
 
   List<GroupedHealthNotes> _groupNotesByDate(List<HealthNote> notes) {
@@ -123,7 +101,6 @@ class HealthNotesNotifier() extends _$HealthNotesNotifier {
       final date = DateTime.parse(entry.key);
       final sortedNotes = entry.value
         ..sort((a, b) => b.dateTime.compareTo(a.dateTime));
-
       return GroupedHealthNotes(date: date, notes: sortedNotes);
     }).toList()..sort((a, b) => b.date.compareTo(a.date));
   }
@@ -133,6 +110,5 @@ class HealthNotesNotifier() extends _$HealthNotesNotifier {
 Future<List<GroupedHealthNotes>> groupedHealthNotes(Ref ref) async {
   final notes = await ref.watch(healthNotesProvider.future);
   final notifier = ref.read(healthNotesProvider.notifier);
-  final groups = notifier._groupNotesByDate(notes);
-  return groups;
+  return notifier._groupNotesByDate(notes);
 }

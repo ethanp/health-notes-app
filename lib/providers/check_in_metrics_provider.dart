@@ -1,9 +1,9 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter/material.dart';
+import 'package:health_notes/app_identity.dart';
 import 'package:health_notes/models/check_in_metric.dart';
-import 'package:health_notes/providers/auth_provider.dart';
-import 'package:health_notes/services/check_in_metrics_dao.dart';
+import 'package:health_notes/providers/dao_providers.dart';
 import 'package:health_notes/utils/data_utils.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'check_in_metrics_provider.g.dart';
 
@@ -11,12 +11,8 @@ part 'check_in_metrics_provider.g.dart';
 class CheckInMetricsNotifier() extends _$CheckInMetricsNotifier {
   @override
   Future<List<CheckInMetric>> build() async {
-    final user = await ref.watch(currentUserProvider.future);
-    if (user == null) {
-      throw Exception('User not authenticated');
-    }
-
-    return await CheckInMetricsDao.getCheckInMetrics(user.id);
+    final metricsDao = await ref.watch(checkInMetricsDaoProvider.future);
+    return metricsDao.getCheckInMetrics(AppIdentity.localUserId);
   }
 
   Future<void> addCheckInMetric({
@@ -25,49 +21,34 @@ class CheckInMetricsNotifier() extends _$CheckInMetricsNotifier {
     required Color color,
     required IconData icon,
   }) async {
-    final user = await ref.read(currentUserProvider.future);
-    if (user == null) {
-      throw Exception('User not authenticated');
-    }
-
-    final nameExists = await CheckInMetricsDao.metricNameExists(
-      user.id,
+    final metricsDao = await ref.read(checkInMetricsDaoProvider.future);
+    final nameExists = await metricsDao.metricNameExists(
+      AppIdentity.localUserId,
       name.trim(),
     );
     if (nameExists) {
       throw Exception('A metric with this name already exists');
     }
 
-    final sortOrder = await CheckInMetricsDao.getNextSortOrder(user.id);
-
+    final sortOrder = await metricsDao.getNextSortOrder(
+      AppIdentity.localUserId,
+    );
     final metric = CheckInMetric.create(
-      userId: user.id,
+      userId: AppIdentity.localUserId,
       name: name,
       type: type,
-      color: color,
-      icon: icon,
+      colorValue: color.toARGB32(),
+      iconCodePoint: icon.codePoint,
       sortOrder: sortOrder,
     ).copyWith(id: DataUtils.uuid.v4());
-
-    await CheckInMetricsDao.insertCheckInMetric(metric);
-    DataUtils.syncService.queueForSync(
-      'check_in_metrics',
-      metric.id,
-      'insert',
-      CheckInMetricsDao.toSyncMap(metric),
-    );
-
+    await metricsDao.insertCheckInMetric(metric);
     ref.invalidateSelf();
   }
 
   Future<void> updateCheckInMetric(CheckInMetric metric) async {
-    final user = await ref.read(currentUserProvider.future);
-    if (user == null) {
-      throw Exception('User not authenticated');
-    }
-
-    final nameExists = await CheckInMetricsDao.metricNameExists(
-      user.id,
+    final metricsDao = await ref.read(checkInMetricsDaoProvider.future);
+    final nameExists = await metricsDao.metricNameExists(
+      AppIdentity.localUserId,
       metric.name.trim(),
       excludeId: metric.id,
     );
@@ -75,60 +56,42 @@ class CheckInMetricsNotifier() extends _$CheckInMetricsNotifier {
       throw Exception('A metric with this name already exists');
     }
 
-    final updatedMetric = metric.withUpdatedTimestamp();
-    await CheckInMetricsDao.updateCheckInMetric(updatedMetric);
-    DataUtils.syncService.queueForSync(
-      'check_in_metrics',
-      metric.id,
-      'update',
-      CheckInMetricsDao.toSyncMap(updatedMetric),
-    );
+    await metricsDao.updateCheckInMetric(metric.withUpdatedTimestamp());
     ref.invalidateSelf();
   }
 
   Future<void> deleteCheckInMetric(String id) async {
-    await CheckInMetricsDao.deleteCheckInMetric(id);
-    DataUtils.syncService.queueForSync('check_in_metrics', id, 'delete', {});
+    final metricsDao = await ref.read(checkInMetricsDaoProvider.future);
+    await metricsDao.deleteCheckInMetric(id);
     ref.invalidateSelf();
   }
 
   Future<void> reorderMetrics(List<CheckInMetric> metrics) async {
-    final updatedMetrics = <CheckInMetric>[];
-    for (int i = 0; i < metrics.length; i++) {
-      updatedMetrics.add(metrics[i].copyWith(sortOrder: i));
-    }
-
-    await CheckInMetricsDao.updateSortOrder(updatedMetrics);
-    for (final metric in updatedMetrics) {
-      DataUtils.syncService.queueForSync(
-        'check_in_metrics',
-        metric.id,
-        'update',
-        CheckInMetricsDao.toSyncMap(metric),
-      );
-    }
+    final metricsDao = await ref.read(checkInMetricsDaoProvider.future);
+    final updatedMetrics = <CheckInMetric>[
+      for (var index = 0; index < metrics.length; index++)
+        metrics[index].copyWith(sortOrder: index),
+    ];
+    await metricsDao.updateSortOrder(updatedMetrics);
     ref.invalidateSelf();
   }
 
   Future<bool> metricNameExists(String name, {String? excludeId}) async {
-    final user = await ref.read(currentUserProvider.future);
-    if (user == null) return false;
-
-    return await CheckInMetricsDao.metricNameExists(
-      user.id,
+    final metricsDao = await ref.read(checkInMetricsDaoProvider.future);
+    return metricsDao.metricNameExists(
+      AppIdentity.localUserId,
       name,
       excludeId: excludeId,
     );
   }
 }
 
-/// Provider for getting a specific check-in metric by ID
 @riverpod
 Future<CheckInMetric?> checkInMetric(Ref ref, String id) async {
-  return await CheckInMetricsDao.getCheckInMetricById(id);
+  final metricsDao = await ref.watch(checkInMetricsDaoProvider.future);
+  return metricsDao.getCheckInMetricById(id);
 }
 
-/// Provider for checking if user has any check-in metrics
 @riverpod
 Future<bool> hasCheckInMetrics(Ref ref) async {
   final metrics = await ref.watch(checkInMetricsProvider.future);

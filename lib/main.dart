@@ -1,58 +1,64 @@
+import 'dart:async';
+
+import 'package:ethan_sync/ethan_sync.dart';
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:health_notes/providers/auth_provider.dart';
-import 'package:health_notes/screens/auth_screen.dart';
+import 'package:health_notes/app_identity.dart';
 import 'package:health_notes/screens/main_tab_screen.dart';
-import 'package:health_notes/services/auth_service.dart';
-import 'package:health_notes/services/connectivity_service.dart';
-import 'package:health_notes/services/local_database.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:health_notes/sync/sync_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() async {
+const _logger = ELogger('HealthNotesMain');
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await loadAppDotEnv(isOptional: false);
-  await Supabase.initialize(
-    url: dotenv.env['URL']!,
-    anonKey: dotenv.env['ANON_KEY']!,
+  await loadAppDotEnv();
+
+  if (!DotEnvSyncBootstrap.isConfigured()) {
+    throw StateError(
+      'Set POWERSYNC_JWT_SECRET and SERVER_HOST_LAN or '
+      'SERVER_HOST_TAILSCALE in .env '
+      '(ethan_sync is required for local storage).',
+    );
+  }
+
+  final preferences = await SharedPreferences.getInstance();
+  final container = ProviderContainer(
+    overrides: [
+      syncConfigProvider.overrideWith(
+        (ref) => buildHealthNotesSyncConfig(preferences),
+      ),
+    ],
   );
-  AuthService.initializeGoogleSignIn(
-    clientId: dotenv.env['GOOGLE_IOS_CLIENT_ID']!,
-    serverClientId: dotenv.env['GOOGLE_WEB_CLIENT_ID']!,
+
+  runApp(
+    UncontrolledProviderScope(
+      container: container,
+      child: const MainScreen(),
+    ),
   );
-  await LocalDatabase.database;
-  await LocalDatabase.fixNullUpdatedAtValues();
-  await ConnectivityService().initialize();
-  runApp(const ProviderScope(child: MainScreen()));
+  unawaited(_startSync(container));
 }
 
-class const MainScreen() extends ConsumerWidget {
+Future<void> _startSync(ProviderContainer container) async {
+  try {
+    await SyncLifecycle.start(container);
+    _logger.fine('ethan_sync started');
+  } catch (error, stackTrace) {
+    _logger.error('ethan_sync failed to start', error, stackTrace);
+  }
+}
+
+class const MainScreen() extends StatelessWidget {
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Health Notes',
+      title: AppIdentity.displayName,
       theme: ETheme.material3Dark,
       debugShowCheckedModeBanner: false,
-      home: ref
-          .watch(isAuthenticatedProvider)
-          .when(
-            data: (isAuthenticated) {
-              return isAuthenticated
-                  ? const MainTabScreen()
-                  : const AuthScreen();
-            },
-            loading: () {
-              return const EScaffoldShell(
-                contentMaxWidth: double.infinity,
-                body: ELoadingState(message: 'Initializing app...'),
-              );
-            },
-            error: (error, stack) => EScaffoldShell(
-              contentMaxWidth: double.infinity,
-              body: Center(child: Text('Error: $error', style: EText.error)),
-            ),
-          ),
+      home: const MainTabScreen(),
     );
   }
 }

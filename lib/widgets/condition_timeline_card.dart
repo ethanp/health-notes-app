@@ -5,8 +5,9 @@ import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/providers/conditions_provider.dart';
 import 'package:health_notes/services/condition_activity_aggregator.dart';
-import 'package:health_notes/utils/health_date_format.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/ui/condition_appearance.dart';
+import 'package:health_notes/utils/health_date_format.dart';
 import 'package:health_notes/theme/spacing.dart';
 
 class const ConditionTimelineCard({required final Condition condition})

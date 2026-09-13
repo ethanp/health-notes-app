@@ -10,6 +10,7 @@ import 'package:health_notes/providers/pinned_symptom_components_provider.dart';
 import 'package:health_notes/providers/symptom_component_provider.dart';
 import 'package:health_notes/screens/condition_form.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/ui/condition_appearance.dart';
 import 'package:health_notes/widgets/component_picker_sheet.dart';
 import 'package:health_notes/widgets/condition_badge.dart';
 import 'package:health_notes/widgets/form_section_container.dart';

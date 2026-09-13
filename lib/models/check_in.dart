@@ -1,5 +1,3 @@
-import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 
@@ -21,7 +19,6 @@ abstract class CheckIn with _$CheckIn {
   factory CheckIn.fromJson(Map<String, dynamic> json) =>
       _$CheckInFromJson(json);
 
-  /// Create a CheckIn with a CheckInMetric object
   factory CheckIn.withCheckInMetric({
     required String id,
     required CheckInMetric metric,
@@ -39,14 +36,6 @@ abstract class CheckIn with _$CheckIn {
   }
 
   bool get isValid => rating >= 1 && rating <= 10 && metricName.isNotEmpty;
-
-  /// Get the color for this check-in's metric (requires CheckInMetric to be passed)
-  Color getMetricColor(CheckInMetric? metric) =>
-      metric?.color ?? EColors.accent;
-
-  /// Get the icon for this check-in's metric (requires CheckInMetric to be passed)
-  IconData getMetricIcon(CheckInMetric? metric) =>
-      metric?.icon ?? Icons.circle_outlined;
 
   Map<String, dynamic> toJsonForUpdate() {
     return {

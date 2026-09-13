@@ -1,5 +1,4 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_tool.dart';
@@ -172,18 +171,26 @@ class _HealthToolCategoryScreenState()
   }
 
   void _showAddToolForm() {
-    context.push(
-      HealthToolForm(
-        category: widget.category,
-        title: 'Add Tool',
-        saveButtonText: 'Save',
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => HealthToolForm(
+          category: widget.category,
+          title: 'Add Tool',
+          saveButtonText: 'Save',
+        ),
       ),
     );
   }
 
   void _showEditToolForm(HealthTool tool) {
-    context.push(
-      HealthToolForm(tool: tool, title: 'Edit Tool', saveButtonText: 'Update'),
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => HealthToolForm(
+          tool: tool,
+          title: 'Edit Tool',
+          saveButtonText: 'Update',
+        ),
+      ),
     );
   }
 

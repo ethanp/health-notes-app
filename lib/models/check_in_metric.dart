@@ -1,7 +1,4 @@
-import 'package:ethan_ui/ethan_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:health_notes/utils/rating_color.dart';
 
 part 'check_in_metric.freezed.dart';
 part 'check_in_metric.g.dart';
@@ -25,46 +22,29 @@ abstract class CheckInMetric with _$CheckInMetric {
   factory CheckInMetric.fromJson(Map<String, dynamic> json) =>
       _$CheckInMetricFromJson(json);
 
-  /// Create a new CheckInMetric with default values
   factory CheckInMetric.create({
     required String userId,
     required String name,
     required MetricType type,
-    Color? color,
-    IconData? icon,
+    int colorValue = 0xFF6B73FF,
+    int iconCodePoint = 0xef53,
     int? sortOrder,
   }) {
     return CheckInMetric(
-      id: '', // Will be set by the provider
+      id: '',
       userId: userId,
       name: name,
       type: type,
-      colorValue: (color ?? EColors.accent).toARGB32(),
-      iconCodePoint: (icon ?? Icons.circle_outlined).codePoint,
+      colorValue: colorValue,
+      iconCodePoint: iconCodePoint,
       sortOrder: sortOrder ?? 0,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
   }
 
-  /// Returns the color for this metric
-  Color get color => Color(colorValue);
-
-  /// Returns the icon for this metric
-  IconData get icon {
-    try {
-      return IconData(
-        iconCodePoint, // ignore: non_const_argument_for_const_parameter
-        fontFamily: 'MaterialIcons',
-      );
-    } catch (_) {
-      return Icons.circle_outlined;
-    }
-  }
-
   bool get isValid => name.isNotEmpty && name.trim().isNotEmpty;
 
-  /// Returns a copy with updated timestamp
   CheckInMetric withUpdatedTimestamp() {
     return copyWith(updatedAt: DateTime.now());
   }
@@ -73,70 +53,17 @@ abstract class CheckInMetric with _$CheckInMetric {
 enum MetricType({
   required final String description,
   required final String valuePreferenceTitle,
-  required final Color Function(int) improvementColor,
 }) {
   lowerIsBetter(
     description: 'Lower values are better',
     valuePreferenceTitle: 'Lower is Better',
-    improvementColor: RatingColor.lowerIsBetter,
   ),
   middleIsBest(
     description: 'Middle values (4-7) are optimal',
     valuePreferenceTitle: 'Middle is Best',
-    improvementColor: RatingColor.middleIsBest,
   ),
   higherIsBetter(
     description: 'Higher values are better',
     valuePreferenceTitle: 'Higher is Better',
-    improvementColor: RatingColor.higherIsBetter,
   ),
-}
-
-/// Default color palette for new metrics
-class MetricColorPalette {
-  static const List<Color> colors = [
-    EColors.accent,
-    EColors.accentGlow,
-    EColors.success,
-    EColors.warning,
-    EColors.success,
-    EColors.warning,
-    EColors.danger,
-    Color(0xFFAF52DE),
-    Color(0xFF5AC8FA),
-    Color(0xFF5856D6),
-    Color(0xFFFF2D55),
-    Color(0xFFA2845E),
-    EColors.textMuted,
-  ];
-
-  static Color getColorByIndex(int index) {
-    return colors[index % colors.length];
-  }
-}
-
-/// Default icon palette for new metrics
-class MetricIconPalette {
-  static const List<IconData> icons = [
-    Icons.favorite_border,
-    Icons.water_drop,
-    Icons.circle,
-    Icons.bolt,
-    Icons.favorite,
-    Icons.bed,
-    Icons.report,
-    Icons.shopping_cart,
-    Icons.visibility,
-    Icons.star,
-    Icons.local_fire_department,
-    Icons.cloud,
-    Icons.wb_sunny,
-    Icons.nightlight_round,
-    Icons.air,
-    Icons.thermostat,
-  ];
-
-  static IconData getIconByIndex(int index) {
-    return icons[index % icons.length];
-  }
 }

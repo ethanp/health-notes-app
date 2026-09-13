@@ -1,0 +1,52 @@
+# PowerSync Open Edition Configuration for health_notes
+
+replication:
+  connections:
+    - type: postgresql
+      hostname: postgres
+      port: 5432
+      database: health_notes
+      username: health_notes
+      password: !env PS_PG_PASSWORD
+      sslmode: disable
+      id: health_notes
+
+storage:
+  type: postgresql
+  hostname: postgres
+  port: 5432
+  database: health_notes
+  username: health_notes
+  password: !env PS_PG_PASSWORD
+  sslmode: disable
+
+client_auth:
+  jwks:
+    keys:
+      - kty: oct
+        kid: health-notes-dev-key
+        k: !env PS_JWT_KEY
+        alg: HS256
+  audience:
+    - powersync
+
+sync_rules:
+  content: |
+    bucket_definitions:
+      health_notes_global:
+        priority: 0
+        data:
+          - SELECT * FROM health_notes
+          - SELECT * FROM check_ins
+          - SELECT * FROM user_profiles
+          - SELECT * FROM check_in_metrics
+          - SELECT * FROM conditions
+          - SELECT * FROM condition_entries
+          - SELECT * FROM medication_schedules
+          - SELECT * FROM health_tool_categories
+          - SELECT * FROM health_tools
+
+telemetry:
+  disable_telemetry_sharing: true
+
+port: 8080

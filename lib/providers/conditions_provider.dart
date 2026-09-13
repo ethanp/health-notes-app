@@ -1,12 +1,11 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:health_notes/app_identity.dart';
 import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/models/symptom.dart';
-import 'package:health_notes/services/conditions_dao.dart';
-import 'package:health_notes/services/condition_entries_dao.dart';
-import 'package:health_notes/providers/auth_provider.dart';
+import 'package:health_notes/providers/dao_providers.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/utils/data_utils.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'conditions_provider.g.dart';
 
@@ -21,27 +20,26 @@ class const LinkedSymptom({
 class ConditionsNotifier() extends _$ConditionsNotifier {
   @override
   Future<List<Condition>> build() async {
-    final user = await ref.watch(currentUserProvider.future);
-    if (user == null) {
-      throw Exception('User not authenticated');
-    }
-    return await ConditionsDao.getAllConditions(user.id);
+    final conditionsDao = await ref.watch(conditionsDaoProvider.future);
+    return conditionsDao.getAllConditions(AppIdentity.localUserId);
   }
 
   Future<List<Condition>> getActiveConditions() async {
-    final user = await ref.read(currentUserProvider.future);
-    if (user == null) return [];
-    return await ConditionsDao.getActiveConditions(user.id);
+    final conditionsDao = await ref.read(conditionsDaoProvider.future);
+    return conditionsDao.getActiveConditions(AppIdentity.localUserId);
   }
 
   Future<Condition?> getConditionById(String id) async {
-    return await ConditionsDao.getConditionById(id);
+    final conditionsDao = await ref.read(conditionsDaoProvider.future);
+    return conditionsDao.getConditionById(id);
   }
 
   Future<Condition?> getActiveConditionByName(String name) async {
-    final user = await ref.read(currentUserProvider.future);
-    if (user == null) return null;
-    return await ConditionsDao.getActiveConditionByName(user.id, name);
+    final conditionsDao = await ref.read(conditionsDaoProvider.future);
+    return conditionsDao.getActiveConditionByName(
+      AppIdentity.localUserId,
+      name,
+    );
   }
 
   Future<Condition> addCondition({
@@ -51,15 +49,11 @@ class ConditionsNotifier() extends _$ConditionsNotifier {
     int iconCodePoint = 0xf36e,
     String notes = '',
   }) async {
-    final user = await ref.read(currentUserProvider.future);
-    if (user == null) {
-      throw Exception('User not authenticated');
-    }
-
+    final conditionsDao = await ref.read(conditionsDaoProvider.future);
     final now = DateTime.now();
     final newCondition = Condition(
       id: DataUtils.uuid.v4(),
-      userId: user.id,
+      userId: AppIdentity.localUserId,
       name: name,
       startDate: startDate,
       status: ConditionStatus.active,
@@ -69,45 +63,28 @@ class ConditionsNotifier() extends _$ConditionsNotifier {
       createdAt: now,
       updatedAt: now,
     );
-
-    await ConditionsDao.insertCondition(newCondition, user.id);
-    DataUtils.syncService.queueForSync(
-      'conditions',
-      newCondition.id,
-      'insert',
-      newCondition.toJsonForUpdate(),
-    );
-
+    await conditionsDao.insertCondition(newCondition, AppIdentity.localUserId);
     ref.invalidateSelf();
     return newCondition;
   }
 
   Future<void> updateCondition(Condition condition) async {
-    await ConditionsDao.updateCondition(condition);
-    DataUtils.syncService.queueForSync(
-      'conditions',
-      condition.id,
-      'update',
-      condition.toJsonForUpdate(),
-    );
+    final conditionsDao = await ref.read(conditionsDaoProvider.future);
+    await conditionsDao.updateCondition(condition);
     ref.invalidateSelf();
   }
 
   Future<void> resolveCondition(String id, {DateTime? endDate}) async {
-    final resolveDate = endDate ?? DateTime.now();
-    await ConditionsDao.resolveCondition(id, resolveDate);
-    DataUtils.syncService.queueForSync('conditions', id, 'update', {
-      'condition_status': ConditionStatus.resolved.name,
-      'end_date': resolveDate.toIso8601String(),
-      'updated_at': DateTime.now().toIso8601String(),
-    });
+    final conditionsDao = await ref.read(conditionsDaoProvider.future);
+    await conditionsDao.resolveCondition(id, endDate ?? DateTime.now());
     ref.invalidateSelf();
   }
 
   Future<void> deleteCondition(String id) async {
-    await ConditionEntriesDao.deleteEntriesForCondition(id);
-    await ConditionsDao.deleteCondition(id);
-    DataUtils.syncService.queueForSync('conditions', id, 'delete', {});
+    final entriesDao = await ref.read(conditionEntriesDaoProvider.future);
+    final conditionsDao = await ref.read(conditionsDaoProvider.future);
+    await entriesDao.deleteEntriesForCondition(id);
+    await conditionsDao.deleteCondition(id);
     ref.invalidateSelf();
   }
 
@@ -120,12 +97,13 @@ class ConditionsNotifier() extends _$ConditionsNotifier {
 class ConditionEntriesNotifier() extends _$ConditionEntriesNotifier {
   @override
   Future<List<ConditionEntry>> build(String conditionId) async {
-    return await ConditionEntriesDao.getEntriesForCondition(conditionId);
+    final entriesDao = await ref.watch(conditionEntriesDaoProvider.future);
+    return entriesDao.getEntriesForCondition(conditionId);
   }
 
   Future<ConditionEntry?> getEntryForDate(DateTime date) async {
-    final conditionId = this.conditionId;
-    return await ConditionEntriesDao.getEntryForDate(conditionId, date);
+    final entriesDao = await ref.read(conditionEntriesDaoProvider.future);
+    return entriesDao.getEntryForDate(conditionId, date);
   }
 
   Future<ConditionEntry> addEntry({
@@ -135,6 +113,7 @@ class ConditionEntriesNotifier() extends _$ConditionEntriesNotifier {
     required String notes,
     required String linkedCheckInId,
   }) async {
+    final entriesDao = await ref.read(conditionEntriesDaoProvider.future);
     final now = DateTime.now();
     final newEntry = ConditionEntry(
       id: DataUtils.uuid.v4(),
@@ -147,42 +126,28 @@ class ConditionEntriesNotifier() extends _$ConditionEntriesNotifier {
       createdAt: now,
       updatedAt: now,
     );
-
-    await ConditionEntriesDao.insertEntry(newEntry);
-    DataUtils.syncService.queueForSync(
-      'condition_entries',
-      newEntry.id,
-      'insert',
-      newEntry.toJsonForUpdate(),
-    );
-
+    await entriesDao.insertEntry(newEntry);
     ref.invalidateSelf();
     return newEntry;
   }
 
   Future<void> updateEntry(ConditionEntry entry) async {
-    await ConditionEntriesDao.updateEntry(entry);
-    DataUtils.syncService.queueForSync(
-      'condition_entries',
-      entry.id,
-      'update',
-      entry.toJsonForUpdate(),
-    );
+    final entriesDao = await ref.read(conditionEntriesDaoProvider.future);
+    await entriesDao.updateEntry(entry);
     ref.invalidateSelf();
   }
 
   Future<void> deleteEntry(String id) async {
-    await ConditionEntriesDao.deleteEntry(id);
-    DataUtils.syncService.queueForSync('condition_entries', id, 'delete', {});
+    final entriesDao = await ref.read(conditionEntriesDaoProvider.future);
+    await entriesDao.deleteEntry(id);
     ref.invalidateSelf();
   }
 }
 
 @riverpod
 Future<List<Condition>> activeConditions(Ref ref) async {
-  final user = await ref.watch(currentUserProvider.future);
-  if (user == null) return [];
-  return await ConditionsDao.getActiveConditions(user.id);
+  final conditionsDao = await ref.watch(conditionsDaoProvider.future);
+  return conditionsDao.getActiveConditions(AppIdentity.localUserId);
 }
 
 @riverpod
@@ -190,11 +155,10 @@ Future<List<ConditionEntry>> conditionEntriesForCheckIn(
   Ref ref,
   String checkInId,
 ) async {
-  return await ConditionEntriesDao.getEntriesForCheckIn(checkInId);
+  final entriesDao = await ref.watch(conditionEntriesDaoProvider.future);
+  return entriesDao.getEntriesForCheckIn(checkInId);
 }
 
-/// Provider that returns all symptoms linked to a specific condition.
-/// Symptoms are linked via conditionId in health notes.
 @riverpod
 Future<List<LinkedSymptom>> symptomsForCondition(
   Ref ref,
@@ -202,7 +166,6 @@ Future<List<LinkedSymptom>> symptomsForCondition(
 ) async {
   final healthNotes = await ref.watch(healthNotesProvider.future);
   final linkedSymptoms = <LinkedSymptom>[];
-
   for (final note in healthNotes) {
     for (final symptom in note.symptomsList) {
       if (symptom.conditionId == conditionId) {
@@ -216,8 +179,6 @@ Future<List<LinkedSymptom>> symptomsForCondition(
       }
     }
   }
-
-  // Sort by date descending (most recent first)
   linkedSymptoms.sort((a, b) => b.date.compareTo(a.date));
   return linkedSymptoms;
 }

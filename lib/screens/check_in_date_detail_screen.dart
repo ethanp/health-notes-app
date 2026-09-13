@@ -55,11 +55,13 @@ class _CheckInDateDetailScreenState() extends State<CheckInDateDetailScreen> {
   }
 
   void showEditCheckInForm(CheckIn checkIn) {
-    context.push(
-      CheckInForm(
-        checkIn: checkIn,
-        title: 'Edit Check-in',
-        saveButtonText: 'Update',
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => CheckInForm(
+          checkIn: checkIn,
+          title: 'Edit Check-in',
+          saveButtonText: 'Update',
+        ),
       ),
     );
   }

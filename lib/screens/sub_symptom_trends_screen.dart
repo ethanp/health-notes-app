@@ -78,7 +78,11 @@ class _SubSymptomTrendsScreenState()
         .map(
           (note) => HealthNoteCard(
             note: note,
-            onTap: () => context.push(HealthNoteViewScreen(note: note)),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => HealthNoteViewScreen(note: note),
+              ),
+            ),
           ),
         )
         .toList();

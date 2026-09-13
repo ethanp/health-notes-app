@@ -1,10 +1,10 @@
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/providers/conditions_provider.dart';
 import 'package:health_notes/screens/condition_detail_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
+import 'package:health_notes/ui/condition_appearance.dart';
 import 'package:health_notes/theme/spacing.dart';
 
 class const ConditionBadge({required final String conditionId})
@@ -22,7 +22,12 @@ class const ConditionBadge({required final String conditionId})
 
         return GestureDetector(
           onTap: () =>
-              context.push(ConditionDetailScreen(conditionId: conditionId)),
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) =>
+                      ConditionDetailScreen(conditionId: conditionId),
+                ),
+              ),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: AppComponents.tintedSolidDecoration(

@@ -10,7 +10,6 @@ import 'package:health_notes/screens/filter_modal.dart';
 import 'package:health_notes/screens/health_note_form.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/widgets/log_out_button.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/app_filter_chip.dart';
 import 'package:health_notes/widgets/health_notes_search_field.dart';
@@ -61,13 +60,22 @@ class _HealthNotesHomePageState()
   }
 
   void showAddNoteModal() {
-    context.push(
-      const HealthNoteForm(title: 'Add Health Note', saveButtonText: 'Save'),
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const HealthNoteForm(
+          title: 'Add Health Note',
+          saveButtonText: 'Save',
+        ),
+      ),
     );
   }
 
   void navigateToView(HealthNote note) {
-    context.push(HealthNoteViewScreen(note: note));
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => HealthNoteViewScreen(note: note),
+      ),
+    );
   }
 
   void clearFilters() {
@@ -113,7 +121,6 @@ class _HealthNotesHomePageState()
       contentMaxWidth: double.infinity,
       appBar: EAppHeader(
         title: 'Health Notes',
-        leading: const LogOutButton(),
         actions: [
           const CompactSyncStatusWidget(),
           IconButton(
@@ -192,15 +199,17 @@ class _HealthNotesHomePageState()
   }
 
   void showFilterModal() {
-    context.push(
-      FilterModal(
-        selectedDate: _selectedDate,
-        selectedDrug: _selectedDrug,
-        availableDrugs: getUniqueDrugs(
-          ref.read(healthNotesProvider).value ?? [],
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => FilterModal(
+          selectedDate: _selectedDate,
+          selectedDrug: _selectedDrug,
+          availableDrugs: getUniqueDrugs(
+            ref.read(healthNotesProvider).value ?? [],
+          ),
+          onDateChanged: (date) => setState(() => _selectedDate = date),
+          onDrugChanged: (drug) => setState(() => _selectedDrug = drug),
         ),
-        onDateChanged: (date) => setState(() => _selectedDate = date),
-        onDrugChanged: (drug) => setState(() => _selectedDrug = drug),
       ),
     );
   }

@@ -1,5 +1,4 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/condition.dart';
@@ -128,10 +127,18 @@ class const ConditionsScreen() extends ConsumerWidget {
   }
 
   void navigateToDetail(BuildContext context, Condition condition) {
-    context.push(ConditionDetailScreen(conditionId: condition.id));
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ConditionDetailScreen(conditionId: condition.id),
+      ),
+    );
   }
 
   void showAddConditionForm(BuildContext context) {
-    context.push(const ConditionForm());
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const ConditionForm(),
+      ),
+    );
   }
 }

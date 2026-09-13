@@ -1,6 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:ethan_utils/ethan_utils.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/screens/health_note_view_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
@@ -21,7 +20,11 @@ class const ToolNoteCard({
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: InkWell(
-        onTap: () => context.push(HealthNoteViewScreen(note: note)),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => HealthNoteViewScreen(note: note),
+          ),
+        ),
         child: ECard(
           child: Row(
             children: [

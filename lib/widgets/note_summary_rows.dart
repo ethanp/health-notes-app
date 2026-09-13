@@ -1,6 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/applied_tool.dart';
 import 'package:health_notes/models/drug_dose.dart';
@@ -26,8 +25,11 @@ class const SymptomSummaryRow({required final Symptom symptom})
       accentColor: severityColor,
       onTap: !symptom.hasMajorComponent
           ? null
-          : () => context.push(
-              SymptomTrendsScreen(symptomName: symptom.majorComponent),
+          : () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) =>
+                    SymptomTrendsScreen(symptomName: symptom.majorComponent),
+              ),
             ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,7 +99,11 @@ class const MedicationSummaryRow({required final DrugDose dose})
       accentColor: EColors.accentGlow,
       onTap: dose.name.isEmpty
           ? null
-          : () => context.push(DrugTrendsScreen(drugName: dose.name)),
+          : () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => DrugTrendsScreen(drugName: dose.name),
+              ),
+            ),
       child: Row(
         children: [
           Expanded(
@@ -125,10 +131,12 @@ class const AppliedToolSummaryRow({required final AppliedTool appliedTool})
   Widget build(BuildContext context) {
     return AccentBorderCard(
       accentColor: EColors.warning,
-      onTap: () => context.push(
-        ToolDetailScreen(
-          toolId: appliedTool.toolId,
-          toolName: appliedTool.toolName,
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => ToolDetailScreen(
+            toolId: appliedTool.toolId,
+            toolName: appliedTool.toolName,
+          ),
         ),
       ),
       child: Column(

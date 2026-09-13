@@ -1,22 +1,20 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/condition.dart';
 import 'package:health_notes/models/condition_entry.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/conditions_provider.dart';
+import 'package:health_notes/providers/dao_providers.dart';
 import 'package:health_notes/screens/condition_form.dart';
-import 'package:health_notes/screens/sub_symptom_trends_screen.dart';
-import 'package:health_notes/screens/symptom_trends_screen.dart';
-import 'package:health_notes/services/health_notes_dao.dart';
-import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/utils/symptom_severity.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/condition_activity_calendar.dart';
+import 'package:health_notes/widgets/condition_detail/condition_activity_list.dart';
+import 'package:health_notes/widgets/condition_detail/condition_detail_header.dart';
+import 'package:health_notes/widgets/condition_detail/condition_statistics_section.dart';
 import 'package:health_notes/widgets/condition_entry_edit_modal.dart';
+import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
-import 'package:health_notes/widgets/status_tint_chip.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 import 'package:intl/intl.dart';
@@ -108,9 +106,13 @@ class _ConditionDetailScreenState()
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            conditionHeader(condition),
+            ConditionDetailHeader(condition: condition),
             VSpace.l,
-            statisticsSection(condition, entries, linkedSymptoms),
+            ConditionStatisticsSection(
+              condition: condition,
+              entries: entries,
+              linkedSymptoms: linkedSymptoms,
+            ),
             VSpace.l,
             viewSelector(),
             VSpace.l,
@@ -160,256 +162,13 @@ class _ConditionDetailScreenState()
         ),
       ];
     }
-    return activitySections(entries, linkedSymptoms);
-  }
-
-  List<Widget> activitySections(
-    List<ConditionEntry> entries,
-    List<LinkedSymptom> linkedSymptoms,
-  ) {
     return [
-      ESectionHeader(title: 'Daily Entries'),
-      VSpace.s,
-      entriesList(entries, linkedSymptoms),
-      if (linkedSymptoms.isNotEmpty) ...[
-        VSpace.l,
-        ESectionHeader(title: 'Linked Symptoms'),
-        VSpace.s,
-        linkedSymptomsBreakdown(linkedSymptoms),
-      ],
+      ConditionActivityList(
+        entries: entries,
+        linkedSymptoms: linkedSymptoms,
+        onEntrySelected: showEntryEditModal,
+      ),
     ];
-  }
-
-  Widget conditionHeader(Condition condition) {
-    return ECard(
-      child: Row(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: AppComponents.tintedSolidDecoration(
-              condition.color,
-              radius: 28,
-              borderWidth: 2,
-            ),
-            child: Icon(condition.icon, size: 28, color: condition.color),
-          ),
-          HSpace.m,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(condition.name, style: EText.headline.small),
-                VSpace.xs,
-                Text(
-                  condition.dateRangeCaption,
-                  style: EText.body.small.tertiary,
-                ),
-              ],
-            ),
-          ),
-          statusBadge(condition),
-        ],
-      ),
-    );
-  }
-
-  Widget statusBadge(Condition condition) {
-    final color = condition.isActive
-        ? EColors.warning
-        : EColors.success;
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.s,
-      ),
-      decoration: AppComponents.tintedSolidDecoration(
-        color,
-        radius: AppRadius.large,
-      ),
-      child: Text(
-        condition.status.displayName,
-        style: EText.label.medium.copyWith(color: color),
-      ),
-    );
-  }
-
-  Widget statisticsSection(
-    Condition condition,
-    List<ConditionEntry> entries,
-    List<LinkedSymptom> linkedSymptoms,
-  ) {
-    final avgSeverity = entries.isEmpty
-        ? 0.0
-        : entries.map((e) => e.severity).reduce((a, b) => a + b) /
-              entries.length;
-
-    return ECard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Statistics', style: EText.label.large.primary),
-          VSpace.m,
-          Row(
-            children: [
-              Expanded(
-                child: statCard(
-                  'Duration',
-                  '${condition.durationDays}',
-                  'days',
-                ),
-              ),
-              HSpace.m,
-              Expanded(
-                child: statCard('Entries', '${entries.length}', 'logged'),
-              ),
-            ],
-          ),
-          VSpace.m,
-          Row(
-            children: [
-              Expanded(
-                child: statCard(
-                  'Avg Severity',
-                  avgSeverity.toStringAsFixed(1),
-                  '/10',
-                ),
-              ),
-              HSpace.m,
-              Expanded(
-                child: statCard(
-                  'Symptoms',
-                  '${linkedSymptoms.length}',
-                  'linked',
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget statCard(String label, String value, String unit) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm),
-      decoration: BoxDecoration(
-        color: EColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.small),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: EText.caption),
-          VSpace.xs,
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(value, style: EText.headline.medium),
-              HSpace.xs,
-              Text(unit, style: EText.caption),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget entriesList(
-    List<ConditionEntry> entries,
-    List<LinkedSymptom> linkedSymptoms,
-  ) {
-    if (entries.isEmpty) {
-      return ECard(
-        child: Center(
-          child: Text(
-            linkedSymptoms.isNotEmpty
-                ? 'No check-in entries yet'
-                : 'No entries yet. Add entries via check-ins.',
-            style: EText.body.medium.muted,
-          ),
-        ),
-      );
-    }
-
-    final sortedEntries = [...entries]
-      ..sort((a, b) => b.entryDate.compareTo(a.entryDate));
-
-    return Column(
-      children: sortedEntries.map((entry) => entryCard(entry)).toList(),
-    );
-  }
-
-  Widget entryCard(ConditionEntry entry) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: InkWell(
-        onTap: () => showEntryEditModal(entry),
-        child: ECard(
-          child: Row(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    DateFormat('EEE, MMM d').format(entry.entryDate),
-                    style: EText.label.medium,
-                  ),
-                  VSpace.xs,
-                  Row(
-                    children: [
-                      phaseBadge(entry.phase),
-                      if (entry.notes.isNotEmpty) ...[
-                        HSpace.s,
-                        Icon(
-                          Icons.chat_bubble_outline,
-                          size: 14,
-                          color: EColors.textMuted,
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
-              const Spacer(),
-              severityIndicator(entry.severity),
-              HSpace.s,
-              Icon(
-                Icons.chevron_right,
-                size: 14,
-                color: EColors.textMuted,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget phaseBadge(ConditionPhase phase) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: AppComponents.tintedSolidDecoration(
-        phase.color,
-        radius: AppRadius.small,
-      ),
-      child: Text(
-        phase.displayName,
-        style: EText.caption.copyWith(color: phase.color),
-      ),
-    );
-  }
-
-  Widget severityIndicator(int severity) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: SymptomSeverity.fourBucketGreenYellowOrangeRed(severity),
-        borderRadius: BorderRadius.circular(AppRadius.medium),
-      ),
-      child: Text('$severity', style: EText.label.medium.white),
-    );
   }
 
   void showActionsMenu(Condition condition) {
@@ -511,77 +270,6 @@ class _ConditionDetailScreenState()
     );
   }
 
-  Widget linkedSymptomsBreakdown(List<LinkedSymptom> linkedSymptoms) {
-    final byDescription = <String, List<LinkedSymptom>>{};
-    for (final linkedSymptom in linkedSymptoms) {
-      final key = linkedSymptom.symptom.fullDescription;
-      byDescription.putIfAbsent(key, () => []).add(linkedSymptom);
-    }
-
-    final sortedKeys = byDescription.keys.toList()
-      ..sort(
-        (a, b) => byDescription[b]!.length.compareTo(byDescription[a]!.length),
-      );
-
-    return Column(
-      children: sortedKeys.map((description) {
-        final occurrences = byDescription[description]!;
-        final avgSeverity =
-            occurrences
-                .map((ls) => ls.symptom.severityLevel)
-                .reduce((a, b) => a + b) /
-            occurrences.length;
-        final avgColor = SymptomSeverity.hslGreenToRed(avgSeverity.round());
-
-        return GestureDetector(
-          onTap: () {
-            final symptom = occurrences.first.symptom;
-            if (!symptom.hasMajorComponent) return;
-            if (symptom.minorComponent.isNotEmpty) {
-              context.push(
-                SubSymptomTrendsScreen(
-                  majorComponent: symptom.majorComponent,
-                  minorComponent: symptom.minorComponent,
-                ),
-              );
-              return;
-            }
-            context.push(
-              SymptomTrendsScreen(symptomName: symptom.majorComponent),
-            );
-          },
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 6),
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
-              vertical: AppSpacing.s,
-            ),
-            decoration: BoxDecoration(
-              color: EColors.surface,
-              borderRadius: BorderRadius.circular(AppRadius.small),
-              border: Border(left: BorderSide(color: avgColor, width: 3)),
-            ),
-            child: Row(
-              children: [
-                Expanded(child: Text(description, style: EText.body.medium)),
-                HSpace.s,
-                Text(
-                  '${occurrences.length}×',
-                  style: EText.body.small.secondary,
-                ),
-                HSpace.s,
-                StatusTintChip(
-                  text: 'avg ${avgSeverity.toStringAsFixed(1)}',
-                  color: avgColor,
-                ),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
   Future<void> _showSymptomDateDialog(
     DateTime date,
     List<LinkedSymptom> symptoms,
@@ -589,9 +277,10 @@ class _ConditionDetailScreenState()
     if (symptoms.isEmpty) return;
 
     final uniqueNoteIds = symptoms.map((ls) => ls.healthNoteId).toSet();
+    final notesDao = await ref.read(healthNotesDaoProvider.future);
     final notes = <HealthNote>[];
     for (final noteId in uniqueNoteIds) {
-      final note = await HealthNotesDao.getNoteById(noteId);
+      final note = await notesDao.getNoteById(noteId);
       if (note != null) notes.add(note);
     }
     notes.sort((a, b) => a.dateTime.compareTo(b.dateTime));

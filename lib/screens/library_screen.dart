@@ -1,5 +1,4 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/providers/sync_provider.dart';
@@ -8,7 +7,6 @@ import 'package:health_notes/screens/medication_schedules_screen.dart';
 import 'package:health_notes/screens/my_tools_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/widgets/log_out_button.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 
 enum LibrarySlot({
@@ -46,7 +44,6 @@ class const LibraryScreen() extends ConsumerWidget {
       contentMaxWidth: double.infinity,
       appBar: const EAppHeader(
         title: 'Library',
-        leading: LogOutButton(),
         actions: [CompactSyncStatusWidget()],
       ),
       body: RefreshIndicator(
@@ -60,7 +57,9 @@ class const LibraryScreen() extends ConsumerWidget {
             final slot = LibrarySlot.values[slotIndex];
             return _LibrarySlotRow(
               slot: slot,
-              onActivated: () => context.push(slot.screen),
+              onActivated: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => slot.screen),
+              ),
             );
           },
         ),

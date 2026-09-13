@@ -1,15 +1,13 @@
 import 'package:ethan_ui/ethan_ui.dart';
-import 'package:ethan_utils/ethan_utils.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:health_notes/constants/chart_constants.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/models/date_range_filter.dart';
-import 'package:health_notes/theme/app_theme.dart';
-import 'package:health_notes/utils/rating_color.dart';
-import 'package:intl/intl.dart';
 import 'package:health_notes/theme/spacing.dart';
+import 'package:health_notes/widgets/check_in_trends/check_in_trends_chrome.dart';
+import 'package:health_notes/widgets/check_in_trends/check_in_trends_legend.dart';
+import 'package:health_notes/widgets/check_in_trends/check_in_trends_line_chart.dart';
 
 class const CheckInTrendsChart({
   required final List<CheckIn> checkIns,
@@ -33,38 +31,28 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
     });
   }
 
-  CheckInMetric? _getUserMetricByName(String name) {
-    try {
-      return widget.userMetrics.firstWhere((m) => m.name == name);
-    } catch (e) {
-      return null;
+  CheckInMetric? _userMetricByName(String name) {
+    for (final metric in widget.userMetrics) {
+      if (metric.name == name) return metric;
     }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.checkIns.isEmpty) return emptyChartContainer();
+    if (widget.checkIns.isEmpty) return const CheckInTrendsEmptyState();
 
     final metrics = _sortedMetricNames();
-    return trendsChartContainer(
+    return CheckInTrendsChrome(
       header: Text('Trends', style: EText.headline.small),
-      dateRangeSelector: dateRangeSelector(),
-      indicator: improvementZonesIndicator(),
-      charts: splitCharts(metrics),
-    );
-  }
-
-  Widget emptyChartContainer() {
-    return ECard(
-      child: SizedBox(
-        height: 450,
-        child: Center(
-          child: Text(
-            'No check-in data available',
-            style: EText.body.medium.tertiary,
-          ),
-        ),
+      dateRangeSelector: CheckInTrendsDateRangeSelector(
+        selectedDateRange: _selectedDateRange,
+        onDateRangeSelected: (filter) {
+          setState(() => _selectedDateRange = filter);
+        },
       ),
+      indicator: const CheckInTrendsImprovementZones(),
+      charts: _splitCharts(metrics),
     );
   }
 
@@ -74,130 +62,11 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
     return metrics;
   }
 
-  Widget trendsChartContainer({
-    required Widget header,
-    required Widget dateRangeSelector,
-    required Widget indicator,
-    required Widget charts,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.m),
-      decoration: AppComponents.primaryCard.copyWith(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          header,
-          VSpace.m,
-          dateRangeSelector,
-          VSpace.sm,
-          indicator,
-          VSpace.sm,
-          charts,
-        ],
-      ),
-    );
-  }
-
-  Widget legendForType(MetricType type, List<String> metrics) {
-    return Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      children: metrics.map((metric) => legendItem(metric)).toList(),
-    );
-  }
-
-  Widget legendItem(String metric) {
-    final metricObj = _getUserMetricByName(metric);
-    if (metricObj == null) return const SizedBox.shrink();
-
-    final color = metricObj.color;
-    final isHidden = _hiddenMetrics.contains(metric);
-
-    return GestureDetector(
-      onTap: () => _toggleMetric(metric),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: isHidden
-              ? EColors.backgroundLift
-              : color.withValues(alpha: 0.08),
-          border: Border.all(
-            color: isHidden
-                ? EColors.surfaceRaised
-                : color.withValues(alpha: 0.2),
-          ),
-          borderRadius: BorderRadius.circular(AppRadius.large),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              metricObj.icon,
-              size: 14,
-              color: isHidden ? EColors.textTertiary : color,
-            ),
-            HSpace.of(5),
-            Text(
-              metric,
-              style: EText.body.small.copyWith(
-                color: isHidden ? EColors.textTertiary : color,
-                fontWeight: FontWeight.w500,
-                fontSize: 12,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget improvementZonesIndicator() {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: EColors.success.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(AppRadius.small),
-        border: Border.all(
-          color: EColors.success.withValues(alpha: 0.2),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.info_outline,
-            size: 14,
-            color: EColors.success,
-          ),
-          HSpace.of(6),
-          Expanded(
-            child: Text(
-              'Green zones: 1-3 (Lower is Better), 4-7 (Middle is Best), 8-10 (Higher is Better)',
-              style: EText.body.tiny.withColor(EColors.success),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget splitCharts(List<String> metrics) {
+  Widget _splitCharts(List<String> metrics) {
     final groupedMetrics = _groupMetricsByType(metrics);
-
     return Column(
       children: groupedMetrics.entries.map((entry) {
-        final type = entry.key;
-        final typeMetrics = entry.value;
-
-        return chartSection(type, typeMetrics);
+        return _chartSection(entry.key, entry.value);
       }).toList(),
     );
   }
@@ -205,19 +74,14 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
   Map<MetricType, List<String>> _groupMetricsByType(List<String> metrics) {
     final groupedMetrics = <MetricType, List<String>>{};
     for (final metric in metrics) {
-      final metricObj = _getUserMetricByName(metric);
+      final metricObj = _userMetricByName(metric);
       if (metricObj == null) continue;
-
-      final type = metricObj.type;
-      if (groupedMetrics[type] == null) {
-        groupedMetrics[type] = <String>[];
-      }
-      groupedMetrics[type]!.add(metric);
+      groupedMetrics.putIfAbsent(metricObj.type, () => <String>[]).add(metric);
     }
     return groupedMetrics;
   }
 
-  Widget chartSection(MetricType type, List<String> typeMetrics) {
+  Widget _chartSection(MetricType type, List<String> typeMetrics) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -226,361 +90,26 @@ class _CheckInTrendsChartState() extends State<CheckInTrendsChart> {
           style: EText.body.small.semibold.primary.size(13),
         ),
         VSpace.of(6),
-        legendForType(type, typeMetrics),
+        CheckInTrendsLegend(
+          metrics: typeMetrics,
+          userMetrics: widget.userMetrics,
+          hiddenMetrics: _hiddenMetrics,
+          onMetricToggled: _toggleMetric,
+        ),
         VSpace.of(6),
         SizedBox(
           height: kChartTotalHeight,
-          child: singleChart(typeMetrics, type),
+          child: CheckInTrendsLineChart(
+            checkIns: widget.checkIns,
+            userMetrics: widget.userMetrics,
+            hiddenMetrics: _hiddenMetrics,
+            dateRange: _selectedDateRange,
+            metrics: typeMetrics,
+            metricType: type,
+          ),
         ),
         VSpace.sm,
       ],
     );
-  }
-
-  Widget singleChart(List<String> metrics, MetricType metricType) {
-    if (widget.checkIns.isEmpty) {
-      return noDataContainer();
-    }
-
-    final metricData = _prepareMetricData(metrics);
-    final sortedDates = _getSortedDates(metricData);
-
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: RatingColor.semanticBandsThroughPlotAndLabels(metricType),
-          stops: RatingColor.plotThenLabelGutterStops(metricType),
-        ),
-        borderRadius: BorderRadius.circular(AppRadius.small),
-      ),
-      child: LineChart(
-        LineChartData(
-          gridData: firstOfMonthVerticalLines(sortedDates),
-          titlesData: chartTitlesData(sortedDates),
-          borderData: chartBorderData(),
-          minX: 0,
-          maxX: (sortedDates.length - 1).toDouble(),
-          minY: 1,
-          maxY: 10,
-          backgroundColor: Colors.transparent,
-          lineBarsData: lineBarsData(metrics, metricData, sortedDates),
-          lineTouchData: chartTouchData(metrics),
-          extraLinesData: ExtraLinesData(
-            horizontalLines: [
-              HorizontalLine(
-                y: 1,
-                color: Colors.white.withValues(alpha: 0.25),
-                strokeWidth: 1,
-              ),
-              HorizontalLine(
-                y: 5,
-                color: Colors.white.withValues(alpha: 0.25),
-                strokeWidth: 1,
-              ),
-              HorizontalLine(
-                y: 10,
-                color: Colors.white.withValues(alpha: 0.25),
-                strokeWidth: 1,
-              ),
-            ],
-          ),
-        ),
-        duration: Duration.zero,
-      ),
-    );
-  }
-
-  Widget noDataContainer() {
-    return ECard(
-      child: Center(child: Text('No data', style: EText.body.small.tertiary)),
-    );
-  }
-
-  Map<String, List<CheckIn>> _prepareMetricData(List<String> metrics) {
-    final metricData = <String, List<CheckIn>>{};
-    final filteredCheckIns = _filterCheckInsByDateRange();
-
-    for (final metric in metrics) {
-      final metricCheckIns =
-          filteredCheckIns
-              .where((checkIn) => checkIn.metricName == metric)
-              .toList()
-            ..sort((a, b) => a.dateTime.compareTo(b.dateTime));
-
-      metricData[metric] = metricCheckIns;
-    }
-    return metricData;
-  }
-
-  List<DateTime> _getSortedDates(Map<String, List<CheckIn>> metricData) {
-    final allDates = <DateTime>{};
-    for (final checkIns in metricData.values) {
-      for (final checkIn in checkIns) {
-        allDates.add(checkIn.dateTime.startOfDay);
-      }
-    }
-
-    final sortedDates = allDates.toList()..sort();
-    return sortedDates;
-  }
-
-  FlGridData firstOfMonthVerticalLines(List<DateTime> sortedDates) {
-    return FlGridData(
-      show: true,
-      drawHorizontalLine: false,
-      drawVerticalLine: true,
-      verticalInterval: 1,
-      getDrawingVerticalLine: (value) {
-        final idx = value.toInt();
-        if (idx < 0 || idx >= sortedDates.length) return FlLine(strokeWidth: 0);
-        final date = sortedDates[idx];
-        if (date.day != 1) return FlLine(strokeWidth: 0);
-        return FlLine(
-          color: Colors.white.withValues(alpha: 0.2),
-          strokeWidth: 1,
-        );
-      },
-    );
-  }
-
-  FlTitlesData chartTitlesData(List<DateTime> sortedDates) {
-    return FlTitlesData(
-      show: true,
-      // We show empty right titles to add padding to the right of the last data point.
-      rightTitles: AxisTitles(
-        sideTitles: SideTitles(
-          showTitles: true,
-          reservedSize: 16,
-          getTitlesWidget: (value, meta) => const Text(''),
-        ),
-      ),
-      topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-      bottomTitles: monthDayBottomTitles(sortedDates),
-      leftTitles: ratingExtentAndMidpointTitles(),
-    );
-  }
-
-  AxisTitles monthDayBottomTitles(List<DateTime> sortedDates) {
-    final interval = (sortedDates.length / 6).ceilToDouble().clamp(
-      1.0,
-      double.infinity,
-    );
-
-    return AxisTitles(
-      sideTitles: SideTitles(
-        showTitles: true,
-        reservedSize: kChartBottomAxisReservedSize,
-        interval: interval,
-        getTitlesWidget: (double value, TitleMeta meta) {
-          if (value.toInt() >= 0 && value.toInt() < sortedDates.length) {
-            final date = sortedDates[value.toInt()];
-            return SideTitleWidget(
-              meta: meta,
-              space: 4,
-              child: Text(
-                DateFormat('MMM d').format(date),
-                style: EText.body.small.secondary
-                    .size(9)
-                    .copyWith(
-                      color: Colors.white.withValues(alpha: 0.7),
-                    ),
-              ),
-            );
-          }
-          return const Text('');
-        },
-      ),
-    );
-  }
-
-  AxisTitles ratingExtentAndMidpointTitles() {
-    return AxisTitles(
-      sideTitles: SideTitles(
-        showTitles: true,
-        interval: 1,
-        getTitlesWidget: (double value, TitleMeta meta) {
-          final v = value.toInt();
-          if (v != 1 && v != 5 && v != 10) return const SizedBox.shrink();
-          return SideTitleWidget(
-            meta: meta,
-            space: 4,
-            child: Text(
-              '$v',
-              style: EText.body.small.secondary
-                  .size(9)
-                  .copyWith(
-                    color: Colors.white.withValues(alpha: 0.7),
-                  ),
-            ),
-          );
-        },
-        reservedSize: 20,
-      ),
-    );
-  }
-
-  FlBorderData chartBorderData() {
-    return FlBorderData(
-      show: true,
-      border: Border.all(
-        color: Colors.white.withValues(alpha: 0.15),
-        width: 0.5,
-      ),
-    );
-  }
-
-  List<LineChartBarData> lineBarsData(
-    List<String> metrics,
-    Map<String, List<CheckIn>> metricData,
-    List<DateTime> sortedDates,
-  ) {
-    return metrics
-        .asMap()
-        .entries
-        .where((entry) => !_hiddenMetrics.contains(entry.value))
-        .map((entry) {
-          final metric = entry.value;
-          final metricObj = _getUserMetricByName(metric);
-          if (metricObj == null) {
-            return LineChartBarData(spots: []);
-          }
-
-          final color = metricObj.color;
-          final metricCheckIns = metricData[metric]!;
-          final spots = chartSpots(metricCheckIns, sortedDates);
-
-          return LineChartBarData(
-            spots: spots,
-            isCurved: true,
-            gradient: LinearGradient(
-              colors: [
-                color.withValues(alpha: 1.0),
-                color.withValues(alpha: 0.8),
-              ],
-            ),
-            barWidth: 2,
-            isStrokeCapRound: true,
-            dotData: whiteRingedRatingDots(color),
-            belowBarData: fadeUnderRatingLine(color),
-          );
-        })
-        .toList();
-  }
-
-  List<FlSpot> chartSpots(
-    List<CheckIn> metricCheckIns,
-    List<DateTime> sortedDates,
-  ) {
-    final spots = <FlSpot>[];
-    for (int i = 0; i < sortedDates.length; i++) {
-      final date = sortedDates[i];
-      final checkIn = metricCheckIns
-          .where(
-            (c) =>
-                c.dateTime.year == date.year &&
-                c.dateTime.month == date.month &&
-                c.dateTime.day == date.day,
-          )
-          .firstOrNull;
-
-      if (checkIn != null) {
-        spots.add(FlSpot(i.toDouble(), checkIn.rating.toDouble()));
-      }
-    }
-    return spots;
-  }
-
-  FlDotData whiteRingedRatingDots(Color color) {
-    return FlDotData(
-      show: true,
-      getDotPainter: (spot, percent, barData, index) {
-        return FlDotCirclePainter(
-          radius: 3,
-          color: color,
-          strokeWidth: 1,
-          strokeColor: Colors.white,
-        );
-      },
-    );
-  }
-
-  BarAreaData fadeUnderRatingLine(Color color) {
-    return BarAreaData(
-      show: true,
-      gradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          color.withValues(alpha: 0.08),
-          color.withValues(alpha: 0.02),
-          color.withValues(alpha: 0.0),
-        ],
-        stops: const [0.0, 0.7, 1.0],
-      ),
-    );
-  }
-
-  LineTouchData chartTouchData(List<String> metrics) {
-    return LineTouchData(
-      enabled: true,
-      touchTooltipData: LineTouchTooltipData(
-        getTooltipColor: (spot) => EColors.backgroundLift,
-        fitInsideHorizontally: true,
-        fitInsideVertically: true,
-        getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
-          return touchedBarSpots.map((touchedSpot) {
-            final visibleMetrics = metrics
-                .where((m) => !_hiddenMetrics.contains(m))
-                .toList();
-            final metric = visibleMetrics[touchedSpot.barIndex];
-            final metricObj = _getUserMetricByName(metric);
-            if (metricObj == null) return null;
-
-            final rating = touchedSpot.y.toInt();
-
-            return LineTooltipItem(
-              '$metric: $rating',
-              EText.body.small.copyWith(
-                color: metricObj.color,
-                fontWeight: FontWeight.w600,
-                fontSize: 10,
-              ),
-            );
-          }).toList();
-        },
-      ),
-    );
-  }
-
-  Widget dateRangeSelector() {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: EColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.small),
-      ),
-      child: SegmentedButton<DateRangeFilter>(
-        segments: [
-          for (final filter in DateRangeFilter.values)
-            ButtonSegment<DateRangeFilter>(
-              value: filter,
-              label: Text(filter.label),
-            ),
-        ],
-        selected: {_selectedDateRange},
-        onSelectionChanged: (selection) {
-          setState(() => _selectedDateRange = selection.first);
-        },
-        showSelectedIcon: false,
-      ),
-    );
-  }
-
-  List<CheckIn> _filterCheckInsByDateRange() {
-    return widget.checkIns
-        .where((checkIn) => _selectedDateRange.includesDate(checkIn.dateTime))
-        .toList();
   }
 }

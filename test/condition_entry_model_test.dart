@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_notes/models/condition_entry.dart';
+import 'package:health_notes/ui/condition_appearance.dart';
 
 void main() {
   group('ConditionEntry', () {
@@ -92,7 +92,7 @@ void main() {
       final draft = ConditionEntryDraft(
         conditionId: 'c1',
         conditionName: 'Cold',
-        conditionColor: const Color(0xFFE57373),
+        colorValue: 0xFFE57373,
       );
 
       expect(draft.conditionId, 'c1');
@@ -107,7 +107,7 @@ void main() {
       final draft = ConditionEntryDraft(
         conditionId: 'c1',
         conditionName: 'Cold',
-        conditionColor: const Color(0xFFE57373),
+        colorValue: 0xFFE57373,
       );
 
       draft.severity = 8;

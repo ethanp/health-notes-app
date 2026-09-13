@@ -119,10 +119,12 @@ class _SymptomTrendsScreenState()
     final color = SymptomSeverity.hslGreenToRed(stat.peakSeverity);
     return AccentBorderCard(
       accentColor: color,
-      onTap: () => context.push(
-        SubSymptomTrendsScreen(
-          majorComponent: widget.symptomName,
-          minorComponent: stat.minorComponent,
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => SubSymptomTrendsScreen(
+            majorComponent: widget.symptomName,
+            minorComponent: stat.minorComponent,
+          ),
         ),
       ),
       child: Row(
@@ -157,7 +159,11 @@ class _SymptomTrendsScreenState()
         .map(
           (note) => HealthNoteCard(
             note: note,
-            onTap: () => context.push(HealthNoteViewScreen(note: note)),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => HealthNoteViewScreen(note: note),
+              ),
+            ),
           ),
         )
         .toList();
