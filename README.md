@@ -4,6 +4,10 @@ A simple iOS app for tracking your daily health symptoms, medications, and notes
 Built with Flutter using Material widgets.
 Most of the code was written by Cursor.
 
+### Screenshots
+
+![Notes](screenshots/notes.png)
+
 ## What is Health Notes?
 
 Health Notes helps you keep track of your health over time. You can:
