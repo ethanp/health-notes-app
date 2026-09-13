@@ -1,3 +1,4 @@
+import 'package:ethan_sync/ethan_sync.dart';
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,7 +25,7 @@ class _MyToolsScreenState() extends ConsumerState<MyToolsScreen> {
     return HealthNotesPage(
       title: 'Tools',
       actions: [
-        const CompactSyncStatusWidget(),
+        const ESyncPhaseIcon(),
         IconButton(
           tooltip: 'Add category',
           onPressed: _showAddCategoryForm,

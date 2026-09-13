@@ -1,3 +1,4 @@
+import 'package:ethan_sync/ethan_sync.dart';
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,7 +20,7 @@ class const ConditionsScreen() extends ConsumerWidget {
     return HealthNotesPage(
       title: 'Conditions',
       actions: [
-        const CompactSyncStatusWidget(),
+        const ESyncPhaseIcon(),
         IconButton(
           tooltip: 'Add condition',
           onPressed: () => showAddConditionForm(context),

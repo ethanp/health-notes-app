@@ -5,16 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 
-class const CompactSyncStatusWidget() extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ESyncPhaseIcon(
-      phase: ref.watch(syncPhaseProvider),
-      caption: ref.watch(syncStatusCaptionProvider),
-    );
-  }
-}
-
 enum SyncStatusType() {
   loading,
   syncing,
@@ -111,7 +101,7 @@ class SyncStatusWidget extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const CompactSyncStatusWidget(),
+            const ESyncPhaseIcon(),
             VSpace.m,
             Text(
               ref.watch(syncStatusCaptionProvider),

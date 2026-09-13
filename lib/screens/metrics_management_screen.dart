@@ -1,3 +1,4 @@
+import 'package:ethan_sync/ethan_sync.dart';
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,8 +11,6 @@ import 'package:health_notes/ui/check_in_metric_appearance.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/theme/spacing.dart';
-import 'package:health_notes/widgets/sync_status_widget.dart';
-
 class const MetricsManagementScreen() extends ConsumerStatefulWidget {
   @override
   ConsumerState<MetricsManagementScreen> createState() =>
@@ -31,7 +30,7 @@ class _MetricsManagementScreenState()
         child: const Text('Done'),
       ),
       actions: [
-        const CompactSyncStatusWidget(),
+        const ESyncPhaseIcon(),
         IconButton(
           tooltip: 'Sync',
           onPressed: () async {

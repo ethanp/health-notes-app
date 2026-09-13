@@ -61,73 +61,81 @@ class _AnimatedWelcomeCardState()
 
   @override
   Widget build(BuildContext context) {
-    return AnimationLimiter(
-      child: Column(
-        children: AnimationConfiguration.toStaggeredList(
-          duration: AppAnimation.slow,
-          childAnimationBuilder: (widget) => SlideAnimation(
-            horizontalOffset: 50.0,
-            child: FadeInAnimation(child: widget),
-          ),
-          children: [
-            AnimatedBuilder(
-              animation: Listenable.merge([_pulseAnimation, _floatAnimation]),
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: Offset(0, _floatAnimation.value * 4),
-                  child: Transform.scale(
-                    scale: _pulseAnimation.value,
-                    child: Container(
-                      padding: const EdgeInsets.all(AppSpacing.l),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            (widget.iconColor ?? EColors.accent).withValues(
-                              alpha: 0.1,
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: AnimationLimiter(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: AnimationConfiguration.toStaggeredList(
+              duration: AppAnimation.slow,
+              childAnimationBuilder: (widget) => SlideAnimation(
+                horizontalOffset: 50.0,
+                child: FadeInAnimation(child: widget),
+              ),
+              children: [
+                AnimatedBuilder(
+                  animation: Listenable.merge([
+                    _pulseAnimation,
+                    _floatAnimation,
+                  ]),
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(0, _floatAnimation.value * 4),
+                      child: Transform.scale(
+                        scale: _pulseAnimation.value,
+                        child: Container(
+                          padding: const EdgeInsets.all(AppSpacing.l),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                (widget.iconColor ?? EColors.accent)
+                                    .withValues(alpha: 0.1),
+                                (widget.iconColor ?? EColors.accent)
+                                    .withValues(alpha: 0.05),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                             ),
-                            (widget.iconColor ?? EColors.accent).withValues(
-                              alpha: 0.05,
+                            borderRadius: BorderRadius.circular(
+                              AppRadius.extraLarge,
                             ),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(
-                          AppRadius.extraLarge,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: (widget.iconColor ?? EColors.accent)
-                                .withValues(alpha: 0.2),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: (widget.iconColor ?? EColors.accent)
+                                    .withValues(alpha: 0.2),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
                           ),
-                        ],
+                          child: Icon(
+                            widget.icon,
+                            size: 64,
+                            color: widget.iconColor ?? EColors.accent,
+                          ),
+                        ),
                       ),
-                      child: Icon(
-                        widget.icon,
-                        size: 64,
-                        color: widget.iconColor ?? EColors.accent,
-                      ),
-                    ),
-                  ),
-                );
-              },
+                    );
+                  },
+                ),
+                VSpace.l,
+                Text(
+                  widget.title,
+                  style: EText.headline.medium,
+                  textAlign: TextAlign.center,
+                ),
+                VSpace.m,
+                Text(
+                  widget.message,
+                  style: EText.body.medium.secondary,
+                  textAlign: TextAlign.center,
+                ),
+                if (widget.action != null) ...[VSpace.l, widget.action!],
+              ],
             ),
-            VSpace.l,
-            Text(
-              widget.title,
-              style: EText.headline.medium,
-              textAlign: TextAlign.center,
-            ),
-            VSpace.m,
-            Text(
-              widget.message,
-              style: EText.body.medium.secondary,
-              textAlign: TextAlign.center,
-            ),
-            if (widget.action != null) ...[VSpace.l, widget.action!],
-          ],
+          ),
         ),
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:ethan_sync/ethan_sync.dart';
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
@@ -122,7 +123,7 @@ class _HealthNotesHomePageState()
       appBar: EAppHeader(
         title: 'Health Notes',
         actions: [
-          const CompactSyncStatusWidget(),
+          const ESyncPhaseIcon(),
           IconButton(
             tooltip: 'Add note',
             onPressed: showAddNoteModal,
