@@ -132,8 +132,15 @@ class _HealthNotesHomePageState()
         ],
       ),
       body: groupedNotesAsync.when(
-        data: (groupedNotes) =>
-            groupedNotes.isEmpty ? emptyTable() : filteredContent(groupedNotes),
+        data: (groupedNotes) {
+          if (groupedNotes.isEmpty) {
+            if (!ref.watch(hasCompletedFirstDownloadProvider)) {
+              return SyncStatusWidget.syncing();
+            }
+            return emptyTable();
+          }
+          return filteredContent(groupedNotes);
+        },
         loading: () => const SyncStatusWidget.loading(
           message: 'Loading your health notes...',
         ),

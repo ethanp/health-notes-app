@@ -1,3 +1,4 @@
+import 'package:ethan_sync/ethan_sync.dart';
 import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/models/health_tool_category.dart';
 import 'package:health_notes/providers/dao_providers.dart';
@@ -10,6 +11,7 @@ part 'health_tools_provider.g.dart';
 class HealthToolCategoriesNotifier() extends _$HealthToolCategoriesNotifier {
   @override
   Future<List<HealthToolCategory>> build() async {
+    ref.watch(localDataRevisionProvider);
     final toolsDao = await ref.watch(healthToolsDaoProvider.future);
     return toolsDao.getCategories();
   }
@@ -45,6 +47,7 @@ class HealthToolCategoriesNotifier() extends _$HealthToolCategoriesNotifier {
 class HealthToolsNotifier() extends _$HealthToolsNotifier {
   @override
   Future<List<HealthTool>> build() async {
+    ref.watch(localDataRevisionProvider);
     final toolsDao = await ref.watch(healthToolsDaoProvider.future);
     return toolsDao.getTools();
   }

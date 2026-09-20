@@ -1,3 +1,4 @@
+import 'package:ethan_sync/ethan_sync.dart';
 import 'package:health_notes/app_identity.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/providers/dao_providers.dart';
@@ -10,6 +11,7 @@ part 'check_ins_provider.g.dart';
 class CheckInsNotifier() extends _$CheckInsNotifier {
   @override
   Future<List<CheckIn>> build() async {
+    ref.watch(localDataRevisionProvider);
     final checkInsDao = await ref.watch(checkInsDaoProvider.future);
     return checkInsDao.getAllCheckIns(AppIdentity.localUserId);
   }

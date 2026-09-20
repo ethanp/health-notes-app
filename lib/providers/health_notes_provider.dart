@@ -1,3 +1,4 @@
+import 'package:ethan_sync/ethan_sync.dart';
 import 'package:health_notes/app_identity.dart';
 import 'package:health_notes/models/applied_tool.dart';
 import 'package:health_notes/models/drug_dose.dart';
@@ -14,15 +15,21 @@ part 'health_notes_provider.g.dart';
 
 @riverpod
 class HealthNotesNotifier() extends _$HealthNotesNotifier {
+  var _rewroteStoredSpellings = false;
+
   @override
   Future<List<HealthNote>> build() async {
+    ref.watch(localDataRevisionProvider);
     final notesDao = await ref.watch(healthNotesDaoProvider.future);
     final schedulesDao = await ref.watch(medicationSchedulesDaoProvider.future);
-    await CanonicalDrugNames.rewriteStoredSpellings(
-      userId: AppIdentity.localUserId,
-      notesDao: notesDao,
-      schedulesDao: schedulesDao,
-    );
+    if (!_rewroteStoredSpellings) {
+      await CanonicalDrugNames.rewriteStoredSpellings(
+        userId: AppIdentity.localUserId,
+        notesDao: notesDao,
+        schedulesDao: schedulesDao,
+      );
+      _rewroteStoredSpellings = true;
+    }
     return notesDao.getAllNotes(AppIdentity.localUserId);
   }
 

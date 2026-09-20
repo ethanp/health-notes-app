@@ -28,9 +28,15 @@ class const ConditionsScreen() extends ConsumerWidget {
         ),
       ],
       body: conditionsAsync.when(
-        data: (conditions) => conditions.isEmpty
-            ? emptyState(context)
-            : conditionsList(context, ref, conditions),
+        data: (conditions) {
+          if (conditions.isEmpty) {
+            if (!ref.watch(hasCompletedFirstDownloadProvider)) {
+              return SyncStatusWidget.syncing();
+            }
+            return emptyState(context);
+          }
+          return conditionsList(context, ref, conditions);
+        },
         loading: () =>
             const SyncStatusWidget.loading(message: 'Loading conditions...'),
         error: (error, stack) => SyncStatusWidget.error(

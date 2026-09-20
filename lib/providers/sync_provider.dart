@@ -9,7 +9,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'sync_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class SyncNotifier() extends _$SyncNotifier {
   @override
   bool build() => false;
@@ -18,9 +18,10 @@ class SyncNotifier() extends _$SyncNotifier {
     state = true;
     try {
       await ref.read(syncEnsureProvider).ensureConnected();
+      if (!ref.mounted) return;
       _invalidateAllProviders();
     } finally {
-      state = false;
+      if (ref.mounted) state = false;
     }
   }
 

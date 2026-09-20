@@ -33,8 +33,15 @@ class _MyToolsScreenState() extends ConsumerState<MyToolsScreen> {
         ),
       ],
       body: categoriesAsync.when(
-        data: (categories) =>
-            categories.isEmpty ? emptyState() : categoriesList(categories),
+        data: (categories) {
+          if (categories.isEmpty) {
+            if (!ref.watch(hasCompletedFirstDownloadProvider)) {
+              return SyncStatusWidget.syncing();
+            }
+            return emptyState();
+          }
+          return categoriesList(categories);
+        },
         loading: () => const SyncStatusWidget.loading(
           message: 'Loading your health tools...',
         ),

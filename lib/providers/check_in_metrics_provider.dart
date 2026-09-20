@@ -1,3 +1,4 @@
+import 'package:ethan_sync/ethan_sync.dart';
 import 'package:flutter/material.dart';
 import 'package:health_notes/app_identity.dart';
 import 'package:health_notes/models/check_in_metric.dart';
@@ -11,6 +12,7 @@ part 'check_in_metrics_provider.g.dart';
 class CheckInMetricsNotifier() extends _$CheckInMetricsNotifier {
   @override
   Future<List<CheckInMetric>> build() async {
+    ref.watch(localDataRevisionProvider);
     final metricsDao = await ref.watch(checkInMetricsDaoProvider.future);
     return metricsDao.getCheckInMetrics(AppIdentity.localUserId);
   }

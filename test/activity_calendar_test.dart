@@ -81,8 +81,8 @@ void main() {
 
     expect(find.byType(ECalendarCharts), findsOneWidget);
     expect(find.text('Active days per week'), findsOneWidget);
-    expect(find.text('notes per week'), findsOneWidget);
-    expect(find.text('Trailing 7-day notes'), findsOneWidget);
+    expect(find.text('notes per week'), findsNothing);
+    expect(find.text('Notes rolling load'), findsOneWidget);
     expect(find.byType(EMonthStackCalendar<DateTime>), findsNothing);
   });
 

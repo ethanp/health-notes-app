@@ -1,3 +1,4 @@
+import 'package:ethan_sync/ethan_sync.dart';
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,9 +27,15 @@ class const MedicationSchedulesScreen() extends ConsumerWidget {
         ),
       ],
       body: schedulesAsync.when(
-        data: (schedules) => schedules.isEmpty
-            ? _emptyState(context, ref)
-            : _schedulesList(context, ref, schedules),
+        data: (schedules) {
+          if (schedules.isEmpty) {
+            if (!ref.watch(hasCompletedFirstDownloadProvider)) {
+              return SyncStatusWidget.syncing();
+            }
+            return _emptyState(context, ref);
+          }
+          return _schedulesList(context, ref, schedules);
+        },
         loading: () =>
             const SyncStatusWidget.loading(message: 'Loading schedules...'),
         error: (error, stack) => SyncStatusWidget.error(

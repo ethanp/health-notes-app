@@ -41,12 +41,15 @@ class _MainTabScreenState() extends ConsumerState<MainTabScreen> {
     _mainTabs.length,
     (_) => GlobalKey<NavigatorState>(),
   );
+  late final SyncNotifier _syncNotifier;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await ref.read(syncProvider.notifier).forceSyncAllData();
+    _syncNotifier = ref.read(syncProvider.notifier);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _syncNotifier.forceSyncAllData();
     });
   }
 

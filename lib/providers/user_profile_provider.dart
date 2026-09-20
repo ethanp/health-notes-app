@@ -1,3 +1,4 @@
+import 'package:ethan_sync/ethan_sync.dart';
 import 'package:health_notes/app_identity.dart';
 import 'package:health_notes/models/user_profile.dart';
 import 'package:health_notes/providers/dao_providers.dart';
@@ -9,6 +10,7 @@ part 'user_profile_provider.g.dart';
 class UserProfileNotifier() extends _$UserProfileNotifier {
   @override
   Future<UserProfile?> build() async {
+    ref.watch(localDataRevisionProvider);
     final profileDao = await ref.watch(userProfileDaoProvider.future);
     return profileDao.getProfileById(AppIdentity.localUserId);
   }
