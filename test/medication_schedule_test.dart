@@ -235,6 +235,36 @@ void main() {
       expect(schedule.covers(DateTime(2026, 3, 4)), isTrue);
       expect(schedule.covers(DateTime(2026, 3, 5)), isFalse);
     });
+
+    test('stopping today leaves today uncovered and drops the schedule from active', () {
+      final stoppedOn = DateTime(2026, 3, 4, 15, 30);
+      final lastCovered = MedicationSchedule.lastCoveredDayWhenStoppedOn(
+        stoppedOn,
+      );
+      final schedule = prednisone(endDate: lastCovered);
+      expect(schedule.covers(DateTime(2026, 3, 3)), isTrue);
+      expect(schedule.covers(stoppedOn), isFalse);
+      expect(schedule.isListedAsActiveOn(stoppedOn), isFalse);
+    });
+
+    test('a schedule stopped before it starts is not upcoming', () {
+      final today = DateTime(2026, 9, 22);
+      final schedule = gabapentin().copyWith(
+        startDate: today.shiftedByDays(3),
+        endDate: MedicationSchedule.lastCoveredDayWhenStoppedOn(today),
+      );
+      expect(schedule.isUpcomingOn(today), isFalse);
+      expect(schedule.isListedAsActiveOn(today), isFalse);
+    });
+
+    test('stopping before the start day reads as ended before start', () {
+      final today = DateTime.now().startOfDay;
+      final schedule = gabapentin().copyWith(
+        startDate: today.shiftedByDays(3),
+        endDate: MedicationSchedule.lastCoveredDayWhenStoppedOn(today),
+      );
+      expect(schedule.listCaption, 'Ended before start');
+    });
   });
 
   group('open-ended multi-slot day', () {

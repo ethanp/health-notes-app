@@ -63,6 +63,7 @@ class _DrugTrendsScreenState()
           handleDateTap(context, date, dosage, notes),
       unit: unit,
       onMultiSelectConfirmed: (dates) => _showBulkDoseSheet(dates, unit),
+      instantQuantities: _doseInstants(notes),
     );
   }
 
@@ -144,6 +145,15 @@ class _DrugTrendsScreenState()
     return note.drugDoses
         .where((dose) => dose.name == widget.drugName)
         .toList();
+  }
+
+  List<ECalendarInstantQuantity> _doseInstants(List<HealthNote> notes) {
+    return [
+      for (final note in notes)
+        for (final dose in _relevantDoses(note))
+          if (dose.dosage > 0)
+            ECalendarInstantQuantity(at: note.dateTime, quantity: dose.dosage),
+    ];
   }
 
   double _totalDosageForNote(HealthNote note) {

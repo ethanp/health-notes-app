@@ -9,9 +9,11 @@ import 'package:intl/intl.dart';
 part 'medication_schedule.freezed.dart';
 part 'medication_schedule.g.dart';
 
-enum ScheduleKind({required final String label}) {
-  taper(label: 'Taper'),
-  daily(label: 'Daily'),
+enum ScheduleKind() {
+  taper,
+  daily;
+
+  String get label => nameAsCapitalizedWords;
 }
 
 enum PartOfDay({required final String label, required final int sortHour}) {
@@ -164,11 +166,22 @@ abstract class MedicationSchedule with _$MedicationSchedule {
     return steps.isNotEmpty;
   }
 
-  bool get isActiveOnToday => covers(DateTime.now());
+  static DateTime lastCoveredDayWhenStoppedOn(DateTime stoppedOn) =>
+      stoppedOn.startOfDay.shiftedByDays(-1);
 
-  bool get isUpcoming => startDay.isAfter(DateTime.now().startOfDay);
+  bool isUpcomingOn(DateTime day) {
+    final calendarDay = day.startOfDay;
+    if (!startDay.isAfter(calendarDay)) return false;
+    final ended = endedDay;
+    if (ended != null && startDay.isAfter(ended)) return false;
+    return true;
+  }
 
-  bool get isListedAsActive => isActiveOnToday || isUpcoming;
+  bool get isUpcoming => isUpcomingOn(DateTime.now());
+
+  bool isListedAsActiveOn(DateTime day) => covers(day) || isUpcomingOn(day);
+
+  bool get isListedAsActive => isListedAsActiveOn(DateTime.now());
 
   bool get hasEnded => !isListedAsActive;
 
@@ -291,7 +304,7 @@ abstract class MedicationSchedule with _$MedicationSchedule {
 
   String get _endedCaption {
     final last = lastCoveredDay;
-    if (last == null) return startDay.monthDayCaption;
+    if (last == null || last.isBefore(startDay)) return 'Ended before start';
     final totalDays = _calendarDaysBetween(startDay, last) + 1;
     return 'Day $totalDays of $totalDays · $_courseDateRangeCaption';
   }

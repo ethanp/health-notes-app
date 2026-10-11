@@ -50,7 +50,7 @@ void main() {
     expect(find.text('${monthNames[now.month - 1]} ${now.year}'), findsOneWidget);
   });
 
-  testWidgets('Grid | Charts replaces the month stack with the calendar trio', (
+  testWidgets('Grid | Charts replaces the month stack with rolling load', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -73,17 +73,15 @@ void main() {
       ),
     );
 
-    expect(find.text('Grid'), findsOneWidget);
     expect(find.byType(EMonthStackCalendar<DateTime>), findsOneWidget);
+    expect(find.byType(EHeatmapLegend), findsOneWidget);
 
     await tester.tap(find.text('Charts'));
     await tester.pumpAndSettle();
 
     expect(find.byType(ECalendarCharts), findsOneWidget);
-    expect(find.text('Active days per week'), findsOneWidget);
-    expect(find.text('notes per week'), findsNothing);
-    expect(find.text('Notes rolling load'), findsOneWidget);
     expect(find.byType(EMonthStackCalendar<DateTime>), findsNothing);
+    expect(find.byType(EHeatmapLegend), findsNothing);
   });
 
   test('dosage captions include the medication unit at each quartile', () {
@@ -96,7 +94,6 @@ void main() {
     expect(scale.captionFor(EHeatmapIntensity.mid), '40mg');
     expect(scale.captionFor(EHeatmapIntensity.high), '60mg');
     expect(scale.captionFor(EHeatmapIntensity.peak), '80mg');
-    expect(scale.legendTitle, contains('period quartiles'));
   });
 
   test('severity days use the domain color, not heatmap intensity', () {

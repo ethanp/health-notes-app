@@ -21,6 +21,7 @@ class const HealthNotesMonthStack({
   final bool scrollToEnd = false,
   final void Function(List<DateTime> dates)? onMultiSelectConfirmed,
   final String? multiSelectActionLabel,
+  final List<ECalendarInstantQuantity> instantQuantities = const [],
 }) extends StatefulWidget {
   @override
   State<HealthNotesMonthStack> createState() => _HealthNotesMonthStackState();
@@ -141,10 +142,12 @@ class _HealthNotesMonthStackState() extends State<HealthNotesMonthStack> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _titleRow(),
-          VSpace.s,
-          Text(widget.subtitle, style: EText.body.small.muted),
-          VSpace.m,
-          widget.legend,
+          if (!_showCharts) ...[
+            VSpace.s,
+            Text(widget.subtitle, style: EText.body.small.muted),
+            VSpace.m,
+            widget.legend,
+          ],
           VSpace.m,
           if (_showCharts && widget.quantityOn != null)
             ECalendarCharts(
@@ -153,6 +156,7 @@ class _HealthNotesMonthStackState() extends State<HealthNotesMonthStack> {
               formatMeasure:
                   widget.formatMeasure ??
                   (quantity) => quantity.wholeNumberOrTrimmedDecimal,
+              instantQuantities: widget.instantQuantities,
             )
           else
             EMonthStackCalendar<DateTime>(

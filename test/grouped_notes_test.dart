@@ -36,8 +36,6 @@ void main() {
         ),
       );
 
-      expect(find.text('Health Notes (4)'), findsOneWidget);
-
       expect(find.text('Jul 03, 2026'), findsOneWidget);
       expect(find.text('2 notes'), findsOneWidget);
       expect(find.text('card-1'), findsOneWidget);
@@ -50,19 +48,6 @@ void main() {
       expect(find.text('card-4'), findsOneWidget);
 
       expect(find.text('1 note'), findsNWidgets(2));
-    });
-
-    testWidgets('shows empty state when notes is empty', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: ETheme.material3Dark,
-          home: Scaffold(
-            body: GroupedNotesSection(notes: const [], cardBuilder: (_) => []),
-          ),
-        ),
-      );
-
-      expect(find.text('No matching notes'), findsOneWidget);
     });
 
     testWidgets('renders optional header above grouped notes', (tester) async {

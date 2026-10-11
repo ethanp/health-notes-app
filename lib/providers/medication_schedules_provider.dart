@@ -1,4 +1,5 @@
 import 'package:ethan_sync/ethan_sync.dart';
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:health_notes/app_identity.dart';
 import 'package:health_notes/models/medication_schedule.dart';
 import 'package:health_notes/providers/dao_providers.dart';
@@ -42,7 +43,10 @@ class MedicationSchedulesNotifier() extends _$MedicationSchedulesNotifier {
 
   Future<void> stopSchedule(String id, {DateTime? endDate}) async {
     final schedulesDao = await ref.read(medicationSchedulesDaoProvider.future);
-    await schedulesDao.stopSchedule(id, endDate ?? DateTime.now());
+    final lastCoveredDay =
+        endDate?.startOfDay ??
+        MedicationSchedule.lastCoveredDayWhenStoppedOn(DateTime.now());
+    await schedulesDao.stopSchedule(id, lastCoveredDay);
     ref.invalidateSelf();
   }
 

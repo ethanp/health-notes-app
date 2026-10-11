@@ -105,6 +105,7 @@ class const DosageActivityCalendar({
   onDateTap,
   required final String unit,
   final void Function(List<DateTime> dates)? onMultiSelectConfirmed,
+  final List<ECalendarInstantQuantity> instantQuantities = const [],
 }) extends StatelessWidget {
   static EPeriodQuartileHeatmapScale scaleFor({
     required Iterable<num> observedDosages,
@@ -144,6 +145,7 @@ class const DosageActivityCalendar({
           onDateTap(context, day.date, activityData[day.date.startOfDay] ?? 0),
       onMultiSelectConfirmed: onMultiSelectConfirmed,
       multiSelectActionLabel: 'Add Dose',
+      instantQuantities: instantQuantities,
     );
   }
 }

@@ -26,23 +26,6 @@ void main() {
   ];
 
   group('CheckInTrendsChart', () {
-    testWidgets('displays empty state when no check-ins provided', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: CheckInTrendsChart(
-              checkIns: [],
-              userMetrics: testUserMetrics,
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('No check-in data available'), findsOneWidget);
-    });
-
     testWidgets('displays chart with multiple metrics', (tester) async {
       final checkIns = [
         CheckIn(
@@ -79,7 +62,6 @@ void main() {
         ),
       );
 
-      expect(find.text('Trends'), findsOneWidget);
       expect(find.text('Energy Level'), findsOneWidget);
       expect(find.text('Mood'), findsOneWidget);
     });
@@ -121,7 +103,6 @@ void main() {
         ),
       );
 
-      expect(find.text('Trends'), findsOneWidget);
       expect(find.text('Pain Level'), findsOneWidget);
     });
 

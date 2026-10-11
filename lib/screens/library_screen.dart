@@ -1,5 +1,6 @@
 import 'package:ethan_sync/ethan_sync.dart';
 import 'package:ethan_ui/ethan_ui.dart';
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/providers/sync_provider.dart';
@@ -8,26 +9,25 @@ import 'package:health_notes/screens/medication_schedules_screen.dart';
 import 'package:health_notes/screens/my_tools_screen.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
+
 enum LibrarySlot({
-  required final String label,
   required final IconData icon,
   required final String subtitle,
 }) {
   conditions(
-    label: 'Conditions',
     icon: Icons.healing_outlined,
     subtitle: 'Illnesses and flare-ups you track',
   ),
   schedules(
-    label: 'Schedules',
     icon: Icons.calendar_month_outlined,
     subtitle: 'Tapers and times each day',
   ),
   tools(
-    label: 'Tools',
     icon: Icons.handyman_outlined,
     subtitle: 'Practices you apply on a note',
   );
+
+  String get label => nameAsCapitalizedWords;
 
   Widget get screen => switch (this) {
     conditions => const ConditionsScreen(),
