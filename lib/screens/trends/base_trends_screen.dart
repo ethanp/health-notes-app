@@ -5,6 +5,7 @@ import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
+import 'package:health_notes/widgets/activity_chart_mode.dart';
 import 'package:health_notes/widgets/grouped_notes_section.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/widgets/health_notes_search_field.dart';
@@ -28,6 +29,7 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>()
   final ScrollController _trendsScrollController = ScrollController();
   String searchQuery = '';
   int selectedSegmentIndex = 0;
+  bool showCharts = false;
   bool _hasScrolledCalendarToBottom = false;
   bool _calendarBottomScrollScheduled = false;
 
@@ -93,11 +95,21 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>()
 
     return HealthNotesPage(
       title: title,
-      body: healthNotesAsync.when(
-        data: (notes) => buildContent(notes),
-        loading: () => ELoadingState(message: loadingMessage),
-        error: (error, stack) =>
-            Center(child: Text('Error: $error', style: EText.error)),
+      actions: [
+        if (selectedSegmentIndex == 0)
+          ActivityChartToggle(
+            showCharts: showCharts,
+            onShowChartsChanged: (show) => setState(() => showCharts = show),
+          ),
+      ],
+      body: ActivityChartMode(
+        showCharts: showCharts,
+        child: healthNotesAsync.when(
+          data: (notes) => buildContent(notes),
+          loading: () => ELoadingState(message: loadingMessage),
+          error: (error, stack) =>
+              Center(child: Text('Error: $error', style: EText.error)),
+        ),
       ),
     );
   }

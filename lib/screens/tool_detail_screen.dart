@@ -15,6 +15,7 @@ import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/widgets/health_notes_search_field.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
+import 'package:health_notes/widgets/activity_chart_mode.dart';
 import 'package:health_notes/widgets/tool_activity_calendar.dart';
 import 'package:health_notes/widgets/tool_note_card.dart';
 import 'package:health_notes/theme/spacing.dart';
@@ -30,6 +31,7 @@ class const ToolDetailScreen({
 class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
   final TextEditingController searchController = TextEditingController();
   String searchQuery = '';
+  bool showCharts = false;
 
   @override
   void dispose() {
@@ -44,7 +46,15 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
 
     return HealthNotesPage(
       title: widget.toolName ?? 'Tool Details',
-      body: toolAsync.when(
+      actions: [
+        ActivityChartToggle(
+          showCharts: showCharts,
+          onShowChartsChanged: (show) => setState(() => showCharts = show),
+        ),
+      ],
+      body: ActivityChartMode(
+        showCharts: showCharts,
+        child: toolAsync.when(
         data: (tool) => notesAsync.when(
           data: (notes) => buildContent(context, tool, notes),
           loading: () =>
@@ -56,6 +66,7 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
             const SyncStatusWidget.loading(message: 'Loading tool...'),
         error: (error, stack) =>
             Center(child: Text('Error: $error', style: EText.error)),
+        ),
       ),
     );
   }

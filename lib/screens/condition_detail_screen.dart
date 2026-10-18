@@ -8,6 +8,7 @@ import 'package:health_notes/providers/conditions_provider.dart';
 import 'package:health_notes/providers/dao_providers.dart';
 import 'package:health_notes/screens/condition_form.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
+import 'package:health_notes/widgets/activity_chart_mode.dart';
 import 'package:health_notes/widgets/condition_activity_calendar.dart';
 import 'package:health_notes/widgets/condition_detail/condition_activity_list.dart';
 import 'package:health_notes/widgets/condition_detail/condition_detail_header.dart';
@@ -34,6 +35,7 @@ enum ConditionDetailView() {
 class _ConditionDetailScreenState()
     extends ConsumerState<ConditionDetailScreen> {
   ConditionDetailView selectedView = ConditionDetailView.calendar;
+  bool showCharts = false;
 
   @override
   Widget build(BuildContext context) {
@@ -95,13 +97,20 @@ class _ConditionDetailScreenState()
     return HealthNotesPage(
       title: condition.name,
       actions: [
+        if (selectedView == ConditionDetailView.calendar)
+          ActivityChartToggle(
+            showCharts: showCharts,
+            onShowChartsChanged: (show) => setState(() => showCharts = show),
+          ),
         IconButton(
           tooltip: 'More',
           onPressed: () => showActionsMenu(condition),
           icon: const Icon(Icons.more_vert),
         ),
       ],
-      body: SingleChildScrollView(
+      body: ActivityChartMode(
+        showCharts: showCharts,
+        child: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,6 +128,7 @@ class _ConditionDetailScreenState()
             ...selectedViewContent(condition, entries, linkedSymptoms),
           ],
         ),
+      ),
       ),
     );
   }

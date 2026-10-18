@@ -23,6 +23,7 @@ import 'package:health_notes/widgets/searchable_stats_table.dart';
 import 'package:health_notes/widgets/stats_card.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
+import 'package:health_notes/widgets/activity_chart_mode.dart';
 import 'package:health_notes/widgets/health_notes_activity_calendar.dart';
 import 'package:health_notes/screens/check_in_date_detail_screen.dart';
 import 'package:health_notes/screens/health_note_date_detail_screen.dart';
@@ -40,6 +41,7 @@ class const TrendsScreen() extends ConsumerStatefulWidget {
 
 class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
   TrendsCategory selectedCategory = TrendsCategory.notes;
+  bool showCharts = false;
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +54,10 @@ class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
       appBar: EAppHeader(
         title: 'Trends',
         actions: [
+          ActivityChartToggle(
+            showCharts: showCharts,
+            onShowChartsChanged: (show) => setState(() => showCharts = show),
+          ),
           const ESyncPhaseIcon(),
           IconButton(
             tooltip: 'Add check-in',
@@ -64,7 +70,10 @@ class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
           ),
         ],
       ),
-      body: trendsBody(healthNotesAsync, checkInsAsync, userMetricsAsync),
+      body: ActivityChartMode(
+        showCharts: showCharts,
+        child: trendsBody(healthNotesAsync, checkInsAsync, userMetricsAsync),
+      ),
     );
   }
 

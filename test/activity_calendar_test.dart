@@ -4,8 +4,32 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/utils/symptom_severity.dart';
 import 'package:health_notes/widgets/activity_calendar.dart';
+import 'package:health_notes/widgets/activity_chart_mode.dart';
 import 'package:health_notes/widgets/health_notes_activity_calendar.dart';
 import 'package:health_notes/widgets/health_notes_month_stack.dart';
+
+class const _ChartToggleHarness({required final Widget child})
+    extends StatefulWidget {
+  @override
+  State<_ChartToggleHarness> createState() => _ChartToggleHarnessState();
+}
+
+class _ChartToggleHarnessState() extends State<_ChartToggleHarness> {
+  bool showCharts = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        ActivityChartToggle(
+          showCharts: showCharts,
+          onShowChartsChanged: (show) => setState(() => showCharts = show),
+        ),
+        ActivityChartMode(showCharts: showCharts, child: widget.child),
+      ],
+    );
+  }
+}
 
 void main() {
   final DateTime now = DateTime.now();
@@ -58,15 +82,17 @@ void main() {
         theme: ETheme.material3Dark,
         home: Scaffold(
           body: SingleChildScrollView(
-            child: HealthNotesActivityCalendar(
-              notes: [
-                HealthNote(
-                  id: 'today',
-                  dateTime: DateTime(now.year, now.month, 8),
-                  createdAt: DateTime(now.year, now.month, 8),
-                ),
-              ],
-              onDateTap: (_) {},
+            child: _ChartToggleHarness(
+              child: HealthNotesActivityCalendar(
+                notes: [
+                  HealthNote(
+                    id: 'today',
+                    dateTime: DateTime(now.year, now.month, 8),
+                    createdAt: DateTime(now.year, now.month, 8),
+                  ),
+                ],
+                onDateTap: (_) {},
+              ),
             ),
           ),
         ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/utils/whole_number_or_trimmed_decimal.dart';
+import 'package:health_notes/widgets/activity_chart_mode.dart';
 
 class const HealthNotesMonthStack({
   required final String title,
@@ -22,9 +23,7 @@ class const HealthNotesMonthStack({
   final void Function(List<DateTime> dates)? onMultiSelectConfirmed,
   final String? multiSelectActionLabel,
   final List<ECalendarInstantQuantity> instantQuantities = const [],
-}) extends StatefulWidget {
-  @override
-  State<HealthNotesMonthStack> createState() => _HealthNotesMonthStackState();
+}) extends StatelessWidget {
 
   static EPeriodQuartileHeatmapScale periodQuartileScale({
     required Iterable<num> observedQuantities,
@@ -129,62 +128,60 @@ class const HealthNotesMonthStack({
       secondaryLabel: secondaryLabel ?? '$severity',
     );
   }
-}
-
-class _HealthNotesMonthStackState() extends State<HealthNotesMonthStack> {
-  bool _showCharts = false;
 
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
+    final showCharts =
+        ActivityChartMode.showChartsOf(context) && quantityOn != null;
     return ECard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _titleRow(),
-          if (!_showCharts) ...[
+          Text(title, style: EText.headline.small),
+          if (!showCharts) ...[
             VSpace.s,
-            Text(widget.subtitle, style: EText.body.small.muted),
+            Text(subtitle, style: EText.body.small.muted),
             VSpace.m,
-            widget.legend,
+            legend,
           ],
           VSpace.m,
-          if (_showCharts && widget.quantityOn != null)
+          if (showCharts)
             ECalendarCharts(
               dailyMeasures: _dailyMeasures(now),
-              measureTitle: widget.measureTitle ?? 'measure',
+              measureTitle: measureTitle ?? 'measure',
               formatMeasure:
-                  widget.formatMeasure ??
+                  formatMeasure ??
                   (quantity) => quantity.wholeNumberOrTrimmedDecimal,
-              instantQuantities: widget.instantQuantities,
+              instantQuantities: instantQuantities,
             )
           else
             EMonthStackCalendar<DateTime>(
               firstVisibleMonth: DateTime(now.year, now.month - 11, 1),
               lastVisibleMonth: DateTime(now.year, now.month, 1),
               keepLastMonthIfAnyVisible: true,
-              maxHeight: widget.gridHeight,
-              scrollToEnd: widget.scrollToEnd,
-              presentationFor: widget.presentationFor,
-              weekPresentation: widget.quantityOn == null
+              maxHeight: gridHeight,
+              scrollToEnd: scrollToEnd,
+              presentationFor: presentationFor,
+              weekPresentation: quantityOn == null
                   ? null
                   : (weekMonday) => HealthNotesMonthStack.countedWeek(
                       weekMonday: weekMonday,
-                      quantityOn: widget.quantityOn!,
+                      quantityOn: quantityOn!,
                     ),
-              monthPresentation: widget.quantityOn == null
+              monthPresentation: quantityOn == null
                   ? null
                   : (monthStart) => HealthNotesMonthStack.countedMonth(
                       monthStart: monthStart,
-                      quantityOn: widget.quantityOn!,
+                      quantityOn: quantityOn!,
                     ),
-              onDaySelected: widget.onDaySelected,
-              onMultiSelectConfirmed: widget.onMultiSelectConfirmed == null
+              onDaySelected: onDaySelected,
+              onMultiSelectConfirmed: onMultiSelectConfirmed == null
                   ? null
-                  : (days) => widget.onMultiSelectConfirmed!(
+                  : (days) => onMultiSelectConfirmed!(
                       days.map((day) => day.date.startOfDay).toList(),
                     ),
-              multiSelectActionLabel: widget.multiSelectActionLabel,
+              multiSelectActionLabel: multiSelectActionLabel,
               empty: const _HealthNotesCalendarEmpty(),
             ),
         ],
@@ -192,29 +189,10 @@ class _HealthNotesMonthStackState() extends State<HealthNotesMonthStack> {
     );
   }
 
-  Widget _titleRow() {
-    return Row(
-      children: [
-        Expanded(child: Text(widget.title, style: EText.headline.small)),
-        if (widget.quantityOn != null)
-          SegmentedButton<bool>(
-            segments: const [
-              ButtonSegment(value: false, label: Text('Grid')),
-              ButtonSegment(value: true, label: Text('Charts')),
-            ],
-            selected: {_showCharts},
-            onSelectionChanged: (selected) {
-              setState(() => _showCharts = selected.single);
-            },
-          ),
-      ],
-    );
-  }
-
   List<ECalendarDailyMeasure> _dailyMeasures(DateTime now) {
-    final quantityOn = widget.quantityOn!;
+    final quantityOnDay = quantityOn!;
     final today = now.startOfDay;
-    final start = (widget.chartFrom ?? DateTime(now.year, now.month - 11, 1))
+    final start = (chartFrom ?? DateTime(now.year, now.month - 11, 1))
         .startOfDay;
     final days = <ECalendarDailyMeasure>[];
     for (
@@ -222,7 +200,7 @@ class _HealthNotesMonthStackState() extends State<HealthNotesMonthStack> {
       !day.isAfter(today);
       day = day.shiftedByDays(1)
     ) {
-      final quantity = quantityOn(day);
+      final quantity = quantityOnDay(day);
       days.add(
         ECalendarDailyMeasure(
           date: day,
