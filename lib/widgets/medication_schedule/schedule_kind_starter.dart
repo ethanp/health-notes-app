@@ -10,7 +10,7 @@ class const ScheduleKindStarter({
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
+      padding: ETabBarOverlay.paddingOf(context),
       children: [
         Text('What kind of course?', style: EText.headline.small),
         VSpace.m,

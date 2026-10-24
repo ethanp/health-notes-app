@@ -55,17 +55,17 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
       body: ActivityChartMode(
         showCharts: showCharts,
         child: toolAsync.when(
-        data: (tool) => notesAsync.when(
-          data: (notes) => buildContent(context, tool, notes),
+          data: (tool) => notesAsync.when(
+            data: (notes) => buildContent(context, tool, notes),
+            loading: () =>
+                const SyncStatusWidget.loading(message: 'Loading notes...'),
+            error: (error, stack) =>
+                Center(child: Text('Error: $error', style: EText.error)),
+          ),
           loading: () =>
-              const SyncStatusWidget.loading(message: 'Loading notes...'),
+              const SyncStatusWidget.loading(message: 'Loading tool...'),
           error: (error, stack) =>
               Center(child: Text('Error: $error', style: EText.error)),
-        ),
-        loading: () =>
-            const SyncStatusWidget.loading(message: 'Loading tool...'),
-        error: (error, stack) =>
-            Center(child: Text('Error: $error', style: EText.error)),
         ),
       ),
     );
@@ -97,7 +97,7 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverPadding(
-            padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
+            padding: ETabBarOverlay.paddingOf(context),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 if (tool != null) ...[toolHeaderCard(tool), VSpace.l],
@@ -138,11 +138,7 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
                   radius: AppRadius.medium,
                   borderWidth: 0,
                 ),
-                child: Icon(
-                  Icons.build,
-                  color: EColors.accent,
-                  size: 24,
-                ),
+                child: Icon(Icons.build, color: EColors.accent, size: 24),
               ),
               HSpace.m,
               Expanded(
@@ -212,9 +208,7 @@ class _ToolDetailScreenState() extends ConsumerState<ToolDetailScreen> {
               Expanded(
                 child: statItem(
                   'First Applied',
-                  firstUse != null
-                      ? firstUse.monthDayYear
-                      : '-',
+                  firstUse != null ? firstUse.monthDayYear : '-',
                 ),
               ),
             ],

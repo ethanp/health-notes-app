@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
-import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/utils/note_filter_utils.dart';
 import 'package:health_notes/widgets/activity_chart_mode.dart';
 import 'package:health_notes/widgets/grouped_notes_section.dart';
@@ -140,7 +139,7 @@ abstract class BaseTrendsState<T extends BaseTrendsScreen, V extends num>()
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverPadding(
-            padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
+            padding: ETabBarOverlay.paddingOf(context),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 buildViewSelector(segments, activeIndex),

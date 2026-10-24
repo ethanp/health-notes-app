@@ -153,12 +153,15 @@ class _MedicationScheduleFormState()
   }
 
   EdgeInsets get _editorPadding {
-    return const EdgeInsets.fromLTRB(
-      AppSpacing.m,
-      AppSpacing.m,
-      AppSpacing.m,
-      AppSpacing.l,
-    ).withOverlaidTabBar(context);
+    return ETabBarOverlay.paddingOf(
+      context,
+      contentPadding: EdgeInsets.fromLTRB(
+        AppSpacing.m,
+        AppSpacing.m,
+        AppSpacing.m,
+        AppSpacing.l,
+      ),
+    );
   }
 
   Widget _startDateRow() {

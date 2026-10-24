@@ -54,17 +54,16 @@ class const MedicationScheduleDetailScreen({required final String scheduleId})
       actions: [
         IconButton(
           tooltip: 'Edit schedule',
-          onPressed: () =>
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => MedicationScheduleForm(existing: schedule),
-                ),
-              ),
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => MedicationScheduleForm(existing: schedule),
+            ),
+          ),
           icon: const Icon(Icons.edit),
         ),
       ],
       body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
+        padding: ETabBarOverlay.paddingOf(context),
         children: [
           Row(
             children: [

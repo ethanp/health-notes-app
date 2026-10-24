@@ -14,7 +14,6 @@ import 'package:health_notes/widgets/condition_detail/condition_activity_list.da
 import 'package:health_notes/widgets/condition_detail/condition_detail_header.dart';
 import 'package:health_notes/widgets/condition_detail/condition_statistics_section.dart';
 import 'package:health_notes/widgets/condition_entry_edit_modal.dart';
-import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
@@ -111,24 +110,24 @@ class _ConditionDetailScreenState()
       body: ActivityChartMode(
         showCharts: showCharts,
         child: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ConditionDetailHeader(condition: condition),
-            VSpace.l,
-            ConditionStatisticsSection(
-              condition: condition,
-              entries: entries,
-              linkedSymptoms: linkedSymptoms,
-            ),
-            VSpace.l,
-            viewSelector(),
-            VSpace.l,
-            ...selectedViewContent(condition, entries, linkedSymptoms),
-          ],
+          padding: ETabBarOverlay.paddingOf(context),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ConditionDetailHeader(condition: condition),
+              VSpace.l,
+              ConditionStatisticsSection(
+                condition: condition,
+                entries: entries,
+                linkedSymptoms: linkedSymptoms,
+              ),
+              VSpace.l,
+              viewSelector(),
+              VSpace.l,
+              ...selectedViewContent(condition, entries, linkedSymptoms),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

@@ -55,10 +55,7 @@ class const HealthNoteDateDetailScreen({
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            date.weekdayMonthDayYear,
-            style: EText.headline.small.primary,
-          ),
+          Text(date.weekdayMonthDayYear, style: EText.headline.small.primary),
           IconButton(
             tooltip: 'Close',
             onPressed: () => Navigator.of(context).pop(),
@@ -71,7 +68,7 @@ class const HealthNoteDateDetailScreen({
 
   Widget notesList(BuildContext context, List<HealthNote> filteredNotes) {
     return ListView.builder(
-      padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
+      padding: ETabBarOverlay.paddingOf(context),
       itemCount: filteredNotes.length,
       itemBuilder: (context, index) {
         final note = filteredNotes[index];
@@ -94,11 +91,7 @@ class const HealthNoteDateDetailScreen({
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.calendar_today,
-              size: 48,
-              color: EColors.textSecondary,
-            ),
+            Icon(Icons.calendar_today, size: 48, color: EColors.textSecondary),
             VSpace.m,
             Text('No notes for this date', style: EText.body.medium.primary),
             VSpace.s,

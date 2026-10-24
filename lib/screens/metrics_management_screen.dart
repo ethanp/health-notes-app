@@ -11,6 +11,7 @@ import 'package:health_notes/ui/check_in_metric_appearance.dart';
 import 'package:health_notes/widgets/app_dialogs.dart';
 import 'package:health_notes/widgets/health_notes_page.dart';
 import 'package:health_notes/theme/spacing.dart';
+
 class const MetricsManagementScreen() extends ConsumerStatefulWidget {
   @override
   ConsumerState<MetricsManagementScreen> createState() =>
@@ -61,11 +62,7 @@ class _MetricsManagementScreenState()
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.warning_amber,
-            size: 48,
-            color: EColors.danger,
-          ),
+          const Icon(Icons.warning_amber, size: 48, color: EColors.danger),
           VSpace.m,
           Text('Failed to load metrics', style: EText.headline.small),
           VSpace.s,
@@ -90,11 +87,7 @@ class _MetricsManagementScreenState()
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.bar_chart,
-              size: 64,
-              color: EColors.textMuted,
-            ),
+            const Icon(Icons.bar_chart, size: 64, color: EColors.textMuted),
             VSpace.m,
             Text('No metrics yet', style: EText.headline.small),
             VSpace.s,
@@ -114,7 +107,10 @@ class _MetricsManagementScreenState()
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16).withOverlaidTabBar(context),
+      padding: ETabBarOverlay.paddingOf(
+        context,
+        contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 16),
+      ),
       itemCount: metrics.length,
       itemBuilder: (context, index) => metricTile(metrics[index]),
     );
@@ -154,17 +150,11 @@ class _MetricsManagementScreenState()
   }
 
   Widget metricTitle(CheckInMetric metric) {
-    return Text(
-      metric.name,
-      style: EText.body.medium.semibold,
-    );
+    return Text(metric.name, style: EText.body.medium.semibold);
   }
 
   Widget metricSubtitle(CheckInMetric metric) {
-    return Text(
-      metric.type.description,
-      style: EText.body.medium.muted,
-    );
+    return Text(metric.type.description, style: EText.body.medium.muted);
   }
 
   Widget metricActions(CheckInMetric metric) {
@@ -186,18 +176,14 @@ class _MetricsManagementScreenState()
   }
 
   void _showAddMetricDialog(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => const MetricEditScreen(),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const MetricEditScreen()));
   }
 
   void _showEditMetricDialog(BuildContext context, CheckInMetric metric) {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => MetricEditScreen(metric: metric),
-      ),
+      MaterialPageRoute<void>(builder: (_) => MetricEditScreen(metric: metric)),
     );
   }
 

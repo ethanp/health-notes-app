@@ -153,7 +153,7 @@ class _CheckInDateDetailScreenState() extends State<CheckInDateDetailScreen> {
 
     return ListView.builder(
       controller: scrollController,
-      padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
+      padding: ETabBarOverlay.paddingOf(context),
       itemCount: checkInsForDate.length,
       itemBuilder: (context, index) {
         return checkInItem(checkInsForDate[index]);
@@ -168,11 +168,7 @@ class _CheckInDateDetailScreenState() extends State<CheckInDateDetailScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.calendar_today,
-              size: 48,
-              color: EColors.textSecondary,
-            ),
+            Icon(Icons.calendar_today, size: 48, color: EColors.textSecondary),
             VSpace.m,
             Text(
               'No check-ins for this date',

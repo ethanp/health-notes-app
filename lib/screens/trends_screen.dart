@@ -14,7 +14,6 @@ import 'package:health_notes/screens/check_in_form.dart';
 import 'package:health_notes/screens/drug_trends_screen.dart';
 import 'package:health_notes/screens/symptom_trends_screen.dart';
 import 'package:health_notes/services/text_normalizer.dart';
-import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/widgets/check_in_trends_chart.dart';
 import 'package:health_notes/widgets/sync_status_widget.dart';
 import 'package:health_notes/widgets/monthly_notes_chart.dart';
@@ -62,9 +61,7 @@ class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
           IconButton(
             tooltip: 'Add check-in',
             onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => const CheckInForm(),
-              ),
+              MaterialPageRoute<void>(builder: (_) => const CheckInForm()),
             ),
             icon: const Icon(Icons.add),
           ),
@@ -153,14 +150,14 @@ class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverFillRemaining(
-          hasScrollBody: false,
-          child: EEmptyState(
-            title: 'No data for trends yet',
-            message: 'Add some health notes to see analytics',
-            icon: Icons.bar_chart,
+            hasScrollBody: false,
+            child: EEmptyState(
+              title: 'No data for trends yet',
+              message: 'Add some health notes to see analytics',
+              icon: Icons.bar_chart,
+            ),
           ),
-        ),
-      ],
+        ],
       ),
     );
   }
@@ -172,16 +169,16 @@ class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverPadding(
-          padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              categorySelector(),
-              VSpace.of(20),
-              ...selectedCategorySections(notes, checkIns),
-            ]),
+            padding: ETabBarOverlay.paddingOf(context),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                categorySelector(),
+                VSpace.of(20),
+                ...selectedCategorySections(notes, checkIns),
+              ]),
+            ),
           ),
-        ),
-      ],
+        ],
       ),
     );
   }
@@ -370,13 +367,12 @@ class _TrendsScreenState() extends ConsumerState<TrendsScreen> {
 
     return HealthNotesActivityCalendar(
       notes: notes,
-      onDateTap: (date) =>
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) =>
-                  HealthNoteDateDetailScreen(date: date, allNotes: notes),
-            ),
-          ),
+      onDateTap: (date) => Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) =>
+              HealthNoteDateDetailScreen(date: date, allNotes: notes),
+        ),
+      ),
       gridHeight: 320,
       scrollToEnd: true,
     );

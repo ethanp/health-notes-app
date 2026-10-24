@@ -72,7 +72,7 @@ class _MetricEditScreenState() extends ConsumerState<MetricEditScreen> {
     return Form(
       key: _formKey,
       child: ListView(
-        padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
+        padding: ETabBarOverlay.paddingOf(context),
         children: [
           nameSection(),
           VSpace.l,
@@ -138,20 +138,14 @@ class _MetricEditScreenState() extends ConsumerState<MetricEditScreen> {
                 : EColors.surface,
             borderRadius: BorderRadius.circular(AppRadius.small),
             border: Border.all(
-              color: isSelected
-                  ? EColors.accent
-                  : EColors.borderStrong,
+              color: isSelected ? EColors.accent : EColors.borderStrong,
             ),
           ),
           child: Row(
             children: [
               Icon(
-                isSelected
-                    ? Icons.check_circle
-                    : Icons.circle_outlined,
-                color: isSelected
-                    ? EColors.accent
-                    : EColors.textMuted,
+                isSelected ? Icons.check_circle : Icons.circle_outlined,
+                color: isSelected ? EColors.accent : EColors.textMuted,
                 size: 20,
               ),
               HSpace.sm,

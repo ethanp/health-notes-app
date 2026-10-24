@@ -21,10 +21,7 @@ class const RefreshableListView<T>({
         primary: primary,
         physics: physics,
         slivers: [
-          SliverPadding(
-            padding: _pagePadding(context),
-            sliver: sliverList(),
-          ),
+          SliverPadding(padding: _pagePadding(context), sliver: sliverList()),
         ],
       ),
     );
@@ -34,7 +31,7 @@ class const RefreshableListView<T>({
     final EdgeInsets resolved = (padding ?? EdgeInsets.zero).resolve(
       Directionality.of(context),
     );
-    return resolved.withOverlaidTabBar(context);
+    return ETabBarOverlay.paddingOf(context, contentPadding: resolved);
   }
 
   Widget sliverList() {

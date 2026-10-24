@@ -41,24 +41,20 @@ class const LibraryScreen() extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return EScaffoldShell(
       contentMaxWidth: double.infinity,
-      appBar: const EAppHeader(
-        title: 'Library',
-        actions: [ESyncPhaseIcon()],
-      ),
+      appBar: const EAppHeader(title: 'Library', actions: [ESyncPhaseIcon()]),
       body: RefreshIndicator(
         onRefresh: () => ref.read(syncProvider.notifier).syncAllData(),
         child: ListView.separated(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
+          padding: ETabBarOverlay.paddingOf(context),
           itemCount: LibrarySlot.values.length,
           separatorBuilder: (_, _) => VSpace.s,
           itemBuilder: (context, slotIndex) {
             final slot = LibrarySlot.values[slotIndex];
             return _LibrarySlotRow(
               slot: slot,
-              onActivated: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(builder: (_) => slot.screen),
-              ),
+              onActivated: () => Navigator.of(context)
+                  .push(MaterialPageRoute<void>(builder: (_) => slot.screen)),
             );
           },
         ),

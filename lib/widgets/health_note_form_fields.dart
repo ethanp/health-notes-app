@@ -11,7 +11,6 @@ import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/providers/health_notes_provider.dart';
 import 'package:health_notes/providers/medication_schedules_provider.dart';
 import 'package:health_notes/screens/medication_schedules_screen.dart';
-import 'package:health_notes/theme/app_theme.dart';
 import 'package:health_notes/theme/spacing.dart';
 import 'package:health_notes/widgets/health_note_form/applied_tools_section.dart';
 import 'package:health_notes/widgets/health_note_form/date_time_section.dart';
@@ -165,7 +164,7 @@ class HealthNoteFormFieldsState() extends ConsumerState<HealthNoteFormFields> {
     );
 
     return ListView(
-      padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
+      padding: ETabBarOverlay.paddingOf(context),
       children: [
         VSpace.s,
         DateTimeSection(
@@ -196,12 +195,11 @@ class HealthNoteFormFieldsState() extends ConsumerState<HealthNoteFormFields> {
           dueOccurrences: waiting.waiting,
           nearestDue: waiting.nearestTo(_selectedDateTime),
           onDueActivated: addScheduledOccurrence,
-          onManageSchedules: () =>
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const MedicationSchedulesScreen(),
-                ),
-              ),
+          onManageSchedules: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => const MedicationSchedulesScreen(),
+            ),
+          ),
           hasSchedules: schedules.when(
             data: (data) => data.isNotEmpty,
             loading: () => false,

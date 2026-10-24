@@ -65,7 +65,7 @@ class _HealthToolFormState() extends ConsumerState<HealthToolForm> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
+          padding: ETabBarOverlay.paddingOf(context),
           children: [
             nameSection(),
             VSpace.m,
@@ -178,11 +178,7 @@ class _HealthToolFormState() extends ConsumerState<HealthToolForm> {
       decoration: AppComponents.inputField,
       child: Row(
         children: [
-          Icon(
-            Icons.check_circle,
-            color: EColors.accent,
-            size: 20,
-          ),
+          Icon(Icons.check_circle, color: EColors.accent, size: 20),
           HSpace.s,
           Text(category.name, style: EText.body.medium),
         ],

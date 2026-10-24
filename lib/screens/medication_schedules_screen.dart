@@ -103,7 +103,7 @@ class const MedicationSchedulesScreen() extends ConsumerWidget {
       onRefresh: () => ref.read(syncProvider.notifier).syncAllData(),
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
+        padding: ETabBarOverlay.paddingOf(context),
         children: [
           ..._section(context, title: 'Active', schedules: active),
           if (active.isNotEmpty && ended.isNotEmpty) VSpace.l,
@@ -138,9 +138,7 @@ class const MedicationSchedulesScreen() extends ConsumerWidget {
 
   void _showScheduleForm(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => const MedicationScheduleForm(),
-      ),
+      MaterialPageRoute<void>(builder: (_) => const MedicationScheduleForm()),
     );
   }
 }

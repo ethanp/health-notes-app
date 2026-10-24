@@ -1,6 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:health_notes/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/check_in_metric.dart';
@@ -138,10 +137,11 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
         CheckInConditionsSection(
           conditionsLoaded: _conditionsLoaded,
           conditionDrafts: _conditionDrafts,
-          onAddCondition: () => CheckInConditionsSection.showAddConditionOptions(
-            context: context,
-            onAfterConditionCreated: _loadActiveConditions,
-          ),
+          onAddCondition: () =>
+              CheckInConditionsSection.showAddConditionOptions(
+                context: context,
+                onAfterConditionCreated: _loadActiveConditions,
+              ),
           onConditionRemoved: (index) =>
               setState(() => _conditionDrafts.removeAt(index)),
           onDraftChanged: () => setState(() {}),
@@ -149,7 +149,7 @@ class _CheckInFormState() extends ConsumerState<CheckInForm> {
     ];
 
     return ListView(
-      padding: const EdgeInsets.all(AppSpacing.m).withOverlaidTabBar(context),
+      padding: ETabBarOverlay.paddingOf(context),
       children: sections
           .map(
             (section) => Padding(
