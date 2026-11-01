@@ -22,7 +22,7 @@ extension MetricTypeAppearance on MetricType {
   Color improvementColor(int rating) => switch (this) {
     MetricType.lowerIsBetter => RatingColor.lowerIsBetter(rating),
     MetricType.middleIsBest => RatingColor.middleIsBest(rating),
-    MetricType.higherIsBetter => RatingColor.higherIsBetter(rating),
+    MetricType.higherIsBetter => RatingColor.redToGreen(rating),
   };
 }
 

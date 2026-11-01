@@ -96,7 +96,7 @@ class CheckInMetricsDao(final PowerSyncDatabase _powerSync) {
     String name, {
     String? excludeId,
   }) async {
-    final normalizedName = MetricNameNormalizer.normalize(name);
+    final normalizedName = CaseInsensitiveNormalizer().normalize(name);
     final existing = excludeId != null
         ? await _powerSync.getOptional(
             'SELECT id FROM $_tableName WHERE user_id = ? AND LOWER(TRIM(name)) = ? '

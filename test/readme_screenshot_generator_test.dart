@@ -1,3 +1,4 @@
+import 'package:ethan_sync/ethan_sync.dart';
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,13 @@ void main() {
             healthNotesProvider.overrideWith(_OverviewNotes.new),
             connectivityStatusProvider.overrideWithValue(true),
             syncProvider.overrideWithValue(false),
+            syncStatusDetailsProvider.overrideWithValue(
+              SyncStatusDetails(
+                phase: SyncPhase.synced,
+                caption: 'Synced',
+                connected: true,
+              ),
+            ),
           ],
           child: MaterialApp(
             theme: ETheme.material3Dark,

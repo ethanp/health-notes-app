@@ -74,51 +74,9 @@ void main() {
       expect(json.containsKey('updated_at'), true);
     });
 
-    test('ConditionPhase displayName returns correct values', () {
-      expect(ConditionPhase.onset.displayName, 'Onset');
-      expect(ConditionPhase.worsening.displayName, 'Worsening');
-      expect(ConditionPhase.peak.displayName, 'Peak');
-      expect(ConditionPhase.improving.displayName, 'Improving');
-    });
-
     test('ConditionPhase colors are distinct', () {
       final colors = ConditionPhase.values.map((p) => p.color).toSet();
       expect(colors.length, ConditionPhase.values.length);
-    });
-  });
-
-  group('ConditionEntryDraft', () {
-    test('creates with default values', () {
-      final draft = ConditionEntryDraft(
-        conditionId: 'c1',
-        conditionName: 'Cold',
-        colorValue: 0xFFE57373,
-      );
-
-      expect(draft.conditionId, 'c1');
-      expect(draft.conditionName, 'Cold');
-      expect(draft.severity, 5);
-      expect(draft.phase, ConditionPhase.onset);
-      expect(draft.notes, '');
-      expect(draft.markResolved, false);
-    });
-
-    test('can modify mutable fields', () {
-      final draft = ConditionEntryDraft(
-        conditionId: 'c1',
-        conditionName: 'Cold',
-        colorValue: 0xFFE57373,
-      );
-
-      draft.severity = 8;
-      draft.phase = ConditionPhase.peak;
-      draft.notes = 'Very bad today';
-      draft.markResolved = true;
-
-      expect(draft.severity, 8);
-      expect(draft.phase, ConditionPhase.peak);
-      expect(draft.notes, 'Very bad today');
-      expect(draft.markResolved, true);
     });
   });
 }

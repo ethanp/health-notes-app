@@ -34,30 +34,6 @@ class SymptomNormalizer() {
   ) =>
       _normalizer.areEqual(major1, major2) &&
       _normalizer.areEqual(minor1, minor2);
-
-  static bool matchesSearch(
-    String majorComponent,
-    String minorComponent,
-    String additionalNotes,
-    String searchQuery,
-  ) {
-    if (searchQuery.trim().isEmpty) return true;
-
-    return _normalizer.contains(majorComponent, searchQuery) ||
-        _normalizer.contains(minorComponent, searchQuery) ||
-        _normalizer.contains(additionalNotes, searchQuery);
-  }
-}
-
-class MetricNameNormalizer() {
-  static final TextNormalizer _normalizer = CaseInsensitiveNormalizer();
-
-  static String normalize(String name) => _normalizer.normalize(name);
-
-  static bool areEqual(String name1, String name2) =>
-      _normalizer.areEqual(name1, name2);
-
-  static bool isValidName(String name) => normalize(name).isNotEmpty;
 }
 
 class CaseInsensitiveAggregator<T>() {

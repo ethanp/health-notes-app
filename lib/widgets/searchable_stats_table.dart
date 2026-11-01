@@ -62,19 +62,24 @@ class _SearchableStatsTableState() extends State<SearchableStatsTable> {
 
     return SizedBox(
       height: listHeight,
-      child: ListView.builder(
-        itemCount: items.length,
-        itemExtent: rowHeight,
-        itemBuilder: (context, index) {
-          final entry = items[index];
-          return _StatsRow(
-            label: entry.key,
-            count: entry.value,
-            onTap: widget.onItemTap != null
-                ? () => widget.onItemTap!(entry.key)
-                : null,
-          );
-        },
+      child: ECopyableRowsSelectionArea(
+        child: ListView.builder(
+          itemCount: items.length,
+          itemExtent: rowHeight,
+          itemBuilder: (context, index) {
+            final entry = items[index];
+            return ECopyableRow(
+              cells: [entry.key, '${entry.value}'],
+              child: _StatsRow(
+                label: entry.key,
+                count: entry.value,
+                onTap: widget.onItemTap != null
+                    ? () => widget.onItemTap!(entry.key)
+                    : null,
+              ),
+            );
+          },
+        ),
       ),
     );
   }

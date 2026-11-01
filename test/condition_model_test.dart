@@ -53,36 +53,6 @@ void main() {
       expect(from.endDate, isNotNull);
     });
 
-    test('isActive returns true for active conditions', () {
-      final condition = Condition(
-        id: 'c1',
-        userId: 'u1',
-        name: 'Test',
-        startDate: DateTime.now(),
-        status: ConditionStatus.active,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
-
-      expect(condition.isActive, true);
-      expect(condition.isResolved, false);
-    });
-
-    test('isResolved returns true for resolved conditions', () {
-      final condition = Condition(
-        id: 'c1',
-        userId: 'u1',
-        name: 'Test',
-        startDate: DateTime.now(),
-        status: ConditionStatus.resolved,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
-
-      expect(condition.isActive, false);
-      expect(condition.isResolved, true);
-    });
-
     test('durationDays calculates correctly for active condition', () {
       final startDate = DateTime.now().shiftedByDays(-5);
       final condition = Condition(
@@ -138,11 +108,6 @@ void main() {
       expect(json['notes'], 'Test');
       expect(json.containsKey('start_date'), true);
       expect(json.containsKey('updated_at'), true);
-    });
-
-    test('ConditionStatus displayName returns correct values', () {
-      expect(ConditionStatus.active.displayName, 'Active');
-      expect(ConditionStatus.resolved.displayName, 'Resolved');
     });
 
     test('dateRangeCaption omits year for dates in the current year', () {

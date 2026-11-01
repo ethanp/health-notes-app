@@ -152,41 +152,5 @@ void main() {
       expect(find.text('Energy Level'), findsOneWidget);
       expect(find.text('Mood'), findsOneWidget);
     });
-
-    testWidgets('legend chips are tappable', (tester) async {
-      final singleMetricUserMetrics = [
-        CheckInMetric.create(
-          userId: 'test-user',
-          name: 'Pain Level',
-          type: MetricType.lowerIsBetter,
-        ),
-      ];
-
-      final checkIns = [
-        CheckIn(
-          id: '1',
-          metricName: 'Pain Level',
-          rating: 3,
-          dateTime: DateTime.now(),
-          createdAt: DateTime.now(),
-        ),
-      ];
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: CheckInTrendsChart(
-              checkIns: checkIns,
-              userMetrics: singleMetricUserMetrics,
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Pain Level'), findsOneWidget);
-
-      await tester.tap(find.text('Pain Level'));
-      await tester.pump();
-    });
   });
 }

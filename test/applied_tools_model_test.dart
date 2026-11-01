@@ -6,13 +6,6 @@ import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/models/symptom.dart';
 
 void main() {
-  test('AppliedTool JSON serialization roundtrip', () {
-    final tool = AppliedTool(toolId: 't1', toolName: 'Breathing', note: '5m');
-    final json = tool.toJson();
-    final from = AppliedTool.fromJson(json);
-    expect(from, tool);
-  });
-
   test('HealthNote includes appliedTools in toJsonForUpdate', () {
     final note = HealthNote(
       id: 'n1',

@@ -15,8 +15,6 @@ class RatingColor() {
     return redToGreen(invertedRating);
   }
 
-  static Color higherIsBetter(int rating) => redToGreen(rating);
-
   static Color middleIsBest(int rating) {
     final transformedValue = (5 - (5 - rating).abs()) * 2;
     final colorRating = ((transformedValue / 10.0) * 9 + 1).round().clamp(

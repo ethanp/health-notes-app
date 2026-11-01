@@ -24,11 +24,6 @@ void main() {
       expect(RatingColor.lowerIsBetter(10), EColors.danger);
     });
 
-    test('higherIsBetter uses direct mapping', () {
-      expect(RatingColor.higherIsBetter(1), EColors.danger);
-      expect(RatingColor.higherIsBetter(10), EColors.success);
-    });
-
     test('middleIsBest peaks at middle values', () {
       final middleColor = RatingColor.middleIsBest(5);
       final lowColor = RatingColor.middleIsBest(1);

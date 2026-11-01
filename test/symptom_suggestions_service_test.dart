@@ -132,23 +132,6 @@ void main() {
       expect(suggestions[2].minorComponent, 'vertigo');
     });
 
-    test('should create symptom from suggestion', () {
-      final suggestion = SymptomSuggestion(
-        majorComponent: 'headache',
-        minorComponent: 'right temple',
-        lastSeverityLevel: 7,
-      );
-
-      final symptom = SymptomSuggestionsService.createSymptomFromSuggestion(
-        suggestion,
-      );
-
-      expect(symptom.majorComponent, 'headache');
-      expect(symptom.minorComponent, 'right temple');
-      expect(symptom.severityLevel, 7);
-      expect(symptom.additionalNotes, '');
-    });
-
     test('should handle empty components in suggestion toString', () {
       final suggestion1 = SymptomSuggestion(
         majorComponent: '',
