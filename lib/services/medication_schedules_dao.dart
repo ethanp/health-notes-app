@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:ethan_utils/ethan_utils.dart';
+
 import 'package:ethan_sync/ethan_sync.dart';
 import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/models/medication_schedule.dart';
@@ -14,7 +16,7 @@ class MedicationSchedulesDao(final PowerSyncDatabase _powerSync) {
       'ORDER BY start_date DESC',
       [userId],
     );
-    return [for (final scheduleRow in scheduleRows) _mapToSchedule(scheduleRow)];
+    return scheduleRows.mapL(_mapToSchedule);
   }
 
   Future<MedicationSchedule?> getScheduleById(String id) async {
@@ -101,11 +103,10 @@ class MedicationSchedulesDao(final PowerSyncDatabase _powerSync) {
       endDate: scheduleRow['end_date'] != null
           ? DateTime.parse(scheduleRow['end_date'] as String)
           : null,
-      steps: [
-        for (final stepJson in decodedSteps)
-          ScheduleStep.fromJson(stepJson as Map<String, dynamic>),
-      ],
-      notes: scheduleRow['notes'] as String? ?? '',
+      steps: decodedSteps.mapL(
+        (stepJson) => ScheduleStep.fromJson(stepJson as Map<String, dynamic>),
+      ),
+      notes: scheduleRow['notes'] as String,
       createdAt: DateTime.parse(scheduleRow['created_at'] as String),
       updatedAt: DateTime.parse(scheduleRow['updated_at'] as String),
     );

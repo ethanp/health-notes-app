@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:ethan_utils/ethan_utils.dart';
+
 import 'package:ethan_sync/ethan_sync.dart';
 import 'package:health_notes/models/applied_tool.dart';
 import 'package:health_notes/models/drug_dose.dart';
@@ -16,7 +18,7 @@ class HealthNotesDao(final PowerSyncDatabase _powerSync) {
       'ORDER BY created_at DESC',
       [userId],
     );
-    return [for (final noteRow in noteRows) _mapToHealthNote(noteRow)];
+    return noteRows.mapL(_mapToHealthNote);
   }
 
   Future<HealthNote?> getNoteById(String id) async {
@@ -47,7 +49,9 @@ class HealthNotesDao(final PowerSyncDatabase _powerSync) {
       'applied_tools = ?, notes = ?, updated_at = ? WHERE id = ?',
       [
         note.dateTime.toIso8601String(),
-        jsonEncode(note.symptomsList.map((symptom) => symptom.toJson()).toList()),
+        jsonEncode(
+          note.symptomsList.map((symptom) => symptom.toJson()).toList(),
+        ),
         jsonEncode(note.drugDoses.map((dose) => dose.toJson()).toList()),
         jsonEncode(note.appliedTools.map((tool) => tool.toJson()).toList()),
         note.notes,
@@ -102,10 +106,9 @@ class HealthNotesDao(final PowerSyncDatabase _powerSync) {
       if (raw == null) return const [];
       final decoded = raw is String ? jsonDecode(raw) : raw;
       if (decoded is List) {
-        return [
-          for (final toolJson in decoded)
-            AppliedTool.fromJson(toolJson as Map<String, dynamic>),
-        ];
+        return decoded.mapL(
+          (toolJson) => AppliedTool.fromJson(toolJson as Map<String, dynamic>),
+        );
       }
       return const [];
     } catch (_) {

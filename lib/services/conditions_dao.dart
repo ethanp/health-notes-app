@@ -1,4 +1,5 @@
 import 'package:ethan_sync/ethan_sync.dart';
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:health_notes/models/condition.dart';
 import 'package:powersync/powersync.dart';
 
@@ -11,9 +12,7 @@ class ConditionsDao(final PowerSyncDatabase _powerSync) {
       'ORDER BY start_date DESC',
       [userId],
     );
-    return [
-      for (final conditionRow in conditionRows) _mapToCondition(conditionRow),
-    ];
+    return conditionRows.mapL(_mapToCondition);
   }
 
   Future<List<Condition>> getActiveConditions(String userId) async {
@@ -22,9 +21,7 @@ class ConditionsDao(final PowerSyncDatabase _powerSync) {
       'AND is_deleted = 0 ORDER BY start_date DESC',
       [userId, 'active'],
     );
-    return [
-      for (final conditionRow in conditionRows) _mapToCondition(conditionRow),
-    ];
+    return conditionRows.mapL(_mapToCondition);
   }
 
   Future<Condition?> getConditionById(String id) async {
@@ -119,7 +116,7 @@ class ConditionsDao(final PowerSyncDatabase _powerSync) {
       ),
       colorValue: conditionRow['color_value'] as int,
       iconCodePoint: conditionRow['icon_code_point'] as int,
-      notes: conditionRow['notes'] as String? ?? '',
+      notes: conditionRow['notes'] as String,
       createdAt: DateTime.parse(conditionRow['created_at'] as String),
       updatedAt: DateTime.parse(conditionRow['updated_at'] as String),
     );

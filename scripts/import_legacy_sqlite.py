@@ -188,7 +188,7 @@ def _psql(sql: str, stdin: str | None = None) -> None:
         "-i",
         str(Path.home() / ".ssh" / "id_ed25519"),
         _remote_host(),
-        "cd /home/ethan/infra && docker compose --env-file .env.prod exec -T "
+        "cd /home/ethan/infra && docker compose exec -T "
         "postgres psql -U health_notes -d health_notes "
         f"-c {json.dumps(sql)}",
     ]

@@ -14,7 +14,7 @@ class ConditionEntriesDao(final PowerSyncDatabase _powerSync) {
       'ORDER BY entry_date DESC',
       [conditionId],
     );
-    return [for (final entryRow in entryRows) _mapToConditionEntry(entryRow)];
+    return entryRows.mapL(_mapToConditionEntry);
   }
 
   Future<ConditionEntry?> getEntryById(String id) async {
@@ -45,7 +45,7 @@ class ConditionEntriesDao(final PowerSyncDatabase _powerSync) {
       'SELECT * FROM $_tableName WHERE linked_check_in_id = ? AND is_deleted = 0',
       [checkInId],
     );
-    return [for (final entryRow in entryRows) _mapToConditionEntry(entryRow)];
+    return entryRows.mapL(_mapToConditionEntry);
   }
 
   Future<void> insertEntry(ConditionEntry entry) async {
@@ -109,7 +109,7 @@ class ConditionEntriesDao(final PowerSyncDatabase _powerSync) {
         (phase) => phase.name == entryRow['phase'],
         orElse: () => ConditionPhase.onset,
       ),
-      notes: entryRow['notes'] as String? ?? '',
+      notes: entryRow['notes'] as String,
       linkedCheckInId: entryRow['linked_check_in_id'] as String,
       createdAt: DateTime.parse(entryRow['created_at'] as String),
       updatedAt: DateTime.parse(entryRow['updated_at'] as String),

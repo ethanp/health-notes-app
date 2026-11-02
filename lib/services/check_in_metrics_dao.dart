@@ -1,4 +1,5 @@
 import 'package:ethan_sync/ethan_sync.dart';
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/services/text_normalizer.dart';
 import 'package:powersync/powersync.dart';
@@ -12,7 +13,7 @@ class CheckInMetricsDao(final PowerSyncDatabase _powerSync) {
       'ORDER BY sort_order ASC, created_at ASC',
       [userId],
     );
-    return [for (final metricRow in metricRows) _mapToCheckInMetric(metricRow)];
+    return metricRows.mapL(_mapToCheckInMetric);
   }
 
   Future<CheckInMetric?> getCheckInMetricById(String id) async {

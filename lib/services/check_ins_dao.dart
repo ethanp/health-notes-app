@@ -1,4 +1,5 @@
 import 'package:ethan_sync/ethan_sync.dart';
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:powersync/powersync.dart';
 
@@ -11,7 +12,7 @@ class CheckInsDao(final PowerSyncDatabase _powerSync) {
       'ORDER BY date_time DESC',
       [userId],
     );
-    return [for (final checkInRow in checkInRows) _mapToCheckIn(checkInRow)];
+    return checkInRows.mapL(_mapToCheckIn);
   }
 
   Future<CheckIn?> getCheckInById(String id) async {

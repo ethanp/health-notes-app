@@ -35,8 +35,7 @@ Health Notes helps you keep track of your health over time. You can:
    ```
 
 3. **Set up your environment**
-   - Create a `.env` file in the project root
-   - Add your Supabase and Google OAuth credentials (see setup guide below)
+   - Copy `.env.example` to `.env` (see Environment Configuration below)
 
 4. **Generate code**
    ```bash
@@ -50,25 +49,9 @@ Health Notes helps you keep track of your health over time. You can:
 
 ## Setup Guide
 
-### 1. Supabase Setup
-1. Create a new project at [supabase.com](https://supabase.com)
-2. Run the SQL commands from `supabase_setup.sql` in your Supabase SQL Editor
-3. Get your project URL and anon key from Settings > API
-
-### 2. Google OAuth Setup
-1. Go to [Google Cloud Console](https://console.cloud.google.com)
-2. Create a new project or select existing one
-3. Enable Google Sign-In API
-4. Create OAuth 2.0 credentials for iOS
-5. Add your bundle identifier (found in `ios/Runner/Info.plist`)
-
-### 3. Environment Configuration
-Create a `.env` file in the project root:
-```
-URL=your_supabase_project_url
-ANON_KEY=your_supabase_anon_key
-GOOGLE_WEB_CLIENT_ID=your_google_client_id
-```
+### Environment Configuration
+Copy `.env.example` to `.env` and set `POWERSYNC_JWT_SECRET`. The home-server
+hosts live in `../ethan_sync/home_server.env`.
 
 ## Running on Your iPhone
 

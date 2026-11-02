@@ -1,4 +1,5 @@
 import 'package:ethan_sync/ethan_sync.dart';
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/models/health_tool_category.dart';
 import 'package:powersync/powersync.dart';
@@ -8,16 +9,14 @@ class HealthToolsDao(final PowerSyncDatabase _powerSync) {
     final categoryRows = await _powerSync.getAll(
       'SELECT * FROM health_tool_categories ORDER BY sort_order ASC',
     );
-    return [
-      for (final categoryRow in categoryRows) _mapToCategory(categoryRow),
-    ];
+    return categoryRows.mapL(_mapToCategory);
   }
 
   Future<List<HealthTool>> getTools() async {
     final toolRows = await _powerSync.getAll(
       'SELECT * FROM health_tools ORDER BY sort_order ASC',
     );
-    return [for (final toolRow in toolRows) _mapToTool(toolRow)];
+    return toolRows.mapL(_mapToTool);
   }
 
   Future<void> upsertCategory(HealthToolCategory category) async {
@@ -35,10 +34,9 @@ class HealthToolsDao(final PowerSyncDatabase _powerSync) {
   }
 
   Future<void> deleteCategory(String id) async {
-    await _powerSync.execute(
-      'DELETE FROM health_tools WHERE category_id = ?',
-      [id],
-    );
+    await _powerSync.execute('DELETE FROM health_tools WHERE category_id = ?', [
+      id,
+    ]);
     await _powerSync.execute(
       'DELETE FROM health_tool_categories WHERE id = ?',
       [id],
@@ -67,7 +65,7 @@ class HealthToolsDao(final PowerSyncDatabase _powerSync) {
       id: categoryRow['id'] as String,
       name: categoryRow['name'] as String,
       description: categoryRow['description'] as String,
-      iconName: categoryRow['icon_name'] as String? ?? '',
+      iconName: categoryRow['icon_name'] as String,
       colorHex: categoryRow['color_hex'] as String? ?? '#007AFF',
       sortOrder: categoryRow['sort_order'] as int? ?? 0,
       isActive: (categoryRow['is_active'] as int? ?? 1) == 1,

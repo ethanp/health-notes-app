@@ -1,4 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:health_notes/models/date_range_filter.dart';
 import 'package:health_notes/theme/app_theme.dart';
@@ -98,13 +99,12 @@ class const CheckInTrendsDateRangeSelector({
         borderRadius: BorderRadius.circular(AppRadius.small),
       ),
       child: SegmentedButton<DateRangeFilter>(
-        segments: [
-          for (final filter in DateRangeFilter.values)
-            ButtonSegment<DateRangeFilter>(
-              value: filter,
-              label: Text(filter.label),
-            ),
-        ],
+        segments: DateRangeFilter.values.mapL(
+          (filter) => ButtonSegment<DateRangeFilter>(
+            value: filter,
+            label: Text(filter.label),
+          ),
+        ),
         selected: {selectedDateRange},
         onSelectionChanged: (selection) {
           onDateRangeSelected(selection.first);

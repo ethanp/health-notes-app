@@ -37,7 +37,7 @@
   - Prefer immutable data and explicit `required` fields; avoid nullable where possible.
 
 - **Data access and sync**:
-  - Route persistence through DAO classes; no direct DB/Supabase calls from widgets.
+  - Route persistence through DAO classes; no direct DB calls from widgets.
   - Queue writes through `SyncService.queueForSync` and let background sync push/pull.
   - Use `OfflineRepository.syncAllData` in refresh flows; avoid duplicative network logic in UI.
 

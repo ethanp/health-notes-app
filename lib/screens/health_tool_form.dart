@@ -1,4 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:health_notes/models/health_tool.dart';
@@ -188,10 +189,10 @@ class _HealthToolFormState() extends ConsumerState<HealthToolForm> {
 
   Widget categorySelector(List<HealthToolCategory> categories) {
     return SegmentedButton<String>(
-      segments: [
-        for (final category in categories)
-          ButtonSegment(value: category.id, label: Text(category.name)),
-      ],
+      segments: categories.mapL(
+        (category) =>
+            ButtonSegment(value: category.id, label: Text(category.name)),
+      ),
       selected: {_selectedCategoryId},
       onSelectionChanged: (selection) {
         setState(() => _selectedCategoryId = selection.first);
