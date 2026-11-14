@@ -1,15 +1,15 @@
 import 'package:ethan_sync/ethan_sync.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:health_notes/models/condition_entry.dart';
-import 'package:powersync/powersync.dart';
+import 'package:powersync/sqlite_async.dart';
 
-class ConditionEntriesDao(final PowerSyncDatabase _powerSync) {
+class ConditionEntriesDao(final SqliteConnection _localDatabase) {
   static const _tableName = 'condition_entries';
 
   Future<List<ConditionEntry>> getEntriesForCondition(
     String conditionId,
   ) async {
-    final entryRows = await _powerSync.getAll(
+    final entryRows = await _localDatabase.getAll(
       'SELECT * FROM $_tableName WHERE condition_id = ? AND is_deleted = 0 '
       'ORDER BY entry_date DESC',
       [conditionId],
@@ -18,7 +18,7 @@ class ConditionEntriesDao(final PowerSyncDatabase _powerSync) {
   }
 
   Future<ConditionEntry?> getEntryById(String id) async {
-    final entryRow = await _powerSync.getOptional(
+    final entryRow = await _localDatabase.getOptional(
       'SELECT * FROM $_tableName WHERE id = ? AND is_deleted = 0',
       [id],
     );
@@ -31,7 +31,7 @@ class ConditionEntriesDao(final PowerSyncDatabase _powerSync) {
     DateTime date,
   ) async {
     final datePrefix = date.startOfDay.toIso8601String().split('T')[0];
-    final entryRow = await _powerSync.getOptional(
+    final entryRow = await _localDatabase.getOptional(
       'SELECT * FROM $_tableName WHERE condition_id = ? AND entry_date LIKE ? '
       'AND is_deleted = 0 LIMIT 1',
       [conditionId, '$datePrefix%'],
@@ -41,7 +41,7 @@ class ConditionEntriesDao(final PowerSyncDatabase _powerSync) {
   }
 
   Future<List<ConditionEntry>> getEntriesForCheckIn(String checkInId) async {
-    final entryRows = await _powerSync.getAll(
+    final entryRows = await _localDatabase.getAll(
       'SELECT * FROM $_tableName WHERE linked_check_in_id = ? AND is_deleted = 0',
       [checkInId],
     );
@@ -50,7 +50,7 @@ class ConditionEntriesDao(final PowerSyncDatabase _powerSync) {
 
   Future<void> insertEntry(ConditionEntry entry) async {
     final now = DateTime.now().toIso8601String();
-    await _powerSync.upsert(_tableName, {
+    await _localDatabase.upsert(_tableName, {
       'id': entry.id,
       'condition_id': entry.conditionId,
       'entry_date': entry.entryDate.toIso8601String(),
@@ -66,7 +66,7 @@ class ConditionEntriesDao(final PowerSyncDatabase _powerSync) {
 
   Future<void> updateEntry(ConditionEntry entry) async {
     final now = DateTime.now().toIso8601String();
-    await _powerSync.execute(
+    await _localDatabase.execute(
       'UPDATE $_tableName SET severity = ?, phase = ?, notes = ?, '
       'updated_at = ? WHERE id = ?',
       [entry.severity, entry.phase.name, entry.notes, now, entry.id],
@@ -75,7 +75,7 @@ class ConditionEntriesDao(final PowerSyncDatabase _powerSync) {
 
   Future<void> deleteEntry(String id) async {
     final now = DateTime.now().toIso8601String();
-    await _powerSync.execute(
+    await _localDatabase.execute(
       'UPDATE $_tableName SET is_deleted = 1, updated_at = ? WHERE id = ?',
       [now, id],
     );
@@ -83,7 +83,7 @@ class ConditionEntriesDao(final PowerSyncDatabase _powerSync) {
 
   Future<void> deleteEntriesForCondition(String conditionId) async {
     final now = DateTime.now().toIso8601String();
-    await _powerSync.execute(
+    await _localDatabase.execute(
       'UPDATE $_tableName SET is_deleted = 1, updated_at = ? '
       'WHERE condition_id = ?',
       [now, conditionId],
@@ -92,7 +92,7 @@ class ConditionEntriesDao(final PowerSyncDatabase _powerSync) {
 
   Future<void> deleteEntriesForCheckIn(String checkInId) async {
     final now = DateTime.now().toIso8601String();
-    await _powerSync.execute(
+    await _localDatabase.execute(
       'UPDATE $_tableName SET is_deleted = 1, updated_at = ? '
       'WHERE linked_check_in_id = ?',
       [now, checkInId],
@@ -103,7 +103,7 @@ class ConditionEntriesDao(final PowerSyncDatabase _powerSync) {
     return ConditionEntry(
       id: entryRow['id'] as String,
       conditionId: entryRow['condition_id'] as String,
-      entryDate: DateTime.parse(entryRow['entry_date'] as String),
+      entryDate: (entryRow['entry_date'] as String).asLocalDateTime,
       severity: entryRow['severity'] as int,
       phase: ConditionPhase.values.firstWhere(
         (phase) => phase.name == entryRow['phase'],
@@ -111,8 +111,8 @@ class ConditionEntriesDao(final PowerSyncDatabase _powerSync) {
       ),
       notes: entryRow['notes'] as String,
       linkedCheckInId: entryRow['linked_check_in_id'] as String,
-      createdAt: DateTime.parse(entryRow['created_at'] as String),
-      updatedAt: DateTime.parse(entryRow['updated_at'] as String),
+      createdAt: (entryRow['created_at'] as String).asLocalDateTime,
+      updatedAt: (entryRow['updated_at'] as String).asLocalDateTime,
     );
   }
 }

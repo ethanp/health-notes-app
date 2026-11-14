@@ -35,7 +35,7 @@ class const HealthNotesActivityCalendar({
         );
       },
       quantityOn: (date) => activityData[date.startOfDay] ?? 0,
-      chartFrom: activityData.isEmpty ? null : activityData.keys.min,
+      firstActiveDay: activityData.isEmpty ? null : activityData.keys.min,
       measureTitle: 'notes',
       formatMeasure: (quantity) => quantity.round().toString(),
       onDaySelected: (day) => onDateTap(day.date),

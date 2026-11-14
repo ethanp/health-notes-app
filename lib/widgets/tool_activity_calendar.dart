@@ -31,7 +31,7 @@ class const ToolActivityCalendar({
         );
       },
       quantityOn: (date) => activityData[date.startOfDay] ?? 0,
-      chartFrom: activityData.isEmpty ? null : activityData.keys.min,
+      firstActiveDay: activityData.isEmpty ? null : activityData.keys.min,
       measureTitle: 'uses',
       formatMeasure: (quantity) => quantity.round().toString(),
       onDaySelected: (day) =>

@@ -60,7 +60,7 @@ class const ConditionActivityCalendar({
         final dayData = activityData[date.startOfDay] ?? const ConditionDayData();
         return dayData.hasActivity ? dayData.checkInSeverityOrMaxSymptom : 0;
       },
-      chartFrom: activityData.isEmpty ? null : activityData.keys.min,
+      firstActiveDay: activityData.isEmpty ? null : activityData.keys.min,
       measureTitle: 'severity',
       formatMeasure: (quantity) => quantity.round().toString(),
       onDaySelected: (day) {

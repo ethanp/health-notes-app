@@ -7,13 +7,13 @@ import 'package:health_notes/models/applied_tool.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/health_note.dart';
 import 'package:health_notes/models/symptom.dart';
-import 'package:powersync/powersync.dart';
+import 'package:powersync/sqlite_async.dart';
 
-class HealthNotesDao(final PowerSyncDatabase _powerSync) {
+class HealthNotesDao(final SqliteConnection _localDatabase) {
   static const _tableName = 'health_notes';
 
   Future<List<HealthNote>> getAllNotes(String userId) async {
-    final noteRows = await _powerSync.getAll(
+    final noteRows = await _localDatabase.getAll(
       'SELECT * FROM $_tableName WHERE user_id = ? AND is_deleted = 0 '
       'ORDER BY created_at DESC',
       [userId],
@@ -22,7 +22,7 @@ class HealthNotesDao(final PowerSyncDatabase _powerSync) {
   }
 
   Future<HealthNote?> getNoteById(String id) async {
-    final noteRow = await _powerSync.getOptional(
+    final noteRow = await _localDatabase.getOptional(
       'SELECT * FROM $_tableName WHERE id = ? AND is_deleted = 0',
       [id],
     );
@@ -32,7 +32,7 @@ class HealthNotesDao(final PowerSyncDatabase _powerSync) {
 
   Future<void> insertNote(HealthNote note, String userId) async {
     final now = DateTime.now().toIso8601String();
-    await _powerSync.upsert(_tableName, {
+    await _localDatabase.upsert(_tableName, {
       'id': note.id,
       'user_id': userId,
       ..._noteColumns(note),
@@ -44,7 +44,7 @@ class HealthNotesDao(final PowerSyncDatabase _powerSync) {
 
   Future<void> updateNote(HealthNote note) async {
     final now = DateTime.now().toIso8601String();
-    await _powerSync.execute(
+    await _localDatabase.execute(
       'UPDATE $_tableName SET date_time = ?, symptoms_list = ?, drug_doses = ?, '
       'applied_tools = ?, notes = ?, updated_at = ? WHERE id = ?',
       [
@@ -63,7 +63,7 @@ class HealthNotesDao(final PowerSyncDatabase _powerSync) {
 
   Future<void> deleteNote(String id) async {
     final now = DateTime.now().toIso8601String();
-    await _powerSync.execute(
+    await _localDatabase.execute(
       'UPDATE $_tableName SET is_deleted = 1, updated_at = ? WHERE id = ?',
       [now, id],
     );
@@ -88,7 +88,7 @@ class HealthNotesDao(final PowerSyncDatabase _powerSync) {
   static HealthNote _mapToHealthNote(Map<String, dynamic> noteRow) {
     return HealthNote(
       id: noteRow['id'] as String,
-      dateTime: DateTime.parse(noteRow['date_time'] as String),
+      dateTime: (noteRow['date_time'] as String).asLocalDateTime,
       symptomsList: (jsonDecode(noteRow['symptoms_list'] as String) as List)
           .map((json) => Symptom.fromJson(json as Map<String, dynamic>))
           .toList(),
@@ -97,7 +97,7 @@ class HealthNotesDao(final PowerSyncDatabase _powerSync) {
           .toList(),
       appliedTools: _parseAppliedTools(noteRow['applied_tools']),
       notes: noteRow['notes'] as String,
-      createdAt: DateTime.parse(noteRow['created_at'] as String),
+      createdAt: (noteRow['created_at'] as String).asLocalDateTime,
     );
   }
 

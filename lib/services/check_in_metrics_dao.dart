@@ -2,13 +2,13 @@ import 'package:ethan_sync/ethan_sync.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/services/text_normalizer.dart';
-import 'package:powersync/powersync.dart';
+import 'package:powersync/sqlite_async.dart';
 
-class CheckInMetricsDao(final PowerSyncDatabase _powerSync) {
+class CheckInMetricsDao(final SqliteConnection _localDatabase) {
   static const _tableName = 'check_in_metrics';
 
   Future<List<CheckInMetric>> getCheckInMetrics(String userId) async {
-    final metricRows = await _powerSync.getAll(
+    final metricRows = await _localDatabase.getAll(
       'SELECT * FROM $_tableName WHERE user_id = ? AND is_deleted = 0 '
       'ORDER BY sort_order ASC, created_at ASC',
       [userId],
@@ -17,7 +17,7 @@ class CheckInMetricsDao(final PowerSyncDatabase _powerSync) {
   }
 
   Future<CheckInMetric?> getCheckInMetricById(String id) async {
-    final metricRow = await _powerSync.getOptional(
+    final metricRow = await _localDatabase.getOptional(
       'SELECT * FROM $_tableName WHERE id = ? AND is_deleted = 0',
       [id],
     );
@@ -26,7 +26,7 @@ class CheckInMetricsDao(final PowerSyncDatabase _powerSync) {
   }
 
   Future<void> insertCheckInMetric(CheckInMetric metric) async {
-    await _powerSync.upsert(_tableName, {
+    await _localDatabase.upsert(_tableName, {
       'id': metric.id,
       'user_id': metric.userId,
       'name': metric.name,
@@ -42,7 +42,7 @@ class CheckInMetricsDao(final PowerSyncDatabase _powerSync) {
 
   Future<void> updateCheckInMetric(CheckInMetric metric) async {
     final now = DateTime.now().toIso8601String();
-    await _powerSync.execute(
+    await _localDatabase.execute(
       'UPDATE $_tableName SET name = ?, type = ?, color_value = ?, '
       'icon_code_point = ?, sort_order = ?, updated_at = ? WHERE id = ?',
       [
@@ -60,7 +60,7 @@ class CheckInMetricsDao(final PowerSyncDatabase _powerSync) {
   /// Soft-delete so existing check-ins can still show the metric name.
   Future<void> deleteCheckInMetric(String id) async {
     final now = DateTime.now().toIso8601String();
-    await _powerSync.execute(
+    await _localDatabase.execute(
       'UPDATE $_tableName SET is_deleted = 1, updated_at = ? WHERE id = ?',
       [now, id],
     );
@@ -69,7 +69,7 @@ class CheckInMetricsDao(final PowerSyncDatabase _powerSync) {
   Future<void> updateSortOrder(List<CheckInMetric> metrics) async {
     final now = DateTime.now().toIso8601String();
     for (final metric in metrics) {
-      await _powerSync.execute(
+      await _localDatabase.execute(
         'UPDATE $_tableName SET sort_order = ?, updated_at = ? WHERE id = ?',
         [metric.sortOrder, now, metric.id],
       );
@@ -77,7 +77,7 @@ class CheckInMetricsDao(final PowerSyncDatabase _powerSync) {
   }
 
   Future<int> getNextSortOrder(String userId) async {
-    final maxRow = await _powerSync.getOptional(
+    final maxRow = await _localDatabase.getOptional(
       'SELECT MAX(sort_order) AS max_order FROM $_tableName '
       'WHERE user_id = ? AND is_deleted = 0',
       [userId],
@@ -87,7 +87,7 @@ class CheckInMetricsDao(final PowerSyncDatabase _powerSync) {
   }
 
   Future<void> clearCheckInMetrics(String userId) async {
-    await _powerSync.execute('DELETE FROM $_tableName WHERE user_id = ?', [
+    await _localDatabase.execute('DELETE FROM $_tableName WHERE user_id = ?', [
       userId,
     ]);
   }
@@ -99,12 +99,12 @@ class CheckInMetricsDao(final PowerSyncDatabase _powerSync) {
   }) async {
     final normalizedName = CaseInsensitiveNormalizer().normalize(name);
     final existing = excludeId != null
-        ? await _powerSync.getOptional(
+        ? await _localDatabase.getOptional(
             'SELECT id FROM $_tableName WHERE user_id = ? AND LOWER(TRIM(name)) = ? '
             'AND id != ? AND is_deleted = 0 LIMIT 1',
             [userId, normalizedName, excludeId],
           )
-        : await _powerSync.getOptional(
+        : await _localDatabase.getOptional(
             'SELECT id FROM $_tableName WHERE user_id = ? AND LOWER(TRIM(name)) = ? '
             'AND is_deleted = 0 LIMIT 1',
             [userId, normalizedName],
@@ -124,8 +124,8 @@ class CheckInMetricsDao(final PowerSyncDatabase _powerSync) {
       colorValue: metricRow['color_value'] as int,
       iconCodePoint: metricRow['icon_code_point'] as int,
       sortOrder: metricRow['sort_order'] as int,
-      createdAt: DateTime.parse(metricRow['created_at'] as String),
-      updatedAt: DateTime.parse(metricRow['updated_at'] as String),
+      createdAt: (metricRow['created_at'] as String).asLocalDateTime,
+      updatedAt: (metricRow['updated_at'] as String).asLocalDateTime,
     );
   }
 }

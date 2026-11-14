@@ -15,7 +15,8 @@ class const HealthNotesMonthStack({
   required final void Function(ECalendarDayPresentation<DateTime> day)
   onDaySelected,
   final num Function(DateTime date)? quantityOn,
-  final DateTime? chartFrom,
+  final DateTime? firstActiveDay,
+  final int initialChartDayCount = EChartVisibleRange.defaultVisibleDayCount,
   final String? measureTitle,
   final String Function(num quantity)? formatMeasure,
   final double? gridHeight,
@@ -154,10 +155,11 @@ class const HealthNotesMonthStack({
                   formatMeasure ??
                   (quantity) => quantity.wholeNumberOrTrimmedDecimal,
               instantQuantities: instantQuantities,
+              initialVisibleDayCount: initialChartDayCount,
             )
           else
             EMonthStackCalendar<DateTime>(
-              firstVisibleMonth: DateTime(now.year, now.month - 11, 1),
+              firstVisibleMonth: firstActiveDay ?? now,
               lastVisibleMonth: DateTime(now.year, now.month, 1),
               keepLastMonthIfAnyVisible: true,
               maxHeight: gridHeight,
@@ -192,11 +194,9 @@ class const HealthNotesMonthStack({
   List<ECalendarDailyMeasure> _dailyMeasures(DateTime now) {
     final quantityOnDay = quantityOn!;
     final today = now.startOfDay;
-    final start = (chartFrom ?? DateTime(now.year, now.month - 11, 1))
-        .startOfDay;
     final days = <ECalendarDailyMeasure>[];
     for (
-      var day = start;
+      var day = (firstActiveDay ?? now).startOfDay;
       !day.isAfter(today);
       day = day.shiftedByDays(1)
     ) {

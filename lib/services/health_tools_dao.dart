@@ -2,25 +2,25 @@ import 'package:ethan_sync/ethan_sync.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:health_notes/models/health_tool.dart';
 import 'package:health_notes/models/health_tool_category.dart';
-import 'package:powersync/powersync.dart';
+import 'package:powersync/sqlite_async.dart';
 
-class HealthToolsDao(final PowerSyncDatabase _powerSync) {
+class HealthToolsDao(final SqliteConnection _localDatabase) {
   Future<List<HealthToolCategory>> getCategories() async {
-    final categoryRows = await _powerSync.getAll(
+    final categoryRows = await _localDatabase.getAll(
       'SELECT * FROM health_tool_categories ORDER BY sort_order ASC',
     );
     return categoryRows.mapL(_mapToCategory);
   }
 
   Future<List<HealthTool>> getTools() async {
-    final toolRows = await _powerSync.getAll(
+    final toolRows = await _localDatabase.getAll(
       'SELECT * FROM health_tools ORDER BY sort_order ASC',
     );
     return toolRows.mapL(_mapToTool);
   }
 
   Future<void> upsertCategory(HealthToolCategory category) async {
-    await _powerSync.upsert('health_tool_categories', {
+    await _localDatabase.upsert('health_tool_categories', {
       'id': category.id,
       'name': category.name,
       'description': category.description,
@@ -34,17 +34,17 @@ class HealthToolsDao(final PowerSyncDatabase _powerSync) {
   }
 
   Future<void> deleteCategory(String id) async {
-    await _powerSync.execute('DELETE FROM health_tools WHERE category_id = ?', [
+    await _localDatabase.execute('DELETE FROM health_tools WHERE category_id = ?', [
       id,
     ]);
-    await _powerSync.execute(
+    await _localDatabase.execute(
       'DELETE FROM health_tool_categories WHERE id = ?',
       [id],
     );
   }
 
   Future<void> upsertTool(HealthTool tool) async {
-    await _powerSync.upsert('health_tools', {
+    await _localDatabase.upsert('health_tools', {
       'id': tool.id,
       'name': tool.name,
       'description': tool.description,
@@ -57,7 +57,7 @@ class HealthToolsDao(final PowerSyncDatabase _powerSync) {
   }
 
   Future<void> deleteTool(String id) async {
-    await _powerSync.execute('DELETE FROM health_tools WHERE id = ?', [id]);
+    await _localDatabase.execute('DELETE FROM health_tools WHERE id = ?', [id]);
   }
 
   static HealthToolCategory _mapToCategory(Map<String, dynamic> categoryRow) {
@@ -69,8 +69,8 @@ class HealthToolsDao(final PowerSyncDatabase _powerSync) {
       colorHex: categoryRow['color_hex'] as String? ?? '#007AFF',
       sortOrder: categoryRow['sort_order'] as int? ?? 0,
       isActive: (categoryRow['is_active'] as int? ?? 1) == 1,
-      createdAt: DateTime.parse(categoryRow['created_at'] as String),
-      updatedAt: DateTime.parse(categoryRow['updated_at'] as String),
+      createdAt: (categoryRow['created_at'] as String).asLocalDateTime,
+      updatedAt: (categoryRow['updated_at'] as String).asLocalDateTime,
     );
   }
 
@@ -82,8 +82,8 @@ class HealthToolsDao(final PowerSyncDatabase _powerSync) {
       categoryId: toolRow['category_id'] as String,
       sortOrder: toolRow['sort_order'] as int? ?? 0,
       isActive: (toolRow['is_active'] as int? ?? 1) == 1,
-      createdAt: DateTime.parse(toolRow['created_at'] as String),
-      updatedAt: DateTime.parse(toolRow['updated_at'] as String),
+      createdAt: (toolRow['created_at'] as String).asLocalDateTime,
+      updatedAt: (toolRow['updated_at'] as String).asLocalDateTime,
     );
   }
 }

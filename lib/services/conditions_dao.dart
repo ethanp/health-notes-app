@@ -1,13 +1,13 @@
 import 'package:ethan_sync/ethan_sync.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:health_notes/models/condition.dart';
-import 'package:powersync/powersync.dart';
+import 'package:powersync/sqlite_async.dart';
 
-class ConditionsDao(final PowerSyncDatabase _powerSync) {
+class ConditionsDao(final SqliteConnection _localDatabase) {
   static const _tableName = 'conditions';
 
   Future<List<Condition>> getAllConditions(String userId) async {
-    final conditionRows = await _powerSync.getAll(
+    final conditionRows = await _localDatabase.getAll(
       'SELECT * FROM $_tableName WHERE user_id = ? AND is_deleted = 0 '
       'ORDER BY start_date DESC',
       [userId],
@@ -16,7 +16,7 @@ class ConditionsDao(final PowerSyncDatabase _powerSync) {
   }
 
   Future<List<Condition>> getActiveConditions(String userId) async {
-    final conditionRows = await _powerSync.getAll(
+    final conditionRows = await _localDatabase.getAll(
       'SELECT * FROM $_tableName WHERE user_id = ? AND condition_status = ? '
       'AND is_deleted = 0 ORDER BY start_date DESC',
       [userId, 'active'],
@@ -25,7 +25,7 @@ class ConditionsDao(final PowerSyncDatabase _powerSync) {
   }
 
   Future<Condition?> getConditionById(String id) async {
-    final conditionRow = await _powerSync.getOptional(
+    final conditionRow = await _localDatabase.getOptional(
       'SELECT * FROM $_tableName WHERE id = ? AND is_deleted = 0',
       [id],
     );
@@ -37,7 +37,7 @@ class ConditionsDao(final PowerSyncDatabase _powerSync) {
     String userId,
     String name,
   ) async {
-    final conditionRow = await _powerSync.getOptional(
+    final conditionRow = await _localDatabase.getOptional(
       'SELECT * FROM $_tableName WHERE user_id = ? AND name = ? '
       'AND condition_status = ? AND is_deleted = 0 LIMIT 1',
       [userId, name, 'active'],
@@ -48,7 +48,7 @@ class ConditionsDao(final PowerSyncDatabase _powerSync) {
 
   Future<void> insertCondition(Condition condition, String userId) async {
     final now = DateTime.now().toIso8601String();
-    await _powerSync.upsert(_tableName, {
+    await _localDatabase.upsert(_tableName, {
       'id': condition.id,
       'user_id': userId,
       'name': condition.name,
@@ -66,7 +66,7 @@ class ConditionsDao(final PowerSyncDatabase _powerSync) {
 
   Future<void> updateCondition(Condition condition) async {
     final now = DateTime.now().toIso8601String();
-    await _powerSync.execute(
+    await _localDatabase.execute(
       'UPDATE $_tableName SET name = ?, start_date = ?, end_date = ?, '
       'condition_status = ?, color_value = ?, icon_code_point = ?, notes = ?, '
       'updated_at = ? WHERE id = ?',
@@ -86,7 +86,7 @@ class ConditionsDao(final PowerSyncDatabase _powerSync) {
 
   Future<void> resolveCondition(String id, DateTime endDate) async {
     final now = DateTime.now().toIso8601String();
-    await _powerSync.execute(
+    await _localDatabase.execute(
       'UPDATE $_tableName SET condition_status = ?, end_date = ?, '
       'updated_at = ? WHERE id = ?',
       [ConditionStatus.resolved.name, endDate.toIso8601String(), now, id],
@@ -95,7 +95,7 @@ class ConditionsDao(final PowerSyncDatabase _powerSync) {
 
   Future<void> deleteCondition(String id) async {
     final now = DateTime.now().toIso8601String();
-    await _powerSync.execute(
+    await _localDatabase.execute(
       'UPDATE $_tableName SET is_deleted = 1, updated_at = ? WHERE id = ?',
       [now, id],
     );
@@ -106,9 +106,9 @@ class ConditionsDao(final PowerSyncDatabase _powerSync) {
       id: conditionRow['id'] as String,
       userId: conditionRow['user_id'] as String,
       name: conditionRow['name'] as String,
-      startDate: DateTime.parse(conditionRow['start_date'] as String),
+      startDate: (conditionRow['start_date'] as String).asLocalDateTime,
       endDate: conditionRow['end_date'] != null
-          ? DateTime.parse(conditionRow['end_date'] as String)
+          ? (conditionRow['end_date'] as String).asLocalDateTime
           : null,
       status: ConditionStatus.values.firstWhere(
         (status) => status.name == conditionRow['condition_status'],
@@ -117,8 +117,8 @@ class ConditionsDao(final PowerSyncDatabase _powerSync) {
       colorValue: conditionRow['color_value'] as int,
       iconCodePoint: conditionRow['icon_code_point'] as int,
       notes: conditionRow['notes'] as String,
-      createdAt: DateTime.parse(conditionRow['created_at'] as String),
-      updatedAt: DateTime.parse(conditionRow['updated_at'] as String),
+      createdAt: (conditionRow['created_at'] as String).asLocalDateTime,
+      updatedAt: (conditionRow['updated_at'] as String).asLocalDateTime,
     );
   }
 }

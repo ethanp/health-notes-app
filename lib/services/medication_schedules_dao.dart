@@ -5,13 +5,13 @@ import 'package:ethan_utils/ethan_utils.dart';
 import 'package:ethan_sync/ethan_sync.dart';
 import 'package:health_notes/models/drug_name.dart';
 import 'package:health_notes/models/medication_schedule.dart';
-import 'package:powersync/powersync.dart';
+import 'package:powersync/sqlite_async.dart';
 
-class MedicationSchedulesDao(final PowerSyncDatabase _powerSync) {
+class MedicationSchedulesDao(final SqliteConnection _localDatabase) {
   static const _tableName = 'medication_schedules';
 
   Future<List<MedicationSchedule>> getAllSchedules(String userId) async {
-    final scheduleRows = await _powerSync.getAll(
+    final scheduleRows = await _localDatabase.getAll(
       'SELECT * FROM $_tableName WHERE user_id = ? AND is_deleted = 0 '
       'ORDER BY start_date DESC',
       [userId],
@@ -20,7 +20,7 @@ class MedicationSchedulesDao(final PowerSyncDatabase _powerSync) {
   }
 
   Future<MedicationSchedule?> getScheduleById(String id) async {
-    final scheduleRow = await _powerSync.getOptional(
+    final scheduleRow = await _localDatabase.getOptional(
       'SELECT * FROM $_tableName WHERE id = ? AND is_deleted = 0',
       [id],
     );
@@ -33,7 +33,7 @@ class MedicationSchedulesDao(final PowerSyncDatabase _powerSync) {
     String userId,
   ) async {
     final now = DateTime.now().toIso8601String();
-    await _powerSync.upsert(_tableName, {
+    await _localDatabase.upsert(_tableName, {
       ..._rowFromSchedule(schedule, userId: userId),
       'created_at': schedule.createdAt.toIso8601String(),
       'updated_at': now,
@@ -43,7 +43,7 @@ class MedicationSchedulesDao(final PowerSyncDatabase _powerSync) {
 
   Future<void> updateSchedule(MedicationSchedule schedule) async {
     final now = DateTime.now().toIso8601String();
-    await _powerSync.execute(
+    await _localDatabase.execute(
       'UPDATE $_tableName SET medication_name = ?, unit = ?, start_date = ?, '
       'end_date = ?, steps = ?, notes = ?, updated_at = ? WHERE id = ?',
       [
@@ -61,7 +61,7 @@ class MedicationSchedulesDao(final PowerSyncDatabase _powerSync) {
 
   Future<void> stopSchedule(String id, DateTime endDate) async {
     final now = DateTime.now().toIso8601String();
-    await _powerSync.execute(
+    await _localDatabase.execute(
       'UPDATE $_tableName SET end_date = ?, updated_at = ? WHERE id = ?',
       [endDate.toIso8601String(), now, id],
     );
@@ -69,7 +69,7 @@ class MedicationSchedulesDao(final PowerSyncDatabase _powerSync) {
 
   Future<void> deleteSchedule(String id) async {
     final now = DateTime.now().toIso8601String();
-    await _powerSync.execute(
+    await _localDatabase.execute(
       'UPDATE $_tableName SET is_deleted = 1, updated_at = ? WHERE id = ?',
       [now, id],
     );
@@ -99,16 +99,16 @@ class MedicationSchedulesDao(final PowerSyncDatabase _powerSync) {
       userId: scheduleRow['user_id'] as String,
       medicationName: DrugName(scheduleRow['medication_name'] as String),
       unit: scheduleRow['unit'] as String? ?? 'mg',
-      startDate: DateTime.parse(scheduleRow['start_date'] as String),
+      startDate: (scheduleRow['start_date'] as String).asLocalDateTime,
       endDate: scheduleRow['end_date'] != null
-          ? DateTime.parse(scheduleRow['end_date'] as String)
+          ? (scheduleRow['end_date'] as String).asLocalDateTime
           : null,
       steps: decodedSteps.mapL(
         (stepJson) => ScheduleStep.fromJson(stepJson as Map<String, dynamic>),
       ),
       notes: scheduleRow['notes'] as String,
-      createdAt: DateTime.parse(scheduleRow['created_at'] as String),
-      updatedAt: DateTime.parse(scheduleRow['updated_at'] as String),
+      createdAt: (scheduleRow['created_at'] as String).asLocalDateTime,
+      updatedAt: (scheduleRow['updated_at'] as String).asLocalDateTime,
     );
   }
 }
