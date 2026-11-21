@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:health_notes/models/drug_dose.dart';
 import 'package:health_notes/models/symptom.dart';
 import 'package:health_notes/utils/whole_number_or_trimmed_decimal.dart';

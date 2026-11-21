@@ -1,5 +1,5 @@
 import 'package:health_notes/theme/app_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class const FormSectionContainer({
   required final bool isEditable,

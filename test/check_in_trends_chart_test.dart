@@ -1,5 +1,5 @@
 import 'package:ethan_utils/ethan_utils.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_notes/models/check_in.dart';
 import 'package:health_notes/models/check_in_metric.dart';

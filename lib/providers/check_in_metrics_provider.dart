@@ -1,5 +1,5 @@
 import 'package:ethan_sync/ethan_sync.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:health_notes/app_identity.dart';
 import 'package:health_notes/models/check_in_metric.dart';
 import 'package:health_notes/providers/dao_providers.dart';
